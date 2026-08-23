@@ -53,6 +53,14 @@
   "action_how_checked": "How was this checked?",
   "action_why_seeing": "Why am I seeing this?",
   "action_fix_it": "Fix it for me",
+  "action_try_again": "Try again",
+  "action_read_logs": "Read its logs",
+  "action_hide_this": "Hide this",
+
+  "banner_contact_lead": "Lost contact with your stack.",
+  "banner_contact_prose": "Trying again — every figure below is the last one confirmed, not what is true now.",
+
+  "meter_how_far": "How far along",
 
   "home_unfinished": "The surface is being built. What exists so far is the vocabulary every screen will speak: a figure is measured now, is the last thing a quiet source said, or was never measured at all."
 }

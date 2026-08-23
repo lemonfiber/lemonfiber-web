@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { createRawSnippet } from "svelte";
 import Panel from "./Panel.svelte";
+import { notAnswering, pressing, showing } from "../../.storybook/snippets";
 import * as m from "../paraglide/messages.js";
 
 const body = createRawSnippet(() => ({
@@ -8,18 +9,18 @@ const body = createRawSnippet(() => ({
     `<p style="margin:0;color:var(--muted)">${m.panel_disk_body({ free: "412 GB", total: "4 TB" })}</p>`,
 }));
 
-const nothingYet = createRawSnippet(() => ({
-  render: () =>
-    `<p style="margin:0;color:var(--faint);font-style:italic">${m.panel_nothing_yet()}</p>`,
-}));
+const nothingYet = showing({
+  state: "unknown",
+  absent: m.panel_nothing_yet(),
+});
 
-const note = createRawSnippet(() => ({
-  render: () =>
-    `<p style="margin:0;color:var(--muted);text-align:center">
-       <strong style="color:var(--text)">${m.panel_dead_source({ service: "Prowlarr" })}</strong><br>
-       ${m.panel_dead_scope()}
-     </p>`,
-}));
+const note = notAnswering({
+  service: "Prowlarr",
+  actions: pressing(
+    { label: m.action_try_again() },
+    { label: m.action_read_logs() },
+  ),
+});
 
 const meta = {
   title: "Surfaces/Panel",
@@ -53,6 +54,7 @@ export const Unreachable: Story = {
     title: m.panel_indexers(),
     freshness: { kind: "silent", secondsAgo: 240 },
     dead: note,
+    flush: true,
   },
 };
 
