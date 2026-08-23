@@ -49,14 +49,4 @@
       }
     }
   }
-
-  /* Read, never seen: the bars beside it are what a sighted reader gets. */
-  .said {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
 </style>

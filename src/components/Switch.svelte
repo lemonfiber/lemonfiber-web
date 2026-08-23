@@ -47,7 +47,6 @@
     border: 1px solid var(--line);
     border-radius: var(--r-pill);
     background: var(--line);
-    cursor: pointer;
   }
 
   /* The knob. Its travel is the whole of what the control says, so the shadow

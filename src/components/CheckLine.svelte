@@ -54,13 +54,9 @@
     gap: var(--sp-3);
     width: 100%;
     padding: var(--sp-1) 0;
-    border: 0;
-    background: none;
     color: var(--muted);
-    font: inherit;
     font-size: var(--text-prose);
     text-align: left;
-    cursor: pointer;
   }
 
   /* Full ink for what is being shown, so the column reads as a list of what

@@ -47,7 +47,7 @@
     {/if}
   </svg>
   {#if label !== undefined}
-    <span class="named">{label}</span>
+    <span class="said">{label}</span>
   {/if}
 </span>
 
@@ -96,14 +96,5 @@
     border-color: var(--alarm);
     background: var(--alarm);
     color: var(--paper);
-  }
-
-  .named {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
   }
 </style>

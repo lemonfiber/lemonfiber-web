@@ -86,16 +86,6 @@
     background: var(--fiber);
   }
 
-  /* Said, not drawn. */
-  .said {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
   .n {
     display: grid;
     place-items: center;

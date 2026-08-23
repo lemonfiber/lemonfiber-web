@@ -44,10 +44,8 @@
     border-radius: var(--r-md);
     background: var(--paper);
     color: var(--muted);
-    font: inherit;
     font-size: var(--text-control);
     white-space: nowrap;
-    cursor: pointer;
   }
 
   .act:hover {

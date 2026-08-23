@@ -75,15 +75,11 @@
   button {
     width: 100%;
     padding: var(--sp-2) var(--sp-3);
-    border: 0;
     border-radius: var(--r-md);
-    background: none;
-    font: inherit;
     font-size: var(--text-prose);
     text-align: left;
     color: var(--muted);
     white-space: nowrap;
-    cursor: pointer;
   }
 
   button:hover {

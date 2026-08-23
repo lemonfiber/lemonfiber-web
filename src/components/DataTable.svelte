@@ -105,7 +105,7 @@
 -->
 <div class="tbl-wrap">
   <table>
-    <caption class="name">{label}</caption>
+    <caption class="said">{label}</caption>
     <colgroup>
       {#each columns as column, index (index)}
         <col style:width={column.width} />
@@ -177,16 +177,6 @@
     width: 100%;
     border-collapse: collapse;
     font-size: var(--text-prose);
-  }
-
-  /* Read, never seen: the panel's heading is what a sighted reader gets. */
-  .name {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
   }
 
   .word {

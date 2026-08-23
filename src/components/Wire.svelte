@@ -63,14 +63,4 @@
   .quiet .arrow {
     stroke-dasharray: 3 3.5;
   }
-
-  /* Read, never seen: the arrow beside it is what a sighted reader gets. */
-  .said {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
 </style>

@@ -104,12 +104,8 @@
   .seg button {
     flex: 1;
     padding: 5px 0;
-    border: 0;
-    background: none;
     color: var(--muted);
-    font: inherit;
     font-size: var(--text-note);
-    cursor: pointer;
   }
 
   .seg button[aria-checked="true"] {

@@ -21,6 +21,10 @@ view. Both are built from the same components in `src/components`.
 **Everything visual comes from a token.** `src/app.css` is the only file that may
 name a `--lf-*` brand token; it maps them to the names this interface uses. A
 component that writes a raw colour, font-size, spacing step or radius is a defect.
+`app.css` also carries the element reset — every control here is a `<button>`, and
+undoing the user agent's styling once beats undoing it in each of them — and the
+`.said` class for text a screen reader is given where a drawing is what a sighted
+reader gets.
 Structural geometry — a border width, an `aspect-ratio`, a `stroke-width` — is not
 a token and stays literal.
 
@@ -80,7 +84,9 @@ exists in the spec repo — grep for it before citing it.
 src/components/   one component per file, with its test and its stories
 src/lib/          the vocabulary the interface speaks — states, severities,
                   freshness, weights, icon names. No rendering.
-src/app.css       brand tokens mapped to this interface's names, and nothing else
+src/app.css       brand tokens mapped to this interface's names, the element
+                  reset, and the one `.said` utility every component would
+                  otherwise restate
 messages/en.json  every word a person reads
 scripts/          the gate's own tooling: structural guards, the axe sweep
 .storybook/       preview, and the helpers that put real components in a snippet
