@@ -1,0 +1,71 @@
+# Publish the built app at a tag, so the binary can carry it.
+#
+# The binary embeds this surface rather than fetching it, and a submodule pins a
+# commit. So what is published is a commit whose whole tree is the build output —
+# no branch to keep, nothing to prune, and a tag that means one thing for ever.
+#
+# A contributor fixing a Rust bug never installs npm, because the compiling
+# happens here and the result is what gets carried.
+name: publish
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: read
+
+jobs:
+  built:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build, and say which wire version it speaks
+        run: |
+          npm run build
+          node scripts/declare.mjs
+
+      - name: Publish the tree at its own tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          if [ ! -s dist/app.json ]; then
+            echo "::error::the build declared no wire version, so nothing is publishable"
+            exit 1
+          fi
+
+          work="$(mktemp -d)"
+          cp -R dist/. "$work/"
+          cd "$work"
+
+          git init --quiet --initial-branch=built
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          # No parent: the tree is the whole of what this commit says, and its
+          # history is the source repository's, which is where history belongs.
+          git commit --quiet -m "The app as built at ${RELEASE}, from ${SHA}."
+
+          git push --quiet \
+            "https://x-access-token:${GH_TOKEN}@github.com/${REPOSITORY}.git" \
+            "HEAD:refs/tags/built-${RELEASE}"
+
+          echo "::notice title=Published::built-${RELEASE} carries the app as built at ${RELEASE}."
