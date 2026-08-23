@@ -18,9 +18,36 @@ import * as m from "../paraglide/messages.js";
 export type State = "known" | "quiet" | "unknown" | "stopped" | "part";
 
 /**
+ * Every state there is, in the order the type declares them.
+ *
+ * A screen, a story and a test all walk this one list. A sixth state added to
+ * the type and to here reaches all three at once, rather than being left out
+ * of whichever was not remembered.
+ */
+export const everyState: readonly State[] = [
+  "known",
+  "quiet",
+  "unknown",
+  "stopped",
+  "part",
+];
+
+/**
  * How urgently a state wants the operator.
  */
 export type Tone = "calm" | "watch" | "alarm";
+
+/** Every severity there is, in the order they grow. */
+export const everyTone: readonly Tone[] = ["calm", "watch", "alarm"];
+
+/**
+ * How much ink a figure carrying this state is given.
+ *
+ * `words` is the one that matters: a figure with no measurement behind it is
+ * shown as words, never as a numeral. "0 B/s" and "not known" mean opposite
+ * things and must not look alike.
+ */
+export type Showing = "ink" | "dim" | "words";
 
 /**
  * The word an operator reads. Never jargon.
@@ -63,5 +90,38 @@ export function toneFor(state: State): Tone {
       return "watch";
     case "stopped":
       return "alarm";
+  }
+}
+
+/**
+ * The word a severity says when it stands on its own, with no text beside it.
+ */
+export function severityWord(tone: Tone): string {
+  switch (tone) {
+    case "calm":
+      return m.severity_calm();
+    case "watch":
+      return m.severity_watch();
+    case "alarm":
+      return m.severity_alarm();
+  }
+}
+
+/**
+ * How a figure carrying this state is shown.
+ *
+ * `part` is measured now — it is unfinished, not untrusted — so it reads in
+ * full ink. `stopped` has no figure to show at all, so it reads as words.
+ */
+export function showingFor(state: State): Showing {
+  switch (state) {
+    case "known":
+    case "part":
+      return "ink";
+    case "quiet":
+      return "dim";
+    case "unknown":
+    case "stopped":
+      return "words";
   }
 }

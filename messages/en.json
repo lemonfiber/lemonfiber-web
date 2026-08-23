@@ -9,5 +9,50 @@
   "state_stopped": "Stopped",
   "state_part": "Part way",
 
+  "span_seconds": "{count}s",
+  "span_minutes": "{count}m",
+  "span_hours": "{count}h",
+
+  "fresh_answered": "Checked {span} ago",
+  "fresh_silent": "Quiet for {span}",
+  "fresh_never": "Never checked",
+
+  "value_last_known": "Last known",
+  "value_not_known": "Not known",
+  "value_cannot_say": "Can't say",
+  "value_not_running": "Not running",
+
+  "severity_calm": "Nothing needed",
+  "severity_watch": "Worth watching",
+  "severity_alarm": "Needs you",
+
+  "panel_disk": "Disk",
+  "panel_indexers": "Where things are found",
+  "panel_fill_rate": "How fast the disk is filling",
+  "panel_disk_body": "{free} free of {total}, and nothing is filling it fast.",
+  "panel_nothing_yet": "Nothing has reported on this yet.",
+  "panel_dead_source": "{service} isn't answering.",
+  "panel_dead_scope": "Nothing in this box can be trusted right now. Everything else on this page still can.",
+
+  "eyebrow_confirmed": "Confirmed",
+  "eyebrow_watching": "Watching it",
+  "eyebrow_not_looked_at": "Not looked at yet",
+  "eyebrow_under_way": "Under way",
+
+  "check_tunnel_title": "Your downloading is hidden from your internet provider",
+  "check_tunnel_prose": "Your downloads appear to come from {address} in {country}, not from your home address. If the tunnel ever drops, downloading stops rather than falling back to your own line.",
+  "check_quiet_title": "One program has gone quiet",
+  "check_quiet_prose": "{service} last answered {span} ago. Nothing is broken yet, but any figure it gave is the last one it had, not what is true now.",
+  "check_stuck_title": "A download is stuck, and won't try again on its own",
+  "check_stuck_prose": "{release} finished downloading but couldn't be filed into your library. It failed twice, so {service} gave up. Nearly always this is a permissions problem when linking the file.",
+  "check_fill_rate_title": "How fast your disk is filling has never been measured",
+  "check_fill_rate_prose": "Until it has been, the day it runs out cannot be worked out. That is not the same as there being plenty of room.",
+  "check_scan_title": "Your library is being read for the first time",
+  "check_scan_prose": "{done} of {total} folders have been walked. Figures on this page will be incomplete until it finishes.",
+
+  "action_how_checked": "How was this checked?",
+  "action_why_seeing": "Why am I seeing this?",
+  "action_fix_it": "Fix it for me",
+
   "home_unfinished": "The surface is being built. What exists so far is the vocabulary every screen will speak: a figure is measured now, is the last thing a quiet source said, or was never measured at all."
 }

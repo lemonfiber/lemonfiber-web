@@ -1,9 +1,7 @@
 import { render, screen } from "@testing-library/svelte";
 import { describe, expect, it } from "vitest";
 import App from "./App.svelte";
-import { wordFor, type State } from "./lib/state";
-
-const every: State[] = ["known", "quiet", "unknown", "stopped", "part"];
+import { everyState, wordFor } from "./lib/state";
 
 describe("App", () => {
   it("names the product", () => {
@@ -15,7 +13,7 @@ describe("App", () => {
 
   it("shows every state the vocabulary has", () => {
     render(App);
-    for (const state of every) {
+    for (const state of everyState) {
       expect(screen.getByText(wordFor(state))).toBeInTheDocument();
     }
   });

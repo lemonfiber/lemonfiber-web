@@ -1,16 +1,14 @@
 <script lang="ts">
   import StateTag from "./components/StateTag.svelte";
-  import { type State } from "./lib/state";
+  import { everyState } from "./lib/state";
   import * as m from "./paraglide/messages.js";
-
-  const every: State[] = ["known", "quiet", "unknown", "stopped", "part"];
 </script>
 
 <main>
   <h1>{m.product_name()}</h1>
   <p>{m.home_unfinished()}</p>
   <ul>
-    {#each every as state (state)}
+    {#each everyState as state (state)}
       <li><StateTag {state} /></li>
     {/each}
   </ul>
