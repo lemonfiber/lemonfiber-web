@@ -2,6 +2,7 @@
 /** Structural guards. Collects every violation, then exits non-zero. */
 import { readdir, readFile } from "node:fs/promises";
 import { join, extname, relative } from "node:path";
+import { compile, parse } from "svelte/compiler";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const SRC = join(ROOT, "src");
@@ -20,12 +21,18 @@ async function walk(dir) {
 
 const failures = [];
 const fail = (file, line, msg) =>
-  failures.push(`${relative(ROOT, file)}${line === null ? "" : `:${line}`}  ${msg}`);
+  failures.push(
+    `${relative(ROOT, file)}${line === null ? "" : `:${line}`}  ${msg}`,
+  );
 
 /** Markers that open an argument rather than state a fact. */
-const REASONING = /^\s*(?:\/\/|\*|#)\s*(?:because|we |i |the reason|this is why|originally|it turns out|note that|arguably)/i;
+const REASONING =
+  /^\s*(?:\/\/|\*|#|<!--)\s*(?:because|we |i |the reason|this is why|originally|it turns out|note that|arguably)/i;
 
-const files = await walk(SRC);
+const GENERATED = ["/generated/", "/paraglide/"];
+const files = (await walk(SRC)).filter(
+  (f) => !GENERATED.some((d) => f.includes(d)),
+);
 
 for (const file of files) {
   const ext = extname(file);
@@ -35,25 +42,98 @@ for (const file of files) {
   lines.forEach((line, i) => {
     const at = i + 1;
 
-    // Svelte compiles attribute interpolation to branches no test can reach.
-    if (ext === ".svelte" && /\s[\w:-]+="[^"]*\{[^}]*\}[^"]*"/.test(line)) {
-      fail(file, at, "attribute interpolation — bind the whole attribute or use a class: directive");
-    }
-
     // The surface reaches lemonfiber and nothing else.
-    if (/https?:\/\/(?!127\.0\.0\.1|localhost)/.test(line) && !/^\s*(?:\/\/|\*|<!--)/.test(line)) {
+    if (
+      /https?:\/\/(?!127\.0\.0\.1|localhost)/.test(line) &&
+      !/^\s*(?:\/\/|\*|<!--)/.test(line)
+    ) {
       fail(file, at, "external origin");
     }
 
     if (/eslint-disable/.test(line)) fail(file, at, "eslint-disable");
-    if (/@ts-(?:ignore|expect-error|nocheck)/.test(line)) fail(file, at, "TypeScript escape hatch");
+    if (/@ts-(?:ignore|expect-error|nocheck)/.test(line))
+      fail(file, at, "TypeScript escape hatch");
 
     // Comments state facts. Reasoning belongs in an ADR.
-    if (REASONING.test(line)) fail(file, at, "reasoning in a comment — state the fact, argue in the ADR");
+    if (REASONING.test(line))
+      fail(
+        file,
+        at,
+        "reasoning in a comment — state the fact, argue in the ADR",
+      );
   });
 
   if (!file.endsWith(".test.ts") && lines.length > LINE_CAP) {
     fail(file, null, `${lines.length} lines, cap is ${LINE_CAP}`);
+  }
+
+  // Every word a person reads comes from `messages/`. A string sitting in a
+  // template is one no translator will ever see, and moving it later means
+  // finding it first. Read from the parsed template: a regex over the source
+  // cannot tell an attribute name from a sentence.
+  if (ext === ".svelte" && !file.endsWith(".stories.svelte")) {
+    let tree;
+    try {
+      tree = parse(text, { modern: true });
+    } catch {
+      tree = undefined;
+    }
+
+    const prose = [];
+    const visit = (node) => {
+      if (node === null || typeof node !== "object") return;
+      if (Array.isArray(node)) {
+        for (const child of node) visit(child);
+        return;
+      }
+      if (node.type === "Comment") return;
+      if (node.type === "Text" && typeof node.data === "string") {
+        const words = node.data
+          .trim()
+          .split(/\s+/)
+          .filter((w) => /[A-Za-z]{2,}/.test(w));
+        if (words.length >= 2) prose.push(words.join(" "));
+      }
+      for (const key of ["fragment", "nodes", "children", "body"]) {
+        if (key in node) visit(node[key]);
+      }
+    };
+    if (tree !== undefined) visit(tree.fragment);
+
+    for (const found of prose) {
+      fail(
+        file,
+        null,
+        `prose in the template ("${found.slice(0, 44)}…") — move it to messages/`,
+      );
+    }
+  }
+
+  // Svelte inserts `?? ''` fallbacks the type system already makes unreachable,
+  // which no test can cover and the 100% gate will not forgive. Two authoring
+  // shapes produce them: interpolation inside an attribute string, and an
+  // interpolation sharing a parent with a sibling. Both are invisible in the
+  // source and obvious in the output, so the output is what is read.
+  if (ext === ".svelte" && !file.endsWith(".stories.svelte")) {
+    let js;
+    try {
+      js = compile(text, { generate: "client", dev: false }).js.code;
+    } catch (problem) {
+      fail(file, null, `does not compile: ${String(problem)}`);
+      continue;
+    }
+
+    for (const call of js.matchAll(
+      /\$\.(set_text|set_attribute|set_class)\([^;]*?\?\? ''/g,
+    )) {
+      const upto = js.slice(0, call.index);
+      fail(
+        file,
+        null,
+        `compiles to an unreachable \`?? ''\` in ${call[1]} — give the interpolation its own element, ` +
+          `or bind the whole attribute (line ~${String(upto.split("\n").length)} of the output)`,
+      );
+    }
   }
 }
 

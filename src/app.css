@@ -1,0 +1,117 @@
+/**
+ * The surface's visual language.
+ *
+ * Colour, radii and spacing come from `@lemonfiber/brand`; nothing here invents
+ * one (`ARCH-R36`). What this file adds is the handful of product tokens the
+ * brand palette has no opinion on — the three severities, and the neutrals the
+ * dark surface needs.
+ *
+ * Dark is `data-lf-theme="ink"`, the attribute the brand tokens already define.
+ */
+@import "@lemonfiber/brand/tokens.css";
+
+:root {
+  /* Brand, renamed to what this interface calls them. */
+  --ink: var(--lf-color-ink);
+  --paper: var(--lf-color-paper);
+  --pith: var(--lf-color-pith);
+  --canvas: var(--lf-color-canvas);
+  --line: var(--lf-color-line);
+  --line-soft: var(--lf-color-line-soft);
+  --muted: var(--lf-color-text-muted);
+  --faint: var(--lf-color-text-faint);
+  --lemon: var(--lf-color-lemon);
+  --lemon-bright: var(--lf-color-lemon-bright);
+  --fiber: var(--lf-color-fiber);
+  --fiber-deep: var(--lf-color-fiber-deep);
+  --text: var(--lf-color-ink);
+
+  /* Product tokens. The brand has no severity palette, and deliberately no
+     blues, teals or cyans — so these stay in its warm family. */
+  --ok: #55701e;
+  --warn: var(--lf-color-fiber);
+  --warn-tint: #fbebd8;
+  --alarm: #a82717;
+  --alarm-tint: #f7e2dd;
+
+  --focus: var(--lf-color-fiber-deep);
+
+  /* Type. Golos Text runs the interface; Bricolage Grotesque is reserved for
+     the wordmark, which the brand rules require and forbid elsewhere. */
+  --sans: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --brandface: var(--lf-font-display);
+
+  --r-sm: var(--lf-radius-sm);
+  --r-md: var(--lf-radius-md);
+
+  --sp-1: var(--lf-space-1);
+  --sp-2: var(--lf-space-2);
+  --sp-3: var(--lf-space-3);
+  --sp-4: var(--lf-space-4);
+  --sp-5: var(--lf-space-5);
+  --sp-6: var(--lf-space-6);
+
+  --tracking-eyebrow: var(--lf-tracking-eyebrow);
+  --row-h: 42px;
+  --ctl-h: 34px;
+}
+
+[data-lf-theme="ink"] {
+  --ink: var(--lf-color-paper);
+  --text: #fbf7ea;
+  --canvas: #100f0a;
+  --muted: #a9a48c;
+  --faint: #7c7865;
+  --line-soft: #2b2921;
+
+  --ok: #9db856;
+  --warn: var(--lf-color-fiber-light);
+  --warn-tint: #35240f;
+  --alarm: #e8705c;
+  --alarm-tint: #3a1c16;
+
+  --focus: var(--lf-color-lemon);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-lf-theme="paper"]) {
+    --ink: var(--lf-color-paper);
+    --paper: #17160f;
+    --pith: #241f14;
+    --text: #fbf7ea;
+    --canvas: #100f0a;
+    --line: #34322a;
+    --line-soft: #2b2921;
+    --muted: #a9a48c;
+    --faint: #7c7865;
+
+    --ok: #9db856;
+    --warn: var(--lf-color-fiber-light);
+    --warn-tint: #35240f;
+    --alarm: #e8705c;
+    --alarm-tint: #3a1c16;
+
+    --focus: var(--lf-color-lemon);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}

@@ -1,61 +1,65 @@
 <script lang="ts">
-  import { type State, wordFor, toneFor } from "../lib/state";
+  import StateMark from "./StateMark.svelte";
+  import { type State, toneFor, wordFor } from "../lib/state";
 
   interface Props {
     state: State;
+    /** Overrides the state's own word, for a tag naming a thing rather than a state. */
     label?: string | undefined;
   }
 
-  let { state, label = undefined }: Props = $props();
+  let { state, label }: Props = $props();
 
   const tone = $derived(toneFor(state));
-  const text = $derived(label ?? wordFor(state));
+  const text: string = $derived(label ?? wordFor(state));
 </script>
 
+<!--
+  Squared, not a pill: it labels rather than badges. The mark carries the
+  colour; the ground stays quiet, so eight working services read as calm and
+  the one that wants you is the only thing with weight.
+-->
 <span
   class="tag"
-  class:calm={tone === "calm"}
   class:watch={tone === "watch"}
   class:alarm={tone === "alarm"}
   data-state={state}
 >
-  <svg class="st" aria-hidden="true" viewBox="0 0 24 24"><use href="#s-{state}" /></svg>
-  {text}
+  <StateMark {state} {label} />
+  <span class="word">{text}</span>
 </span>
 
 <style>
+  .word {
+    /* Its own element so the interpolation is this node's only content: a lone
+       interpolation compiles to a direct text node, one with siblings compiles
+       to a `?? ''` fallback that is unreachable and so uncoverable. */
+    display: contents;
+  }
+
   .tag {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 2px 7px;
-    border: 1px solid var(--lf-color-line);
-    border-radius: var(--lf-radius-sm);
-    background: var(--lf-color-pith);
-    color: var(--lf-color-text-muted);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--pith);
+    color: var(--muted);
     font-size: 11px;
     font-weight: 500;
     white-space: nowrap;
   }
-  .st {
-    width: 13px;
-    height: 13px;
-    flex: none;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .calm .st {
-    color: var(--lf-color-leaf);
-  }
+
   .watch {
-    border-color: var(--lf-color-fiber);
-    color: var(--lf-color-fiber-deep);
+    border-color: var(--fiber);
+    color: var(--fiber-deep);
+    background: var(--warn-tint);
   }
+
   .alarm {
-    border-color: var(--lf-color-alarm);
-    color: var(--lf-color-alarm);
+    border-color: var(--alarm);
+    color: var(--alarm);
+    background: var(--alarm-tint);
   }
 </style>

@@ -5,7 +5,21 @@ import svelteParser from "svelte-eslint-parser";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist/", "coverage/", "storybook-static/", "playwright-report/", "test-results/"] },
+  {
+    ignores: [
+      "dist/",
+      "coverage/",
+      "storybook-static/",
+      "playwright-report/",
+      "test-results/",
+      "src/generated/**",
+      "src/paraglide/**",
+      "eslint.config.js",
+      "svelte.config.js",
+      ".dependency-cruiser.cjs",
+      "scripts/**",
+    ],
+  },
 
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
@@ -15,7 +29,10 @@ export default tseslint.config(
   {
     languageOptions: {
       globals: { ...globals.browser },
-      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
@@ -32,7 +49,11 @@ export default tseslint.config(
     files: ["**/*.svelte"],
     languageOptions: {
       parser: svelteParser,
-      parserOptions: { parser: tseslint.parser, projectService: true, extraFileExtensions: [".svelte"] },
+      parserOptions: {
+        parser: tseslint.parser,
+        projectService: true,
+        extraFileExtensions: [".svelte"],
+      },
     },
   },
 
@@ -41,5 +62,10 @@ export default tseslint.config(
     rules: { "@typescript-eslint/no-unsafe-assignment": "off" },
   },
 
-  { files: ["**/*.js", "**/*.mjs"], ...tseslint.configs.disableTypeChecked },
+  {
+    files: ["scripts/**/*.mjs", "*.config.js"],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: { globals: { ...globals.node } },
+    rules: { "no-console": "off" },
+  },
 );

@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+storybook-static/
+*.tsbuildinfo
+.DS_Store
+src/paraglide/

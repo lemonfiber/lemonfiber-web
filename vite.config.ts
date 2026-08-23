@@ -1,8 +1,15 @@
+import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [svelte()],
+  plugins: [
+    svelte(),
+    paraglideVitePlugin({
+      project: "./project.inlang",
+      outdir: "./src/paraglide",
+    }),
+  ],
 
   // Without this, Vite resolves Svelte's server build and mount() throws
   // lifecycle_function_unavailable under Vitest.
@@ -24,9 +31,19 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**/*.{ts,svelte}"],
-      exclude: ["src/**/*.test.ts", "src/**/*.stories.ts", "src/main.ts"],
+      exclude: [
+        "src/**/*.test.ts",
+        "src/**/*.stories.ts",
+        "src/main.ts",
+        "src/paraglide/**",
+      ],
       reporter: ["text", "lcov"],
-      thresholds: { lines: 100, statements: 100, branches: 100, functions: 100 },
+      thresholds: {
+        lines: 100,
+        statements: 100,
+        branches: 100,
+        functions: 100,
+      },
     },
   },
 });

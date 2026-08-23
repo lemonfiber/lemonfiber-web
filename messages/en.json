@@ -1,0 +1,13 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+
+  "product_name": "lemonfiber",
+
+  "state_known": "Working",
+  "state_quiet": "Gone quiet",
+  "state_unknown": "Never measured",
+  "state_stopped": "Stopped",
+  "state_part": "Part way",
+
+  "home_unfinished": "The surface is being built. What exists so far is the vocabulary every screen will speak: a figure is measured now, is the last thing a quiet source said, or was never measured at all."
+}
