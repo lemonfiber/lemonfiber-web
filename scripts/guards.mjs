@@ -25,9 +25,20 @@ const fail = (file, line, msg) =>
     `${relative(ROOT, file)}${line === null ? "" : `:${line}`}  ${msg}`,
   );
 
+/**
+ * Requirement identifiers, ADR numbers and spec paths. Provenance belongs in a
+ * commit trailer and a pull request body, where it can be revised; a comment
+ * naming the artefact that caused a line rots the moment that artefact moves.
+ */
+const CITATION =
+  /\b(?:[A-Z]{1,5}[0-9]*-R[0-9]+|ADR-[0-9]{3,}|G[0-9]+)\b|\bSpec:\s*[0-9]/;
+
 /** Markers that open an argument rather than state a fact. */
 const REASONING =
   /^\s*(?:\/\/|\*|#|<!--)\s*(?:because|we |i |the reason|this is why|originally|it turns out|note that|arguably)/i;
+
+/** A line that is, or continues, a comment. */
+const COMMENT = /^\s*(?:\/\/|\/\*|\*|#|<!--)/;
 
 const GENERATED = ["/generated/", "/paraglide/"];
 const files = (await walk(SRC)).filter(
@@ -53,6 +64,13 @@ for (const file of files) {
     if (/eslint-disable/.test(line)) fail(file, at, "eslint-disable");
     if (/@ts-(?:ignore|expect-error|nocheck)/.test(line))
       fail(file, at, "TypeScript escape hatch");
+
+    if (COMMENT.test(line) && CITATION.test(line))
+      fail(
+        file,
+        at,
+        "a citation in a comment — cite it in the commit trailer and the pull request instead",
+      );
 
     // Comments state facts. Reasoning belongs in an ADR.
     if (REASONING.test(line))

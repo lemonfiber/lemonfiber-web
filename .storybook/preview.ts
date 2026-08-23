@@ -3,7 +3,7 @@ import "../src/app.css";
 
 const preview: Preview = {
   parameters: {
-    // Accessibility is a requirement here (G3), so a violation fails the story
+    // Accessibility is a requirement here, so a violation fails the story
     // rather than being reported beside it.
     a11y: { test: "error" },
     backgrounds: { disable: true },

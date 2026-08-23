@@ -21,7 +21,7 @@
   is says how much it wants you.
 
   The icon inside is a shape before it is a colour — a strand end, a note, a
-  warning triangle — so the tile survives greyscale (G3). The tile replaces a
+  warning triangle — so the tile survives greyscale. The tile replaces a
   coloured bar down the left edge, which says severity in colour and nothing
   else.
 

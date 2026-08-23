@@ -17,7 +17,7 @@
   Every state gets its own shape, not only its own colour. A coloured square
   asks the reader to work out what the colour means; a tick, a clock, a stop
   square and a question do not — and shape survives greyscale, which colour
-  alone does not (G3).
+  alone does not.
 -->
 <svg
   class="mark"

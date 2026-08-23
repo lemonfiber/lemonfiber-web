@@ -4,8 +4,6 @@
  * Every panel carries its own. One source falling silent makes that panel's
  * figures untrustworthy and nothing else's, so freshness belongs to the panel
  * rather than to the screen.
- *
- * Spec: 10-functional/features/g-ux/g2-plain-language.md
  */
 import * as m from "../paraglide/messages.js";
 import type { State } from "./state";

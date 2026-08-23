@@ -27,7 +27,7 @@ module.exports = {
       severity: "error",
       comment:
         "The surface talks to lemonfiber through @lemonfiber/sdk-ts and nothing " +
-        "else (ADR-0013). A direct fetch would be transport this repo does not own.",
+        "else. A direct fetch would be transport this repo does not own.",
       from: { path: "^src" },
       to: { path: "node_modules/(node-fetch|axios|undici|superagent)" },
     },

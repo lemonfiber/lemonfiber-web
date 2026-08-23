@@ -4,8 +4,6 @@
  * A screen offers several things and wants one of them pressed. `firm` is that
  * one; everything else is `quiet`, so a row of controls has a single centre of
  * gravity rather than several competing for it.
- *
- * Spec: 10-functional/features/g-ux/g1-interface-tiers.md
  */
 
 /**

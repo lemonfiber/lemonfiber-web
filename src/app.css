@@ -2,7 +2,7 @@
  * The surface's visual language.
  *
  * Colour, radii and spacing come from `@lemonfiber/brand`; nothing here invents
- * one (`ARCH-R36`). What this file adds is the handful of product tokens the
+ * one. What this file adds is the handful of product tokens the
  * brand palette has no opinion on — the three severities, and the neutrals the
  * dark surface needs.
  *
