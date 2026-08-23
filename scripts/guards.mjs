@@ -137,6 +137,61 @@ for (const file of files) {
   }
 }
 
+// Brand states its dark palette only under `[data-lf-theme="ink"]`, and the
+// surface also has to answer `prefers-color-scheme`, which brand does not
+// cover. That leaves one set of values written in two places, so the two are
+// compared here rather than left to drift apart unnoticed.
+const BRAND_TOKENS = join(
+  ROOT,
+  "node_modules/@lemonfiber/brand/tokens/tokens.css",
+);
+
+/** The custom properties a `{ … }` block declares, keyed by name. */
+function declarations(css, opener) {
+  const at = css.indexOf(opener);
+  if (at === -1) return undefined;
+  const body = css.slice(at + opener.length, css.indexOf("}", at));
+  const found = new Map();
+  for (const [, name, value] of body.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) {
+    found.set(name, value.trim().toLowerCase());
+  }
+  return found;
+}
+
+const brandInk = declarations(
+  await readFile(BRAND_TOKENS, "utf8"),
+  '[data-lf-theme="ink"] {',
+);
+const surfaceDark = declarations(
+  await readFile(join(SRC, "app.css"), "utf8"),
+  ':root:not([data-lf-theme="paper"]) {',
+);
+
+if (brandInk === undefined || surfaceDark === undefined) {
+  fail(
+    join(SRC, "app.css"),
+    null,
+    "cannot find both dark palettes to compare — brand's ink block or the surface's system-preference block has moved",
+  );
+} else {
+  for (const [name, value] of brandInk) {
+    const mine = surfaceDark.get(name);
+    if (mine === undefined) {
+      fail(
+        join(SRC, "app.css"),
+        null,
+        `the system-preference block does not set ${name}, which brand's ink theme does — dark mode would fall back to the light value`,
+      );
+    } else if (mine !== value) {
+      fail(
+        join(SRC, "app.css"),
+        null,
+        `${name} is ${mine} for the system preference and ${value} in brand's ink theme — the two dark paths disagree`,
+      );
+    }
+  }
+}
+
 if (failures.length > 0) {
   console.error(`guards: ${failures.length} violation(s)\n`);
   for (const f of failures) console.error(`  ${f}`);

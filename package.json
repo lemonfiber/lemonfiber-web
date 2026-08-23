@@ -24,14 +24,14 @@
     "guard": "node scripts/guards.mjs",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "e2e": "playwright test",
     "storybook": "storybook dev -p 6006 --no-open",
     "storybook:build": "storybook build",
-    "ci": "npm run messages && npm run format:check && npm run lint && npm run types && npm run guard && npm run arch && npm run coverage && npm run build && npm run storybook:build",
+    "a11y": "node scripts/a11y.mjs",
+    "ci": "npm run messages && npm run format:check && npm run lint && npm run types && npm run guard && npm run arch && npm run coverage && npm run build && npm run storybook:build && npm run a11y",
     "messages": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide"
   },
   "dependencies": {
-    "@lemonfiber/brand": "github:lemonfiber/brand#ec9e063a51b4423e9148538f3226601e40967423",
+    "@lemonfiber/brand": "github:lemonfiber/brand#21b8d507bf5a394f24fedc08f10a954abc3e2549",
     "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#87883dda0b9d5c2f7defc2c58872fb71cd0caa22"
   },
   "devDependencies": {

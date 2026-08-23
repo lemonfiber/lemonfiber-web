@@ -25,5 +25,9 @@ jobs:
       - name: Install exactly what the lockfile says
         run: npm ci
 
+      # The accessibility sweep drives the built Storybook in a real browser.
+      - name: Install the browser the sweep drives
+        run: npx playwright install --with-deps chromium
+
       - name: Run the gate
         run: npm run ci

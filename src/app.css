@@ -12,7 +12,9 @@
 
 :root {
   /* Brand, renamed to what this interface calls them. */
-  --ink: var(--lf-color-ink);
+  /* The strongest foreground. Brand names it only in the theme where it
+     flips, so the light theme falls back to the ink the palette is built on. */
+  --ink: var(--lf-color-text, var(--lf-color-ink));
   --paper: var(--lf-color-paper);
   --pith: var(--lf-color-pith);
   --canvas: var(--lf-color-canvas);
@@ -24,7 +26,7 @@
   --lemon-bright: var(--lf-color-lemon-bright);
   --fiber: var(--lf-color-fiber);
   --fiber-deep: var(--lf-color-fiber-deep);
-  --text: var(--lf-color-ink);
+  --text: var(--ink);
 
   /* Product tokens. The brand has no severity palette, and deliberately no
      blues, teals or cyans — so these stay in its warm family. */
@@ -82,19 +84,10 @@
   --text-item: 14.5px;
 }
 
+/* Brand carries every surface and text colour for this theme, so what is left
+   here is the severity palette it has no opinion on. */
 [data-lf-theme="ink"] {
-  --ink: var(--lf-color-paper);
-  --text: #fbf7ea;
-  --canvas: #100f0a;
-  --muted: #a9a48c;
-  --faint: #7c7865;
-  --line-soft: #2b2921;
-
-  /* --fiber-deep is a light-theme amber and reads below AA on a dark ground. */
-  --fiber-deep: var(--lf-color-fiber-light);
-
   --ok: #9db856;
-  --warn: var(--lf-color-fiber-light);
   --warn-tint: #35240f;
   --alarm: #e8705c;
   --alarm-tint: #3a1c16;
@@ -102,21 +95,23 @@
   --focus: var(--lf-color-lemon);
 }
 
+/* Brand states its dark palette only under the attribute above, so the same
+   values are restated here for the system preference. `scripts/guards.mjs`
+   compares the two and fails when they disagree. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-lf-theme="paper"]) {
-    --ink: var(--lf-color-paper);
-    --paper: #17160f;
-    --pith: #241f14;
-    --text: #fbf7ea;
-    --canvas: #100f0a;
-    --line: #34322a;
-    --line-soft: #2b2921;
-    --muted: #a9a48c;
-    --faint: #7c7865;
-    --fiber-deep: var(--lf-color-fiber-light);
+    --lf-color-paper: #17160f;
+    --lf-color-pith: #241f14;
+    --lf-color-canvas: #100f0a;
+    --lf-color-fiber: #f09a3c;
+    --lf-color-fiber-deep: #f09a3c;
+    --lf-color-text: #fbf7ea;
+    --lf-color-text-muted: #acaa9f;
+    --lf-color-text-faint: #8d8972;
+    --lf-color-line: #34322a;
+    --lf-color-line-soft: #262419;
 
     --ok: #9db856;
-    --warn: var(--lf-color-fiber-light);
     --warn-tint: #35240f;
     --alarm: #e8705c;
     --alarm-tint: #3a1c16;
