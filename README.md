@@ -29,10 +29,15 @@
 ## What it is
 
 A **static application with no server of its own**. It is built to a directory of
-files, tagged, and embedded into the `lemonfiber` binary as a pinned submodule. At
-run time it talks to `lemonfiber` over the
+files, and on a version tag [`publish.yml`](.github/workflows/publish.yml) pushes
+that build output to a `built-<tag>` tag — the form the `lemonfiber` binary takes
+it in, as a pinned submodule it embeds. No version tag has been cut here yet, and
+`lemonfiber` declares no submodule for it, so no binary carries the app today.
+
+`lemonfiber`'s
 [web API](https://github.com/lemonfiber/spec/blob/main/20-architecture/contracts/web-api.md)
-and to nothing else.
+is the only place this application may get data from, and it reaches nothing else.
+Nothing under `src/` calls it yet — what is drawn today is the component library.
 
 That constraint is the point rather than a limitation. `G1-R2` says no surface may
 implement behaviour independently, and an application whose only capability is to
@@ -58,8 +63,9 @@ npm ci
 npm run dev
 ```
 
-That serves the application against a running `lemonfiber`. Start one separately —
-this repo has no server and cannot produce data on its own.
+That serves the application on Vite's dev server, which has no back end of its own
+and no proxy to one. Data comes from a `lemonfiber` started separately; nothing
+drawn so far asks for any.
 
 Requires Node **26 or newer**, as declared in `engines`.
 
@@ -73,13 +79,14 @@ npm run ci
 
 The individual steps are the `scripts` in [`package.json`](package.json), and each
 runs on its own while you work — `npm test` for the fast loop, `npm run storybook`
-to build a component in isolation, `npm run e2e` for the browser tests.
+to build a component in isolation, and `npm run a11y` to sweep every built story in
+a browser (after `npm run storybook:build`).
 
 The Rust workspace's standards apply here from the first commit, in their web
 equivalents: 100% coverage across lines, statements, branches and functions;
 `strict` TypeScript with `any` and non-null assertions banned; zero lint warnings
-tolerated; architecture and file-size guards; accessibility assertions in component
-and end-to-end tests. The
+tolerated; architecture and file-size guards; accessibility asserted in the
+component tests and swept over every built story in a browser. The
 [spec page](https://github.com/lemonfiber/spec/blob/main/30-repos/lemonfiber-web.md)
 maps each one to the workspace rule it mirrors.
 
@@ -97,10 +104,10 @@ These are the load-bearing rules, and each has a spec requirement behind it:
 
 ## What it consumes
 
-| From                                                         | What                                                   |
-| ------------------------------------------------------------ | ------------------------------------------------------ |
-| [`@lemonfiber/sdk-ts`](https://github.com/lemonfiber/sdk-ts) | State and actions, over the web API                    |
-| [`@lemonfiber/brand`](https://github.com/lemonfiber/brand)   | Colour, type, spacing, radii, the logo — at build time |
+| From                                                         | What                                                                                           |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| [`@lemonfiber/sdk-ts`](https://github.com/lemonfiber/sdk-ts) | State, actions and the event stream, over the web API; and the wire version the build declares |
+| [`@lemonfiber/brand`](https://github.com/lemonfiber/brand)   | Colour, type, spacing, radii, the logo — at build time                                         |
 
 Both are pinned in [`package.json`](package.json); that file is the version of
 record, so nothing here restates it.
