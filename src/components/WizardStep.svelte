@@ -57,7 +57,7 @@
   .vstep {
     position: relative;
     display: grid;
-    grid-template-columns: 24px 1fr;
+    grid-template-columns: 1.5rem 1fr;
     gap: var(--sp-3);
     align-items: start;
     padding: 0 0 var(--sp-4);
@@ -67,15 +67,16 @@
     padding-bottom: 0;
   }
 
-  /* The line from this step's number down to the next one's. */
+  /* The line from this step's number down to the next one's, drawn as a border
+     at the width the ring around each number takes. An empty box given only a
+     left edge is as wide as that border and no wider. */
   .vstep::before {
     content: "";
     position: absolute;
-    left: 11px;
-    top: 27px;
-    bottom: 2px;
-    width: 1.5px;
-    background: var(--line);
+    left: 0.6875rem;
+    top: 1.6875rem;
+    bottom: 0.125rem;
+    border-left: 1.5px solid var(--line);
   }
 
   .vstep:last-child::before {
@@ -83,14 +84,14 @@
   }
 
   .vstep.done::before {
-    background: var(--fiber);
+    border-color: var(--fiber);
   }
 
   .n {
     display: grid;
     place-items: center;
-    width: 24px;
-    height: 24px;
+    width: 1.5rem;
+    height: 1.5rem;
     border: 1.5px solid var(--line);
     border-radius: var(--r-md);
     background: var(--paper);
@@ -122,7 +123,7 @@
 
   .t {
     display: block;
-    padding-top: 3px;
+    padding-top: 0.1875rem;
     font-size: var(--text-panel);
     font-weight: 600;
     color: var(--faint);
@@ -139,7 +140,7 @@
 
   .d {
     display: block;
-    margin-top: 1px;
+    margin-top: 0.0625rem;
     font-size: var(--text-note);
     color: var(--faint);
   }

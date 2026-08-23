@@ -75,7 +75,7 @@
     letter-spacing: 0.08em;
     border: 1px solid var(--line);
     border-radius: var(--r-sm);
-    padding: 0 3px;
+    padding: 0 0.1875rem;
     white-space: nowrap;
     color: var(--faint);
   }

@@ -39,8 +39,8 @@
 
 <style>
   .switch {
-    width: 42px;
-    height: 24px;
+    width: 2.625rem;
+    height: 1.5rem;
     flex: none;
     position: relative;
     padding: 0;
@@ -54,10 +54,10 @@
   .switch::after {
     content: "";
     position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 18px;
-    height: 18px;
+    top: 0.125rem;
+    left: 0.125rem;
+    width: 1.125rem;
+    height: 1.125rem;
     border-radius: 50%;
     background: var(--paper);
     box-shadow: 0 1px 2px var(--shadow);
@@ -70,7 +70,7 @@
   }
 
   .switch[aria-pressed="true"]::after {
-    transform: translateX(18px);
+    transform: translateX(1.125rem);
   }
 
   /* The position is what says on or off; the travel between them is decoration,

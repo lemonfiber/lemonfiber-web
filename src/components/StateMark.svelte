@@ -56,8 +56,8 @@
 
 <style>
   .mark {
-    width: 13px;
-    height: 13px;
+    width: 0.8125rem;
+    height: 0.8125rem;
     flex: none;
     fill: none;
     stroke: currentColor;

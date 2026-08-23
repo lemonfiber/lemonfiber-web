@@ -49,12 +49,12 @@
   .node {
     /* The room a node standing on its own takes. A box that stacks them
        answers with its own. */
-    min-width: var(--node-min-width, 132px);
-    min-height: var(--node-min-height, 58px);
+    min-width: var(--node-min-width, 8.25rem);
+    min-height: var(--node-min-height, 3.625rem);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 3px;
+    gap: 0.1875rem;
     padding: var(--sp-2) var(--sp-3);
     border: 1px solid var(--line);
     border-radius: var(--r-sm);

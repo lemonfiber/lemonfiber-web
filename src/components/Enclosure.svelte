@@ -48,8 +48,8 @@
 <style>
   .encl {
     /* The room the nodes inside stand at. A box that stacks them lowers it. */
-    --node-min-width: 132px;
-    --node-min-height: 58px;
+    --node-min-width: 8.25rem;
+    --node-min-height: 3.625rem;
     position: relative;
     display: flex;
     align-items: stretch;
@@ -62,8 +62,8 @@
 
   .tag {
     position: absolute;
-    top: -8px;
-    left: 10px;
+    top: calc(var(--sp-2) * -1);
+    left: 0.625rem;
     padding: 0 var(--sp-tight);
     background: var(--paper);
     color: var(--muted);

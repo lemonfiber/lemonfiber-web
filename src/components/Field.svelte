@@ -74,7 +74,7 @@
     display: grid;
     gap: var(--sp-2);
     margin-bottom: var(--sp-5);
-    max-width: 480px;
+    max-width: 30rem;
   }
 
   label {
@@ -94,7 +94,7 @@
   /* Set in the face figures are set in, and given the width a figure needs
      rather than the width the label happens to have. */
   .figure {
-    max-width: 110px;
+    max-width: 6.875rem;
     font-family: var(--mono);
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;

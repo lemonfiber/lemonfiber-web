@@ -41,7 +41,7 @@
 
   /* Tall enough to be read as a colour rather than as a rule under a word. */
   .chip {
-    height: 48px;
+    height: 3rem;
   }
 
   /* Paper, so a swatch of a surface colour is still bounded by one. */

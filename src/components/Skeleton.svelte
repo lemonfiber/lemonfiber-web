@@ -31,7 +31,7 @@
   .skel {
     background: var(--canvas);
     border-radius: var(--r-sm);
-    height: 11px;
+    height: 0.6875rem;
   }
 
   @media (prefers-reduced-motion: no-preference) {

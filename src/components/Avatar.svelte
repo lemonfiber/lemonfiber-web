@@ -30,8 +30,8 @@
   .avatar {
     display: grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     border: 1px solid var(--fiber-deep);
     border-radius: var(--r-md);
     background: var(--lemon);
@@ -44,8 +44,8 @@
   /* Beside a name in a header, where the row it sits in is half the height of
      a household row. */
   .small {
-    width: 30px;
-    height: 30px;
+    width: 1.875rem;
+    height: 1.875rem;
     font-size: var(--text-prose);
   }
 </style>

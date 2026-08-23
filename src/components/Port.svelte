@@ -75,8 +75,8 @@
   }
 
   .ic {
-    width: 17px;
-    height: 17px;
+    width: 1.0625rem;
+    height: 1.0625rem;
     fill: none;
     stroke: currentColor;
     stroke-width: 1.6;

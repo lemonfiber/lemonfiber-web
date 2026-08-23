@@ -66,8 +66,8 @@
   }
 
   .box {
-    width: 15px;
-    height: 15px;
+    width: 0.9375rem;
+    height: 0.9375rem;
     flex: none;
     display: grid;
     place-items: center;
@@ -86,8 +86,8 @@
 
   /* Smaller than either drawing size, and stroked heavier to hold up at it. */
   .box :global(.ic) {
-    width: 11px;
-    height: 11px;
+    width: 0.6875rem;
+    height: 0.6875rem;
     stroke-width: 3;
   }
 

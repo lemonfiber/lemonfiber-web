@@ -41,7 +41,7 @@
     position: relative;
     flex: none;
     align-self: center;
-    width: 44px;
+    width: 2.75rem;
     margin: 0 calc(var(--sp-2) * -1);
     color: var(--fiber);
   }
@@ -49,7 +49,7 @@
   .arrow {
     display: block;
     width: 100%;
-    height: 12px;
+    height: 0.75rem;
     fill: none;
     stroke: currentColor;
   }

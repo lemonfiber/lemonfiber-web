@@ -67,7 +67,7 @@
 <style>
   .person {
     display: grid;
-    grid-template-columns: 40px minmax(0, 1fr) 150px auto;
+    grid-template-columns: 2.5rem minmax(0, 1fr) 9.375rem auto;
     gap: var(--sp-4);
     align-items: center;
     padding: var(--sp-4) 0;
@@ -82,7 +82,7 @@
      allowance and the buttons drop underneath it instead. */
   @media (max-width: 820px) {
     .person {
-      grid-template-columns: 40px 1fr;
+      grid-template-columns: 2.5rem 1fr;
     }
 
     .quota,
