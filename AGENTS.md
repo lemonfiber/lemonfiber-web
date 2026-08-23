@@ -21,10 +21,11 @@ view. Both are built from the same components in `src/components`.
 **Everything visual comes from a token.** `src/app.css` is the only file that may
 name a `--lf-*` brand token; it maps them to the names this interface uses. A
 component that writes a raw colour, font-size, spacing step or radius is a defect.
-`app.css` also carries the element reset — every control here is a `<button>`, and
-undoing the user agent's styling once beats undoing it in each of them — and the
-`.said` class for text a screen reader is given where a drawing is what a sighted
-reader gets.
+`app.css` also carries the element reset — the `<button>` rule, since most controls
+here are buttons and undoing the user agent's styling once beats undoing it in each
+of them — and the `.said` class for text a screen reader is given where a drawing is
+what a sighted reader gets. The two controls that are not buttons undo it in their
+own style block: the `<input>` in `Field.svelte` and the `<a>` in `MenuItem.svelte`.
 Structural geometry — a border width, an `aspect-ratio`, a `stroke-width` — is not
 a token and stays literal.
 
@@ -37,9 +38,15 @@ nouns are data and stay literal.
 not a spec path. They go in the commit trailer and the pull request body.
 `scripts/guards.mjs` fails the build on one.
 
-**Accessibility is a gate, not an aspiration.** `npm run a11y` runs axe over every
-story in three palettes — the light theme, the explicit dark theme, and the system
-preference, which is the one a reader who never touched a toggle actually gets.
+**Accessibility is a gate, not an aspiration.** `npm run a11y` serves
+`storybook-static` and drives it in a browser. Every story is rendered five ways —
+the light theme, the explicit dark theme, the system preference a reader who never
+touched the toggle gets, a request for more contrast, and forced colours — and axe
+is run over each at WCAG 2.2 AA. Three more passes run once per story: tabbing
+right through it to catch a keyboard trap; reading every declared animation and
+transition to catch one that repeats fast enough to flash, or that a reduced-motion
+preference does not stop; and measuring the page at 320 pixels to catch sideways
+scroll.
 
 ## Two Svelte traps the coverage gate will not forgive
 
@@ -68,7 +75,7 @@ npm run ci
 paraglide compile · prettier · eslint (0 warnings) · svelte-check
 (`--fail-on-warnings`) · `scripts/guards.mjs` · dependency-cruiser · vitest at
 **100% statements, branches, functions and lines** · app build · Storybook build ·
-the axe sweep. All of it, green.
+the accessibility sweep. All of it, green.
 
 Every component gets a `.test.ts` and a `.stories.ts` beside it. Tests query by
 role and accessible name and assert what a reader can observe, not that an element
@@ -88,7 +95,8 @@ src/app.css       brand tokens mapped to this interface's names, the element
                   reset, and the one `.said` utility every component would
                   otherwise restate
 messages/en.json  every word a person reads
-scripts/          the gate's own tooling: structural guards, the axe sweep
+scripts/          the gate's own tooling: structural guards, the accessibility
+                  sweep, the built app's wire-version declaration
 .storybook/       preview, and the helpers that put real components in a snippet
 ```
 

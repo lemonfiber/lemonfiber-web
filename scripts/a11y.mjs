@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 /**
- * Runs axe over every built story, in both themes, and fails on any violation.
+ * Drives every built story in a browser and fails on anything it finds.
+ *
+ * Axe runs over each story once per rendering in `THEMES`. Three further passes
+ * read one rendering each: somewhere focus cannot leave, movement a reduced-motion
+ * preference does not stop or that repeats fast enough to flash, and a page that
+ * scrolls sideways at 320 pixels.
  *
  * Storybook's a11y addon is configured to treat a violation as an error, but
  * building Storybook never renders a story, so nothing was checking. This is

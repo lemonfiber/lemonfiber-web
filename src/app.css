@@ -179,8 +179,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Every control in the interface is a button, and each was undoing the user
-   agent's own styling for itself. The prototype states this once; so does this. */
+/* Most controls in the interface are buttons, and the user agent's styling is
+   undone here once rather than in each of them. The two that are not — the
+   input in Field.svelte and the anchor in MenuItem.svelte — undo it themselves. */
 button {
   font: inherit;
   color: inherit;
