@@ -31,7 +31,7 @@
     "messages": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide"
   },
   "dependencies": {
-    "@lemonfiber/brand": "github:lemonfiber/brand#21b8d507bf5a394f24fedc08f10a954abc3e2549",
+    "@lemonfiber/brand": "github:lemonfiber/brand#82d7ce5b85b32ffa6be3925513e037e4af63dfcc",
     "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#87883dda0b9d5c2f7defc2c58872fb71cd0caa22"
   },
   "devDependencies": {
