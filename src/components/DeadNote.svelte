@@ -49,8 +49,8 @@
   }
 
   .ic {
-    width: 26px;
-    height: 26px;
+    width: 1.625rem;
+    height: 1.625rem;
     fill: none;
     stroke: currentColor;
     stroke-width: 1.6;

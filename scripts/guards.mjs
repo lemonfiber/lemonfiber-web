@@ -41,6 +41,79 @@ const REASONING =
 /** A line that is, or continues, a comment. */
 const COMMENT = /^\s*(?:\/\/|\/\*|\*|#|<!--)/;
 
+/** What stands between one term of a declaration's value and the next. */
+const BETWEEN_TERMS = /[\s(),/]+/;
+
+/** One whole term, read as a number and the unit written against it. */
+const LENGTH = /^(-?[\d.]+)([a-z]+)$/i;
+
+/** The units that state a measure the reader's own size cannot move. */
+const ABSOLUTE = new Set(["px", "pt", "pc", "in", "cm", "mm", "q"]);
+
+/** The edges a border names, the bare shorthand among them. */
+const EDGES = [
+  "",
+  "-top",
+  "-right",
+  "-bottom",
+  "-left",
+  "-block",
+  "-block-start",
+  "-block-end",
+  "-inline",
+  "-inline-start",
+  "-inline-end",
+];
+
+/**
+ * The properties that draw a line rather than measure one: a rule between two
+ * rows, the bezel on a faceplate, the ring around a chosen option. No radius
+ * is among them — a radius is a measure like any other.
+ */
+const DRAWS_A_LINE = new Set([
+  ...EDGES.flatMap((edge) => [`border${edge}`, `border${edge}-width`]),
+  "outline",
+  "outline-width",
+  "outline-offset",
+  "column-rule",
+  "column-rule-width",
+  "text-decoration-thickness",
+]);
+
+/**
+ * The properties that paint rather than measure. A shadow's offset and blur
+ * and a stroke's width lay nothing out and hold no words, so they are neither
+ * spacing nor type nor radius and take no size from the reader.
+ */
+const PAINTS = new Set([
+  "box-shadow",
+  "text-shadow",
+  "stroke-width",
+  "stroke-dashoffset",
+]);
+
+/** The widest a drawn line may be, in device pixels. */
+const HAIRLINE = 2;
+
+/** Every absolute length a declaration states, the drawn lines left out. */
+function measures(property, value) {
+  const found = [];
+  if (PAINTS.has(property)) return found;
+  for (const term of value.split(BETWEEN_TERMS)) {
+    const length = LENGTH.exec(term);
+    if (length === null) continue;
+    const [, size, written] = length;
+    const unit = written.toLowerCase();
+    if (!ABSOLUTE.has(unit)) continue;
+    const drawn =
+      unit === "px" &&
+      DRAWS_A_LINE.has(property) &&
+      Math.abs(Number(size)) <= HAIRLINE;
+    if (!drawn) found.push(`${size}${unit}`);
+  }
+  return found;
+}
+
 const GENERATED = ["/generated/", "/paraglide/"];
 const files = (await walk(SRC)).filter(
   (f) => !GENERATED.some((d) => f.includes(d)),
@@ -126,6 +199,42 @@ for (const file of files) {
         `prose in the template ("${found.slice(0, 44)}…") — move it to messages/`,
       );
     }
+
+    // Colour, type, spacing and radius come from tokens, so an absolute length
+    // in a style block is a measure stated twice — and one that stands still
+    // while the type around it follows the reader's own size.
+    //
+    // Four lengths stay literal. A drawn line is a hairline at every type
+    // size, so a border and an outline keep their pixels. A shadow and a
+    // stroke paint rather than measure, so their offsets keep theirs. A
+    // breakpoint has nowhere else to go: a custom property is not valid in a
+    // media feature, and a query's prelude is never read here. And `0` carries
+    // no unit at all.
+    //
+    // A drawing's own grid never reaches here. A viewBox and an `x` are user
+    // coordinates in the markup rather than lengths in a style block.
+    const lineAt = (offset) => text.slice(0, offset).split("\n").length;
+    const measure = (node) => {
+      if (node === null || typeof node !== "object") return;
+      if (Array.isArray(node)) {
+        for (const child of node) measure(child);
+        return;
+      }
+      if (node.type === "Declaration") {
+        const property = node.property.toLowerCase();
+        for (const found of measures(property, node.value)) {
+          fail(
+            file,
+            lineAt(node.start),
+            `\`${property}: ${node.value}\` sets an absolute ${found} — take it from a token, or state it in rem so it follows the reader's own size`,
+          );
+        }
+      }
+      for (const key of ["children", "block", "nodes"]) {
+        if (key in node) measure(node[key]);
+      }
+    };
+    if (tree !== undefined) measure(tree.css);
   }
 
   // Svelte inserts `?? ''` fallbacks the type system already makes unreachable,

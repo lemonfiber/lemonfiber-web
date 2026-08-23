@@ -57,8 +57,8 @@
 
 <style>
   .ic {
-    width: 18px;
-    height: 18px;
+    width: 1.125rem;
+    height: 1.125rem;
     flex: none;
     stroke: currentColor;
     fill: none;
@@ -69,7 +69,7 @@
 
   /* Beside smaller words: a tag, a table row, a stamp. */
   .small {
-    width: 14px;
-    height: 14px;
+    width: 0.875rem;
+    height: 0.875rem;
   }
 </style>

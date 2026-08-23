@@ -41,7 +41,7 @@
 
 <style>
   .meter {
-    height: 5px;
+    height: 0.3125rem;
     border: 1px solid var(--line);
     border-radius: var(--r-sm);
     background: var(--canvas);

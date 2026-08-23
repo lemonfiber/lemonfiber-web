@@ -56,7 +56,7 @@
   }
 
   .term {
-    padding: 0 0 1px;
+    padding: 0 0 0.0625rem;
     border-bottom: 1.5px solid var(--fiber);
     font: inherit;
     color: inherit;

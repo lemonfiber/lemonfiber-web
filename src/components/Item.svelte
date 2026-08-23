@@ -73,7 +73,7 @@
     display: flex;
     align-items: center;
     gap: var(--sp-tight);
-    margin: 0 0 5px;
+    margin: 0 0 0.3125rem;
     font-size: var(--text-eyebrow);
     font-weight: 600;
     text-transform: uppercase;
@@ -95,7 +95,7 @@
   }
 
   h3 {
-    margin: 0 0 4px;
+    margin: 0 0 var(--sp-1);
     font-size: var(--text-item);
     font-weight: 600;
   }
@@ -114,7 +114,7 @@
     flex-direction: column;
     align-items: stretch;
     gap: var(--sp-2);
-    min-width: 168px;
+    min-width: 10.5rem;
   }
 
   /* Wide enough that the prose loses nothing by sitting them side by side. */

@@ -40,7 +40,7 @@
   .treemap {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
-    grid-auto-rows: 78px;
+    grid-auto-rows: 4.875rem;
     gap: var(--sp-1);
     margin: 0;
     padding: 0;

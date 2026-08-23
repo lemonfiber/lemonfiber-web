@@ -51,7 +51,7 @@
   }
 
   h4 {
-    margin: 0 0 2px;
+    margin: 0 0 0.125rem;
     font-size: var(--text-panel);
     font-weight: 600;
   }
