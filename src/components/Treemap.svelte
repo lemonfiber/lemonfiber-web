@@ -82,6 +82,16 @@
     color: var(--on-lemon);
   }
 
+  /* The system replaces the grounds these sit on, so the words stop following
+     a lemon that is no longer there. What the blocks say is said by their size;
+     the border keeps them apart once the fills are gone. */
+  @media (forced-colors: active) {
+    .biggest,
+    .next {
+      color: CanvasText;
+    }
+  }
+
   .other {
     background: var(--pith);
   }

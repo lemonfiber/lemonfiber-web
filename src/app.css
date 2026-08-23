@@ -141,6 +141,30 @@
   }
 }
 
+/* A reader who asks the system for more contrast is asking the quiet steps to
+   stop being quiet. The scale collapses toward the text colour rather than
+   being redrawn, so every word keeps its place and only its weight changes. */
+@media (prefers-contrast: more) {
+  :root {
+    --muted: var(--text);
+    --faint: var(--text);
+    --line: var(--text);
+    --line-soft: var(--text);
+  }
+}
+
+/* High contrast replaces every colour the page states, so a severity told apart
+   by its tint alone stops being told apart. The tints step aside rather than
+   claim a distinction the system has taken away; the mark beside them draws a
+   different shape for each state, and a shape survives. */
+@media (forced-colors: active) {
+  :root {
+    --warn-tint: Canvas;
+    --alarm-tint: Canvas;
+    --focus: Highlight;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
