@@ -202,5 +202,13 @@
   "quota_no_limit": "No limit",
   "quota_cannot_ask": "Can't ask",
 
-  "home_unfinished": "The surface is being built. What exists so far is the vocabulary every screen will speak: a figure is measured now, is the last thing a quiet source said, or was never measured at all."
+  "home_unfinished": "The surface is being built. What exists so far is the vocabulary every screen will speak: a figure is measured now, is the last thing a quiet source said, or was never measured at all.",
+
+  "term_hardlink": "linking",
+  "term_hardlink_name": "Hardlink",
+  "term_hardlink_meaning": "One file in two places, taking the room of one. Both names point at the same bytes, so importing a download costs no extra disk.",
+
+  "term_stale": "stale",
+  "term_stale_name": "Stale",
+  "term_stale_meaning": "The last figure a service gave before it stopped answering. It was true once; nothing has confirmed it since."
 }
