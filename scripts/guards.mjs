@@ -30,8 +30,7 @@ const fail = (file, line, msg) =>
  * commit trailer and a pull request body, where it can be revised; a comment
  * naming the artefact that caused a line rots the moment that artefact moves.
  */
-const CITATION =
-  /\b(?:[A-Z]{1,5}[0-9]*-R[0-9]+|ADR-[0-9]{3,}|G[0-9]+)\b|\bSpec:\s*[0-9]/;
+const CITATION = /\b(?:[A-Z]{1,5}\d*-R\d+|ADR-\d{3,}|G\d+)\b|\bSpec: *\d/;
 
 /** Markers that open an argument rather than state a fact. */
 const REASONING =
@@ -170,7 +169,7 @@ function declarations(css, opener) {
   if (at === -1) return undefined;
   const body = css.slice(at + opener.length, css.indexOf("}", at));
   const found = new Map();
-  for (const [, name, value] of body.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) {
+  for (const [, name, value] of body.matchAll(/(--[\w-]+) *: *([^;]*);/g)) {
     found.set(name, value.trim().toLowerCase());
   }
   return found;

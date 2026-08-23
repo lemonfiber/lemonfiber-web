@@ -24,7 +24,7 @@ describe("Treemap", () => {
 
   it("draws one block per share of the whole", () => {
     render(Treemap, { label, blocks: space });
-    expect(screen.getAllByRole("listitem").length).toBe(space.length);
+    expect(screen.getAllByRole("listitem")).toHaveLength(space.length);
   });
 
   it("says every block's name in words", () => {
@@ -60,7 +60,7 @@ describe("the order a map is read in", () => {
   it("draws the biggest share largest, and only that one", () => {
     const { container } = render(Treemap, { label, blocks: space });
     expect(container.querySelector(".tm")).toHaveClass("tall");
-    expect(container.querySelectorAll(".tall").length).toBe(1);
+    expect(container.querySelectorAll(".tall")).toHaveLength(1);
   });
 });
 

@@ -27,12 +27,12 @@ describe("SubNav", () => {
 
   it("offers one control per place", () => {
     render(SubNav, strip);
-    expect(screen.getAllByRole("button").length).toBe(settings.length);
+    expect(screen.getAllByRole("button")).toHaveLength(settings.length);
   });
 
   it("reads as a list, so a reader is told how many places there are", () => {
     render(SubNav, strip);
-    expect(screen.getAllByRole("listitem").length).toBe(settings.length);
+    expect(screen.getAllByRole("listitem")).toHaveLength(settings.length);
   });
 
   it("names every place in its own words", () => {
@@ -124,7 +124,7 @@ describe("when the place being shown changes under the strip", () => {
       selected: "invites",
     });
 
-    expect(screen.getAllByRole("button").length).toBe(2);
+    expect(screen.getAllByRole("button")).toHaveLength(2);
     expect(screen.getByRole("button", { name: "Invitations" })).toHaveAttribute(
       "aria-current",
       "true",

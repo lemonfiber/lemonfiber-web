@@ -80,7 +80,7 @@ export const HowYourStackIsWired: Story = {
  * the boxes stack, the connectors are dropped, and what has not been set up
  * yet is drawn as a box that is not there yet.
  */
-export const WhatYoureBuilding: Story = {
+export const WhatIsBeingBuilt: Story = {
   args: {
     column: true,
     children: wiring(

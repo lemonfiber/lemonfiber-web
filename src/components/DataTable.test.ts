@@ -83,7 +83,7 @@ describe("DataTable", () => {
   it("keeps the place of a column the design gives no heading", () => {
     render(DataTable, table);
     const heads = screen.getAllByRole("columnheader");
-    expect(heads.length).toBe(columns.length);
+    expect(heads).toHaveLength(columns.length);
     expect(tidy(heads[3]?.textContent)).toBe("");
   });
 
@@ -106,7 +106,7 @@ describe("DataTable", () => {
 
   it("puts what a cell was given to draw inside that cell", () => {
     render(DataTable, table);
-    expect(screen.getAllByRole("button", { name: "Review" }).length).toBe(2);
+    expect(screen.getAllByRole("button", { name: "Review" })).toHaveLength(2);
   });
 
   it("keeps the table inside a wrapper of its own to scroll in", () => {
@@ -147,7 +147,7 @@ describe("a table the design gives no headings", () => {
         },
       ],
     });
-    expect(screen.queryAllByRole("columnheader").length).toBe(0);
+    expect(screen.queryAllByRole("columnheader")).toHaveLength(0);
     expect(
       screen.getByRole("table", { name: "Downloading now" }),
     ).toBeVisible();
@@ -306,7 +306,7 @@ describe("a row whose source has stopped answering", () => {
   it("blanks every column but the one naming it", () => {
     const { container } = render(DataTable, waiting);
     const cells = cellsIn(container, 1);
-    expect(cells.length).toBe(2);
+    expect(cells).toHaveLength(2);
     expect(cells[1]).toHaveAttribute("colspan", "3");
   });
 
