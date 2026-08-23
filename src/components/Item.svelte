@@ -31,7 +31,11 @@
 
   The heading is an h3 — a row sits inside a panel, whose title is the h2.
 -->
-<article class="item" class:watch={tone === "watch"} class:alarm={tone === "alarm"}>
+<article
+  class="item"
+  class:watch={tone === "watch"}
+  class:alarm={tone === "alarm"}
+>
   <Port {tone} />
   <div>
     <p class="eyebrow">

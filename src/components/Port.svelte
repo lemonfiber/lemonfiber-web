@@ -29,7 +29,11 @@
   say "checked, and true", which is more than calm knows: a figure nothing has
   ever measured is calm too, and it has been verified by no one.
 -->
-<span class="port" class:watch={tone === "watch"} class:alarm={tone === "alarm"}>
+<span
+  class="port"
+  class:watch={tone === "watch"}
+  class:alarm={tone === "alarm"}
+>
   <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
     {#if tone === "calm"}
       <circle cx="12" cy="12" r="7" />
