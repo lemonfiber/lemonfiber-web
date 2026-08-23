@@ -16,16 +16,20 @@ import { chromium } from "@playwright/test";
 const ROOT = new URL("..", import.meta.url).pathname;
 const BUILT = join(ROOT, "storybook-static");
 /**
- * The three ways a reader can arrive at a palette. `ink` is the explicit
+ * The ways a reader can arrive at the interface. `ink` is the explicit
  * choice, which brand answers with its own attribute block. `system` sets an
  * attribute brand does not match, so `prefers-color-scheme` answers instead —
  * the path a reader who has never touched the toggle actually gets, and the
- * one no story would otherwise render.
+ * one no story would otherwise render. The last two are the system
+ * preferences the palette itself has to answer: a reader asking for more
+ * contrast, and one whose system replaces every colour outright.
  */
 const THEMES = [
   { name: "paper", scheme: "light" },
   { name: "ink", scheme: "light" },
   { name: "system", scheme: "dark" },
+  { name: "paper", scheme: "light", contrast: "more", as: "contrast" },
+  { name: "ink", scheme: "dark", forcedColors: "active", as: "forced" },
 ];
 
 /** The tags that spell out WCAG 2.2 AA, which is the level the surface owes. */
@@ -85,6 +89,10 @@ for (const theme of THEMES) {
   const context = await browser.newContext({
     viewport: { width: 1200, height: 700 },
     colorScheme: theme.scheme,
+    ...(theme.contrast === undefined ? {} : { contrast: theme.contrast }),
+    ...(theme.forcedColors === undefined
+      ? {}
+      : { forcedColors: theme.forcedColors }),
   });
   const page = await context.newPage();
   for (const id of stories) {
@@ -98,7 +106,7 @@ for (const theme of THEMES) {
     for (const violation of violations) {
       for (const node of violation.nodes) {
         found.push(
-          `${theme.name.padEnd(6)} ${violation.id.padEnd(18)} ${id}\n        ${node.target.join(" ")}\n        ${node.failureSummary?.split("\n").join(" ") ?? ""}`,
+          `${(theme.as ?? theme.name).padEnd(8)} ${violation.id.padEnd(18)} ${id}\n        ${node.target.join(" ")}\n        ${node.failureSummary?.split("\n").join(" ") ?? ""}`,
         );
       }
     }
@@ -109,7 +117,7 @@ for (const theme of THEMES) {
 await browser.close();
 server.close();
 
-const checked = `${String(stories.length)} stories × ${THEMES.map((t) => t.name).join(", ")}`;
+const checked = `${String(stories.length)} stories × ${THEMES.map((t) => t.as ?? t.name).join(", ")}`;
 if (found.length > 0) {
   console.error(
     `a11y: ${String(found.length)} violation(s) across ${checked}\n`,
