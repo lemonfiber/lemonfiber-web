@@ -23,7 +23,7 @@ jobs:
           cache: npm
 
       - name: Install exactly what the lockfile says
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       # The accessibility sweep drives the built Storybook in a real browser.
       - name: Install the browser the sweep drives
