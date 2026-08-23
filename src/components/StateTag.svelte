@@ -40,13 +40,13 @@
   .tag {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--sp-tight);
     padding: 2px 7px;
     border: 1px solid var(--line);
     border-radius: var(--r-sm);
     background: var(--pith);
     color: var(--muted);
-    font-size: 11px;
+    font-size: var(--text-tag);
     font-weight: 500;
     white-space: nowrap;
   }

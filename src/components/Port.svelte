@@ -49,8 +49,8 @@
 
 <style>
   .port {
-    width: 34px;
-    height: 34px;
+    width: var(--ctl-h);
+    height: var(--ctl-h);
     flex: none;
     position: relative;
     display: grid;
