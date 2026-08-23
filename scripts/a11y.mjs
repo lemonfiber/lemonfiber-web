@@ -184,6 +184,141 @@ for (const id of stories) {
 
 await keyboard.close();
 
+/**
+ * What moves, and how wide it gets.
+ *
+ * Three questions of one rendering, so they are asked of one: a story is opened
+ * once, read as it stands, read again with the motion preference set, and
+ * measured again at a narrow window. Numbering the tree and reading a property
+ * off it is what keeps that cheap.
+ *
+ * One palette, because none of the three is a colour: what animates, what a
+ * preference suppresses and what a layout does at 320 pixels are the same in
+ * every theme.
+ */
+
+/**
+ * Every declared movement in the story's own tree.
+ *
+ * Scoped to the rendered story: Storybook leaves its loading chrome in the page,
+ * hidden, with a spinner still declared on it, and a sweep of the whole document
+ * would report Storybook's own animation on all 125 stories.
+ *
+ * Pseudo-elements are read too. The one transition in this interface is on an
+ * `::after` — the knob a switch moves — so a sweep that read only elements would
+ * find nothing and report that as clean.
+ */
+const MOVING = () => {
+  const parts = (list) => list.split(",").map((one) => one.trim());
+  const root = document.querySelector("#storybook-root");
+  const moving = [];
+  for (const element of root === null ? [] : root.querySelectorAll("*")) {
+    for (const pseudo of [undefined, "::before", "::after"]) {
+      const style = getComputedStyle(element, pseudo);
+      const first = element.classList[0];
+      const named = first === undefined ? "" : `.${first}`;
+      const where = `${element.tagName.toLowerCase()}${named}${pseudo ?? ""}`;
+      const periods = parts(style.animationDuration);
+      const counts = parts(style.animationIterationCount);
+      parts(style.animationName).forEach((name, index) => {
+        if (name === "none") return;
+        moving.push({
+          where,
+          what: name,
+          period: Number.parseFloat(periods[index % periods.length] ?? "0"),
+          forever: (counts[index % counts.length] ?? "1") === "infinite",
+        });
+      });
+      const settling = Math.max(
+        0,
+        ...parts(style.transitionDuration).map(
+          (one) => Number.parseFloat(one) || 0,
+        ),
+      );
+      if (settling > 0) {
+        moving.push({
+          where,
+          what: `transition ${style.transitionProperty}`,
+          period: settling,
+          forever: false,
+        });
+      }
+      if (style.textDecorationLine.includes("blink")) {
+        moving.push({ where, what: "blink", period: 0, forever: true });
+      }
+    }
+  }
+  return moving;
+};
+
+/**
+ * The period below which a repeating animation is a flash.
+ *
+ * Three flashes a second is where the guidance draws the line, so a cycle
+ * shorter than a third of a second is one.
+ *
+ * What this catches is a shape: an animation declared to repeat for ever, faster
+ * than that. What it does not catch is everything a flash can be made of that no
+ * stylesheet declares — a script swapping classes on a timer, a video, an
+ * animated image, or a colour change driven from data. It says nothing about
+ * area or luminance either, so the general threshold, which exempts a small
+ * enough flashing region, is neither applied nor needed: nothing here is allowed
+ * to repeat that fast at any size.
+ */
+const FLASH = 1 / 3;
+
+/**
+ * The window the guidance measures reflow at: 320 pixels wide, which is a
+ * 1280-pixel window at 400% zoom. Content has to reach it without asking the
+ * reader to scroll in two directions at once.
+ *
+ * Wide content scrolling inside its own container is right and is not caught
+ * here — this asks only whether the page itself goes sideways.
+ */
+const NARROW = 320;
+
+const reading = await browser.newContext({
+  viewport: { width: 1200, height: 700 },
+});
+const measuring = await reading.newPage();
+
+for (const id of stories) {
+  await measuring.goto(
+    `http://127.0.0.1:${String(port)}/iframe.html?id=${id}&globals=theme:paper&viewMode=story`,
+    { waitUntil: "networkidle" },
+  );
+
+  for (const one of await measuring.evaluate(MOVING)) {
+    if (!one.forever || one.period >= FLASH) continue;
+    found.push(
+      `flash    ${"repeats".padEnd(18)} ${id}\n        ${one.where} — ${one.what} every ${String(one.period)}s, for ever`,
+    );
+  }
+
+  await measuring.emulateMedia({ reducedMotion: "reduce" });
+  for (const one of await measuring.evaluate(MOVING)) {
+    if (one.period === 0) continue;
+    found.push(
+      `motion   ${"still moves".padEnd(18)} ${id}\n        ${one.where} — ${one.what} over ${String(one.period)}s`,
+    );
+  }
+  await measuring.emulateMedia({ reducedMotion: null });
+
+  await measuring.setViewportSize({ width: NARROW, height: 700 });
+  const sideways = await measuring.evaluate(() => ({
+    wants: document.documentElement.scrollWidth,
+    has: document.documentElement.clientWidth,
+  }));
+  if (sideways.wants > sideways.has) {
+    found.push(
+      `narrow   ${"scrolls sideways".padEnd(18)} ${id}\n        the page wants ${String(sideways.wants)}px in a ${String(sideways.has)}px window`,
+    );
+  }
+  await measuring.setViewportSize({ width: 1200, height: 700 });
+}
+
+await reading.close();
+
 await browser.close();
 server.close();
 

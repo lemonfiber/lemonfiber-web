@@ -33,19 +33,41 @@
   the branch sitting behind one connector are both groupings, and a border
   around either would say a thing holds them that does not.
 -->
-<section
-  class="encl"
-  class:bare={label === undefined}
-  class:column
-  aria-labelledby={named}
->
-  {#if label !== undefined}
-    <span class="tag" id={tagId}>{label}</span>
-  {/if}
-  {@render children()}
-</section>
+<div class="frame">
+  <section
+    class="encl"
+    class:bare={label === undefined}
+    class:column
+    aria-labelledby={named}
+  >
+    {#if label !== undefined}
+      <span class="tag" id={tagId}>{label}</span>
+    {/if}
+    {@render children()}
+  </section>
+</div>
 
 <style>
+  /* A picture wider than the window scrolls inside its own frame rather than
+     taking the page sideways with it, which is what a wide table does here.
+
+     The padding is the room the tag needs: a scroller clips at its padding edge,
+     and the tag stands the same step above the box that it is lifted by. The
+     negative margin gives that room back to the layout, so the box sits where it
+     sat. */
+  .frame {
+    overflow-x: auto;
+    margin-top: calc(var(--sp-2) * -1);
+    padding-top: var(--sp-2);
+  }
+
+  /* A picture inside a picture is not its own scroller — the diagram moves
+     together or not at all — so an inner frame draws no box and the section it
+     holds stays the part its parent lays out. */
+  .frame :global(.frame) {
+    display: contents;
+  }
+
   .encl {
     /* The room the nodes inside stand at. A box that stacks them lowers it. */
     --node-min-width: 8.25rem;
