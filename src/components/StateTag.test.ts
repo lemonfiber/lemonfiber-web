@@ -2,12 +2,10 @@ import { render, screen } from "@testing-library/svelte";
 import { describe, expect, it } from "vitest";
 import StateTag from "./StateTag.svelte";
 import StateMark from "./StateMark.svelte";
-import { wordFor, type State } from "../lib/state";
-
-const every: State[] = ["known", "quiet", "unknown", "stopped", "part"];
+import { everyState, wordFor } from "../lib/state";
 
 describe("StateTag", () => {
-  it.each(every)("shows the plain word for %s", (state) => {
+  it.each(everyState)("shows the plain word for %s", (state) => {
     render(StateTag, { state });
     expect(screen.getByText(wordFor(state))).toBeInTheDocument();
   });
@@ -17,14 +15,14 @@ describe("StateTag", () => {
     expect(screen.getByText("gluetun")).toBeInTheDocument();
   });
 
-  it.each(every)("records the state it is showing for %s", (state) => {
+  it.each(everyState)("records the state it is showing for %s", (state) => {
     const { container } = render(StateTag, { state });
     expect(container.querySelector(`[data-state="${state}"]`)).not.toBeNull();
   });
 });
 
 describe("StateMark", () => {
-  it.each(every)("announces %s to a screen reader", (state) => {
+  it.each(everyState)("announces %s to a screen reader", (state) => {
     render(StateMark, { state });
     expect(
       screen.getByRole("img", { name: wordFor(state) }),

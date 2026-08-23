@@ -55,6 +55,10 @@
   --tracking-eyebrow: var(--lf-tracking-eyebrow);
   --row-h: 42px;
   --ctl-h: 34px;
+
+  /* A panel's own inset. Between --sp-4 and --sp-5, and the brand scale has no
+     step there, so the surface names one. */
+  --panel-pad: 18px;
 }
 
 [data-lf-theme="ink"] {

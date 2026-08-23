@@ -1,13 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import StateMark from "./StateMark.svelte";
-import type { State } from "../lib/state";
-
-const every: State[] = ["known", "quiet", "unknown", "stopped", "part"];
+import { everyState } from "../lib/state";
 
 const meta = {
   title: "Foundations/StateMark",
   component: StateMark,
-  argTypes: { state: { control: "select", options: every } },
+  argTypes: { state: { control: "select", options: everyState } },
 } satisfies Meta<typeof StateMark>;
 
 export default meta;
