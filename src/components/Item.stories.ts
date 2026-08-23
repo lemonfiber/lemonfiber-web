@@ -1,34 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
-import { createRawSnippet } from "svelte";
 import Item from "./Item.svelte";
+import { pressing } from "../../.storybook/snippets";
 import { spanFor } from "../lib/freshness";
 import { everyState } from "../lib/state";
 import * as m from "../paraglide/messages.js";
 
-// Buttons are their own component, and not this one. Until they exist, the
-// stories dress them the way the design does, so a row is shown at its real
-// width rather than at a browser default's.
-const GHOST =
-  "font:inherit;font-size:12.5px;cursor:pointer;padding:6px var(--sp-3);" +
-  "border:1px solid var(--line);border-radius:var(--r-md);" +
-  "background:var(--paper);color:var(--muted)";
-const SOLID =
-  "font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:6px var(--sp-4);" +
-  "border:1px solid var(--fiber-deep);border-radius:var(--r-md);" +
-  "background:var(--lemon);color:var(--on-lemon)";
+const oneWay = pressing({ label: m.action_how_checked() });
 
-const oneWay = createRawSnippet(() => ({
-  render: () =>
-    `<button type="button" style="${GHOST}">${m.action_how_checked()}</button>`,
-}));
-
-const twoWays = createRawSnippet(() => ({
-  render: () =>
-    `<div style="display:contents">
-       <button type="button" style="${GHOST}">${m.action_why_seeing()}</button>
-       <button type="button" style="${SOLID}">${m.action_fix_it()}</button>
-     </div>`,
-}));
+const twoWays = pressing(
+  { label: m.action_why_seeing() },
+  { label: m.action_fix_it(), weight: "firm" },
+);
 
 const meta = {
   title: "Surfaces/Item",

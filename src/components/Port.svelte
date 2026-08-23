@@ -21,7 +21,7 @@
   is says how much it wants you.
 
   The icon inside is a shape before it is a colour — a strand end, a note, a
-  warning triangle — so the tile survives greyscale (G3). The tile replaces a
+  warning triangle — so the tile survives greyscale. The tile replaces a
   coloured bar down the left edge, which says severity in colour and nothing
   else.
 
@@ -29,7 +29,11 @@
   say "checked, and true", which is more than calm knows: a figure nothing has
   ever measured is calm too, and it has been verified by no one.
 -->
-<span class="port" class:watch={tone === "watch"} class:alarm={tone === "alarm"}>
+<span
+  class="port"
+  class:watch={tone === "watch"}
+  class:alarm={tone === "alarm"}
+>
   <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
     {#if tone === "calm"}
       <circle cx="12" cy="12" r="7" />
@@ -43,7 +47,7 @@
     {/if}
   </svg>
   {#if label !== undefined}
-    <span class="named">{label}</span>
+    <span class="said">{label}</span>
   {/if}
 </span>
 
@@ -92,14 +96,5 @@
     border-color: var(--alarm);
     background: var(--alarm);
     color: var(--paper);
-  }
-
-  .named {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
   }
 </style>

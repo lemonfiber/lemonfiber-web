@@ -17,7 +17,6 @@ export default tseslint.config(
       "eslint.config.js",
       "svelte.config.js",
       ".dependency-cruiser.cjs",
-      "scripts/**",
     ],
   },
 
@@ -65,7 +64,15 @@ export default tseslint.config(
   {
     files: ["scripts/**/*.mjs", "*.config.js"],
     ...tseslint.configs.disableTypeChecked,
-    languageOptions: { globals: { ...globals.node } },
-    rules: { "no-console": "off" },
+    languageOptions: {
+      globals: { ...globals.node },
+      // The gate's own tooling is not part of the app's TypeScript project, so
+      // it is parsed without one rather than added to it.
+      parserOptions: { projectService: false, project: false },
+    },
+    rules: {
+      ...tseslint.configs.disableTypeChecked.rules,
+      "no-console": "off",
+    },
   },
 );

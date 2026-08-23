@@ -71,7 +71,7 @@ describe("the severity a row carries", () => {
   it("leaves the port's drawing unannounced", () => {
     const { container } = render(Item, stuck);
     const drawings = container.querySelectorAll("svg[aria-hidden='true']");
-    expect(drawings.length).toBe(1);
+    expect(drawings).toHaveLength(1);
   });
 
   it("tints only the row that wants you now", () => {

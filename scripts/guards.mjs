@@ -25,9 +25,21 @@ const fail = (file, line, msg) =>
     `${relative(ROOT, file)}${line === null ? "" : `:${line}`}  ${msg}`,
   );
 
+/**
+ * Requirement identifiers, ADR numbers and spec paths. Provenance belongs in a
+ * commit trailer and a pull request body, where it can be revised; a comment
+ * naming the artefact that caused a line rots the moment that artefact moves.
+ */
+const IDENTIFIER = /\b(?:[A-Z]{1,5}\d*-R\d+|ADR-\d{3,}|G\d+)\b/;
+const SPEC_PATH = /\bSpec: *\d/;
+const cites = (line) => IDENTIFIER.test(line) || SPEC_PATH.test(line);
+
 /** Markers that open an argument rather than state a fact. */
 const REASONING =
   /^\s*(?:\/\/|\*|#|<!--)\s*(?:because|we |i |the reason|this is why|originally|it turns out|note that|arguably)/i;
+
+/** A line that is, or continues, a comment. */
+const COMMENT = /^\s*(?:\/\/|\/\*|\*|#|<!--)/;
 
 const GENERATED = ["/generated/", "/paraglide/"];
 const files = (await walk(SRC)).filter(
@@ -53,6 +65,13 @@ for (const file of files) {
     if (/eslint-disable/.test(line)) fail(file, at, "eslint-disable");
     if (/@ts-(?:ignore|expect-error|nocheck)/.test(line))
       fail(file, at, "TypeScript escape hatch");
+
+    if (COMMENT.test(line) && cites(line))
+      fail(
+        file,
+        at,
+        "a citation in a comment — cite it in the commit trailer and the pull request instead",
+      );
 
     // Comments state facts. Reasoning belongs in an ADR.
     if (REASONING.test(line))
@@ -132,6 +151,71 @@ for (const file of files) {
         null,
         `compiles to an unreachable \`?? ''\` in ${call[1]} — give the interpolation its own element, ` +
           `or bind the whole attribute (line ~${String(upto.split("\n").length)} of the output)`,
+      );
+    }
+  }
+}
+
+// Brand states its dark palette only under `[data-lf-theme="ink"]`, and the
+// surface also has to answer `prefers-color-scheme`, which brand does not
+// cover. That leaves one set of values written in two places, so the two are
+// compared here rather than left to drift apart unnoticed.
+const BRAND_TOKENS = join(
+  ROOT,
+  "node_modules/@lemonfiber/brand/tokens/tokens.css",
+);
+
+/** The custom properties a `{ … }` block declares, keyed by name. */
+function declarations(css, opener) {
+  const at = css.indexOf(opener);
+  if (at === -1) return undefined;
+  const body = css.slice(at + opener.length, css.indexOf("}", at));
+  const found = new Map();
+  for (const declaration of body.split(";")) {
+    const colon = declaration.indexOf(":");
+    if (colon === -1) continue;
+    const name = declaration.slice(0, colon).trim();
+    if (!name.startsWith("--")) continue;
+    found.set(
+      name,
+      declaration
+        .slice(colon + 1)
+        .trim()
+        .toLowerCase(),
+    );
+  }
+  return found;
+}
+
+const brandInk = declarations(
+  await readFile(BRAND_TOKENS, "utf8"),
+  '[data-lf-theme="ink"] {',
+);
+const surfaceDark = declarations(
+  await readFile(join(SRC, "app.css"), "utf8"),
+  ':root:not([data-lf-theme="paper"]) {',
+);
+
+if (brandInk === undefined || surfaceDark === undefined) {
+  fail(
+    join(SRC, "app.css"),
+    null,
+    "cannot find both dark palettes to compare — brand's ink block or the surface's system-preference block has moved",
+  );
+} else {
+  for (const [name, value] of brandInk) {
+    const mine = surfaceDark.get(name);
+    if (mine === undefined) {
+      fail(
+        join(SRC, "app.css"),
+        null,
+        `the system-preference block does not set ${name}, which brand's ink theme does — dark mode would fall back to the light value`,
+      );
+    } else if (mine !== value) {
+      fail(
+        join(SRC, "app.css"),
+        null,
+        `${name} is ${mine} for the system preference and ${value} in brand's ink theme — the two dark paths disagree`,
       );
     }
   }

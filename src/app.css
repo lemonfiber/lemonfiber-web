@@ -2,7 +2,7 @@
  * The surface's visual language.
  *
  * Colour, radii and spacing come from `@lemonfiber/brand`; nothing here invents
- * one (`ARCH-R36`). What this file adds is the handful of product tokens the
+ * one. What this file adds is the handful of product tokens the
  * brand palette has no opinion on — the three severities, and the neutrals the
  * dark surface needs.
  *
@@ -12,7 +12,9 @@
 
 :root {
   /* Brand, renamed to what this interface calls them. */
-  --ink: var(--lf-color-ink);
+  /* The strongest foreground. Brand names it only in the theme where it
+     flips, so the light theme falls back to the ink the palette is built on. */
+  --ink: var(--lf-color-text, var(--lf-color-ink));
   --paper: var(--lf-color-paper);
   --pith: var(--lf-color-pith);
   --canvas: var(--lf-color-canvas);
@@ -24,7 +26,7 @@
   --lemon-bright: var(--lf-color-lemon-bright);
   --fiber: var(--lf-color-fiber);
   --fiber-deep: var(--lf-color-fiber-deep);
-  --text: var(--lf-color-ink);
+  --text: var(--ink);
 
   /* Product tokens. The brand has no severity palette, and deliberately no
      blues, teals or cyans — so these stay in its warm family. */
@@ -44,6 +46,7 @@
 
   --r-sm: var(--lf-radius-sm);
   --r-md: var(--lf-radius-md);
+  --r-pill: var(--lf-radius-pill);
 
   --sp-1: var(--lf-space-1);
   --sp-2: var(--lf-space-2);
@@ -56,6 +59,11 @@
      which flips. Deliberately not overridden below. */
   --on-lemon: var(--lf-color-ink);
 
+  /* The shade a raised part casts on the surface under it. A shadow is an
+     absence of light in either theme, so this one is ink at three tenths in
+     both. Deliberately not overridden below. */
+  --shadow: color-mix(in srgb, var(--lf-color-ink) 30%, transparent);
+
   --tracking-eyebrow: var(--lf-tracking-eyebrow);
   --row-h: 42px;
   --ctl-h: 34px;
@@ -67,29 +75,40 @@
   /* The gap inside a row of small parts. Between --sp-1 and --sp-2. */
   --sp-tight: 6px;
 
+  /* The gap between the parts of one strip. Half of --sp-1. */
+  --sp-hair: 2px;
+
   /* The brand type scale is built for display: its smallest step is 12px, and
      an operational surface reads denser than that. The steps below name what
      they set. --text-prose is the brand's caption. */
   --text-value: 9px;
   --text-eyebrow: 10px;
+  /* A caption sitting under the thing it describes. */
+  --text-note: 11.5px;
+  /* The words set on a drawn shape: a block of a chart, a stand-in for a
+     picture. */
+  --text-legend: 12px;
   --text-stamp: 10.5px;
   --text-tag: 11px;
+  /* The words on a quiet control. A firm one takes --text-prose. */
+  --text-control: 12.5px;
   --text-prose: var(--lf-size-caption);
   --text-panel: 13.5px;
   --text-body: 14px;
   --text-item: 14.5px;
+  /* A single letter standing in for a person. */
+  --text-initial: 16px;
+  /* The unit riding inside a figure, at half the figure's size. */
+  --text-unit: 18px;
+  /* A figure given a panel to itself. The brand's display scale steps 27px
+     then 38px. */
+  --text-figure: 36px;
 }
 
+/* Brand carries every surface and text colour for this theme, so what is left
+   here is the severity palette it has no opinion on. */
 [data-lf-theme="ink"] {
-  --ink: var(--lf-color-paper);
-  --text: #fbf7ea;
-  --canvas: #100f0a;
-  --muted: #a9a48c;
-  --faint: #7c7865;
-  --line-soft: #2b2921;
-
   --ok: #9db856;
-  --warn: var(--lf-color-fiber-light);
   --warn-tint: #35240f;
   --alarm: #e8705c;
   --alarm-tint: #3a1c16;
@@ -97,20 +116,23 @@
   --focus: var(--lf-color-lemon);
 }
 
+/* Brand states its dark palette only under the attribute above, so the same
+   values are restated here for the system preference. `scripts/guards.mjs`
+   compares the two and fails when they disagree. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-lf-theme="paper"]) {
-    --ink: var(--lf-color-paper);
-    --paper: #17160f;
-    --pith: #241f14;
-    --text: #fbf7ea;
-    --canvas: #100f0a;
-    --line: #34322a;
-    --line-soft: #2b2921;
-    --muted: #a9a48c;
-    --faint: #7c7865;
+    --lf-color-paper: #17160f;
+    --lf-color-pith: #241f14;
+    --lf-color-canvas: #100f0a;
+    --lf-color-fiber: #f09a3c;
+    --lf-color-fiber-deep: #f09a3c;
+    --lf-color-text: #fbf7ea;
+    --lf-color-text-muted: #acaa9f;
+    --lf-color-text-faint: #8d8972;
+    --lf-color-line: #34322a;
+    --lf-color-line-soft: #262419;
 
     --ok: #9db856;
-    --warn: var(--lf-color-fiber-light);
     --warn-tint: #35240f;
     --alarm: #e8705c;
     --alarm-tint: #3a1c16;
@@ -131,6 +153,27 @@ body {
   font-size: var(--text-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Every control in the interface is a button, and each was undoing the user
+   agent's own styling for itself. The prototype states this once; so does this. */
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Read, never seen. What a screen reader is given where the drawing beside it
+   is what a sighted reader gets. */
+.said {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 :focus-visible {

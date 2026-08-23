@@ -31,6 +31,14 @@ describe("Value", () => {
   });
 });
 
+describe("where the caller has already said the figure is the last one", () => {
+  it("keeps the figure and drops the caption", () => {
+    render(Value, { state: "quiet", figure: "0 B/s", unmarked: true });
+    expect(screen.getByText("0 B/s")).toBeInTheDocument();
+    expect(screen.queryByText(m.value_last_known())).toBeNull();
+  });
+});
+
 describe("when nothing was ever measured", () => {
   it("says so in words", () => {
     render(Value, { state: "unknown" });

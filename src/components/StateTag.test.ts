@@ -59,4 +59,19 @@ describe("when a state changes on a tag already on screen", () => {
     expect(container.querySelector('[data-state="stopped"]')).not.toBeNull();
     expect(container.querySelector('[data-state="known"]')).toBeNull();
   });
+
+  // A poster's column is narrower than the words its tag carries.
+  it("passes the wrapping it was asked for through to the tag", () => {
+    const { container } = render(StateTag, { state: "known", wraps: true });
+    expect(container.querySelector(".tag")?.classList.contains("wraps")).toBe(
+      true,
+    );
+  });
+
+  it("keeps its words on one line otherwise", () => {
+    const { container } = render(StateTag, { state: "known" });
+    expect(container.querySelector(".tag")?.classList.contains("wraps")).toBe(
+      false,
+    );
+  });
 });

@@ -17,7 +17,7 @@
   Every state gets its own shape, not only its own colour. A coloured square
   asks the reader to work out what the colour means; a tick, a clock, a stop
   square and a question do not — and shape survives greyscale, which colour
-  alone does not (G3).
+  alone does not.
 -->
 <svg
   class="mark"
@@ -39,7 +39,15 @@
     <path d="M9.4 9.6a2.7 2.7 0 1 1 3.2 3.1v1.2M12.5 17.1v.1" />
   {:else if state === "stopped"}
     <circle cx="12" cy="12" r="8.6" />
-    <rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" stroke="none" />
+    <rect
+      x="9"
+      y="9"
+      width="6"
+      height="6"
+      rx="1"
+      fill="currentColor"
+      stroke="none"
+    />
   {:else}
     <circle cx="12" cy="12" r="8.6" />
     <path d="M12 3.4a8.6 8.6 0 0 1 0 17.2Z" fill="currentColor" stroke="none" />

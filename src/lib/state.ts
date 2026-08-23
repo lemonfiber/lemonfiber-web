@@ -7,8 +7,6 @@
  * problem.
  *
  * The words themselves live in `messages/`, so no screen holds one.
- *
- * Spec: 10-functional/features/g-ux/g2-plain-language.md
  */
 import * as m from "../paraglide/messages.js";
 
