@@ -114,6 +114,76 @@ for (const theme of THEMES) {
   await context.close();
 }
 
+/**
+ * Somewhere focus can enter and not leave is a keyboard trap. Tabbing once
+ * more than there are places to land should reach every one of them; reaching
+ * fewer means focus is circling inside something it cannot get out of.
+ *
+ * One pass, in one palette: a trap is structural, and a colour neither makes
+ * nor unmakes one.
+ */
+const FOCUSABLE = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(", ");
+
+const keyboard = await browser.newContext({
+  viewport: { width: 1200, height: 700 },
+});
+const tabbing = await keyboard.newPage();
+
+for (const id of stories) {
+  await tabbing.goto(
+    `http://127.0.0.1:${String(port)}/iframe.html?id=${id}&globals=theme:paper&viewMode=story`,
+    { waitUntil: "networkidle" },
+  );
+
+  // Number each place focus can land, once, so reading where it is costs a
+  // property rather than a walk of the document.
+  //
+  // A roving tabindex takes a group of controls out of the tab order and
+  // leaves one in — a radio group is meant to be entered once and moved
+  // through by arrow. Counting the others as places to land would read
+  // correct behaviour as a trap.
+  const places = await tabbing.evaluate((selector) => {
+    const landings = [...document.querySelectorAll(selector)].filter(
+      (element) =>
+        element instanceof HTMLElement &&
+        element.offsetParent !== null &&
+        element.getAttribute("tabindex") !== "-1",
+    );
+    landings.forEach((element, index) => {
+      element.dataset["landing"] = String(index);
+    });
+    return landings.length;
+  }, FOCUSABLE);
+
+  // One place to land cannot trap anything: there is nowhere to circle.
+  if (places < 2) continue;
+
+  const reached = new Set();
+  for (let press = 0; press < places + 1; press += 1) {
+    await tabbing.keyboard.press("Tab");
+    const at = await tabbing.evaluate(() => {
+      const here = document.activeElement;
+      return here instanceof HTMLElement ? (here.dataset["landing"] ?? "") : "";
+    });
+    if (at !== "") reached.add(at);
+  }
+
+  if (reached.size < places) {
+    found.push(
+      `keyboard ${"trap".padEnd(18)} ${id}\n        focus reached ${String(reached.size)} of ${String(places)} places to land`,
+    );
+  }
+}
+
+await keyboard.close();
+
 await browser.close();
 server.close();
 
