@@ -30,7 +30,9 @@ const fail = (file, line, msg) =>
  * commit trailer and a pull request body, where it can be revised; a comment
  * naming the artefact that caused a line rots the moment that artefact moves.
  */
-const CITATION = /\b(?:[A-Z]{1,5}\d*-R\d+|ADR-\d{3,}|G\d+)\b|\bSpec: *\d/;
+const IDENTIFIER = /\b(?:[A-Z]{1,5}\d*-R\d+|ADR-\d{3,}|G\d+)\b/;
+const SPEC_PATH = /\bSpec: *\d/;
+const cites = (line) => IDENTIFIER.test(line) || SPEC_PATH.test(line);
 
 /** Markers that open an argument rather than state a fact. */
 const REASONING =
@@ -64,7 +66,7 @@ for (const file of files) {
     if (/@ts-(?:ignore|expect-error|nocheck)/.test(line))
       fail(file, at, "TypeScript escape hatch");
 
-    if (COMMENT.test(line) && CITATION.test(line))
+    if (COMMENT.test(line) && cites(line))
       fail(
         file,
         at,
@@ -169,8 +171,18 @@ function declarations(css, opener) {
   if (at === -1) return undefined;
   const body = css.slice(at + opener.length, css.indexOf("}", at));
   const found = new Map();
-  for (const [, name, value] of body.matchAll(/(--[\w-]+) *: *([^;]*);/g)) {
-    found.set(name, value.trim().toLowerCase());
+  for (const declaration of body.split(";")) {
+    const colon = declaration.indexOf(":");
+    if (colon === -1) continue;
+    const name = declaration.slice(0, colon).trim();
+    if (!name.startsWith("--")) continue;
+    found.set(
+      name,
+      declaration
+        .slice(colon + 1)
+        .trim()
+        .toLowerCase(),
+    );
   }
   return found;
 }
