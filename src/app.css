@@ -75,6 +75,9 @@
   /* The gap inside a row of small parts. Between --sp-1 and --sp-2. */
   --sp-tight: 6px;
 
+  /* The gap between the parts of one strip. Half of --sp-1. */
+  --sp-hair: 2px;
+
   /* The brand type scale is built for display: its smallest step is 12px, and
      an operational surface reads denser than that. The steps below name what
      they set. --text-prose is the brand's caption. */
@@ -93,6 +96,8 @@
   --text-panel: 13.5px;
   --text-body: 14px;
   --text-item: 14.5px;
+  /* A single letter standing in for a person. */
+  --text-initial: 16px;
   /* The unit riding inside a figure, at half the figure's size. */
   --text-unit: 18px;
   /* A figure given a panel to itself. The brand's display scale steps 27px

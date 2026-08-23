@@ -23,10 +23,15 @@ import {
 } from "svelte";
 import Action from "../src/components/Action.svelte";
 import DeadNote from "../src/components/DeadNote.svelte";
+import Enclosure from "../src/components/Enclosure.svelte";
 import Icon from "../src/components/Icon.svelte";
+import Meter from "../src/components/Meter.svelte";
+import SchematicNode from "../src/components/Node.svelte";
 import StateTag from "../src/components/StateTag.svelte";
 import Switch from "../src/components/Switch.svelte";
+import Tag from "../src/components/Tag.svelte";
 import Value from "../src/components/Value.svelte";
+import Wire from "../src/components/Wire.svelte";
 
 /** Puts something into the node a snippet holds, and takes it away again. */
 type Fill = (node: Element) => () => void;
@@ -97,6 +102,71 @@ export function stating(props: ComponentProps<typeof StateTag>): Snippet {
     const made = mount(StateTag, { target: node, props });
     return () => {
       void unmount(made);
+    };
+  });
+}
+
+/** How far along something is, as the bar a table row draws it with. */
+export function measuring(props: ComponentProps<typeof Meter>): Snippet {
+  return holding((node) => {
+    const made = mount(Meter, { target: node, props });
+    return () => {
+      void unmount(made);
+    };
+  });
+}
+
+/** The tag naming what a row is or where it came from. */
+export function naming(props: ComponentProps<typeof Tag>): Snippet {
+  return holding((node) => {
+    const made = mount(Tag, { target: node, props });
+    return () => {
+      void unmount(made);
+    };
+  });
+}
+
+/** A box in a schematic, and what it holds. */
+type Box = Omit<ComponentProps<typeof Enclosure>, "children"> & {
+  readonly holds: readonly Part[];
+};
+
+/** One part of a schematic: a node, a connector, or a box of further parts. */
+export type Part =
+  | { readonly node: ComponentProps<typeof SchematicNode> }
+  | { readonly wire: ComponentProps<typeof Wire> }
+  | { readonly box: Box };
+
+/** Puts one part in place, and takes it away again. */
+function place(target: Element, part: Part): () => void {
+  if ("node" in part) {
+    const made = mount(SchematicNode, { target, props: part.node });
+    return () => {
+      void unmount(made);
+    };
+  }
+  if ("wire" in part) {
+    const made = mount(Wire, { target, props: part.wire });
+    return () => {
+      void unmount(made);
+    };
+  }
+  const { holds, ...rest } = part.box;
+  const made = mount(Enclosure, {
+    target,
+    props: { ...rest, children: wiring(...holds) },
+  });
+  return () => {
+    void unmount(made);
+  };
+}
+
+/** The parts a schematic box holds, in the order they are read. */
+export function wiring(...parts: readonly Part[]): Snippet {
+  return holding((node) => {
+    const made = parts.map((part) => place(node, part));
+    return () => {
+      for (const undo of made) undo();
     };
   });
 }

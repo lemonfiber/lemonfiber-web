@@ -9,9 +9,15 @@
     figure?: string | undefined;
     /** Stands in for the figure when there is none. */
     absent?: string | undefined;
+    /**
+     * Drops the caption that marks a figure as the last one given, for a place
+     * that already says as much beside the figure and has no room to say it
+     * twice.
+     */
+    unmarked?: boolean | undefined;
   }
 
-  let { state, figure, absent }: Props = $props();
+  let { state, figure, absent, unmarked = false }: Props = $props();
 
   const showing = $derived(figure === undefined ? "words" : showingFor(state));
   const said = $derived(absent ?? m.value_not_known());
@@ -25,13 +31,19 @@
   and in italic — never in the figure face, and never as a numeral. "0 B/s" and
   "not known" mean opposite things, and a reader glancing at a column of
   numerals must not be able to mistake one for the other.
+
+  The caption is what says a dimmed figure is the last one given. It is dropped
+  only where the same thing is said beside the figure, which is the caller's
+  claim to make rather than this one's.
 -->
 {#if showing === "words"}
   <em class="absent">{said}</em>
 {:else if showing === "dim"}
   <span class="dim">
     <span class="figure">{figure}</span>
-    <span class="marker">{lastKnown}</span>
+    {#if !unmarked}
+      <span class="marker">{lastKnown}</span>
+    {/if}
   </span>
 {:else}
   <span class="ink figure">{figure}</span>
