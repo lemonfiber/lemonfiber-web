@@ -4,3 +4,6 @@ storybook-static/
 node_modules/
 src/generated/
 src/paraglide/
+
+# Written by inlang, not by hand.
+project.inlang/
