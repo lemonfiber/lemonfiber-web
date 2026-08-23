@@ -72,7 +72,7 @@
   }
 
   h2 {
-    font-size: 13.5px;
+    font-size: var(--text-panel);
     font-weight: 600;
     letter-spacing: -0.005em;
     margin: 0;
@@ -82,9 +82,9 @@
     margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--sp-tight);
     font-family: var(--mono);
-    font-size: 10.5px;
+    font-size: var(--text-stamp);
     color: var(--faint);
     white-space: nowrap;
   }

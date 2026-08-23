@@ -52,6 +52,10 @@
   --sp-5: var(--lf-space-5);
   --sp-6: var(--lf-space-6);
 
+  /* Lemon is lemon in both themes, so what sits on it does not follow --ink,
+     which flips. Deliberately not overridden below. */
+  --on-lemon: var(--lf-color-ink);
+
   --tracking-eyebrow: var(--lf-tracking-eyebrow);
   --row-h: 42px;
   --ctl-h: 34px;
@@ -59,6 +63,21 @@
   /* A panel's own inset. Between --sp-4 and --sp-5, and the brand scale has no
      step there, so the surface names one. */
   --panel-pad: 18px;
+
+  /* The gap inside a row of small parts. Between --sp-1 and --sp-2. */
+  --sp-tight: 6px;
+
+  /* The brand type scale is built for display: its smallest step is 12px, and
+     an operational surface reads denser than that. The steps below name what
+     they set. --text-prose is the brand's caption. */
+  --text-value: 9px;
+  --text-eyebrow: 10px;
+  --text-stamp: 10.5px;
+  --text-tag: 11px;
+  --text-prose: var(--lf-size-caption);
+  --text-panel: 13.5px;
+  --text-body: 14px;
+  --text-item: 14.5px;
 }
 
 [data-lf-theme="ink"] {
@@ -109,7 +128,7 @@ body {
   background: var(--canvas);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }

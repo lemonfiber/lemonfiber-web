@@ -68,9 +68,9 @@
   .eyebrow {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--sp-tight);
     margin: 0 0 5px;
-    font-size: 10px;
+    font-size: var(--text-eyebrow);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: var(--tracking-eyebrow);
@@ -92,13 +92,13 @@
 
   h3 {
     margin: 0 0 4px;
-    font-size: 14.5px;
+    font-size: var(--text-item);
     font-weight: 600;
   }
 
   .prose {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--text-prose);
     color: var(--muted);
     max-width: 76ch;
   }

@@ -15,7 +15,7 @@ const GHOST =
 const SOLID =
   "font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:6px var(--sp-4);" +
   "border:1px solid var(--fiber-deep);border-radius:var(--r-md);" +
-  "background:var(--lemon);color:var(--lf-color-ink)";
+  "background:var(--lemon);color:var(--on-lemon)";
 
 const oneWay = createRawSnippet(() => ({
   render: () =>

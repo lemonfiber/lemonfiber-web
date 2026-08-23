@@ -52,13 +52,13 @@
   .dim {
     display: inline-flex;
     align-items: baseline;
-    gap: 6px;
+    gap: var(--sp-tight);
     color: var(--faint);
   }
 
   /* The marker is a caption on the figure, so it never wraps away from it. */
   .marker {
-    font-size: 9px;
+    font-size: var(--text-value);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     border: 1px solid var(--line);
