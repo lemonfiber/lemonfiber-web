@@ -23,3 +23,15 @@ jobs:
       contents: read
       pull-requests: write
     uses: lemonfiber/spec/.github/workflows/labeler.yml@76ed8252bc5a9fc090dfa486039d4e164ce8ae0c # main
+
+  # SonarCloud scans this repo by Automatic Analysis, which reports the quality
+  # gate and not the zero-new-issues standard. This reads the summary it posts
+  # and fails on a counted issue (Q-R64). Named apart from this repo's own
+  # `gate`, which is a different check.
+  sonar-gate:
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: lemonfiber/spec/.github/workflows/sonar-gate.yml@76ed8252bc5a9fc090dfa486039d4e164ce8ae0c # main
+    secrets:
+      sonar-token: ${{ secrets.SONAR_TOKEN }}
