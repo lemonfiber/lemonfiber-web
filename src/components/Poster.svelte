@@ -36,7 +36,7 @@
   {/if}
   <div class="t">{title}</div>
   {#if state !== undefined}
-    <StateTag {state} {label} />
+    <StateTag {state} {label} wraps />
   {/if}
   {#if note !== undefined}
     <span class="sub">{note}</span>
@@ -85,13 +85,6 @@
     font-weight: 600;
     line-height: 1.3;
     overflow-wrap: anywhere;
-  }
-
-  /* A column this narrow is narrower than the words a tag carries, so the tag
-     wraps here rather than running out of the poster. */
-  .poster :global(.tag) {
-    max-width: 100%;
-    white-space: normal;
   }
 
   .sub {

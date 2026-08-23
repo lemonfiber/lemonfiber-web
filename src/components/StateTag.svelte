@@ -8,9 +8,11 @@
     state: State;
     /** Overrides the state's own word, for a tag naming a thing rather than a state. */
     label?: string | undefined;
+    /** Lets the words wrap, for a tag in a column narrower than they are. */
+    wraps?: boolean | undefined;
   }
 
-  let { state, label }: Props = $props();
+  let { state, label, wraps = false }: Props = $props();
 
   const tone = $derived(toneFor(state));
   const text: string = $derived(label ?? wordFor(state));
@@ -21,6 +23,6 @@
   ground says whether it wants you. The shape is the tag's, so the ground, the
   border and the words are one ruleset rather than two that drift apart.
 -->
-<Tag {tone} {state} label={text}>
+<Tag {tone} {state} {wraps} label={text}>
   <StateMark {state} {label} />
 </Tag>

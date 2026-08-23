@@ -110,6 +110,21 @@ describe("when a tag already on screen changes", () => {
     expect(screen.queryByText("Working")).toBeNull();
   });
 
+  // A tag beside a figure must never wrap; one under a poster in a narrow
+  // column must, or its words run out of the column.
+  it("keeps its words on one line", () => {
+    const { container } = render(Tag, { label: "Ready to watch" });
+    expect(tagIn(container)?.classList.contains("wraps")).toBe(false);
+  });
+
+  it("lets its words wrap where it is asked to", () => {
+    const { container } = render(Tag, {
+      label: "Ready to watch",
+      wraps: true,
+    });
+    expect(tagIn(container)?.classList.contains("wraps")).toBe(true);
+  });
+
   it("drops its ground when the severity goes away", async () => {
     const { container, rerender } = render(Tag, {
       label: "Warning",

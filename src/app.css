@@ -46,6 +46,7 @@
 
   --r-sm: var(--lf-radius-sm);
   --r-md: var(--lf-radius-md);
+  --r-pill: var(--lf-radius-pill);
 
   --sp-1: var(--lf-space-1);
   --sp-2: var(--lf-space-2);

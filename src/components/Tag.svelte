@@ -16,11 +16,16 @@
      * ground can carry a state, and a tinted one can carry none.
      */
     state?: State | undefined;
+    /**
+     * Lets the words wrap. For a tag in a column narrower than the words it
+     * carries, which would otherwise run out of the column.
+     */
+    wraps?: boolean | undefined;
     /** A mark sitting before the words. */
     children?: Snippet | undefined;
   }
 
-  let { label, tone, state, children }: Props = $props();
+  let { label, tone, state, wraps = false, children }: Props = $props();
 </script>
 
 <!--
@@ -36,6 +41,7 @@
   class:bare={tone === undefined}
   class:watch={tone === "watch"}
   class:alarm={tone === "alarm"}
+  class:wraps
   data-state={state}
 >
   {#if children !== undefined}
@@ -64,6 +70,11 @@
     font-size: var(--text-tag);
     font-weight: 500;
     white-space: nowrap;
+  }
+
+  .wraps {
+    max-width: 100%;
+    white-space: normal;
   }
 
   /* No severity behind it, so it takes no ground either: it names a thing, and

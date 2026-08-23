@@ -45,7 +45,7 @@
     position: relative;
     padding: 0;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     background: var(--line);
     cursor: pointer;
   }
