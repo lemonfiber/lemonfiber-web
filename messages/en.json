@@ -50,17 +50,55 @@
   "check_scan_title": "Your library is being read for the first time",
   "check_scan_prose": "{done} of {total} folders have been walked. Figures on this page will be incomplete until it finishes.",
 
+  "setting_boot_title": "Start when this machine starts",
+  "setting_boot_prose": "Your stack comes back on its own after a power cut or a reboot.",
+  "setting_night_title": "Slow downloads at night",
+  "setting_files_title": "Where your files are kept",
+  "setting_files_prose": "{path} — one disk, which is what lets downloads be linked into your library instead of copied.",
+  "setting_tunnel_drop_title": "Stop downloading if the tunnel drops",
+  "setting_tunnel_drop_prose": "Can't be turned off. Your download programs live inside the tunnel, so there is no route out without it.",
+  "setting_tunnel_drop_state": "Always on",
+  "setting_version_prose": "You're on {installed}. {offered} is available.",
+
+  "note_quota": "A limit stops one person filling the disk on their own. It resets on the first of the month.",
+  "note_backup": "This backs up your settings — which programs run, your quality choices, who's in the household. Not your films; those are far too big.",
+
   "action_how_checked": "How was this checked?",
   "action_why_seeing": "Why am I seeing this?",
   "action_fix_it": "Fix it for me",
   "action_try_again": "Try again",
   "action_read_logs": "Read its logs",
   "action_hide_this": "Hide this",
+  "action_change": "Change",
+  "action_see_what_changed": "See what changed",
 
   "banner_contact_lead": "Lost contact with your stack.",
   "banner_contact_prose": "Trying again — every figure below is the last one confirmed, not what is true now.",
 
   "meter_how_far": "How far along",
+
+  "panel_where_space_went": "Where your space went",
+  "eyebrow_free_space": "Free space",
+  "eyebrow_coming_in": "Coming in now",
+  "eyebrow_stuck": "Stuck",
+  "figure_free_of": "free of {total}",
+  "figure_working": "working",
+  "figure_one_running": "one download running, one gone quiet",
+  "figure_gave_up": "tried twice, then gave up",
+
+  "poster_ready_to_watch": "Ready to watch",
+  "poster_getting_it_now": "Getting it now",
+  "poster_waiting_yes": "Waiting to be approved",
+  "poster_ask": "Ask for something",
+  "poster_search": "Search for anything",
+
+  "space_films": "Films",
+  "space_series": "Series",
+  "space_downloads": "Downloads",
+  "space_free": "Free",
+  "space_other": "Other",
+
+  "waiting_next_line": "Waiting for the next line",
 
   "home_unfinished": "The surface is being built. What exists so far is the vocabulary every screen will speak: a figure is measured now, is the last thing a quiet source said, or was never measured at all."
 }

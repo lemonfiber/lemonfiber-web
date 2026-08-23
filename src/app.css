@@ -58,6 +58,11 @@
      which flips. Deliberately not overridden below. */
   --on-lemon: var(--lf-color-ink);
 
+  /* The shade a raised part casts on the surface under it. A shadow is an
+     absence of light in either theme, so this one is ink at three tenths in
+     both. Deliberately not overridden below. */
+  --shadow: color-mix(in srgb, var(--lf-color-ink) 30%, transparent);
+
   --tracking-eyebrow: var(--lf-tracking-eyebrow);
   --row-h: 42px;
   --ctl-h: 34px;
@@ -74,6 +79,11 @@
      they set. --text-prose is the brand's caption. */
   --text-value: 9px;
   --text-eyebrow: 10px;
+  /* A caption sitting under the thing it describes. */
+  --text-note: 11.5px;
+  /* The words set on a drawn shape: a block of a chart, a stand-in for a
+     picture. */
+  --text-legend: 12px;
   --text-stamp: 10.5px;
   --text-tag: 11px;
   /* The words on a quiet control. A firm one takes --text-prose. */
@@ -82,6 +92,11 @@
   --text-panel: 13.5px;
   --text-body: 14px;
   --text-item: 14.5px;
+  /* The unit riding inside a figure, at half the figure's size. */
+  --text-unit: 18px;
+  /* A figure given a panel to itself. The brand's display scale steps 27px
+     then 38px. */
+  --text-figure: 36px;
 }
 
 /* Brand carries every surface and text colour for this theme, so what is left

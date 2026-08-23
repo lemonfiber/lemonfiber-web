@@ -6,6 +6,12 @@
  * to look like the real thing is the alternative, and a copy of a component's
  * styling that no gate compares against the original drifts from it silently.
  *
+ * Each component gets its own function rather than sharing a generic one.
+ * Svelte's `Component<Props, Exports, Bindings>` constrains its later
+ * parameters by `Props` and takes `Props` contravariantly, so a signature
+ * accepting any component infers `Props` as its own constraint and rejects
+ * every concrete component handed to it. `NoInfer` does not change that.
+ *
  * Storybook-only, which is why it lives here rather than under `src`.
  */
 import {
@@ -17,6 +23,9 @@ import {
 } from "svelte";
 import Action from "../src/components/Action.svelte";
 import DeadNote from "../src/components/DeadNote.svelte";
+import Icon from "../src/components/Icon.svelte";
+import StateTag from "../src/components/StateTag.svelte";
+import Switch from "../src/components/Switch.svelte";
 import Value from "../src/components/Value.svelte";
 
 /** Puts something into the node a snippet holds, and takes it away again. */
@@ -56,6 +65,36 @@ export function notAnswering(props: ComponentProps<typeof DeadNote>): Snippet {
 export function showing(props: ComponentProps<typeof Value>): Snippet {
   return holding((node) => {
     const made = mount(Value, { target: node, props });
+    return () => {
+      void unmount(made);
+    };
+  });
+}
+
+/** The mark sitting before a tag's words. */
+export function marking(props: ComponentProps<typeof Icon>): Snippet {
+  return holding((node) => {
+    const made = mount(Icon, { target: node, props });
+    return () => {
+      void unmount(made);
+    };
+  });
+}
+
+/** The two-position control that sets a row's setting. */
+export function flipping(props: ComponentProps<typeof Switch>): Snippet {
+  return holding((node) => {
+    const made = mount(Switch, { target: node, props });
+    return () => {
+      void unmount(made);
+    };
+  });
+}
+
+/** What a row states where it offers no control at all. */
+export function stating(props: ComponentProps<typeof StateTag>): Snippet {
+  return holding((node) => {
+    const made = mount(StateTag, { target: node, props });
     return () => {
       void unmount(made);
     };
