@@ -65,15 +65,15 @@
   --shadow: color-mix(in srgb, var(--lf-color-ink) 30%, transparent);
 
   --tracking-eyebrow: var(--lf-tracking-eyebrow);
-  --row-h: 42px;
-  --ctl-h: 34px;
+  --row-h: 2.625rem;
+  --ctl-h: 2.125rem;
 
   /* A panel's own inset. Between --sp-4 and --sp-5, and the brand scale has no
      step there, so the surface names one. */
-  --panel-pad: 18px;
+  --panel-pad: 1.125rem;
 
   /* The gap inside a row of small parts. Between --sp-1 and --sp-2. */
-  --sp-tight: 6px;
+  --sp-tight: 0.375rem;
 
   /* The gap between the parts of one strip. Half of --sp-1. */
   --sp-hair: 2px;
@@ -81,28 +81,28 @@
   /* The brand type scale is built for display: its smallest step is 12px, and
      an operational surface reads denser than that. The steps below name what
      they set. --text-prose is the brand's caption. */
-  --text-value: 9px;
-  --text-eyebrow: 10px;
+  --text-value: 0.5625rem;
+  --text-eyebrow: 0.625rem;
   /* A caption sitting under the thing it describes. */
-  --text-note: 11.5px;
+  --text-note: 0.71875rem;
   /* The words set on a drawn shape: a block of a chart, a stand-in for a
      picture. */
-  --text-legend: 12px;
-  --text-stamp: 10.5px;
-  --text-tag: 11px;
+  --text-legend: 0.75rem;
+  --text-stamp: 0.65625rem;
+  --text-tag: 0.6875rem;
   /* The words on a quiet control. A firm one takes --text-prose. */
-  --text-control: 12.5px;
+  --text-control: 0.78125rem;
   --text-prose: var(--lf-size-caption);
-  --text-panel: 13.5px;
-  --text-body: 14px;
-  --text-item: 14.5px;
+  --text-panel: 0.84375rem;
+  --text-body: 0.875rem;
+  --text-item: 0.90625rem;
   /* A single letter standing in for a person. */
-  --text-initial: 16px;
+  --text-initial: 1rem;
   /* The unit riding inside a figure, at half the figure's size. */
-  --text-unit: 18px;
+  --text-unit: 1.125rem;
   /* A figure given a panel to itself. The brand's display scale steps 27px
      then 38px. */
-  --text-figure: 36px;
+  --text-figure: 2.25rem;
 }
 
 /* Brand carries every surface and text colour for this theme, so what is left
