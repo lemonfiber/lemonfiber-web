@@ -28,7 +28,8 @@
     "storybook:build": "storybook build",
     "a11y": "node scripts/a11y.mjs",
     "ci": "npm run messages && npm run format:check && npm run lint && npm run types && npm run guard && npm run arch && npm run coverage && npm run build && npm run storybook:build && npm run a11y",
-    "messages": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide"
+    "messages": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "@lemonfiber/brand": "github:lemonfiber/brand#82d7ce5b85b32ffa6be3925513e037e4af63dfcc",
