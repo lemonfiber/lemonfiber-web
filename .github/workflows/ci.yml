@@ -9,20 +9,20 @@ permissions:
 
 jobs:
   spec-check:
-    uses: lemonfiber/spec/.github/workflows/spec-check.yml@93bf49c96ae5b12e49daea523b1d66ae294babb0 # main
+    uses: lemonfiber/spec/.github/workflows/spec-check.yml@24892a988c8277f58e14aaa441beae2f234d47aa # main
   hygiene:
-    uses: lemonfiber/spec/.github/workflows/hygiene.yml@93bf49c96ae5b12e49daea523b1d66ae294babb0 # main
+    uses: lemonfiber/spec/.github/workflows/hygiene.yml@24892a988c8277f58e14aaa441beae2f234d47aa # main
   security:
-    uses: lemonfiber/spec/.github/workflows/security.yml@93bf49c96ae5b12e49daea523b1d66ae294babb0 # main
+    uses: lemonfiber/spec/.github/workflows/security.yml@24892a988c8277f58e14aaa441beae2f234d47aa # main
   dco:
-    uses: lemonfiber/spec/.github/workflows/dco.yml@93bf49c96ae5b12e49daea523b1d66ae294babb0 # main
+    uses: lemonfiber/spec/.github/workflows/dco.yml@24892a988c8277f58e14aaa441beae2f234d47aa # main
   commitlint:
-    uses: lemonfiber/spec/.github/workflows/commitlint.yml@93bf49c96ae5b12e49daea523b1d66ae294babb0 # main
+    uses: lemonfiber/spec/.github/workflows/commitlint.yml@24892a988c8277f58e14aaa441beae2f234d47aa # main
   labeler:
     permissions:
       contents: read
       pull-requests: write
-    uses: lemonfiber/spec/.github/workflows/labeler.yml@93bf49c96ae5b12e49daea523b1d66ae294babb0 # main
+    uses: lemonfiber/spec/.github/workflows/labeler.yml@24892a988c8277f58e14aaa441beae2f234d47aa # main
 
   # SonarCloud scans this repo by Automatic Analysis, which reports the quality
   # gate and not the zero-new-issues standard. This reads the summary it posts
@@ -32,7 +32,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    uses: lemonfiber/spec/.github/workflows/sonar-gate.yml@93bf49c96ae5b12e49daea523b1d66ae294babb0 # main
+    uses: lemonfiber/spec/.github/workflows/sonar-gate.yml@24892a988c8277f58e14aaa441beae2f234d47aa # main
     with:
       allowed-open: 1
     secrets:
