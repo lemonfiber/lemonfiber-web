@@ -17,7 +17,7 @@ type Story = StoryObj<typeof meta>;
 
 /** One tunnel, and the two programs that reach the internet through it. */
 const insideTheTunnel: readonly Part[] = [
-  { node: { name: "gluetun", state: "known", figure: "185.65.135.72 · NL" } },
+  { node: { name: "gluetun", state: "known", figure: "198.51.100.7 · NL" } },
   { wire: { label: m.schematic_carries() } },
   {
     box: {

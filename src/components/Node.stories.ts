@@ -18,7 +18,7 @@ type Story = StoryObj<typeof meta>;
 
 /** A program answering now. The mark says so, and the figure is what is true. */
 export const AProgramWorking: Story = {
-  args: { name: "gluetun", state: "known", figure: "185.65.135.72 · NL" },
+  args: { name: "gluetun", state: "known", figure: "198.51.100.7 · NL" },
 };
 
 /**
