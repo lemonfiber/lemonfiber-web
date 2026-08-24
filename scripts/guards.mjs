@@ -20,10 +20,10 @@ async function walk(dir) {
 }
 
 const failures = [];
-const fail = (file, line, msg) =>
-  failures.push(
-    `${relative(ROOT, file)}${line === null ? "" : `:${line}`}  ${msg}`,
-  );
+const fail = (file, line, msg) => {
+  const where = line === null ? "" : `:${String(line)}`;
+  failures.push(`${relative(ROOT, file)}${where}  ${msg}`);
+};
 
 /**
  * Requirement identifiers, ADR numbers and spec paths. Provenance belongs in a
@@ -37,6 +37,16 @@ const cites = (line) => IDENTIFIER.test(line) || SPEC_PATH.test(line);
 /** Markers that open an argument rather than state a fact. */
 const REASONING =
   /^\s*(?:\/\/|\*|#|<!--)\s*(?:because|we |i |the reason|this is why|originally|it turns out|note that|arguably)/i;
+
+/**
+ * A dotted quad. RFC 5737 reserves 192.0.2.0/24, 198.51.100.0/24 and
+ * 203.0.113.0/24 for writing about, and 127.0.0.0/8 is this machine; any other
+ * literal in a component, a story or a test is a host somebody answers for, and
+ * a screenshot of it names them.
+ */
+const ADDRESS = /\b(?:\d{1,3}\.){3}\d{1,3}\b/g;
+const RESERVED =
+  /^(?:127\.|0\.0\.0\.0$|192\.0\.2\.|198\.51\.100\.|203\.0\.113\.)/;
 
 /** A line that is, or continues, a comment. */
 const COMMENT = /^\s*(?:\/\/|\/\*|\*|#|<!--)/;
@@ -133,6 +143,15 @@ for (const file of files) {
       !/^\s*(?:\/\/|\*|<!--)/.test(line)
     ) {
       fail(file, at, "external origin");
+    }
+
+    for (const [found] of line.matchAll(ADDRESS)) {
+      if (!RESERVED.test(found))
+        fail(
+          file,
+          at,
+          `${found} is a real address — write about 198.51.100.0/24 instead`,
+        );
     }
 
     if (/eslint-disable/.test(line)) fail(file, at, "eslint-disable");
@@ -246,8 +265,8 @@ for (const file of files) {
     let js;
     try {
       js = compile(text, { generate: "client", dev: false }).js.code;
-    } catch (problem) {
-      fail(file, null, `does not compile: ${String(problem)}`);
+    } catch (error) {
+      fail(file, null, `does not compile: ${String(error)}`);
       continue;
     }
 

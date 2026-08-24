@@ -7,7 +7,7 @@ import * as m from "../paraglide/messages.js";
 const gluetun = {
   name: "gluetun",
   state: "known",
-  figure: "185.65.135.72 · NL",
+  figure: "198.51.100.7 · NL",
 } as const;
 
 describe("Node", () => {

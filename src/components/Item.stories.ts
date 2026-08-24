@@ -31,7 +31,9 @@ export const Confirmed: Story = {
     eyebrow: m.eyebrow_confirmed(),
     title: m.check_tunnel_title(),
     prose: m.check_tunnel_prose({
-      address: "185.65.135.72",
+      // RFC 5737 reserves this range for documentation, so a screenshot of
+      // this story names nobody.
+      address: "198.51.100.7",
       country: "the Netherlands",
     }),
     actions: oneWay,
