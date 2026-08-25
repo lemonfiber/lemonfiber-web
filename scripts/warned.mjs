@@ -11,7 +11,7 @@
  */
 
 /** Every accessibility warning the compiler emits, the ones not yet written included. */
-const FAMILY = /^a11y_/;
+const FAMILY = "a11y_";
 
 /** A dependency's own markup, which is not this repository's to change. */
 const THEIRS = "node_modules";
@@ -26,7 +26,8 @@ const LINK = /\n[^\n]*$/;
 /** Whether a compiler warning is one this surface refuses to build. */
 export function refuses(warning) {
   return (
-    FAMILY.test(warning.code) && !(warning.filename ?? "").includes(THEIRS)
+    warning.code.startsWith(FAMILY) &&
+    !(warning.filename ?? "").includes(THEIRS)
   );
 }
 
