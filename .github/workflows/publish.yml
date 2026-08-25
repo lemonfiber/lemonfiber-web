@@ -33,6 +33,13 @@ jobs:
 
       - run: npm ci --ignore-scripts
 
+      # The client arrives as a commit rather than as a published build, and it
+      # ships its build rather than its sources — so it builds when it is
+      # installed, and the hardened install above stops it. This runs that one
+      # build, by the commit the manifest pins, and no other package's.
+      - name: Build the client this surface is drawn through
+        run: npm run client
+
       - name: Build, and say which wire version it speaks
         run: |
           npm run build

@@ -25,6 +25,13 @@ jobs:
       - name: Install exactly what the lockfile says
         run: npm ci --ignore-scripts
 
+      # The client arrives as a commit rather than as a published build, and it
+      # ships its build rather than its sources — so it builds when it is
+      # installed, and the hardened install above stops it. This runs that one
+      # build, by the commit the manifest pins, and no other package's.
+      - name: Build the client this surface is drawn through
+        run: npm run client
+
       # The accessibility sweep drives the built Storybook in a real browser.
       - name: Install the browser the sweep drives
         run: ./node_modules/.bin/playwright install --with-deps chromium
