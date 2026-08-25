@@ -13,8 +13,22 @@
 /** Every accessibility warning the compiler emits, the ones not yet written included. */
 const FAMILY = "a11y_";
 
-/** A dependency's own markup, which is not this repository's to change. */
+/** The directory holding a dependency's own markup, which is not this repository's to change. */
 const THEIRS = "node_modules";
+
+/** What stands between one segment of a path and the next, on either kind of host. */
+const SEPARATOR = /[/\\]/u;
+
+/**
+ * Whether a warning was raised in a dependency's own markup.
+ *
+ * Read as a segment of the path rather than as text inside it: a directory named
+ * `node_modules_cache` is this repository's, and a file under it is markup this
+ * repository writes and answers for.
+ */
+function theirs(filename) {
+  return filename.split(SEPARATOR).includes(THEIRS);
+}
 
 /**
  * The last line of a warning's message, which is the documentation link. The
@@ -25,10 +39,7 @@ const LINK = /\n[^\n]*$/;
 
 /** Whether a compiler warning is one this surface refuses to build. */
 export function refuses(warning) {
-  return (
-    warning.code.startsWith(FAMILY) &&
-    !(warning.filename ?? "").includes(THEIRS)
-  );
+  return warning.code.startsWith(FAMILY) && !theirs(warning.filename ?? "");
 }
 
 /** Where a refused warning was raised, as a path and a line. */
