@@ -6,11 +6,18 @@
     label: string;
     /** `firm` is the one thing being asked for; everything else is `quiet`. */
     weight?: Weight | undefined;
+    /** Whether pressing it does nothing for now. */
+    off?: boolean | undefined;
     /** What pressing it does. */
     onclick?: (() => void) | undefined;
   }
 
-  let { label, weight = "quiet", onclick }: Props = $props();
+  let { label, weight = "quiet", off = false, onclick }: Props = $props();
+
+  function pressed(): void {
+    if (off) return;
+    onclick?.();
+  }
 </script>
 
 <!--
@@ -23,8 +30,19 @@
 
   `type` is fixed rather than offered. A control inside a form defaults to
   submitting it, which is a second thing to press by accident.
+
+  A control with nothing to do for the moment says so rather than leaving the
+  page: `disabled` takes a button out of the tab order, and a reader whose focus
+  was on the button they just pressed would be left standing nowhere.
 -->
-<button class="act" class:firm={weight === "firm"} type="button" {onclick}>
+<button
+  class="act"
+  class:firm={weight === "firm"}
+  class:off
+  type="button"
+  aria-disabled={off}
+  onclick={pressed}
+>
   <span class="word">{label}</span>
 </button>
 
@@ -48,7 +66,7 @@
     white-space: nowrap;
   }
 
-  .act:hover {
+  .act:not(.off):hover {
     border-color: var(--faint);
     color: var(--text);
   }
@@ -64,7 +82,17 @@
     font-weight: 600;
   }
 
-  .firm:hover {
+  .firm:not(.off):hover {
     background: var(--lemon-bright);
+  }
+
+  /* Sunk into the ground it sits on rather than greyed out. The words keep the
+     ink a quiet control's words carry, so what a control says is legible
+     whether or not it can be pressed right now. */
+  .off {
+    background: var(--canvas);
+    border-color: var(--line);
+    color: var(--muted);
+    cursor: default;
   }
 </style>

@@ -20,7 +20,6 @@ import {
   type Reading,
   type Sending,
 } from "@lemonfiber/sdk-ts";
-import type { Moment } from "../lib/wire";
 
 /**
  * Where the stream is served.
@@ -68,7 +67,7 @@ export async function asked<K extends Kind>(
 
 /** The stream, opened, or why it could not be. */
 export type Watching =
-  | { readonly ok: true; readonly arrivals: AsyncGenerator<Arrival<Moment>> }
+  | { readonly ok: true; readonly arrivals: AsyncGenerator<Arrival<unknown>> }
   | { readonly ok: false; readonly problem: Problem };
 
 /**
@@ -84,13 +83,32 @@ export function watching(reaching: Reaching, signal: AbortSignal): Watching {
 
   return {
     ok: true,
-    arrivals: follow<Moment>({
+    arrivals: follow<unknown>({
       url: `${where.base}${STREAM}`,
       token: reaching.token,
       fetching: reaching.fetching,
       signal,
     }),
   };
+}
+
+/** One thing the stream said, as against a break in it. */
+export type Heard<T> = Extract<Arrival<T>, { kind: string }>;
+
+/**
+ * Whether an arrival carries the payload the kind it names carries.
+ *
+ * One stream carries every kind the server has anything to say about, so what
+ * arrived has to be sorted before it is read: the generated types are what know
+ * which payload goes with which kind, and a payload read under the wrong one is
+ * fields with changed meanings. A break in the stream carries no payload at all
+ * and is never one of these.
+ */
+export function carrying<K extends Kind>(
+  arrival: Arrival<unknown>,
+  kind: K,
+): arrival is Heard<ByKind[K]["data"]> & { readonly kind: K } {
+  return arrival.at !== "lost" && arrival.kind === kind;
 }
 
 /**

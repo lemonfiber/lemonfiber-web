@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Shell from "./Shell.svelte";
-import { moment, stack } from "./fixture";
+import { controls, moment, stack, started, stillWaiting } from "./fixture";
 import { screening } from "../../.storybook/snippets";
 import { everyPlace } from "../lib/route";
 
@@ -13,6 +13,7 @@ const overview = screening({
   flow: "live",
   read: answered,
   live: answered,
+  controls,
 });
 
 const nothingBuilt = screening({
@@ -22,6 +23,7 @@ const nothingBuilt = screening({
   flow: "opening",
   read: { kind: "never" },
   live: { kind: "never" },
+  controls,
 });
 
 const meta = {
@@ -49,4 +51,30 @@ export const TheConsole: Story = {};
  */
 export const SomewhereElse: Story = {
   args: { place: "logs", children: nothingBuilt },
+};
+
+/**
+ * The whole console with something on offer and something in flight: two
+ * controls, a question standing on one of them, work the runtime is holding and
+ * the line the wait is saying. Assembled rather than isolated, so the sweep
+ * reads the tab order through all of it and whether it still reaches 320 pixels
+ * without going sideways.
+ */
+export const WithSomethingAsked: Story = {
+  args: {
+    children: screening({
+      stack: { ok: true, value: stack },
+      programs: { ok: true, value: stack },
+      moment,
+      flow: "live",
+      read: answered,
+      live: answered,
+      controls: {
+        ...controls,
+        confirming: "down",
+        work: [started],
+        waiting: stillWaiting,
+      },
+    }),
+  },
 };

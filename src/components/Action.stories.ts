@@ -32,3 +32,13 @@ export const AskedFor: Story = {
 export const TryingAgain: Story = {
   args: { label: m.action_try_again() },
 };
+
+/**
+ * Nothing to do for the moment. It sinks into the ground it sits on rather
+ * than leaving the page: `disabled` takes a button out of the tab order, and a
+ * reader whose focus was on the button they just pressed would be left
+ * standing nowhere.
+ */
+export const NothingToDoYet: Story = {
+  args: { label: m.action_try_again(), off: true },
+};

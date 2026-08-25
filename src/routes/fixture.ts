@@ -7,6 +7,7 @@
  * a panel.
  */
 import type { Moment, Service, Stack } from "../lib/wire";
+import type { Controls, Work } from "../lib/work";
 
 /** Bytes free on a disk with room on it. */
 const FREE = 412_000_000_000;
@@ -127,3 +128,31 @@ export const unavailable = {
   panel: "unavailable",
   data: { reason: "The download client is not answering." },
 } as const;
+
+/** Nothing has been asked of the stack, and nothing is holding anything up. */
+export const controls: Controls = {
+  work: [],
+  waiting: undefined,
+  confirming: undefined,
+  busy: false,
+  onpress: () => undefined,
+  onleave: () => undefined,
+  ondrop: () => undefined,
+  onhush: () => undefined,
+};
+
+/** Work the runtime is holding, under the name the reply gave it. */
+export const started: Work = {
+  id: "1",
+  doing: "up",
+  at: "under-way",
+  job: "9f2c41ab7d0e5c63",
+};
+
+/** What a wait says while it is still waiting, in lemonfiber's own words. */
+export const stillWaiting =
+  "Still starting: sonarr, radarr — 25 seconds so far, of 180.";
+
+/** What lemonfiber says about a request it would not carry out. */
+export const wouldNot =
+  "The action `restart` needs `forms`, which was not given.";

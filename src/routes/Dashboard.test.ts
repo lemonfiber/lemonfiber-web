@@ -1,8 +1,10 @@
 import { render, screen } from "@testing-library/svelte";
+import userEvent from "@testing-library/user-event";
 import type { Reading } from "@lemonfiber/sdk-ts";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import Dashboard from "./Dashboard.svelte";
 import { moment, services, stack, unavailable, worst } from "./fixture";
+import { controls, started, stillWaiting, wouldNot } from "./fixture";
 
 import { stampFor, type Freshness } from "../lib/freshness";
 import { wordFor } from "../lib/state";
@@ -14,6 +16,7 @@ import {
   type Moment,
   type Stack,
 } from "../lib/wire";
+import { everyDoing, questionOf, titleOfDoing, wordOfDoing } from "../lib/work";
 import * as m from "../paraglide/messages.js";
 
 const never: Freshness = { kind: "never" };
@@ -29,6 +32,7 @@ function board(over: Partial<Parameters<typeof Dashboard>[1]> = {}): void {
     flow: "opening",
     read: never,
     live: never,
+    controls,
     ...over,
   });
 }
@@ -386,5 +390,210 @@ describe("what needs the operator", () => {
   it("says plainly when nothing is wrong", () => {
     board({ moment: changed({ stuck: [] }), flow: "live" });
     expect(screen.getByText(m.figure_nothing_wrong())).toBeInTheDocument();
+  });
+});
+
+describe("what can be asked of the stack", () => {
+  const press = (label: string): Promise<void> =>
+    userEvent.click(screen.getByRole("button", { name: label }));
+
+  it("offers a control for every action there is", () => {
+    board();
+
+    for (const doing of everyDoing) {
+      expect(
+        screen.getByRole("button", { name: wordOfDoing(doing) }),
+      ).toBeInTheDocument();
+    }
+  });
+
+  it("asks for what a control names when it is pressed", async () => {
+    const onpress = vi.fn();
+    board({ controls: { ...controls, onpress } });
+
+    await press(wordOfDoing("up"));
+
+    expect(onpress).toHaveBeenCalledWith("up");
+  });
+
+  // A request in flight is not a second thing to ask for, and a control that
+  // left the page would take a reader's own focus with it.
+  it("silences both controls while a request is in flight, without hiding them", () => {
+    board({ controls: { ...controls, busy: true } });
+
+    for (const doing of everyDoing) {
+      expect(
+        screen.getByRole("button", { name: wordOfDoing(doing) }),
+      ).toHaveAttribute("aria-disabled", "true");
+    }
+  });
+
+  it("announces what has been asked for in a place a reader is told about", () => {
+    board();
+
+    expect(
+      screen.getByRole("status", { name: m.running_asked() }),
+    ).toBeInTheDocument();
+  });
+});
+
+describe("before something costly is carried out", () => {
+  it("asks what it costs rather than doing it", () => {
+    board({ controls: { ...controls, confirming: "down" } });
+
+    expect(screen.getByText(m.confirm_stop_title())).toBeInTheDocument();
+    expect(screen.getByText(m.confirm_stop_prose())).toBeInTheDocument();
+  });
+
+  it("asks the action for again when the answer is yes", async () => {
+    const onpress = vi.fn();
+    board({ controls: { ...controls, confirming: "down", onpress } });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: m.action_stop_everything() }),
+    );
+
+    expect(onpress).toHaveBeenCalledWith("down");
+  });
+
+  it("leaves it running when the answer is no", async () => {
+    const onleave = vi.fn();
+    board({ controls: { ...controls, confirming: "down", onleave } });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: m.action_leave_running() }),
+    );
+
+    expect(onleave).toHaveBeenCalledOnce();
+  });
+
+  // The answer sits after the controls, so a reader whose focus is on the
+  // button they pressed reaches it by moving forward rather than going back.
+  it("puts the answer after the control that asked the question", () => {
+    board({ controls: { ...controls, confirming: "down" } });
+
+    const asked = screen.getByRole("button", { name: wordOfDoing("down") });
+    const answer = screen.getByRole("button", {
+      name: m.action_stop_everything(),
+    });
+
+    expect(
+      asked.compareDocumentPosition(answer) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("asks nothing at all before an action that costs nothing", () => {
+    board({ controls: { ...controls, confirming: "up" } });
+
+    expect(questionOf("up")).toBeUndefined();
+    expect(
+      screen.queryByRole("button", { name: m.action_leave_running() }),
+    ).toBeNull();
+  });
+});
+
+describe("work that outlives the request that started it", () => {
+  it("keeps the record, and the name lemonfiber gave the work", () => {
+    board({ controls: { ...controls, work: [started] } });
+
+    expect(screen.getByText(titleOfDoing("up"))).toBeInTheDocument();
+    expect(screen.getByText(/9f2c41ab7d0e5c63/)).toBeInTheDocument();
+  });
+
+  it("puts a record away when it is asked to", async () => {
+    const ondrop = vi.fn();
+    board({ controls: { ...controls, work: [started], ondrop } });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: m.action_hide_record() }),
+    );
+
+    expect(ondrop).toHaveBeenCalledWith(started.id);
+  });
+
+  // One wait speaks at a time and never names the work it belongs to, so a
+  // line filed under a job would be a claim the stream did not make.
+  it("keeps what the wait said apart from what this tab asked for", () => {
+    board({
+      controls: { ...controls, work: [started], waiting: stillWaiting },
+    });
+
+    expect(screen.getByText(m.waiting_still())).toBeInTheDocument();
+    expect(screen.getByText(stillWaiting)).toBeInTheDocument();
+  });
+
+  it("puts the wait's line away when it is asked to", async () => {
+    const onhush = vi.fn();
+    board({ controls: { ...controls, waiting: stillWaiting, onhush } });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: m.action_hide_line() }),
+    );
+
+    expect(onhush).toHaveBeenCalledOnce();
+  });
+});
+
+describe("when lemonfiber would not do it", () => {
+  it("says what it said, rather than that something went wrong", () => {
+    board({
+      controls: {
+        ...controls,
+        work: [{ id: "2", doing: "down", at: "declined", said: wouldNot }],
+      },
+    });
+
+    expect(screen.getByText(wouldNot)).toBeInTheDocument();
+    expect(screen.getByText(m.eyebrow_refused())).toBeInTheDocument();
+  });
+
+  it("says so of work that finished while the request was open", () => {
+    board({
+      controls: { ...controls, work: [{ id: "3", doing: "up", at: "done" }] },
+    });
+
+    expect(screen.getByText(m.work_done())).toBeInTheDocument();
+  });
+});
+
+// The sweep that reads stories presses its way through every screen, and a
+// screen drawn from a fixture is handed no handlers at all. Pressing through
+// one is what says a story is a page rather than a picture of one.
+describe("a screen drawn from a fixture, with nothing wired to it", () => {
+  it("offers controls that can be pressed with nothing behind them", async () => {
+    board();
+
+    for (const doing of everyDoing) {
+      await userEvent.click(
+        screen.getByRole("button", { name: wordOfDoing(doing) }),
+      );
+    }
+
+    expect(
+      screen.getByRole("button", { name: wordOfDoing("up") }),
+    ).toBeInTheDocument();
+  });
+
+  it("offers answers and records that can be pressed the same way", async () => {
+    board({
+      controls: {
+        ...controls,
+        confirming: "down",
+        work: [started],
+        waiting: stillWaiting,
+      },
+    });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: m.action_stop_everything() }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: m.action_leave_running() }),
+    );
+    for (const hide of [m.action_hide_line(), m.action_hide_record()]) {
+      await userEvent.click(screen.getByRole("button", { name: hide }));
+    }
+
+    expect(screen.getByText(m.confirm_stop_title())).toBeInTheDocument();
   });
 });

@@ -55,6 +55,49 @@ describe("Action", () => {
   });
 });
 
+describe("a control with nothing to do for the moment", () => {
+  it("does not do the thing it was given when it is pressed", async () => {
+    const pressed = vi.fn();
+    render(Action, { label: words, off: true, onclick: pressed });
+
+    await userEvent.click(screen.getByRole("button", { name: words }));
+
+    expect(pressed).not.toHaveBeenCalled();
+  });
+
+  it("says so where a reader is told rather than only shown", () => {
+    render(Action, { label: words, off: true });
+    expect(screen.getByRole("button", { name: words })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+  });
+
+  // `disabled` takes a button out of the tab order, and a reader whose focus
+  // was on the button they just pressed would be left standing nowhere.
+  it("stays somewhere focus can be", async () => {
+    render(Action, { label: words, off: true });
+
+    await userEvent.tab();
+
+    expect(screen.getByRole("button", { name: words })).toHaveFocus();
+  });
+
+  it("is pressable again once there is something to do", async () => {
+    const pressed = vi.fn();
+    const { rerender } = render(Action, {
+      label: words,
+      off: true,
+      onclick: pressed,
+    });
+
+    await rerender({ off: false });
+    await userEvent.click(screen.getByRole("button", { name: words }));
+
+    expect(pressed).toHaveBeenCalledOnce();
+  });
+});
+
 describe("how much a control insists", () => {
   it("is offered rather than asked for unless it is told otherwise", () => {
     const { container } = render(Action, { label: words });
