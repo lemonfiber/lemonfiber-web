@@ -237,7 +237,8 @@ for (const id of stories) {
     const spots = [...document.querySelectorAll(selector)].filter(
       (element) =>
         element instanceof HTMLElement &&
-        element.offsetParent !== null &&
+        element.getClientRects().length > 0 &&
+        getComputedStyle(element).visibility !== "hidden" &&
         element.getAttribute("tabindex") !== "-1",
     );
     spots.forEach((element, index) => {
@@ -266,10 +267,26 @@ for (const id of stories) {
     }
   }
 
+  // Back the way it came. A trap that lets focus forward and not back is a trap
+  // for anyone who overshoots, which is the ordinary way a keyboard is used, and
+  // a walk in one direction cannot see it.
+  const back = new Set();
+  for (let press = 0; press < places + 1; press += 1) {
+    await tabbing.keyboard.press("Shift+Tab");
+    const at = await tabbing.evaluate(LANDED);
+    if (at === null) continue;
+    back.add(at.landing);
+  }
+
   // One place to land cannot trap anything: there is nowhere to circle.
   if (places > 1 && reached.size < places) {
     found.push(
       `keyboard ${"trap".padEnd(18)} ${id}\n        focus reached ${String(reached.size)} of ${String(places)} places to land`,
+    );
+  }
+  if (places > 1 && back.size < reached.size) {
+    found.push(
+      `keyboard ${"trap going back".padEnd(18)} ${id}\n        focus reached ${String(reached.size)} of ${String(places)} going forward and ${String(back.size)} coming back`,
     );
   }
 }
