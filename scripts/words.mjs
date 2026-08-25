@@ -140,25 +140,52 @@ function idioms(said) {
  */
 const ORDINARY = new Set();
 
+/** What a run is made of: capitals, and the digits standing among them. */
+const OF_A_RUN = /[A-Z\d]/u;
+
+/** A capital, which an abbreviation has and a figure has not. */
+const CAPITAL = /[A-Z]/u;
+
+/** A lower-case letter, which is a word carrying on rather than a run ending. */
+const LOWER = /[a-z]/u;
+
+/** The one letter that pluralises an abbreviation rather than continuing a word. */
+const PLURAL = "s";
+
 /**
- * Every run of two or more capitals in a word, with names left out.
+ * Every run of two or more capitals in a word, with names and figures left out.
  *
- * A run that runs straight into a lower-case letter is part of a word rather than
- * an abbreviation of one: `SABnzbd` and `QBittorrent` are names. A digit inside a
- * run belongs to it, `WSL2` being one abbreviation rather than one and a number.
+ * A run that runs straight into a lower-case word is part of that word rather than
+ * an abbreviation of one: `SABnzbd` and `qBittorrent` are names. A single trailing
+ * `s` is no such word — `NZBs` is an `NZB`, and reading a plural as a name is how
+ * every acronym in the language walks past this rule.
+ *
+ * A digit belongs to the run it touches on either side, `WSL2` and `4K` each being
+ * one abbreviation rather than a figure beside a word. A run of digits alone is a
+ * figure, which is nobody's jargon.
  */
 function runsOfCapitals(word) {
+  const letters = [...word];
   const found = [];
   let run = "";
-  for (const letter of word) {
-    if (/[A-Z]/u.test(letter) || (run !== "" && /\d/u.test(letter))) {
-      run += letter;
-      continue;
-    }
-    if (run.length > 1 && !/[a-z]/u.test(letter)) found.push(run);
+
+  /** Whether the run ending at `at` is the head of a lower-case word. */
+  const name = (at) =>
+    LOWER.test(letters[at] ?? "") &&
+    !(letters[at] === PLURAL && at === letters.length - 1);
+
+  /** Take the run that ends at `at`, if what it ends against leaves it one. */
+  const close = (at) => {
+    if (run.length > 1 && CAPITAL.test(run) && !name(at)) found.push(run);
     run = "";
+  };
+
+  for (const [at, letter] of letters.entries()) {
+    if (OF_A_RUN.test(letter)) run += letter;
+    else close(at);
   }
-  if (run.length > 1) found.push(run);
+  close(letters.length);
+
   return found;
 }
 
@@ -355,11 +382,17 @@ const PROVEN = [
       "Your NZB provider keeps things for this long",
       "The VPN carries your downloading",
       "HDR",
+      "Paste the URLs and NZBs and check the APIs",
+      "4K films take more room",
+      "It runs under WSL2",
     ],
     allows: [
       "Your provider keeps things for this long",
       "Hides your downloading from your provider",
       "SABnzbd is answering",
+      "qBittorrent is answering",
+      "Around 1080 files are waiting",
+      "Every film here is 1080p",
     ],
   },
   {
@@ -367,9 +400,11 @@ const PROVEN = [
     find: (said) => acronyms(said, new Set(["URL"])),
     refuses: [
       "Paste the NZB on the line that says where lemonfiber is listening",
+      "Paste the NZBs on the line that says where lemonfiber is listening",
     ],
     allows: [
       "Paste the URL on the line that says where lemonfiber is listening",
+      "Paste the URLs on the line that says where lemonfiber is listening",
     ],
   },
   {
