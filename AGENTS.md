@@ -32,7 +32,9 @@ a token and stays literal.
 **Every word a person reads comes from `messages/`.** Add a key, run
 `npm run messages`, import `* as m from "../paraglide/messages.js"`. Prefer a prop:
 a component is a shape and the screen supplies the words. Bare figures and proper
-nouns are data and stay literal.
+nouns are data and stay literal. `scripts/words.mjs` reads what those keys say and
+refuses three things: an idiom, an acronym nobody declared ordinary, and a fault
+named beside the person reading.
 
 **Citations never appear in a comment.** Not a requirement ID, not an ADR number,
 not a spec path. They go in the commit trailer and the pull request body.
@@ -76,9 +78,9 @@ npm run ci
 ```
 
 paraglide compile · prettier · eslint (0 warnings) · svelte-check
-(`--fail-on-warnings`) · `scripts/guards.mjs` · dependency-cruiser · vitest at
-**100% statements, branches, functions and lines** · app build · Storybook build ·
-the accessibility sweep. All of it, green.
+(`--fail-on-warnings`) · `scripts/guards.mjs` · `scripts/words.mjs` ·
+dependency-cruiser · vitest at **100% statements, branches, functions and lines** ·
+app build · Storybook build · the accessibility sweep. All of it, green.
 
 Every component gets a `.test.ts` and a `.stories.ts` beside it. Tests query by
 role and accessible name and assert what a reader can observe, not that an element
