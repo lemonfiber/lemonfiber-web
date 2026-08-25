@@ -26,6 +26,42 @@ export type Form = Forms["forms"][number];
 /** One moment of the whole stack, as the stream delivers it. */
 export type Moment = ByKind["dashboard"]["data"];
 
+/** What a diagnostic run found, as the checks answer. */
+export type Diagnosis = ByKind["doctor"]["data"];
+
+/** One thing a check established, and how it turned out. */
+export type Finding = Diagnosis["findings"][number];
+
+/** How a single check turned out. */
+export type Verdict = Finding["verdict"];
+
+/** The word a verdict answers with. */
+export type Outcome = Verdict["outcome"];
+
+/** What a whole run of checks amounts to. */
+export type Overall = Diagnosis["overall"];
+
+/** The family a check belongs to. */
+export type Category = Finding["category"];
+
+/** One thing the operator can do about a problem. */
+export type Remedy = Extract<Verdict, { outcome: "unverified" }>["remedy"];
+
+/** One line of output from one service. */
+export type Logged = ByKind["log"]["data"];
+
+/** What the household has asked for, member by member. */
+export type Household = ByKind["household"]["data"];
+
+/** One member, and everything they have asked for. */
+export type Member = Household["members"][number];
+
+/** One thing a member asked for. */
+export type Request = Member["requests"][number];
+
+/** Where one request stands, in the words the person who made it would use. */
+export type RequestState = NonNullable<Request["state"]>;
+
 /** What a panel holds where its source could fill it. */
 type Ready<P> = P extends { panel: "ready"; data: infer T } ? T : never;
 

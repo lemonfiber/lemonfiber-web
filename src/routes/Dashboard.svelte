@@ -8,6 +8,7 @@
   import Space from "./panels/Space.svelte";
   import Standing from "./panels/Standing.svelte";
   import Waiting from "./panels/Waiting.svelte";
+  import Board from "./Board.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import { saidOfFlow, toneOfFlow, type Flow } from "../lib/flow";
   import type { Freshness } from "../lib/freshness";
@@ -56,7 +57,7 @@
   reach is chosen there, and a control read before the thing it acts on is a
   control read without its subject.
 -->
-<div class="board">
+<Board>
   {#if said !== undefined}
     <Banner tone={toneOfFlow(flow)} lead={said.lead} prose={said.prose} />
   {/if}
@@ -83,22 +84,11 @@
     <Coming transfers={moment?.transfers} freshness={live} />
     <Waiting queues={moment?.queue} freshness={live} />
   </div>
-</div>
+</Board>
 
 <style>
-  .board {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--sp-4);
-    align-content: start;
-  }
-
-  /* A panel is allowed to be narrower than the widest thing inside it. What
-     does not fit scrolls inside its own frame — a table inside its wrapper, a
-     picture inside its own — rather than taking the page sideways. Without
-     this a grid track is floored at its contents, and one wide picture sets
-     the width of the screen. */
-  .board > :global(*),
+  /* Each of the two is allowed to be narrower than the widest thing inside it,
+     for the reason the column that holds them both states. */
   .pair > :global(*) {
     min-width: 0;
   }

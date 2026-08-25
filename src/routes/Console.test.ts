@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/svelte";
+import { render, screen, waitFor, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { API_VERSION, type Fetching, type Sending } from "@lemonfiber/sdk-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -6,9 +6,13 @@ import Console from "./Console.svelte";
 import {
   chosenForm,
   declared,
+  diagnosis,
+  diskChecks,
   forms,
+  household,
   job,
   moment,
+  scrollback,
   stack,
   worst,
   worstService,
@@ -242,7 +246,7 @@ describe("going somewhere else", () => {
 
     expect(globalThis.location.pathname).toBe("/checks");
     expect(
-      screen.getByRole("region", { name: nameOf("checks") }),
+      await screen.findByRole("region", { name: m.panel_findings() }),
     ).toBeInTheDocument();
   });
 
@@ -271,7 +275,7 @@ describe("going somewhere else", () => {
       screen.getByRole("link", { name: new RegExp(nameOf("logs")) }),
     );
     expect(
-      screen.getByRole("region", { name: nameOf("logs") }),
+      await screen.findByRole("region", { name: m.panel_scrollback() }),
     ).toBeInTheDocument();
 
     globalThis.history.replaceState(undefined, "", "/");
@@ -292,10 +296,12 @@ describe("going somewhere else", () => {
     ).toBeInTheDocument();
   });
 
-  it("says plainly that a place has nothing built for it yet", async () => {
+  it("opens on the disk where the address names it", async () => {
     globalThis.history.replaceState(undefined, "", "/storage");
     console_();
-    expect(await screen.findByText(m.home_unfinished())).toBeInTheDocument();
+    expect(
+      await screen.findByRole("region", { name: m.panel_disk_findings() }),
+    ).toBeInTheDocument();
   });
 });
 
@@ -788,5 +794,128 @@ describe("what a wait says while it is still waiting", () => {
     await press(m.action_hide_line());
 
     expect(screen.queryByText(line)).toBeNull();
+  });
+});
+
+/**
+ * A transport that answers each read with what that endpoint answers.
+ *
+ * The scrollback is the one that is not one document: it is answered the way
+ * the endpoint answers it, one envelope to a line.
+ */
+const readings: Sending = (url) => {
+  const said = (body: string) =>
+    Promise.resolve({
+      ok: true,
+      status: 200,
+      text: () => Promise.resolve(body),
+    });
+
+  if (url.includes("/api/forms")) return said(enveloped("forms", forms));
+  if (url.includes("/api/checks")) return said(enveloped("doctor", diagnosis));
+  if (url.includes("/api/storage"))
+    return said(enveloped("doctor", diskChecks));
+  if (url.includes("/api/requests")) {
+    return said(enveloped("household", household));
+  }
+  if (url.includes("/api/logs")) {
+    return said(
+      scrollback.map((line) => `${enveloped("log", line)}\n`).join(""),
+    );
+  }
+  return said(enveloped("status", stack));
+};
+
+/**
+ * A transport that answers the checks and leaves the requests hanging.
+ *
+ * A stamp dropped on the way in is only there to be read while the place being
+ * arrived at has not answered yet.
+ */
+const unanswered: Sending = (url, init) => {
+  if (url.includes("/api/requests")) return new Promise(() => undefined);
+  return readings(url, init);
+};
+
+/** Go where the menu leads, and wait for what is there. */
+const goTo = async (place: Parameters<typeof nameOf>[0]): Promise<void> => {
+  await userEvent.click(
+    screen.getByRole("link", { name: new RegExp(nameOf(place)) }),
+  );
+};
+
+describe("what each place is drawn from", () => {
+  beforeEach(() => {
+    globalThis.history.replaceState(undefined, "", "/");
+  });
+
+  it("draws the checks from the run they answer with", async () => {
+    console_({ sending: readings });
+    await goTo("checks");
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Every service is answering its own health check",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("draws the disk from the checks about it", async () => {
+    console_({ sending: readings });
+    await goTo("storage");
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Downloads and the library are on one filesystem",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  // The scrollback is answered one envelope to a line, which a whole-body parse
+  // reads as malformed the moment there is more than one of them.
+  it("draws every line the scrollback answered with", async () => {
+    console_({ sending: readings });
+    await goTo("logs");
+
+    expect(
+      await screen.findByText("calibre-web-automated"),
+    ).toBeInTheDocument();
+
+    const panel = screen.getByRole("region", { name: m.panel_scrollback() });
+    expect(within(panel).getAllByRole("listitem")).toHaveLength(
+      scrollback.length,
+    );
+  });
+
+  it("draws what the household asked for", async () => {
+    console_({ sending: readings });
+    await goTo("requests");
+
+    expect(await screen.findByText("The Expanse")).toBeInTheDocument();
+  });
+
+  // A stamp says when the reading behind the screen being read answered, and
+  // the one left behind by the screen before it would date this one by another
+  // screen's clock.
+  it("drops the stamp on the way into a place", async () => {
+    console_({ sending: unanswered });
+    await goTo("checks");
+    await screen.findByText(
+      m.fresh_answered({ span: m.span_seconds({ count: 0 }) }),
+    );
+
+    await goTo("requests");
+
+    expect(screen.getByText(m.fresh_never())).toBeInTheDocument();
+  });
+
+  it("says so when a place is asked for with a key this run refuses", async () => {
+    const refused = vi.fn();
+    console_({ sending: refusing, onrefused: refused });
+    await goTo("logs");
+
+    await waitFor(() => {
+      expect(refused).toHaveBeenCalled();
+    });
   });
 });

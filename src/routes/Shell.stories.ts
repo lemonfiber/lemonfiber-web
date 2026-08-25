@@ -1,7 +1,23 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Shell from "./Shell.svelte";
-import { controls, moment, stack, started, stillWaiting } from "./fixture";
-import { screening } from "../../.storybook/snippets";
+import {
+  controls,
+  diagnosis,
+  diskChecks,
+  household,
+  moment,
+  scrollback,
+  stack,
+  started,
+  stillWaiting,
+} from "./fixture";
+import {
+  checking,
+  logging,
+  requesting,
+  screening,
+  storing,
+} from "../../.storybook/snippets";
 import { everyPlace } from "../lib/route";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
@@ -16,14 +32,26 @@ const overview = screening({
   controls,
 });
 
-const nothingBuilt = screening({
-  stack: undefined,
-  programs: undefined,
-  moment: undefined,
-  flow: "opening",
-  read: { kind: "never" },
-  live: { kind: "never" },
-  controls,
+const checks = checking({
+  diagnosis: { ok: true, value: diagnosis },
+  freshness: answered,
+});
+
+const disk = storing({
+  disk: moment.storage,
+  live: answered,
+  diagnosis: { ok: true, value: diskChecks },
+  read: answered,
+});
+
+const logs = logging({
+  scrollback: { ok: true, value: scrollback },
+  freshness: answered,
+});
+
+const requests = requesting({
+  household: { ok: true, value: household },
+  freshness: answered,
 });
 
 const meta = {
@@ -46,11 +74,40 @@ type Story = StoryObj<typeof meta>;
 export const TheConsole: Story = {};
 
 /**
- * Somewhere else in the menu. Exactly one row says `aria-current="page"`, so a
- * reader arriving on any screen is told which one it is.
+ * The checks, in the chrome. Exactly one row of the menu says
+ * `aria-current="page"`, so a reader arriving on any screen is told which one
+ * it is — and the sweep reads the whole page rather than the screen alone.
  */
-export const SomewhereElse: Story = {
-  args: { place: "logs", children: nothingBuilt },
+export const TheChecks: Story = {
+  args: { place: "checks", children: checks },
+};
+
+/**
+ * The disk, in the chrome: the figures off the live connection and the checks
+ * about the volume under them.
+ */
+export const TheDisk: Story = {
+  args: { place: "storage", children: disk },
+};
+
+/**
+ * The scrollback, in the chrome.
+ *
+ * The narrow measurement is what this story is here for. Beside a menu and
+ * inside the shell's own padding, a service name of twenty-one characters and a
+ * line beside it have less room than the screen has on its own — which is the
+ * width at which the name has to move to a row of its own.
+ */
+export const TheScrollback: Story = {
+  args: { place: "logs", children: logs },
+};
+
+/**
+ * What the household asked for, in the chrome: a table per member, inside a
+ * page that still has to reach 320 pixels without going sideways.
+ */
+export const TheRequests: Story = {
+  args: { place: "requests", children: requests },
 };
 
 /**

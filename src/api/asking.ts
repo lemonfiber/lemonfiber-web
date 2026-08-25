@@ -12,6 +12,10 @@ import {
   follow,
   isKind,
   malformed,
+  parse,
+  refused,
+  TOKEN_HEADER,
+  unreachable,
   type Arrival,
   type ByKind,
   type Fetching,
@@ -20,6 +24,7 @@ import {
   type Reading,
   type Sending,
 } from "@lemonfiber/sdk-ts";
+import type { Logged } from "../lib/wire";
 
 /**
  * Where the stream is served.
@@ -28,6 +33,12 @@ import {
  * path itself, and the address it is joined to comes from the same package.
  */
 const STREAM = "/api/events";
+
+/** Where the scrollback is served. */
+const SCROLLBACK = "/api/logs";
+
+/** The statuses that are lemonfiber, or something in front of it, saying no. */
+const TURNED_AWAY = new Set([401, 403]);
 
 /** What reaching one running lemonfiber takes. */
 export interface Reaching {
@@ -122,4 +133,105 @@ export function turnedAway(...answers: readonly Reading<unknown>[]): boolean {
   return answers.some(
     (answer) => !answer.ok && answer.problem.kind === "refused",
   );
+}
+
+/**
+ * Every line the services have said lately.
+ *
+ * The scrollback is the one read that is not one document. A stream has no last
+ * element to close a document with, so lemonfiber answers it the way its own
+ * machine-readable output does: one envelope per line. `Client.read` parses a
+ * whole body as one document, so it reads one line and reads none of them and
+ * two of them alike as malformed. The body is split here instead, and each line
+ * is read through the package's own envelope, at the address it validated and
+ * behind the key it carries.
+ *
+ * The scrollback only. Nothing is followed, and a line said after the answer is
+ * a line the next asking carries.
+ */
+export async function scrollback(
+  reaching: Reaching,
+): Promise<Reading<readonly Logged[]>> {
+  const where = address(reaching.at);
+  if (!where.ok) return { ok: false, problem: where.problem };
+  if (reaching.token.trim() === "") return { ok: false, problem: refused() };
+
+  const body = await said(reaching, `${where.base}${SCROLLBACK}`);
+  if (!body.ok) return { ok: false, problem: body.problem };
+
+  return everyLine(body.value);
+}
+
+/**
+ * The body one request came back with, or why it did not.
+ */
+async function said(reaching: Reaching, url: string): Promise<Reading<string>> {
+  try {
+    const answer = await reaching.sending(url, {
+      method: "GET",
+      headers: { [TOKEN_HEADER]: reaching.token, Accept: "application/json" },
+    });
+    const body = await answer.text();
+    if (answer.ok) return { ok: true, value: body };
+    return { ok: false, problem: turnedDown(answer.status, body) };
+  } catch {
+    return { ok: false, problem: unreachable() };
+  }
+}
+
+/**
+ * The problem an answer that was not a success is, given the body it came with.
+ *
+ * A key this run refuses is a refusal and nothing else. A command that ran and
+ * failed is answered with an `error` envelope carrying one plain sentence, and
+ * that sentence is what an operator needs — a body this cannot read tells them
+ * no more than silence would. The same reading the client package gives every
+ * other endpoint, which it keeps to itself.
+ */
+function turnedDown(status: number, body: string): Problem {
+  if (TURNED_AWAY.has(status)) return refused();
+
+  const summary = summaryIn(body);
+  return summary === undefined ? unreachable() : refused(summary);
+}
+
+/**
+ * The one plain sentence an `error` envelope carries.
+ *
+ * The kind names the payload; it does not prove its shape. The summary is read
+ * as something arriving off a wire, so an envelope labelled `error` that carries
+ * no sentence yields none.
+ */
+function summaryIn(body: string): string | undefined {
+  const envelope = parse<unknown>(body);
+  if (!envelope.ok || !isKind(envelope.value, "error")) return undefined;
+
+  const summary: unknown = envelope.value.data.summary;
+  if (typeof summary !== "string" || summary.trim() === "") return undefined;
+  return summary.trim();
+}
+
+/**
+ * Each line of the body, read as its own envelope.
+ *
+ * A body carrying one thing this package cannot read is refused whole. Half a
+ * scrollback drawn beside no account of what happened to the rest is a screen
+ * claiming to show what a service said.
+ */
+function everyLine(body: string): Reading<readonly Logged[]> {
+  const lines: Logged[] = [];
+
+  for (const line of body.split("\n")) {
+    if (line.trim() === "") continue;
+
+    const envelope = parse<unknown>(line);
+    if (!envelope.ok) return { ok: false, problem: envelope.problem };
+    if (!isKind(envelope.value, "log")) {
+      return { ok: false, problem: malformed() };
+    }
+
+    lines.push(envelope.value.data);
+  }
+
+  return { ok: true, value: lines };
 }
