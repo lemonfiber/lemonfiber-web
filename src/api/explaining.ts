@@ -12,6 +12,10 @@
  * so a screen using one word in four sentences asks about it once and a reader
  * opening it twice asks once. An answer that never arrived is not kept, so the
  * next press is another attempt rather than the same silence.
+ *
+ * A word the table has no entry for is an answer like any other, and is kept.
+ * Asking again cannot reach a different one, and a reader who keeps pressing would
+ * otherwise put the same question to the binary once per press.
  */
 import type { Reading } from "@lemonfiber/sdk-ts";
 import type { Word } from "../lib/wire";
@@ -24,6 +28,16 @@ const EXPLAIN = "explain";
 export type Explaining = (word: string) => Promise<Reading<Word>>;
 
 /**
+ * Whether asking this word again could come back with anything else.
+ *
+ * A word this product has no entry for is settled: the binary answered, and the
+ * answer is that there is nothing to say. Everything else that comes back without
+ * an entry is a run that could not answer this time.
+ */
+const settled = (answer: Reading<Word>): boolean =>
+  answer.ok || answer.problem.kind === "missing";
+
+/**
  * A way of asking what a word means, which asks about each word once.
  */
 export function explaining(reaching: Reaching): Explaining {
@@ -34,7 +48,7 @@ export function explaining(reaching: Reaching): Explaining {
     if (held !== undefined) return held;
 
     const asking = asked(reaching, EXPLAIN, "word", { word }).then((answer) => {
-      if (!answer.ok) answers.delete(word);
+      if (!settled(answer)) answers.delete(word);
       return answer;
     });
     answers.set(word, asking);
