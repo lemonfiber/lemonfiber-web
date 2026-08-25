@@ -3,6 +3,7 @@
   import Attention from "./panels/Attention.svelte";
   import Coming from "./panels/Coming.svelte";
   import Programs from "./panels/Programs.svelte";
+  import Running from "./panels/Running.svelte";
   import Space from "./panels/Space.svelte";
   import Standing from "./panels/Standing.svelte";
   import Waiting from "./panels/Waiting.svelte";
@@ -10,6 +11,7 @@
   import { saidOfFlow, toneOfFlow, type Flow } from "../lib/flow";
   import type { Freshness } from "../lib/freshness";
   import type { Moment, Stack } from "../lib/wire";
+  import type { Controls } from "../lib/work";
 
   interface Props {
     /** What the whole stack amounts to, from the reading of it. */
@@ -24,9 +26,11 @@
     read: Freshness;
     /** When the live connection last delivered. */
     live: Freshness;
+    /** What can be asked of the stack, and what has come of asking. */
+    controls: Controls;
   }
 
-  let { stack, programs, moment, flow, read, live }: Props = $props();
+  let { stack, programs, moment, flow, read, live, controls }: Props = $props();
 
   const said = $derived(saidOfFlow(flow));
   const graded = $derived(moment === undefined ? read : live);
@@ -45,6 +49,9 @@
   The banner speaks for the connection rather than for any panel. A screen whose
   figures were true a minute ago is a claim about the whole screen, and a panel
   cannot make it.
+
+  The one panel that acts sits under the two that grade, so what is on offer is
+  read after what it is for.
 -->
 <div class="board">
   {#if said !== undefined}
@@ -55,6 +62,8 @@
     <Standing {stack} health={moment?.health} freshness={graded} />
     <Space disk={moment?.storage} freshness={live} />
   </div>
+
+  <Running {...controls} freshness={live} />
 
   <Attention stuck={moment?.stuck} freshness={live} />
 

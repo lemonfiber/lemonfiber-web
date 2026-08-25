@@ -1,6 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Dashboard from "./Dashboard.svelte";
-import { moment, stack, unavailable } from "./fixture";
+import {
+  controls,
+  moment,
+  stack,
+  started,
+  stillWaiting,
+  unavailable,
+  wouldNot,
+} from "./fixture";
 import { everyFlow } from "../lib/flow";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
@@ -17,6 +25,7 @@ const meta = {
     flow: "live",
     read: answered,
     live: answered,
+    controls,
   },
 } satisfies Meta<typeof Dashboard>;
 
@@ -126,4 +135,54 @@ export const NothingWrong: Story = {
       queue: { panel: "ready", data: [] },
     },
   },
+};
+
+/**
+ * The one costly control has been pressed and nothing has happened yet. The
+ * question stands under the controls rather than in place of them, so a reader
+ * whose focus is still on the button they pressed reaches the answer by moving
+ * forward. Both controls are silenced without leaving the page.
+ */
+export const AskingBeforeItStops: Story = {
+  args: { controls: { ...controls, confirming: "down" } },
+};
+
+/**
+ * Work the runtime is holding. The reply named it and said nothing else: the
+ * request is over, the work is not, and closing this page would not stop it.
+ */
+export const WorkThatOutlivesTheRequest: Story = {
+  args: { controls: { ...controls, work: [started] } },
+};
+
+/**
+ * The stream carrying what the wait is still waiting for. It is its own row:
+ * one wait speaks at a time and never names the work it belongs to, so filing
+ * it under a job would be a claim the stream did not make.
+ */
+export const WhatTheWaitIsSaying: Story = {
+  args: {
+    controls: { ...controls, work: [started], waiting: stillWaiting },
+  },
+};
+
+/**
+ * lemonfiber would not do it, and says why in its own sentence rather than in
+ * a status nobody can read.
+ */
+export const AskedForSomethingRefused: Story = {
+  args: {
+    controls: {
+      ...controls,
+      work: [{ id: "2", doing: "down", at: "declined", said: wouldNot }],
+    },
+  },
+};
+
+/**
+ * A request in flight. Neither control can be pressed twice, and neither leaves
+ * the page while it cannot be.
+ */
+export const AskingNow: Story = {
+  args: { controls: { ...controls, busy: true } },
 };

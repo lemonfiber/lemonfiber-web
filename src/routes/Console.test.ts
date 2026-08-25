@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import Console from "./Console.svelte";
 import { moment, stack, worst, worstService } from "./fixture";
 import { nameOf } from "../lib/route";
+import { titleOfDoing, wordOfDoing } from "../lib/work";
 import * as m from "../paraglide/messages.js";
 
 const key = ["a", "run", "key"].join("-");
@@ -275,5 +276,203 @@ describe("going somewhere else", () => {
     globalThis.history.replaceState(undefined, "", "/storage");
     console_();
     expect(await screen.findByText(m.home_unfinished())).toBeInTheDocument();
+  });
+});
+
+/** One envelope, rendered as an endpoint renders it. */
+const enveloped = (kind: string, data: unknown): string =>
+  JSON.stringify({ api_version: API_VERSION, kind, data });
+
+/** What was sent to the actions endpoint, in the order it was sent. */
+interface Sent {
+  bodies: string[];
+}
+
+/**
+ * A transport that reads like the stack and answers every action alike.
+ *
+ * The reply is fixed rather than looked up per action: the two this surface
+ * offers are answered the same way, and what a test is asking about is what the
+ * screen does with a reply rather than which reply a name earns.
+ */
+function acting(
+  reply: { status: number; body: string },
+  sent: Sent = { bodies: [] },
+): Sending {
+  return (url, init) => {
+    if (init.method !== "POST") return answering(url, init);
+    sent.bodies.push(init.body ?? "");
+    return Promise.resolve({
+      ok: reply.status >= 200 && reply.status < 300,
+      status: reply.status,
+      text: () => Promise.resolve(reply.body),
+    });
+  };
+}
+
+/** Work the runtime took, as the endpoint answers it. */
+const accepted = {
+  status: 202,
+  body: enveloped("job", { job: "9f2c41ab7d0e5c63", action: "up" }),
+};
+
+const press = (label: string): Promise<void> =>
+  userEvent.click(screen.getByRole("button", { name: label }));
+
+describe("asking lemonfiber to do something", () => {
+  beforeEach(() => {
+    globalThis.history.replaceState(undefined, "", "/");
+  });
+
+  it("asks for what costs nothing without asking about it first", async () => {
+    const sent: Sent = { bodies: [] };
+    console_({ sending: acting(accepted, sent) });
+
+    await press(wordOfDoing("up"));
+
+    expect(sent.bodies).toStrictEqual([
+      JSON.stringify({ forms: [], confirm: false }),
+    ]);
+  });
+
+  // The reply names the work and says nothing else about it. What is kept is
+  // the record of having asked, which outlives the request the way the work
+  // does.
+  it("keeps the name the reply gave work the runtime is holding", async () => {
+    console_({ sending: acting(accepted) });
+
+    await press(wordOfDoing("up"));
+
+    expect(await screen.findByText(titleOfDoing("up"))).toBeInTheDocument();
+    expect(screen.getByText(/9f2c41ab7d0e5c63/)).toBeInTheDocument();
+  });
+
+  it("puts a record away when it is asked to", async () => {
+    console_({ sending: acting(accepted) });
+    await press(wordOfDoing("up"));
+    await screen.findByText(titleOfDoing("up"));
+
+    await press(m.action_hide_record());
+
+    expect(screen.queryByText(titleOfDoing("up"))).toBeNull();
+  });
+});
+
+describe("asking for something costly", () => {
+  beforeEach(() => {
+    globalThis.history.replaceState(undefined, "", "/");
+  });
+
+  it("asks what it costs before anything is sent", async () => {
+    const sent: Sent = { bodies: [] };
+    console_({ sending: acting(accepted, sent) });
+
+    await press(wordOfDoing("down"));
+
+    expect(await screen.findByText(m.confirm_stop_title())).toBeInTheDocument();
+    expect(sent.bodies).toStrictEqual([]);
+  });
+
+  // The agreement travels with the request rather than being kept here: the
+  // carrier has a field for it, and what an operator agreed to is part of what
+  // was asked for.
+  it("says the cost was agreed when the answer is yes", async () => {
+    const sent: Sent = { bodies: [] };
+    console_({ sending: acting(accepted, sent) });
+
+    await press(wordOfDoing("down"));
+    await press(m.action_stop_everything());
+
+    expect(sent.bodies).toStrictEqual([
+      JSON.stringify({ forms: [], confirm: true }),
+    ]);
+  });
+
+  it("sends nothing at all when the answer is no", async () => {
+    const sent: Sent = { bodies: [] };
+    console_({ sending: acting(accepted, sent) });
+
+    await press(wordOfDoing("down"));
+    await press(m.action_leave_running());
+
+    expect(screen.queryByText(m.confirm_stop_title())).toBeNull();
+    expect(sent.bodies).toStrictEqual([]);
+  });
+});
+
+describe("when lemonfiber will not do what was asked", () => {
+  beforeEach(() => {
+    globalThis.history.replaceState(undefined, "", "/");
+  });
+
+  it("says what lemonfiber said, not the status it said it with", async () => {
+    const said = "The action `up` needs `forms`, which was not given.";
+    console_({ sending: acting({ status: 400, body: said }) });
+
+    await press(wordOfDoing("up"));
+
+    expect(await screen.findByText(said)).toBeInTheDocument();
+  });
+
+  // A key is minted once a run, so a write refused is a page holding a key
+  // from a run that has ended. Forgetting it on the write path is what keeps a
+  // button from being the one thing that never asks again.
+  it("forgets the key when a write is turned away", async () => {
+    const refused = vi.fn();
+    console_({
+      sending: acting({ status: 403, body: "" }),
+      onrefused: refused,
+    });
+
+    await press(wordOfDoing("up"));
+
+    await waitFor(() => {
+      expect(refused).toHaveBeenCalled();
+    });
+    expect(screen.queryByText(titleOfDoing("up"))).toBeNull();
+  });
+
+  it("records work that finished while the request was open", async () => {
+    console_({
+      sending: acting({ status: 200, body: enveloped("reset", {}) }),
+    });
+
+    await press(wordOfDoing("up"));
+
+    expect(await screen.findByText(m.work_done())).toBeInTheDocument();
+  });
+});
+
+describe("what a wait says while it is still waiting", () => {
+  beforeEach(() => {
+    globalThis.history.replaceState(undefined, "", "/");
+  });
+
+  const line = "Still starting: sonarr, radarr — 25 seconds so far, of 180.";
+
+  it("draws the newest line the stream carried", async () => {
+    console_({ fetching: saying([framed("start", line)]) });
+
+    expect(await screen.findByText(line)).toBeInTheDocument();
+    expect(screen.getByText(m.waiting_still())).toBeInTheDocument();
+  });
+
+  it("keeps only the newest of them", async () => {
+    const older = "Still starting: sonarr, radarr — 5 seconds so far, of 180.";
+    console_({
+      fetching: saying([framed("start", older), framed("start", line)]),
+    });
+
+    expect(await screen.findByText(line)).toBeInTheDocument();
+    expect(screen.queryByText(older)).toBeNull();
+  });
+
+  it("puts the line away when it is asked to", async () => {
+    console_({ fetching: saying([framed("start", line)]) });
+    await screen.findByText(line);
+
+    await press(m.action_hide_line());
+
+    expect(screen.queryByText(line)).toBeNull();
   });
 });

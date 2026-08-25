@@ -1,31 +1,24 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
-
   "product_name": "lemonfiber",
-
   "state_known": "Working",
   "state_quiet": "Gone quiet",
   "state_unknown": "Never measured",
   "state_stopped": "Stopped",
   "state_part": "Part way",
-
   "span_seconds": "{count}s",
   "span_minutes": "{count}m",
   "span_hours": "{count}h",
-
   "fresh_answered": "Checked {span} ago",
   "fresh_silent": "Quiet for {span}",
   "fresh_never": "Never checked",
-
   "value_last_known": "Last known",
   "value_not_known": "Not known",
   "value_cannot_say": "Can't say",
   "value_not_running": "Not running",
-
   "severity_calm": "Nothing needed",
   "severity_watch": "Worth watching",
   "severity_alarm": "Needs you",
-
   "panel_disk": "Disk",
   "panel_indexers": "Where things are found",
   "panel_fill_rate": "How fast the disk is filling",
@@ -33,12 +26,10 @@
   "panel_nothing_yet": "Nothing has reported on this yet.",
   "panel_dead_source": "{service} isn't answering.",
   "panel_dead_scope": "Nothing in this box can be trusted right now. Everything else on this page still can.",
-
   "eyebrow_confirmed": "Confirmed",
   "eyebrow_watching": "Watching it",
   "eyebrow_not_looked_at": "Not looked at yet",
   "eyebrow_under_way": "Under way",
-
   "check_tunnel_title": "Your downloading is hidden from your internet provider",
   "check_tunnel_prose": "Your downloads appear to come from {address} in {country}, not from your home address. If the tunnel ever drops, downloading stops rather than falling back to your own line.",
   "check_quiet_title": "One program has gone quiet",
@@ -49,7 +40,6 @@
   "check_fill_rate_prose": "Until it has been, the day it runs out cannot be worked out. That is not the same as there being plenty of room.",
   "check_scan_title": "Your library is being read for the first time",
   "check_scan_prose": "{done} of {total} folders have been walked. Figures on this page will be incomplete until it finishes.",
-
   "setting_boot_title": "Start when this machine starts",
   "setting_boot_prose": "Your stack comes back on its own after a power cut or a reboot.",
   "setting_night_title": "Slow downloads at night",
@@ -59,10 +49,8 @@
   "setting_tunnel_drop_prose": "Can't be turned off. Your download programs live inside the tunnel, so there is no route out without it.",
   "setting_tunnel_drop_state": "Always on",
   "setting_version_prose": "You're on {installed}. {offered} is available.",
-
   "note_quota": "A limit stops one person filling the disk on their own. It resets on the first of the month.",
   "note_backup": "This backs up your settings — which programs run, your quality choices, who's in the household. Not your films; those are far too big.",
-
   "action_how_checked": "How was this checked?",
   "action_why_seeing": "Why am I seeing this?",
   "action_fix_it": "Fix it for me",
@@ -71,12 +59,9 @@
   "action_hide_this": "Hide this",
   "action_change": "Change",
   "action_see_what_changed": "See what changed",
-
   "banner_contact_lead": "Lost contact with your stack.",
   "banner_contact_prose": "Trying again — every figure below is the last one confirmed, not what is true now.",
-
   "meter_how_far": "How far along",
-
   "panel_where_space_went": "Where your space went",
   "eyebrow_free_space": "Free space",
   "eyebrow_coming_in": "Coming in now",
@@ -85,21 +70,17 @@
   "figure_working": "working",
   "figure_one_running": "one download running, one gone quiet",
   "figure_gave_up": "tried twice, then gave up",
-
   "poster_ready_to_watch": "Ready to watch",
   "poster_getting_it_now": "Getting it now",
   "poster_waiting_yes": "Waiting to be approved",
   "poster_ask": "Ask for something",
   "poster_search": "Search for anything",
-
   "space_films": "Films",
   "space_series": "Series",
   "space_downloads": "Downloads",
   "space_free": "Free",
   "space_other": "Other",
-
   "waiting_next_line": "Waiting for the next line",
-
   "nav_overview": "Overview",
   "nav_activity": "Activity",
   "nav_logs": "Logs",
@@ -155,7 +136,6 @@
   "swatch_lemon": "Lemon",
   "swatch_fiber": "Fibre",
   "swatch_paper": "Paper",
-
   "schematic_tunnel": "The tunnel",
   "schematic_disk": "One disk",
   "schematic_downloads": "downloads",
@@ -169,7 +149,6 @@
   "schematic_carries_nothing": "carries nothing",
   "schematic_lands_on": "and what they fetch lands on",
   "schematic_linked_into": "linked into",
-
   "action_edit": "Edit",
   "step_of": "Step {position} of {total}",
   "step_done": "Done",
@@ -201,40 +180,30 @@
   "quota_used": "{used} of {limit} used",
   "quota_no_limit": "No limit",
   "quota_cannot_ask": "Can't ask",
-
   "home_unfinished": "The surface is being built. What exists so far is the vocabulary every screen will speak: a figure is measured now, is the last thing a quiet source said, or was never measured at all.",
-
   "term_hardlink": "linking",
   "term_hardlink_name": "Hardlink",
   "term_hardlink_meaning": "One file in two places, taking the room of one. Both names point at the same bytes, so importing a download costs no extra disk.",
-
   "term_stale": "stale",
   "term_stale_name": "Stale",
   "term_stale_meaning": "The last figure a service gave before it stopped answering. It was true once; nothing has confirmed it since.",
-
   "nav_console": "Screens",
   "nav_storage": "The disk",
   "nav_requests": "What's been asked for",
-
   "unlock_title": "Open the console",
   "unlock_prose": "lemonfiber printed a key when it started serving. Paste it here to see your stack. The key is only good for this run, and it is never written down.",
   "unlock_label": "The key lemonfiber printed",
   "unlock_hint": "It is a long word of letters and numbers, on the line that says where lemonfiber is listening.",
   "unlock_open": "Open the console",
-
   "waiting_answer": "Waiting for lemonfiber to answer",
-
   "flow_opening_lead": "Opening the live connection.",
   "flow_opening_prose": "Everything below is what lemonfiber said when the page was asked to draw it.",
   "flow_stale_lead": "The live connection dropped.",
   "flow_stale_prose": "Every figure below is the last one confirmed, not what is true now.",
-
   "panel_standing": "How things stand",
   "panel_space": "Your disk",
   "panel_attention": "What needs you",
-
   "eyebrow_wrong": "Things wrong",
-
   "standing_healthy": "All well",
   "standing_stopped": "Stopped",
   "standing_unconfigured": "Not set up yet",
@@ -243,16 +212,13 @@
   "standing_broken": "Broken",
   "standing_critical": "Badly broken",
   "standing_unknown": "Can't tell",
-
   "condition_inactive": "nothing running",
   "condition_degraded": "running badly",
   "condition_partial": "some of it running",
   "condition_active": "all of it running",
-
   "space_until_full": "Full in {span} at the rate it is filling.",
   "space_not_filling": "Nothing is filling it fast.",
   "link_copying": "copied, not linked",
-
   "stall_redownload_loop": "The same thing keeps being downloaded again",
   "stall_repeated_import_failure": "It downloaded, but filing it keeps failing",
   "stall_completed_not_imported": "It downloaded, and was never filed",
@@ -260,12 +226,30 @@
   "stall_stalled_download": "It stopped part way",
   "stall_waiting_indefinitely": "It has been waiting with nothing happening",
   "stall_slow": "It is going very slowly",
-
   "stuck_for": "{stall}, and nothing has changed for {span}.",
   "stuck_because": "{stall}. {blocking} Nothing has changed for {span}.",
   "stuck_several": "{count} stuck",
-
   "moving_nothing": "Nothing is downloading right now.",
   "waiting_nothing": "Nothing is queued.",
-  "programs_none": "No program has reported in."
+  "programs_none": "No program has reported in.",
+  "panel_running": "Starting and stopping",
+  "running_controls": "What you can ask of your stack",
+  "running_asked": "What you have asked lemonfiber to do",
+  "action_start_stack": "Start your stack",
+  "action_stop_stack": "Stop your stack",
+  "action_stop_everything": "Yes, stop everything",
+  "action_leave_running": "Leave it running",
+  "confirm_stop_eyebrow": "Before it goes",
+  "confirm_stop_title": "Stop every program in your stack?",
+  "confirm_stop_prose": "Downloads stop where they are, your library goes offline, and anyone watching is cut off. Nothing is deleted, and starting it again brings all of it back.",
+  "eyebrow_refused": "Not done",
+  "eyebrow_finished": "Finished",
+  "doing_up_title": "Starting your stack",
+  "doing_down_title": "Stopping your stack",
+  "work_under_way": "lemonfiber took this on and runs it apart from this page, so closing the tab would not stop it. It is called {job}. Nothing tells this page when it ends — what it changes shows up in the panels below.",
+  "work_done": "lemonfiber finished this while you waited.",
+  "waiting_still": "lemonfiber is still waiting",
+  "eyebrow_taken_on": "Taken on",
+  "action_hide_line": "Hide this line",
+  "action_hide_record": "Hide this record"
 }
