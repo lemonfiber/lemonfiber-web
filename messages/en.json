@@ -35,7 +35,7 @@
   "check_quiet_title": "One program has gone quiet",
   "check_quiet_prose": "{service} last answered {span} ago. Nothing is broken yet, but any figure it gave is the last one it had, not what is true now.",
   "check_stuck_title": "A download is stuck, and won't try again on its own",
-  "check_stuck_prose": "{release} finished downloading but couldn't be filed into your library. It failed twice, so {service} gave up. Nearly always this is a permissions problem when linking the file.",
+  "check_stuck_prose": "{release} finished downloading but couldn't be filed into your library. {service} tried twice, then gave up. Nearly always this is a permissions problem when linking the file.",
   "check_fill_rate_title": "How fast your disk is filling has never been measured",
   "check_fill_rate_prose": "Until it has been, the day it runs out cannot be worked out. That is not the same as there being plenty of room.",
   "check_scan_title": "Your library is being read for the first time",
