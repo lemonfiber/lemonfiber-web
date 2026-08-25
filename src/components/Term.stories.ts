@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Term from "./Term.svelte";
+import type { Explaining } from "../api/explaining";
+import { explained } from "../routes/fixture";
 import * as m from "../paraglide/messages.js";
+
+/** One running lemonfiber, answering what the word means. */
+const explain: Explaining = () =>
+  Promise.resolve({ ok: true, value: explained });
 
 const meta = {
   title: "Foundations/Term",
@@ -12,13 +18,14 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * A word the interface needs and a reader may not have. The underline says
- * there is more to it; pressing it says what.
+ * there is more to it; pressing it says what — in the binary's own words,
+ * asked for when it is pressed and not before.
  */
 export const Unread: Story = {
   args: {
     term: m.term_hardlink(),
-    name: m.term_hardlink_name(),
-    meaning: m.term_hardlink_meaning(),
+    word: explained.word,
+    explain,
   },
 };
 
@@ -28,9 +35,9 @@ export const Unread: Story = {
  */
 export const Read: Story = {
   args: {
-    term: m.term_stale(),
-    name: m.term_stale_name(),
-    meaning: m.term_stale_meaning(),
+    term: m.term_hardlink(),
+    word: explained.word,
+    explain,
     read: true,
   },
 };

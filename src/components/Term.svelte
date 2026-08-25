@@ -1,28 +1,69 @@
 <script lang="ts">
+  import Skeleton from "./Skeleton.svelte";
+  import type { Explaining } from "../api/explaining";
+  import type { Word } from "../lib/wire";
+  import * as m from "../paraglide/messages.js";
+
   interface Props {
     /** The word as it reads in the sentence around it. */
     term: string;
-    /** The word's own name, as the glossary gives it. */
-    name: string;
-    /** What it means, in a sentence a reader who has never met it can follow. */
-    meaning: string;
+    /**
+     * The word as the one table files it, which is what is asked about.
+     *
+     * Not a message. It is what the binary's table is keyed by, and a translated
+     * key finds nothing.
+     */
+    word: string;
+    /** How this surface asks what a word means. */
+    explain: Explaining;
     /** Whether this reader has opened it before. */
     read?: boolean | undefined;
   }
 
-  let { term, name, meaning, read = false }: Props = $props();
+  let { term, word, explain, read = false }: Props = $props();
 
   const popId = $props.id();
+  const waiting = m.waiting_answer();
+  const unanswered = m.word_unanswered();
+
   let open = $state(false);
+  let asking = $state(false);
+  let said = $state<Word | undefined>(undefined);
+
+  /**
+   * Ask what the word means, and keep what came back.
+   */
+  async function ask(): Promise<void> {
+    asking = true;
+    const answer = await explain(word);
+    asking = false;
+    if (answer.ok) said = answer.value;
+  }
+
+  /**
+   * Open or close the explanation, asking for it the first time it is wanted.
+   */
+  function press(): void {
+    open = !open;
+    if (open && said === undefined) void ask();
+  }
 </script>
 
 <!--
   A word the interface uses that a reader may not know. The underline says
   there is more to it, and pressing it says what.
 
+  What it says is the binary's answer rather than this surface's own words: the
+  vocabulary is one table, served, and a copy of an entry here would be a second
+  explanation of a word to keep in step with the first.
+
   A button rather than a span that answers to hover: an explanation reachable
   only by pointer is one a keyboard reader never gets. Escape closes it and
   leaves focus on the word it came from, so there is nothing to escape twice.
+
+  Nothing is asked until a reader asks. The answer takes the place a bar holds
+  until it arrives, and an answer that never arrives is said plainly — a word
+  that opens onto nothing is worse than one that was never underlined.
 
   A term already read keeps its underline in the line colour. It still explains
   itself; it just stops asking to be pressed.
@@ -34,17 +75,21 @@
     class:read
     aria-expanded={open}
     aria-describedby={open ? popId : undefined}
-    onclick={() => {
-      open = !open;
-    }}
+    onclick={press}
     onkeydown={(event) => {
       if (event.key === "Escape") open = false;
     }}>{term}</button
   >
   {#if open}
     <span class="pop" id={popId} role="note">
-      <span class="pop-name">{name}</span>
-      <span class="pop-meaning">{meaning}</span>
+      {#if said !== undefined}
+        <span class="pop-name">{said.word}</span>
+        <span class="pop-meaning">{said.short}</span>
+      {:else if asking}
+        <Skeleton width="14rem" label={waiting} />
+      {:else}
+        <span class="pop-meaning">{unanswered}</span>
+      {/if}
     </span>
   {/if}
 </span>

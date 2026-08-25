@@ -21,6 +21,7 @@ import {
   type Fetching,
   type Kind,
   type Problem,
+  type Query,
   type Reading,
   type Sending,
 } from "@lemonfiber/sdk-ts";
@@ -56,11 +57,16 @@ export interface Reaching {
  * An envelope calling itself something else is refused rather than read: the
  * generated types are what know which payload goes with which kind, and a
  * payload read under the wrong one is fields with changed meanings.
+ *
+ * A read that narrows by a question is given one. The client package builds the
+ * query, so a value carrying a space or an ampersand is one parameter rather than
+ * two, and no endpoint joins its own.
  */
 export async function asked<K extends Kind>(
   reaching: Reaching,
   endpoint: string,
   kind: K,
+  query?: Query,
 ): Promise<Reading<ByKind[K]["data"]>> {
   const opened = Client.at({
     url: reaching.at,
@@ -69,7 +75,7 @@ export async function asked<K extends Kind>(
   });
   if (!opened.ok) return { ok: false, problem: opened.problem };
 
-  const reading = await opened.client.read<unknown>(endpoint);
+  const reading = await opened.client.read<unknown>(endpoint, query);
   if (!reading.ok) return { ok: false, problem: reading.problem };
   if (!isKind(reading.value, kind)) return { ok: false, problem: malformed() };
 

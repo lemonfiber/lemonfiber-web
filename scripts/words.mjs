@@ -290,6 +290,36 @@ function blaming(said) {
   ];
 }
 
+// ── An explanation of a word belongs to the table that holds the words ───
+
+/** Key shapes that file a message as an account of what a word means. */
+const EXPLAINS =
+  /_(?:meaning|definition|explanation|explained|glossary|jargon)$/;
+
+/** How many words a term's own message may hold before it is a sentence. */
+const A_LABEL = 3;
+
+/**
+ * The explanations one message carries, which is any explanation at all.
+ *
+ * This ecosystem's vocabulary lives in one table, compiled into the binary and
+ * served from it. A message here saying what one of those words means is a second
+ * answer to the same question, kept in a different repository from the behaviour it
+ * describes — which is how this console came to explain `hardlink` in a sentence
+ * the table it was copied out of does not contain.
+ *
+ * Two shapes are refused: a key filed as an account of a word, and a `term_` key
+ * grown past the label it holds into a sentence. An explanation filed under a key
+ * that looks like neither is not caught, and cannot be from here: telling a
+ * definition from ordinary writing needs the vocabulary, and the vocabulary is
+ * answered by a running binary rather than read at build time.
+ */
+function explanations(said, key) {
+  if (EXPLAINS.test(key)) return [key];
+  const prose = words(withoutPlaceholders(said));
+  return key.startsWith("term_") && prose.length > A_LABEL ? [key] : [];
+}
+
 // ── Every rule, shown refusing before it is relied on ────────────────────
 
 /**
@@ -299,6 +329,9 @@ function blaming(said) {
  * the corpus is clean, so every run proves the rules still work before it reports
  * that they found nothing. A list quietly widened until it catches everything — or
  * narrowed until it catches nothing — fails here rather than looking green.
+ *
+ * A case is a message, or a key and the message filed under it where the rule reads
+ * both. The key a bare message is proved under names nothing and is filed nowhere.
  */
 const PROVEN = [
   {
@@ -340,6 +373,26 @@ const PROVEN = [
     ],
   },
   {
+    rule: "explanation",
+    find: explanations,
+    refuses: [
+      [
+        "term_hardlink_meaning",
+        "One file in two places, taking the room of one",
+      ],
+      [
+        "term_stale_meaning",
+        "The last figure a service gave before it stopped",
+      ],
+      ["term_indexer", "Search engines that find what you are looking for"],
+    ],
+    allows: [
+      ["term_hardlink", "linking"],
+      ["head_what_that_means", "What that means"],
+      ["panel_dead_scope", "Nothing in this box can be trusted right now."],
+    ],
+  },
+  {
     rule: "blame",
     find: blaming,
     refuses: [
@@ -358,13 +411,16 @@ const PROVEN = [
   },
 ];
 
+/** One proving case, as the key it is filed under and what it says. */
+const filed = (one) => (typeof one === "string" ? ["proved", one] : one);
+
 for (const { rule, find, refuses, allows } of PROVEN) {
-  for (const said of refuses) {
-    if (find(said).length === 0)
+  for (const [key, said] of refuses.map(filed)) {
+    if (find(said, key).length === 0)
       fail(`the ${rule} rule`, `lets this through, and must not: "${said}"`);
   }
-  for (const said of allows) {
-    const found = find(said);
+  for (const [key, said] of allows.map(filed)) {
+    const found = find(said, key);
     if (found.length > 0)
       fail(
         `the ${rule} rule`,
@@ -421,6 +477,12 @@ for (const [key, message] of said) {
     fail(
       where,
       `"${blame}" puts the failure on the person reading — say what is wrong, not who got it wrong`,
+    );
+
+  for (const named of explanations(message, key))
+    fail(
+      where,
+      `${named} says what one of this ecosystem's words means — the words are one table in the binary, and this surface asks it rather than keeping a copy`,
     );
 }
 
