@@ -45,7 +45,7 @@ export function pathOf(place: Place): string {
  * The place an address names. An address naming none is the overview.
  */
 export function placeAt(path: string): Place {
-  const [first] = path.split("/").filter((part) => part !== "");
+  const first = path.split("/").find((part) => part !== "");
   return everyPlace.find((place) => place === first) ?? "overview";
 }
 

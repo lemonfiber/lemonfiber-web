@@ -29,7 +29,7 @@ describe("the key this page was given", () => {
   // A key that outlives the tab outlives the run that minted it.
   it("files it under one name, in the store the tab closing clears", () => {
     remember(sessionStorage, key);
-    expect(sessionStorage.length).toBe(1);
+    expect(sessionStorage).toHaveLength(1);
     expect(sessionStorage.getItem("lemonfiber-key")).toBe(key);
   });
 
