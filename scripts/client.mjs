@@ -32,8 +32,21 @@ if (spec === undefined) {
   process.exit(1);
 }
 
+/**
+ * The npm running this script, asked for by absolute path rather than found on
+ * `PATH` — and it is the same npm, rather than whichever one a search turns up.
+ */
+const cli = process.env["npm_execpath"];
+
+if (cli === undefined) {
+  console.error(
+    "client: run this as `npm run client`, so it has an npm to use",
+  );
+  process.exit(1);
+}
+
 const npm = (...args) => {
-  execFileSync("npm", args, { stdio: "inherit" });
+  execFileSync(process.execPath, [cli, ...args], { stdio: "inherit" });
 };
 
 const into = mkdtempSync(join(tmpdir(), "lemonfiber-client-"));
