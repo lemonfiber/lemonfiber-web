@@ -25,10 +25,12 @@
   const popId = $props.id();
   const waiting = m.waiting_answer();
   const unanswered = m.word_unanswered();
+  const noEntry = m.word_no_entry();
 
   let open = $state(false);
   let asking = $state(false);
   let said = $state<Word | undefined>(undefined);
+  let none = $state(false);
 
   /**
    * Ask what the word means, and keep what came back.
@@ -38,6 +40,7 @@
     const answer = await explain(word);
     asking = false;
     if (answer.ok) said = answer.value;
+    else none = answer.problem.kind === "missing";
   }
 
   /**
@@ -65,6 +68,10 @@
   until it arrives, and an answer that never arrives is said plainly — a word
   that opens onto nothing is worse than one that was never underlined.
 
+  A word the table has no entry for is said as that, and not as an answer still
+  to come. One of them is worth pressing again and the other never will be, and a
+  reader told the same sentence for both has no way to know which they met.
+
   A term already read keeps its underline in the line colour. It still explains
   itself; it just stops asking to be pressed.
 -->
@@ -87,6 +94,8 @@
         <span class="pop-meaning">{said.short}</span>
       {:else if asking}
         <Skeleton width="14rem" label={waiting} />
+      {:else if none}
+        <span class="pop-meaning">{noEntry}</span>
       {:else}
         <span class="pop-meaning">{unanswered}</span>
       {/if}
