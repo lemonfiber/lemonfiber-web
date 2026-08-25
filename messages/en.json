@@ -210,5 +210,62 @@
 
   "term_stale": "stale",
   "term_stale_name": "Stale",
-  "term_stale_meaning": "The last figure a service gave before it stopped answering. It was true once; nothing has confirmed it since."
+  "term_stale_meaning": "The last figure a service gave before it stopped answering. It was true once; nothing has confirmed it since.",
+
+  "nav_console": "Screens",
+  "nav_storage": "The disk",
+  "nav_requests": "What's been asked for",
+
+  "unlock_title": "Open the console",
+  "unlock_prose": "lemonfiber printed a key when it started serving. Paste it here to see your stack. The key is only good for this run, and it is never written down.",
+  "unlock_label": "The key lemonfiber printed",
+  "unlock_hint": "It is a long word of letters and numbers, on the line that says where lemonfiber is listening.",
+  "unlock_open": "Open the console",
+
+  "waiting_answer": "Waiting for lemonfiber to answer",
+
+  "flow_opening_lead": "Opening the live connection.",
+  "flow_opening_prose": "Everything below is what lemonfiber said when the page was asked to draw it.",
+  "flow_stale_lead": "The live connection dropped.",
+  "flow_stale_prose": "Every figure below is the last one confirmed, not what is true now.",
+
+  "panel_standing": "How things stand",
+  "panel_space": "Your disk",
+  "panel_attention": "What needs you",
+
+  "eyebrow_wrong": "Things wrong",
+
+  "standing_healthy": "All well",
+  "standing_stopped": "Stopped",
+  "standing_unconfigured": "Not set up yet",
+  "standing_advisory": "Worth knowing",
+  "standing_degraded": "Running, but not fully",
+  "standing_broken": "Broken",
+  "standing_critical": "Badly broken",
+  "standing_unknown": "Can't tell",
+
+  "condition_inactive": "nothing running",
+  "condition_degraded": "running badly",
+  "condition_partial": "some of it running",
+  "condition_active": "all of it running",
+
+  "space_until_full": "Full in {span} at the rate it is filling.",
+  "space_not_filling": "Nothing is filling it fast.",
+  "link_copying": "copied, not linked",
+
+  "stall_redownload_loop": "The same thing keeps being downloaded again",
+  "stall_repeated_import_failure": "It downloaded, but filing it keeps failing",
+  "stall_completed_not_imported": "It downloaded, and was never filed",
+  "stall_orphaned": "It downloaded, and nothing claims it",
+  "stall_stalled_download": "It stopped part way",
+  "stall_waiting_indefinitely": "It has been waiting with nothing happening",
+  "stall_slow": "It is going very slowly",
+
+  "stuck_for": "{stall}, and nothing has changed for {span}.",
+  "stuck_because": "{stall}. {blocking} Nothing has changed for {span}.",
+  "stuck_several": "{count} stuck",
+
+  "moving_nothing": "Nothing is downloading right now.",
+  "waiting_nothing": "Nothing is queued.",
+  "programs_none": "No program has reported in."
 }

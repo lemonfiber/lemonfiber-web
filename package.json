@@ -27,13 +27,14 @@
     "storybook": "storybook dev -p 6006 --no-open",
     "storybook:build": "storybook build",
     "a11y": "node scripts/a11y.mjs",
+    "client": "node scripts/client.mjs",
     "ci": "npm run messages && npm run format:check && npm run lint && npm run types && npm run guard && npm run arch && npm run coverage && npm run build && npm run storybook:build && npm run a11y",
     "messages": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "@lemonfiber/brand": "github:lemonfiber/brand#82d7ce5b85b32ffa6be3925513e037e4af63dfcc",
-    "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#87883dda0b9d5c2f7defc2c58872fb71cd0caa22"
+    "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#df37af90c61b6718a6db87be8dad26903a1f459d"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

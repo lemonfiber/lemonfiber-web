@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/svelte";
-import { describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 import MenuItem from "./MenuItem.svelte";
 import { drawings } from "../lib/icons";
 
@@ -91,6 +92,22 @@ describe("MenuItem", () => {
       "aria-hidden",
       "true",
     );
+  });
+});
+
+describe("when a router answers the addresses", () => {
+  // The page answering its own addresses is what makes the menu instant. The
+  // row stays a link so a second tab, a saved address and the back button all
+  // still work; the router is handed the press and decides.
+  it("hands the press over, and keeps the address on the row", async () => {
+    const pressed = vi.fn();
+    render(MenuItem, { ...overview, onclick: pressed });
+
+    const link = screen.getByRole("link", { name: "Overview" });
+    await userEvent.click(link);
+
+    expect(pressed).toHaveBeenCalledOnce();
+    expect(link).toHaveAttribute("href", "/overview");
   });
 });
 

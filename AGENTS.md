@@ -90,7 +90,11 @@ exists in the spec repo — grep for it before citing it.
 ```
 src/components/   one component per file, with its test and its stories
 src/lib/          the vocabulary the interface speaks — states, severities,
-                  freshness, weights, icon names. No rendering.
+                  freshness, weights, icon names, places. No rendering.
+src/api/          the one place a request is made, all of it through
+                  @lemonfiber/sdk-ts. Where the per-run key is kept.
+src/routes/       the screens, the chrome they sit in, and the panels a screen
+                  is composed of. A screen is handed what it draws.
 src/app.css       brand tokens mapped to this interface's names, the element
                   reset, and the one `.said` utility every component would
                   otherwise restate
@@ -100,8 +104,12 @@ scripts/          the gate's own tooling: structural guards, the accessibility
 .storybook/       preview, and the helpers that put real components in a snippet
 ```
 
-`src/lib` never imports from `src/components` — the words must not depend on their
-presentation. dependency-cruiser enforces it.
+`src/lib` never imports from `src/components` or `src/routes` — the words must not
+depend on their presentation. dependency-cruiser enforces it.
+
+A screen never fetches. `src/routes/Console.svelte` asks and follows; every screen
+and panel below it is handed what it draws, which is what lets the same screen be
+drawn from a fixture in a story and swept by `npm run a11y`.
 
 ## Running several agents at once
 

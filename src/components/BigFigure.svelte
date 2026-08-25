@@ -90,8 +90,11 @@
     color: var(--faint);
   }
 
+  /* The figure and what it is measured against read as one line, and drop to
+     two where the column is narrower than the two of them. */
   .line {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     gap: var(--sp-3);
   }

@@ -22,6 +22,7 @@ import {
   type Snippet,
 } from "svelte";
 import Action from "../src/components/Action.svelte";
+import Dashboard from "../src/routes/Dashboard.svelte";
 import DeadNote from "../src/components/DeadNote.svelte";
 import Enclosure from "../src/components/Enclosure.svelte";
 import Icon from "../src/components/Icon.svelte";
@@ -42,6 +43,22 @@ function holding(fill: Fill): Snippet {
     render: () => `<div style="display: contents"></div>`,
     setup: fill,
   }));
+}
+
+/**
+ * A whole screen, inside the chrome that holds it.
+ *
+ * The accessibility sweep reads stories, and what a component does on its own
+ * says nothing about what a page of them does: reflow, focus order and heading
+ * order are all properties of the assembled page.
+ */
+export function screening(props: ComponentProps<typeof Dashboard>): Snippet {
+  return holding((node) => {
+    const made = mount(Dashboard, { target: node, props });
+    return () => {
+      void unmount(made);
+    };
+  });
 }
 
 /** The buttons a row, a banner or a note offers, in order. */

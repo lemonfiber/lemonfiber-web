@@ -53,6 +53,22 @@ export const NothingWaiting: Story = {
 };
 
 /**
+ * A row the page answers itself. It is still a link to a real address — the
+ * press is handed to whatever routes it, and a modified press is left to the
+ * browser, so a second tab and the back button both still work.
+ */
+export const AnsweredByThePage: Story = {
+  args: {
+    href: "/storage",
+    icon: "storage",
+    label: m.nav_storage(),
+    onclick: (event: MouseEvent) => {
+      event.preventDefault();
+    },
+  },
+};
+
+/**
  * Somewhere else that wants the operator. The tally takes the alarm ground,
  * so what needs doing is visible from whichever screen is open.
  */
