@@ -1,0 +1,108 @@
+# The pinned client is a copy, and a copy goes stale in silence.
+#
+# This surface reaches lemonfiber through `@lemonfiber/sdk-ts` and through
+# nothing else, and it takes that package as an exact git revision rather than
+# as a published version. Nothing in the gate looks at that revision: `npm ci`
+# installs what the lockfile says and `npm run client` builds what the manifest
+# names, and both are content with a revision from any point in the past.
+#
+# That is not theoretical. The pin once sat at a commit from before four of the
+# client's own bugs were fixed, so all four were live here: a stale key read as
+# "lemonfiber is not answering", the event stream never handed over an arrival,
+# a refusal's own sentence was discarded, and the vendored contract predated a
+# kind. One of them was found again here, by hand, hours after it had been fixed
+# upstream.
+#
+# So this compares what the manifest pins against what that repository's main
+# is, and names the commits in between. A count would be the wrong thing to
+# report: most commits on the client change nothing this surface reaches, and
+# "behind by eleven" reads as an emergency where the list reads as a decision.
+name: sdk-drift
+on:
+  workflow_dispatch:
+  schedule:
+    # Weekly, as the contract drift check runs. The client's main is also where
+    # `sdk-moved` fires from on every push, so this is the floor rather than the
+    # first notice — what it catches is a push that went untold.
+    - cron: "40 7 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  look:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Compare the pinned client with the one its repository serves
+        env:
+          SDK: https://github.com/lemonfiber/sdk-ts.git
+        run: |
+          set -euo pipefail
+
+          # The revision the manifest pins is the one `npm run client` builds,
+          # so it is the client this surface is actually drawn through.
+          pin=$(python3 - <<'PY'
+          import json
+          import pathlib
+          import re
+          import sys
+
+          NAME = "@lemonfiber/sdk-ts"
+
+          manifest = json.loads(pathlib.Path("package.json").read_text())
+          spec = manifest.get("dependencies", {}).get(NAME)
+
+          if spec is None:
+              sys.exit(f"{NAME} is not a dependency of this package")
+
+          revision = spec.partition("#")[2]
+
+          if not re.fullmatch("[0-9a-f]{40}", revision):
+              sys.exit(f"{NAME} is not pinned to an exact revision: {spec}")
+
+          print(revision)
+          PY
+          )
+
+          # Bare and blob-less: this reads the history and none of the files,
+          # because a list of commits is the whole of what is being asked for.
+          git clone --bare --filter=blob:none --quiet "$SDK" sdk-ts.git
+
+          head=$(git -C sdk-ts.git rev-parse main)
+
+          if ! git -C sdk-ts.git cat-file -e "${pin}^{commit}" 2>/dev/null; then
+            echo "pinned:      ${pin}"
+            echo "sdk-ts main: ${head}"
+            echo "::error::the pinned revision is not a commit in sdk-ts"
+            echo "the manifest names a revision that repository's history does not contain"
+            exit 1
+          fi
+
+          if [ "$pin" = "$head" ]; then
+            echo "the console is drawn through sdk-ts ${pin}, which is what main is."
+            exit 0
+          fi
+
+          behind=$(git -C sdk-ts.git log --oneline "${pin}..main")
+
+          # Ahead of main, or on a history main no longer has. Either way the
+          # pin is not a point on the line this compares against, and reporting
+          # it as current would be a different wrong answer.
+          if [ -z "$behind" ]; then
+            echo "pinned:      ${pin}"
+            echo "sdk-ts main: ${head}"
+            echo "::error::the pinned revision is not on sdk-ts main"
+            exit 1
+          fi
+
+          echo "pinned:      ${pin}"
+          echo "sdk-ts main: ${head}"
+          echo "the console has not taken these:"
+          echo "$behind"
+          echo "::error::the pinned client is behind sdk-ts main"
+          echo "point the dependency at ${head} in package.json, then run npm install so the lockfile moves with it"
+          exit 1
