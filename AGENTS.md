@@ -43,10 +43,10 @@ not a spec path. They go in the commit trailer and the pull request body.
 the light theme, the explicit dark theme, the system preference a reader who never
 touched the toggle gets, a request for more contrast, and forced colours — and axe
 is run over each at WCAG 2.2 AA. Three more passes run once per story: tabbing
-right through it to catch a keyboard trap; reading every declared animation and
-transition to catch one that repeats fast enough to flash, or that a reduced-motion
-preference does not stop; and measuring the page at 320 pixels to catch sideways
-scroll.
+right through it to catch a keyboard trap, reading at every place focus lands
+whether it draws a ring there; reading every declared animation and transition to
+catch one that repeats fast enough to flash, or that a reduced-motion preference
+does not stop; and measuring the page at 320 pixels to catch sideways scroll.
 
 ## Two Svelte traps the coverage gate will not forgive
 
