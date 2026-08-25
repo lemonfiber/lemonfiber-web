@@ -16,6 +16,7 @@ import type {
   Service,
   Stack,
   Verdict,
+  Word,
 } from "../lib/wire";
 import type { Controls, Work } from "../lib/work";
 
@@ -451,6 +452,21 @@ export const household: Household = {
       ],
     },
   ],
+};
+
+/**
+ * One word explained, in the words the binary answered with.
+ *
+ * Copied out of its answer rather than written here. Nothing reads this as what
+ * the product says a word means; it stands for whatever came back, and what a
+ * screen draws is the answer it was handed.
+ */
+export const explained: Word = {
+  word: "hardlink",
+  short:
+    "Lets one file appear in two places while taking up the space once — so importing is instant and costs no extra disk.",
+  deep: "Both names point at the same data. Deleting one leaves the other working. This is why the download folder and the library should sit on one volume: across two, the file has to be copied instead, which takes time and twice the room.",
+  also_called: [],
 };
 
 /** A household nothing could be read from, which is not an empty one. */

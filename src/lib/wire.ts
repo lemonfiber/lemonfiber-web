@@ -50,6 +50,9 @@ export type Remedy = Extract<Verdict, { outcome: "unverified" }>["remedy"];
 /** One line of output from one service. */
 export type Logged = ByKind["log"]["data"];
 
+/** One of this product's own words, as the read that explains one answers. */
+export type Word = ByKind["word"]["data"];
+
 /** What the household has asked for, member by member. */
 export type Household = ByKind["household"]["data"];
 

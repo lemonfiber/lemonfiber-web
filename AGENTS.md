@@ -33,8 +33,14 @@ a token and stays literal.
 `npm run messages`, import `* as m from "../paraglide/messages.js"`. Prefer a prop:
 a component is a shape and the screen supplies the words. Bare figures and proper
 nouns are data and stay literal. `scripts/words.mjs` reads what those keys say and
-refuses three things: an idiom, an acronym nobody declared ordinary, and a fault
-named beside the person reading.
+refuses four things: an idiom, an acronym nobody declared ordinary, a fault named
+beside the person reading, and an explanation of a word.
+
+**This ecosystem's own words are not among them.** _Indexer, hardlink, retention,
+ratio_ live in one table compiled into the binary and served at `/api/explain`.
+`Term.svelte` asks for one when a reader presses it; a message here saying what one
+of them means is a second explanation to keep in step with the first, and
+`scripts/words.mjs` refuses it.
 
 **Citations never appear in a comment.** Not a requirement ID, not an ADR number,
 not a spec path. They go in the commit trailer and the pull request body.
