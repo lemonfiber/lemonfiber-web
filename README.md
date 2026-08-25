@@ -20,8 +20,8 @@
 
 ---
 
-> **Status: early.** The gates are in place and the component library is being
-> built. This repo is milestone **M7** on the
+> **Status: early.** The component library is built, and the operator's console
+> is being assembled from it. This repo is milestone **M7** on the
 > [roadmap](https://github.com/lemonfiber/spec/blob/main/00-overview/roadmap.md).
 > Full account in the spec:
 > [`30-repos/lemonfiber-web.md`](https://github.com/lemonfiber/spec/blob/main/30-repos/lemonfiber-web.md).
@@ -37,7 +37,8 @@ it in, as a pinned submodule it embeds. No version tag has been cut here yet, an
 `lemonfiber`'s
 [web API](https://github.com/lemonfiber/spec/blob/main/20-architecture/contracts/web-api.md)
 is the only place this application may get data from, and it reaches nothing else.
-Nothing under `src/` calls it yet — what is drawn today is the component library.
+The operator's console asks it for what it draws; the household view is not built
+yet.
 
 That constraint is the point rather than a limitation. `G1-R2` says no surface may
 implement behaviour independently, and an application whose only capability is to
@@ -64,8 +65,10 @@ npm run dev
 ```
 
 That serves the application on Vite's dev server, which has no back end of its own
-and no proxy to one. Data comes from a `lemonfiber` started separately; nothing
-drawn so far asks for any.
+and no proxy to one. The page asks lemonfiber at its own address, which is the
+address the binary serves it from — so the dev server draws the shell and the
+empty states, and a console with figures in it means running a build the binary
+carries.
 
 Requires Node **26 or newer**, as declared in `engines`.
 

@@ -3,9 +3,13 @@ import { describe, expect, it } from "vitest";
 import Skeleton from "./Skeleton.svelte";
 
 describe("Skeleton", () => {
-  it("holds the place at the width it was given", () => {
+  // The width is a ceiling: the bar stands as wide as the line it holds a place
+  // for, and narrower where the column it sits in is narrower than that.
+  it("holds the place at the width it was given, and no wider", () => {
     const { container } = render(Skeleton, { width: "260px" });
-    expect(container.querySelector(".skel")).toHaveStyle({ width: "260px" });
+    expect(container.querySelector(".skel")).toHaveStyle({
+      maxWidth: "260px",
+    });
   });
 
   // A shape standing in for text is not text, and a reader told "graphic"
@@ -49,6 +53,8 @@ describe("when the words for a bar already on screen change", () => {
     expect(screen.getByRole("status")).toHaveTextContent(
       "Reading your library",
     );
-    expect(container.querySelector(".skel")).toHaveStyle({ width: "260px" });
+    expect(container.querySelector(".skel")).toHaveStyle({
+      maxWidth: "260px",
+    });
   });
 });

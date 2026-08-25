@@ -1,6 +1,10 @@
 <script lang="ts">
   interface Props {
-    /** How wide the bar stands: the width of the text it holds a place for. */
+    /**
+     * How wide the bar stands at most: the width of the text it holds a place
+     * for. A column narrower than that gets a narrower bar rather than a page
+     * that scrolls sideways.
+     */
     width: string;
     /**
      * What has not arrived. Given to one bar in a run, so a row of them is
@@ -22,13 +26,18 @@
   and returns over a second and a half, which is a surface breathing rather
   than a surface blinking.
 -->
-<div class="skel" aria-hidden="true" style:width></div>
+<div class="skel" aria-hidden="true" style:max-width={width}></div>
 {#if label !== undefined}
   <span class="said" role="status">{label}</span>
 {/if}
 
 <style>
+  /* The width given is a ceiling rather than a measure. It is the width of the
+     line being held a place for, and a narrow column is narrower than some of
+     those lines — a place held wider than the space holding it takes the page
+     sideways, and asks the column it sits in to be that wide. */
   .skel {
+    width: 100%;
     background: var(--canvas);
     border-radius: var(--r-sm);
     height: 0.6875rem;

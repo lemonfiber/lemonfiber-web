@@ -15,6 +15,12 @@
     urgent?: boolean | undefined;
     /** Whether this is the screen being read. */
     current?: boolean | undefined;
+    /**
+     * What pressing it asks for. Given where the page answers its own addresses,
+     * so the link stays a link and the router is handed the click rather than an
+     * ancestor listening for it.
+     */
+    onclick?: ((event: MouseEvent) => void) | undefined;
   }
 
   let {
@@ -24,6 +30,7 @@
     tally,
     urgent = false,
     current = false,
+    onclick,
   }: Props = $props();
 </script>
 
@@ -41,7 +48,7 @@
   The drawing is decorative: the name beside it says the same thing, and
   announcing both says it twice.
 -->
-<a class="mitem" {href} aria-current={current ? "page" : undefined}>
+<a class="mitem" {href} {onclick} aria-current={current ? "page" : undefined}>
   <Icon name={icon} />
   <span class="word">{label}</span>
   {#if tally !== undefined}

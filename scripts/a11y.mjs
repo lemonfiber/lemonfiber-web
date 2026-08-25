@@ -75,6 +75,21 @@ function serve() {
   });
 }
 
+/**
+ * One story's address, in one rendering.
+ *
+ * Storybook's accessibility addon runs axe in the page as a story renders, and
+ * axe refuses a second run while one is in flight. This sweep is the second run,
+ * and the two ask the same question of the same page. `a11y.manual` is what
+ * turns the addon's own run off, so only one of them runs.
+ */
+function storyAt(port, id, theme = "paper") {
+  return (
+    `http://127.0.0.1:${String(port)}/iframe.html?id=${id}` +
+    `&globals=theme:${theme};a11y.manual:!true&viewMode=story`
+  );
+}
+
 const index = JSON.parse(await readFile(join(BUILT, "index.json"), "utf8"));
 const stories = Object.values(index.entries)
   .filter((entry) => entry.type === "story")
@@ -101,10 +116,9 @@ for (const theme of THEMES) {
   });
   const page = await context.newPage();
   for (const id of stories) {
-    await page.goto(
-      `http://127.0.0.1:${String(port)}/iframe.html?id=${id}&globals=theme:${theme.name}&viewMode=story`,
-      { waitUntil: "networkidle" },
-    );
+    await page.goto(storyAt(port, id, theme.name), {
+      waitUntil: "networkidle",
+    });
     const { violations } = await new AxeBuilder({ page })
       .withTags(AA)
       .analyze();
@@ -142,10 +156,7 @@ const keyboard = await browser.newContext({
 const tabbing = await keyboard.newPage();
 
 for (const id of stories) {
-  await tabbing.goto(
-    `http://127.0.0.1:${String(port)}/iframe.html?id=${id}&globals=theme:paper&viewMode=story`,
-    { waitUntil: "networkidle" },
-  );
+  await tabbing.goto(storyAt(port, id), { waitUntil: "networkidle" });
 
   // Number each place focus can land, once, so reading where it is costs a
   // property rather than a walk of the document.
@@ -288,10 +299,7 @@ const reading = await browser.newContext({
 const measuring = await reading.newPage();
 
 for (const id of stories) {
-  await measuring.goto(
-    `http://127.0.0.1:${String(port)}/iframe.html?id=${id}&globals=theme:paper&viewMode=story`,
-    { waitUntil: "networkidle" },
-  );
+  await measuring.goto(storyAt(port, id), { waitUntil: "networkidle" });
 
   for (const one of await measuring.evaluate(MOVING)) {
     if (!one.forever || one.period >= FLASH) continue;
