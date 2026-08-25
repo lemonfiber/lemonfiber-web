@@ -4,9 +4,11 @@
   import Panel from "../../components/Panel.svelte";
   import type { Freshness } from "../../lib/freshness";
   import {
+    askable,
     askingOf,
     everyDoing,
     readingOf,
+    takesForms,
     titleOfDoing,
     wordOfDoing,
     type Controls,
@@ -19,6 +21,7 @@
   }
 
   let {
+    chosen,
     work,
     waiting,
     confirming,
@@ -30,16 +33,32 @@
     freshness,
   }: Props = $props();
 
-  const asking = $derived(askingOf(confirming));
+  const scoped = $derived(chosen.length > 0);
+  const asking = $derived(askingOf(confirming, scoped));
   const silent = $derived(busy || asking !== undefined);
   const parted = $derived(
     asking !== undefined || waiting !== undefined || work.length > 0,
   );
+  const byForm = everyDoing.filter((doing) => takesForms.includes(doing));
+  const whole = everyDoing.filter((doing) => !takesForms.includes(doing));
 </script>
 
 <!--
-  The two things this surface can ask of the whole stack, and everything that has
-  come of asking.
+  What this surface can ask of the stack, and everything that has come of asking.
+
+  Two groups, because two things are being acted on. The first acts on the forms
+  chosen above, or on the whole stack where none were; the second takes no forms
+  at all, and a selection silently ignored would be the same request answered
+  with a different one. A line above them says which of the two the first group
+  reaches, so pressing a control is never a guess about what it reaches.
+
+  That line is announced when it changes. Taking a form up in the panel above
+  changes what five controls down here will do, and a reader who cannot see the
+  line has nothing else that says so.
+
+  Three of the first group can do nothing until something has been chosen and
+  are silenced until it has, rather than sending a request lemonfiber would
+  refuse for the reason already visible on the screen.
 
   The controls come first and what they produced comes after, so a reader who
   presses one and moves forward reaches the answer rather than having to go back
@@ -59,10 +78,26 @@
   four controls they cannot tell apart.
 -->
 <Panel title={m.panel_running()} {freshness} flush>
+  <div class="scope" role="status">
+    <p>{scoped ? m.running_scope_some() : m.running_scope_none()}</p>
+  </div>
+
   <div class="controls" role="group" aria-label={m.running_controls()}>
-    {#each everyDoing as doing (doing)}
+    {#each byForm as doing (doing)}
       <Action
-        label={wordOfDoing(doing)}
+        label={wordOfDoing(doing, scoped)}
+        off={silent || !askable(doing, chosen)}
+        onclick={() => {
+          onpress(doing);
+        }}
+      />
+    {/each}
+  </div>
+
+  <div class="controls" role="group" aria-label={m.running_whole_controls()}>
+    {#each whole as doing (doing)}
+      <Action
+        label={wordOfDoing(doing, scoped)}
         off={silent}
         onclick={() => {
           onpress(doing);
@@ -75,7 +110,7 @@
     {#if asking !== undefined}
       {#snippet answering()}
         <Action
-          label={m.action_stop_everything()}
+          label={asking.question.yes}
           weight="firm"
           onclick={() => {
             onpress(asking.doing);
@@ -118,7 +153,7 @@
       <Item
         state={read.state}
         eyebrow={read.eyebrow}
-        title={titleOfDoing(one.doing)}
+        title={titleOfDoing(one.doing, one.scoped)}
         prose={read.prose}
         actions={dropping}
       />
@@ -127,11 +162,22 @@
 </Panel>
 
 <style>
+  .scope {
+    padding: var(--sp-4) var(--panel-pad) 0;
+  }
+
+  .scope p {
+    margin: 0;
+    font-size: var(--text-prose);
+    color: var(--muted);
+    max-width: 76ch;
+  }
+
   .controls {
     display: flex;
     flex-wrap: wrap;
     gap: var(--sp-2);
-    padding: var(--sp-4) var(--panel-pad);
+    padding: var(--sp-3) var(--panel-pad);
   }
 
   /* The rule appears only when there is something under it, so a panel nobody

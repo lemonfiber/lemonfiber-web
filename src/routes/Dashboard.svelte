@@ -2,6 +2,7 @@
   import Banner from "../components/Banner.svelte";
   import Attention from "./panels/Attention.svelte";
   import Coming from "./panels/Coming.svelte";
+  import Forms from "./panels/Forms.svelte";
   import Programs from "./panels/Programs.svelte";
   import Running from "./panels/Running.svelte";
   import Space from "./panels/Space.svelte";
@@ -50,8 +51,10 @@
   figures were true a minute ago is a claim about the whole screen, and a panel
   cannot make it.
 
-  The one panel that acts sits under the two that grade, so what is on offer is
-  read after what it is for.
+  The two panels that act sit under the two that grade, so what is on offer is
+  read after what it is for. The forms come first of the two: what the controls
+  reach is chosen there, and a control read before the thing it acts on is a
+  control read without its subject.
 -->
 <div class="board">
   {#if said !== undefined}
@@ -62,6 +65,13 @@
     <Standing {stack} health={moment?.health} freshness={graded} />
     <Space disk={moment?.storage} freshness={live} />
   </div>
+
+  <Forms
+    forms={controls.forms}
+    chosen={controls.chosen}
+    onchoose={controls.onchoose}
+    freshness={read}
+  />
 
   <Running {...controls} freshness={live} />
 

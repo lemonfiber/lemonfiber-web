@@ -1,11 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Dashboard from "./Dashboard.svelte";
 import {
+  adrift,
+  chosenForm,
   controls,
+  finished,
+  forgotten,
   moment,
+  notAnswering,
   stack,
   started,
   stillWaiting,
+  stopped,
   unavailable,
   wouldNot,
 } from "./fixture";
@@ -51,6 +57,7 @@ export const BeforeAnythingAnswers: Story = {
     flow: "opening",
     read: never,
     live: never,
+    controls: { ...controls, forms: undefined },
   },
 };
 
@@ -141,7 +148,7 @@ export const NothingWrong: Story = {
  * The one costly control has been pressed and nothing has happened yet. The
  * question stands under the controls rather than in place of them, so a reader
  * whose focus is still on the button they pressed reaches the answer by moving
- * forward. Both controls are silenced without leaving the page.
+ * forward. Every control is silenced without leaving the page.
  */
 export const AskingBeforeItStops: Story = {
   args: { controls: { ...controls, confirming: "down" } },
@@ -174,14 +181,105 @@ export const AskedForSomethingRefused: Story = {
   args: {
     controls: {
       ...controls,
-      work: [{ id: "2", doing: "down", at: "declined", said: wouldNot }],
+      work: [
+        {
+          id: "2",
+          doing: "down",
+          scoped: false,
+          at: "declined",
+          said: wouldNot,
+        },
+      ],
     },
   },
 };
 
 /**
- * A request in flight. Neither control can be pressed twice, and neither leaves
- * the page while it cannot be.
+ * A form taken up. Three controls that could do nothing without one come
+ * alive, the two that can mean the whole stack say they no longer do, and the
+ * line above them says as much in words.
+ */
+export const AFormChosen: Story = {
+  args: { controls: { ...controls, chosen: [chosenForm] } },
+};
+
+/**
+ * The stack declares no forms at all. Said in words rather than left as an
+ * empty frame a reader has to interpret.
+ */
+export const NoFormsDeclared: Story = {
+  args: {
+    controls: { ...controls, forms: { ok: true, value: { forms: [] } } },
+  },
+};
+
+/**
+ * The listing did not answer. The panel says why in the source's own words,
+ * and the controls that need a form stay silent because there is none to
+ * choose.
+ */
+export const FormsCouldNotBeListed: Story = {
+  args: {
+    controls: {
+      ...controls,
+      forms: {
+        ok: false,
+        problem: { kind: "unreachable", message: notAnswering },
+      },
+    },
+  },
+};
+
+/**
+ * The name was redeemed and the work had finished. The record stops saying it
+ * is under way, which it could only have gone on saying by never asking.
+ */
+export const WorkThatFinished: Story = {
+  args: { controls: { ...controls, work: [finished] } },
+};
+
+/**
+ * The name was redeemed and the work had stopped. What went wrong is
+ * lemonfiber's own account of it, passed through as it was written.
+ */
+export const WorkThatStopped: Story = {
+  args: { controls: { ...controls, work: [stopped] } },
+};
+
+/**
+ * A name this run no longer knows. Nothing carries a job across a restart, so
+ * this is absence rather than an unfinished wait — and it is said as absence,
+ * with no alarm attached to it.
+ */
+export const WorkNoLongerKnown: Story = {
+  args: { controls: { ...controls, work: [forgotten] } },
+};
+
+/**
+ * The asking stopped, not the work. The record reads as the last thing known
+ * rather than claiming an outcome this page never heard.
+ */
+export const LostTrackOfTheWork: Story = {
+  args: { controls: { ...controls, work: [adrift] } },
+};
+
+/**
+ * Several records at once, newest first. Every way a record can read, on one
+ * page, so the order they are read in is a thing a reader can check.
+ */
+export const EverythingAskedForSoFar: Story = {
+  args: {
+    controls: {
+      ...controls,
+      chosen: [chosenForm],
+      work: [started, finished, stopped, forgotten, adrift],
+    },
+  },
+};
+
+/**
+ * A request in flight. No control can be pressed a second time, and none of
+ * them leaves the page while it cannot be.
  */
 export const AskingNow: Story = {
   args: { controls: { ...controls, busy: true } },

@@ -34,6 +34,10 @@
   A control with nothing to do for the moment says so rather than leaving the
   page: `disabled` takes a button out of the tab order, and a reader whose focus
   was on the button they just pressed would be left standing nowhere.
+
+  Its words are allowed a second line. Every control names what it acts on, and
+  a control that could not wrap would set a floor under the page's width that
+  the narrowest window cannot meet.
 -->
 <button
   class="act"
@@ -52,18 +56,24 @@
     display: contents;
   }
 
+  /* The words wrap where they have to. A control is as wide as what it says,
+     and what it says names what it acts on, so a row of them at 320 pixels is
+     wider than the window unless the words are allowed a second line. The
+     height is a floor rather than a measure for the same reason: one line
+     reads exactly as it did, and two are not cropped to fit one. */
   .act {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: var(--ctl-h);
-    padding: 0 var(--sp-3);
+    min-height: var(--ctl-h);
+    max-width: 100%;
+    padding: var(--sp-1) var(--sp-3);
     border: 1px solid var(--line);
     border-radius: var(--r-md);
     background: var(--paper);
     color: var(--muted);
     font-size: var(--text-control);
-    white-space: nowrap;
+    text-align: center;
   }
 
   .act:not(.off):hover {
@@ -74,7 +84,7 @@
   /* Lemon is lemon in both themes, so what sits on it does not follow the ink
      that flips with them. */
   .firm {
-    padding: 0 var(--sp-4);
+    padding: var(--sp-1) var(--sp-4);
     border-color: var(--fiber-deep);
     background: var(--lemon);
     color: var(--on-lemon);

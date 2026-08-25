@@ -4,7 +4,20 @@ import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
 import Dashboard from "./Dashboard.svelte";
 import { moment, services, stack, unavailable, worst } from "./fixture";
-import { controls, started, stillWaiting, wouldNot } from "./fixture";
+import {
+  adrift,
+  chosenForm,
+  controls,
+  declared,
+  finished,
+  forgotten,
+  notAnswering,
+  started,
+  stillWaiting,
+  stopped,
+  wentWrong,
+  wouldNot,
+} from "./fixture";
 
 import { stampFor, type Freshness } from "../lib/freshness";
 import { wordFor } from "../lib/state";
@@ -16,7 +29,14 @@ import {
   type Moment,
   type Stack,
 } from "../lib/wire";
-import { everyDoing, questionOf, titleOfDoing, wordOfDoing } from "../lib/work";
+import {
+  everyDoing,
+  namesItsForms,
+  questionOf,
+  takesForms,
+  titleOfDoing,
+  wordOfDoing,
+} from "../lib/work";
 import * as m from "../paraglide/messages.js";
 
 const never: Freshness = { kind: "never" };
@@ -42,8 +62,8 @@ const changed = (over: Partial<Moment>): Moment => ({ ...moment, ...over });
 
 describe("before anything has answered", () => {
   it("holds a place on every panel rather than showing empty figures", () => {
-    board();
-    expect(screen.getAllByText(m.waiting_answer())).toHaveLength(6);
+    board({ controls: { ...controls, forms: undefined } });
+    expect(screen.getAllByText(m.waiting_answer())).toHaveLength(7);
   });
 
   it("says the connection is still being opened", () => {
@@ -402,7 +422,7 @@ describe("what can be asked of the stack", () => {
 
     for (const doing of everyDoing) {
       expect(
-        screen.getByRole("button", { name: wordOfDoing(doing) }),
+        screen.getByRole("button", { name: wordOfDoing(doing, false) }),
       ).toBeInTheDocument();
     }
   });
@@ -411,21 +431,34 @@ describe("what can be asked of the stack", () => {
     const onpress = vi.fn();
     board({ controls: { ...controls, onpress } });
 
-    await press(wordOfDoing("up"));
+    await press(wordOfDoing("up", false));
 
     expect(onpress).toHaveBeenCalledWith("up");
   });
 
   // A request in flight is not a second thing to ask for, and a control that
   // left the page would take a reader's own focus with it.
-  it("silences both controls while a request is in flight, without hiding them", () => {
+  it("silences every control while a request is in flight, without hiding them", () => {
     board({ controls: { ...controls, busy: true } });
 
     for (const doing of everyDoing) {
       expect(
-        screen.getByRole("button", { name: wordOfDoing(doing) }),
+        screen.getByRole("button", { name: wordOfDoing(doing, false) }),
       ).toHaveAttribute("aria-disabled", "true");
     }
+  });
+
+  // Two things are being acted on, and a control read out of the group it
+  // belongs to would be a control read without its subject.
+  it("keeps what acts on forms apart from what acts on the whole stack", () => {
+    board();
+
+    expect(
+      screen.getByRole("group", { name: m.running_controls() }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("group", { name: m.running_whole_controls() }),
+    ).toBeInTheDocument();
   });
 
   it("announces what has been asked for in a place a reader is told about", () => {
@@ -434,6 +467,117 @@ describe("what can be asked of the stack", () => {
     expect(
       screen.getByRole("status", { name: m.running_asked() }),
     ).toBeInTheDocument();
+  });
+});
+
+describe("what the controls reach", () => {
+  // Sending a request lemonfiber would refuse for a reason already on the
+  // screen makes an operator read a refusal to learn what they could see.
+  it("silences what cannot be asked for without a form", () => {
+    board();
+
+    for (const doing of namesItsForms) {
+      expect(
+        screen.getByRole("button", { name: wordOfDoing(doing, false) }),
+      ).toHaveAttribute("aria-disabled", "true");
+    }
+  });
+
+  it("offers them once a form has been chosen", () => {
+    board({ controls: { ...controls, chosen: [chosenForm] } });
+
+    for (const doing of namesItsForms) {
+      expect(
+        screen.getByRole("button", { name: wordOfDoing(doing, true) }),
+      ).toHaveAttribute("aria-disabled", "false");
+    }
+  });
+
+  // Naming no form means the whole stack for these two, so they say the whole
+  // stack rather than saying nothing.
+  it("says starting and stopping reach the whole stack when nothing is chosen", () => {
+    board();
+
+    expect(screen.getByText(m.running_scope_none())).toBeInTheDocument();
+    for (const doing of ["up", "down"] as const) {
+      expect(
+        screen.getByRole("button", { name: wordOfDoing(doing, false) }),
+      ).toHaveAttribute("aria-disabled", "false");
+    }
+  });
+
+  it("says they reach only what was chosen once something is", () => {
+    board({ controls: { ...controls, chosen: [chosenForm] } });
+
+    expect(screen.getByText(m.running_scope_some())).toBeInTheDocument();
+    for (const doing of takesForms) {
+      expect(
+        screen.getByRole("button", { name: wordOfDoing(doing, true) }),
+      ).toBeInTheDocument();
+    }
+  });
+});
+
+describe("the forms the stack declares", () => {
+  it("names each of them in the stack's own words", () => {
+    board();
+
+    for (const form of declared) {
+      expect(
+        screen.getByRole("heading", { name: form.name }),
+      ).toBeInTheDocument();
+      expect(screen.getByText(form.description)).toBeInTheDocument();
+    }
+  });
+
+  it("says which of them the controls act on", () => {
+    board({ controls: { ...controls, chosen: [chosenForm] } });
+
+    const chose = declared.find((form) => form.id === chosenForm);
+
+    expect(chose).toBeDefined();
+    expect(
+      screen.getByRole("button", {
+        name: m.forms_choose({ name: chose?.name ?? "" }),
+      }),
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("asks for a form to be taken up when its control is pressed", async () => {
+    const onchoose = vi.fn();
+    board({ controls: { ...controls, onchoose } });
+
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: m.forms_choose({ name: declared[0]?.name ?? "" }),
+      }),
+    );
+
+    expect(onchoose).toHaveBeenCalledWith(declared[0]?.id);
+  });
+
+  it("says plainly when the stack declares none", () => {
+    board({
+      controls: { ...controls, forms: { ok: true, value: { forms: [] } } },
+    });
+
+    expect(screen.getByText(m.forms_none())).toBeInTheDocument();
+  });
+
+  // The words are the source's own, which is worth more than any reading of
+  // them.
+  it("says in the source's own words why they could not be listed", () => {
+    board({
+      controls: {
+        ...controls,
+        forms: {
+          ok: false,
+          problem: { kind: "unreachable", message: notAnswering },
+        },
+      },
+    });
+
+    expect(screen.getByText(notAnswering)).toBeInTheDocument();
   });
 });
 
@@ -472,7 +616,9 @@ describe("before something costly is carried out", () => {
   it("puts the answer after the control that asked the question", () => {
     board({ controls: { ...controls, confirming: "down" } });
 
-    const asked = screen.getByRole("button", { name: wordOfDoing("down") });
+    const asked = screen.getByRole("button", {
+      name: wordOfDoing("down", false),
+    });
     const answer = screen.getByRole("button", {
       name: m.action_stop_everything(),
     });
@@ -485,7 +631,7 @@ describe("before something costly is carried out", () => {
   it("asks nothing at all before an action that costs nothing", () => {
     board({ controls: { ...controls, confirming: "up" } });
 
-    expect(questionOf("up")).toBeUndefined();
+    expect(questionOf("up", false)).toBeUndefined();
     expect(
       screen.queryByRole("button", { name: m.action_leave_running() }),
     ).toBeNull();
@@ -496,7 +642,7 @@ describe("work that outlives the request that started it", () => {
   it("keeps the record, and the name lemonfiber gave the work", () => {
     board({ controls: { ...controls, work: [started] } });
 
-    expect(screen.getByText(titleOfDoing("up"))).toBeInTheDocument();
+    expect(screen.getByText(titleOfDoing("up", false))).toBeInTheDocument();
     expect(screen.getByText(/9f2c41ab7d0e5c63/)).toBeInTheDocument();
   });
 
@@ -539,7 +685,15 @@ describe("when lemonfiber would not do it", () => {
     board({
       controls: {
         ...controls,
-        work: [{ id: "2", doing: "down", at: "declined", said: wouldNot }],
+        work: [
+          {
+            id: "2",
+            doing: "down",
+            scoped: false,
+            at: "declined",
+            said: wouldNot,
+          },
+        ],
       },
     });
 
@@ -549,10 +703,49 @@ describe("when lemonfiber would not do it", () => {
 
   it("says so of work that finished while the request was open", () => {
     board({
-      controls: { ...controls, work: [{ id: "3", doing: "up", at: "done" }] },
+      controls: {
+        ...controls,
+        work: [
+          { id: "3", doing: "up", scoped: false, at: "done", job: undefined },
+        ],
+      },
     });
 
     expect(screen.getByText(m.work_done())).toBeInTheDocument();
+  });
+});
+
+describe("what became of work whose name was redeemed", () => {
+  it("says it finished, rather than that it is still going", () => {
+    board({ controls: { ...controls, work: [finished] } });
+
+    expect(screen.getByText(m.eyebrow_finished())).toBeInTheDocument();
+    expect(screen.queryByText(m.eyebrow_taken_on())).toBeNull();
+  });
+
+  // What went wrong is lemonfiber's own account of it, and a record that only
+  // said "stopped" would leave an operator with nothing to act on.
+  it("says what stopped it, in the words the failure rendered", () => {
+    board({ controls: { ...controls, work: [stopped] } });
+
+    expect(screen.getByText(wentWrong)).toBeInTheDocument();
+    expect(screen.getByText(m.eyebrow_stopped_short())).toBeInTheDocument();
+  });
+
+  // Nothing carries a job across a restart, so a tab reopened onto a run that
+  // has been restarted is asking about work nothing is doing.
+  it("says a name this run no longer knows is gone, not unfinished", () => {
+    board({ controls: { ...controls, work: [forgotten] } });
+
+    expect(screen.getByText(m.eyebrow_forgotten())).toBeInTheDocument();
+  });
+
+  // The work may be running perfectly well; it is the asking that stopped.
+  it("says it lost the thread rather than that the work stopped", () => {
+    board({ controls: { ...controls, work: [adrift] } });
+
+    expect(screen.getByText(m.eyebrow_lost_track())).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(notAnswering))).toBeInTheDocument();
   });
 });
 
@@ -565,12 +758,19 @@ describe("a screen drawn from a fixture, with nothing wired to it", () => {
 
     for (const doing of everyDoing) {
       await userEvent.click(
-        screen.getByRole("button", { name: wordOfDoing(doing) }),
+        screen.getByRole("button", { name: wordOfDoing(doing, false) }),
+      );
+    }
+    for (const form of declared) {
+      await userEvent.click(
+        screen.getByRole("button", {
+          name: m.forms_choose({ name: form.name }),
+        }),
       );
     }
 
     expect(
-      screen.getByRole("button", { name: wordOfDoing("up") }),
+      screen.getByRole("button", { name: wordOfDoing("up", false) }),
     ).toBeInTheDocument();
   });
 

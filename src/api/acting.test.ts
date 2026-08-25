@@ -44,21 +44,41 @@ const asking = (over: { at?: string; sending: Sending }): Reaching => ({
   fetching,
 });
 
-const nothing: Arguments = { forms: [], confirm: false };
+const nothing: Arguments = { forms: [] };
+
+/** An action whose command has no field for a form takes no argument at all. */
+const bare: Arguments = {};
 
 describe("asking for an action", () => {
   it("asks at the action's own address, carrying the key in a header", async () => {
     const sending = saying(202, enveloped("job", { job: "abc", action: "up" }));
 
-    await acting(asking({ sending }), "up", { forms: [], confirm: true });
+    await acting(asking({ sending }), "up", { forms: ["media"] });
 
     expect(sending).toHaveBeenCalledWith(
       `${here}/api/actions/up`,
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({ [TOKEN_HEADER]: key }) as unknown,
-        body: JSON.stringify({ forms: [], confirm: true }),
+        body: JSON.stringify({ forms: ["media"] }),
       }),
+    );
+  });
+
+  // A field the named action's command has nowhere to put is refused rather
+  // than dropped, so a body carrying one is a request that is never carried
+  // out at all.
+  it("sends a body holding nothing for an action that takes no argument", async () => {
+    const sending = saying(
+      202,
+      enveloped("job", { job: "abc", action: "seed" }),
+    );
+
+    await acting(asking({ sending }), "seed", bare);
+
+    expect(sending).toHaveBeenCalledWith(
+      `${here}/api/actions/seed`,
+      expect.objectContaining({ body: "{}" }),
     );
   });
 

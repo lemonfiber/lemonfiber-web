@@ -54,7 +54,7 @@ export const SomewhereElse: Story = {
 };
 
 /**
- * The whole console with something on offer and something in flight: two
+ * The whole console with something on offer and something in flight: the
  * controls, a question standing on one of them, work the runtime is holding and
  * the line the wait is saying. Assembled rather than isolated, so the sweep
  * reads the tab order through all of it and whether it still reaches 320 pixels
