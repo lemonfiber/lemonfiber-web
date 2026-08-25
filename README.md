@@ -37,8 +37,9 @@ it in, as a pinned submodule it embeds. No version tag has been cut here yet, an
 `lemonfiber`'s
 [web API](https://github.com/lemonfiber/spec/blob/main/20-architecture/contracts/web-api.md)
 is the only place this application may get data from, and it reaches nothing else.
-The operator's console asks it for what it draws and asks it to start and stop
-the stack; the household view is not built yet.
+The operator's console asks it for what it draws, asks it to act on the forms
+the stack declares, and redeems the name work outliving a request comes back
+with; the household view is not built yet.
 
 That constraint is the point rather than a limitation. `G1-R2` says no surface may
 implement behaviour independently, and an application whose only capability is to

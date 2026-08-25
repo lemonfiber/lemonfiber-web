@@ -17,6 +17,12 @@ import * as m from "../paraglide/messages.js";
 /** What each service is doing, as the two readings of it answer. */
 export type Stack = ByKind["status"]["data"];
 
+/** Every form the stack declares, as the listing of them answers. */
+export type Forms = ByKind["forms"]["data"];
+
+/** One form the stack declares, in the manifest's own words. */
+export type Form = Forms["forms"][number];
+
 /** One moment of the whole stack, as the stream delivers it. */
 export type Moment = ByKind["dashboard"]["data"];
 

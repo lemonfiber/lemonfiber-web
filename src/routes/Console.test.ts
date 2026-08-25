@@ -3,9 +3,18 @@ import userEvent from "@testing-library/user-event";
 import { API_VERSION, type Fetching, type Sending } from "@lemonfiber/sdk-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Console from "./Console.svelte";
-import { moment, stack, worst, worstService } from "./fixture";
+import {
+  chosenForm,
+  declared,
+  forms,
+  job,
+  moment,
+  stack,
+  worst,
+  worstService,
+} from "./fixture";
 import { nameOf } from "../lib/route";
-import { titleOfDoing, wordOfDoing } from "../lib/work";
+import { namesItsForms, titleOfDoing, wordOfDoing } from "../lib/work";
 import * as m from "../paraglide/messages.js";
 
 const key = ["a", "run", "key"].join("-");
@@ -18,18 +27,20 @@ const here = "http://127.0.0.1:7777";
  */
 const elsewhere = ["http:", "", "example.test"].join("/");
 
-/** A transport that answers every reading with the stack. */
-const answering: Sending = () =>
+/** One envelope, rendered as an endpoint renders it. */
+const enveloped = (kind: string, data: unknown): string =>
+  JSON.stringify({ api_version: API_VERSION, kind, data });
+
+/** A transport that answers each reading with what that endpoint answers. */
+const answering: Sending = (url) =>
   Promise.resolve({
     ok: true,
     status: 200,
     text: () =>
       Promise.resolve(
-        JSON.stringify({
-          api_version: API_VERSION,
-          kind: "status",
-          data: stack,
-        }),
+        url.includes("/api/forms")
+          ? enveloped("forms", forms)
+          : enveloped("status", stack),
       ),
   });
 
@@ -106,15 +117,22 @@ const settle = (): Promise<void> =>
     setTimeout(resolve, 0);
   });
 
+/** A wait that is over as soon as it begins, so a test answers at once. */
+const atOnce = (): Promise<void> => Promise.resolve();
+
+/** A wait that never ends, which parks the asking where a test wants it. */
+const parked = (): Promise<void> => new Promise(() => undefined);
+
 const console_ = (
   over: {
     sending?: Sending;
     fetching?: Fetching;
     at?: string;
     onrefused?: () => void;
+    pausing?: () => Promise<void>;
   } = {},
-): void => {
-  render(Console, {
+): { unmount: () => void } => {
+  const { unmount } = render(Console, {
     reaching: {
       at: over.at ?? here,
       token: key,
@@ -122,7 +140,9 @@ const console_ = (
       fetching: over.fetching ?? silent,
     },
     onrefused: over.onrefused ?? vi.fn(),
+    pausing: over.pausing ?? parked,
   });
+  return { unmount };
 };
 
 describe("the console", () => {
@@ -279,45 +299,143 @@ describe("going somewhere else", () => {
   });
 });
 
-/** One envelope, rendered as an endpoint renders it. */
-const enveloped = (kind: string, data: unknown): string =>
-  JSON.stringify({ api_version: API_VERSION, kind, data });
-
-/** What was sent to the actions endpoint, in the order it was sent. */
+/** What was asked of the write endpoints, in the order it was asked. */
 interface Sent {
+  /** The bodies the action endpoint was posted. */
   bodies: string[];
+  /** The addresses a name was redeemed at. */
+  redeemed: string[];
 }
 
+/** One reply, as a transport hands it over. */
+interface Says {
+  status: number;
+  body: string;
+}
+
+/** Work the runtime took, as the action endpoint answers it. */
+const accepted: Says = {
+  status: 202,
+  body: enveloped("job", { job, action: "up" }),
+};
+
+/** The work, finished, as the equivalent command renders it. */
+const rendered: Says = {
+  status: 200,
+  body: enveloped("lifecycle", {
+    action: "up",
+    command: ["compose", "up", "-d"],
+    profile: "core",
+    condition: "active",
+  }),
+};
+
+/** The work, still going, as asking about it answers. */
+const going: Says = accepted;
+
+/** What lemonfiber says about work that ran and stopped. */
+const wentWrong = "The container engine is not running.";
+
+/** The work, stopped, as the failure renders it. */
+const failed: Says = {
+  status: 500,
+  body: enveloped("error", {
+    code: "engine-absent",
+    summary: wentWrong,
+    meaning: "Nothing can be started until it is.",
+    remedies: [],
+    severity: "error",
+    state: "actionable",
+  }),
+};
+
+/** A name this run never handed out. */
+const forgotten: Says = {
+  status: 404,
+  body: "No work in this run goes by that name.",
+};
+
 /**
- * A transport that reads like the stack and answers every action alike.
+ * A transport that reads like the stack, answers every action alike, and says
+ * what became of the work each time it is asked.
  *
- * The reply is fixed rather than looked up per action: the two this surface
- * offers are answered the same way, and what a test is asking about is what the
- * screen does with a reply rather than which reply a name earns.
+ * The reply to an action is fixed rather than looked up per action: what a test
+ * is asking about is what the screen does with a reply rather than which reply
+ * a name earns. What became of the work is a list, read one entry per asking and
+ * holding at the last, so a test says how many times it has to be asked before
+ * there is something to say.
  */
 function acting(
-  reply: { status: number; body: string },
-  sent: Sent = { bodies: [] },
+  reply: Says,
+  sent: Sent = { bodies: [], redeemed: [] },
+  becoming: readonly Says[] = [rendered],
 ): Sending {
+  let asked = 0;
   return (url, init) => {
-    if (init.method !== "POST") return answering(url, init);
-    sent.bodies.push(init.body ?? "");
+    if (init.method === "POST") {
+      sent.bodies.push(init.body ?? "");
+      return Promise.resolve({
+        ok: reply.status >= 200 && reply.status < 300,
+        status: reply.status,
+        text: () => Promise.resolve(reply.body),
+      });
+    }
+    if (!url.includes("/api/jobs/")) return answering(url, init);
+
+    sent.redeemed.push(url);
+    const said = becoming[Math.min(asked, becoming.length - 1)] ?? going;
+    asked += 1;
     return Promise.resolve({
-      ok: reply.status >= 200 && reply.status < 300,
-      status: reply.status,
-      text: () => Promise.resolve(reply.body),
+      ok: said.status >= 200 && said.status < 300,
+      status: said.status,
+      text: () => Promise.resolve(said.body),
     });
   };
 }
 
-/** Work the runtime took, as the endpoint answers it. */
-const accepted = {
-  status: 202,
-  body: enveloped("job", { job: "9f2c41ab7d0e5c63", action: "up" }),
-};
-
 const press = (label: string): Promise<void> =>
   userEvent.click(screen.getByRole("button", { name: label }));
+
+/** Takes one form up, by the name its control is announced under. */
+const choose = (id: string): Promise<void> => {
+  const form = declared.find((one) => one.id === id);
+  return press(m.forms_choose({ name: form?.name ?? "" }));
+};
+
+describe("the forms the stack declares", () => {
+  beforeEach(() => {
+    globalThis.history.replaceState(undefined, "", "/");
+  });
+
+  it("lists them, in the stack's own words", async () => {
+    console_();
+
+    for (const form of declared) {
+      expect(await screen.findByText(form.description)).toBeInTheDocument();
+    }
+  });
+
+  // Three actions have lost their subject without a form, and nothing this page
+  // could read listed the forms before the listing existed.
+  it("offers what needs a form only once one has been taken up", async () => {
+    console_();
+    await screen.findByText(declared[0]?.description ?? "");
+
+    for (const doing of namesItsForms) {
+      expect(
+        screen.getByRole("button", { name: wordOfDoing(doing, false) }),
+      ).toHaveAttribute("aria-disabled", "true");
+    }
+
+    await choose(chosenForm);
+
+    for (const doing of namesItsForms) {
+      expect(
+        screen.getByRole("button", { name: wordOfDoing(doing, true) }),
+      ).toHaveAttribute("aria-disabled", "false");
+    }
+  });
+});
 
 describe("asking lemonfiber to do something", () => {
   beforeEach(() => {
@@ -325,36 +443,72 @@ describe("asking lemonfiber to do something", () => {
   });
 
   it("asks for what costs nothing without asking about it first", async () => {
-    const sent: Sent = { bodies: [] };
+    const sent: Sent = { bodies: [], redeemed: [] };
     console_({ sending: acting(accepted, sent) });
 
-    await press(wordOfDoing("up"));
+    await press(wordOfDoing("up", false));
+
+    expect(sent.bodies).toStrictEqual([JSON.stringify({ forms: [] })]);
+  });
+
+  // An argument the action's command has nowhere to put is refused rather than
+  // dropped, so a body carrying one is a request that is never carried out.
+  it("sends nothing at all for an action whose command takes no argument", async () => {
+    const sent: Sent = { bodies: [], redeemed: [] };
+    console_({ sending: acting(accepted, sent) });
+
+    await press(wordOfDoing("seed", false));
+
+    expect(sent.bodies).toStrictEqual(["{}"]);
+  });
+
+  it("names the forms that were taken up, to the actions that hold them", async () => {
+    const sent: Sent = { bodies: [], redeemed: [] };
+    console_({ sending: acting(accepted, sent) });
+    await screen.findByText(declared[0]?.description ?? "");
+
+    await choose(chosenForm);
+    await press(wordOfDoing("restart", true));
 
     expect(sent.bodies).toStrictEqual([
-      JSON.stringify({ forms: [], confirm: false }),
+      JSON.stringify({ forms: [chosenForm] }),
     ]);
+  });
+
+  it("names none of them again once one is put back down", async () => {
+    const sent: Sent = { bodies: [], redeemed: [] };
+    console_({ sending: acting(accepted, sent) });
+    await screen.findByText(declared[0]?.description ?? "");
+
+    await choose(chosenForm);
+    await choose(chosenForm);
+    await press(wordOfDoing("up", false));
+
+    expect(sent.bodies).toStrictEqual([JSON.stringify({ forms: [] })]);
   });
 
   // The reply names the work and says nothing else about it. What is kept is
   // the record of having asked, which outlives the request the way the work
   // does.
   it("keeps the name the reply gave work the runtime is holding", async () => {
-    console_({ sending: acting(accepted) });
+    console_({ sending: acting(accepted, undefined, [going]) });
 
-    await press(wordOfDoing("up"));
+    await press(wordOfDoing("up", false));
 
-    expect(await screen.findByText(titleOfDoing("up"))).toBeInTheDocument();
-    expect(screen.getByText(/9f2c41ab7d0e5c63/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(titleOfDoing("up", false)),
+    ).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(job))).toBeInTheDocument();
   });
 
   it("puts a record away when it is asked to", async () => {
-    console_({ sending: acting(accepted) });
-    await press(wordOfDoing("up"));
-    await screen.findByText(titleOfDoing("up"));
+    console_({ sending: acting(accepted, undefined, [going]) });
+    await press(wordOfDoing("up", false));
+    await screen.findByText(titleOfDoing("up", false));
 
     await press(m.action_hide_record());
 
-    expect(screen.queryByText(titleOfDoing("up"))).toBeNull();
+    expect(screen.queryByText(titleOfDoing("up", false))).toBeNull();
   });
 });
 
@@ -364,39 +518,199 @@ describe("asking for something costly", () => {
   });
 
   it("asks what it costs before anything is sent", async () => {
-    const sent: Sent = { bodies: [] };
+    const sent: Sent = { bodies: [], redeemed: [] };
     console_({ sending: acting(accepted, sent) });
 
-    await press(wordOfDoing("down"));
+    await press(wordOfDoing("down", false));
 
     expect(await screen.findByText(m.confirm_stop_title())).toBeInTheDocument();
     expect(sent.bodies).toStrictEqual([]);
   });
 
-  // The agreement travels with the request rather than being kept here: the
-  // carrier has a field for it, and what an operator agreed to is part of what
-  // was asked for.
-  it("says the cost was agreed when the answer is yes", async () => {
-    const sent: Sent = { bodies: [] };
+  // lemonfiber's own command takes no agreement for a teardown, and a field it
+  // has nowhere to put is refused rather than dropped. So the question is this
+  // screen's to ask and nothing travels with the answer.
+  it("sends no agreement with an action whose command carries none", async () => {
+    const sent: Sent = { bodies: [], redeemed: [] };
     console_({ sending: acting(accepted, sent) });
 
-    await press(wordOfDoing("down"));
+    await press(wordOfDoing("down", false));
     await press(m.action_stop_everything());
 
-    expect(sent.bodies).toStrictEqual([
-      JSON.stringify({ forms: [], confirm: true }),
-    ]);
+    expect(sent.bodies).toStrictEqual([JSON.stringify({ forms: [] })]);
   });
 
   it("sends nothing at all when the answer is no", async () => {
-    const sent: Sent = { bodies: [] };
+    const sent: Sent = { bodies: [], redeemed: [] };
     console_({ sending: acting(accepted, sent) });
 
-    await press(wordOfDoing("down"));
+    await press(wordOfDoing("down", false));
     await press(m.action_leave_running());
 
     expect(screen.queryByText(m.confirm_stop_title())).toBeNull();
     expect(sent.bodies).toStrictEqual([]);
+  });
+
+  // A question standing over a set that has since changed is a question about
+  // something else, and answering it would send the request nobody asked for.
+  it("withdraws the question when what it was about changes", async () => {
+    const sent: Sent = { bodies: [], redeemed: [] };
+    console_({ sending: acting(accepted, sent) });
+    await screen.findByText(declared[0]?.description ?? "");
+
+    await choose(chosenForm);
+    await press(wordOfDoing("down", true));
+    await screen.findByText(m.confirm_stop_chosen_title());
+    await choose(chosenForm);
+
+    expect(screen.queryByText(m.confirm_stop_chosen_title())).toBeNull();
+    expect(sent.bodies).toStrictEqual([]);
+  });
+
+  it("asks about what it will actually stop", async () => {
+    console_({ sending: acting(accepted) });
+    await screen.findByText(declared[0]?.description ?? "");
+
+    await choose(chosenForm);
+    await press(wordOfDoing("down", true));
+
+    expect(
+      await screen.findByText(m.confirm_stop_chosen_title()),
+    ).toBeInTheDocument();
+  });
+});
+
+describe("what became of the work", () => {
+  beforeEach(() => {
+    globalThis.history.replaceState(undefined, "", "/");
+  });
+
+  it("says it finished, rather than going on saying it was taken on", async () => {
+    console_({ sending: acting(accepted, undefined, [rendered]) });
+
+    await press(wordOfDoing("up", false));
+
+    expect(await screen.findByText(m.eyebrow_finished())).toBeInTheDocument();
+    expect(screen.queryByText(m.eyebrow_taken_on())).toBeNull();
+  });
+
+  it("says what stopped it, in the words the failure rendered", async () => {
+    console_({ sending: acting(accepted, undefined, [failed]) });
+
+    await press(wordOfDoing("up", false));
+
+    expect(await screen.findByText(wentWrong)).toBeInTheDocument();
+  });
+
+  // Nothing carries a job across a restart, so answering "still going" for a
+  // name nothing knows would leave a reader waiting on an outcome that is
+  // never coming.
+  it("says a name this run no longer knows is gone, not unfinished", async () => {
+    console_({ sending: acting(accepted, undefined, [forgotten]) });
+
+    await press(wordOfDoing("up", false));
+
+    expect(await screen.findByText(m.eyebrow_forgotten())).toBeInTheDocument();
+  });
+
+  // The work may be running perfectly well; it is the asking that stopped.
+  it("says it lost the thread when it cannot ask at all", async () => {
+    const sending: Sending = (url, init) =>
+      url.includes("/api/jobs/")
+        ? Promise.reject(new Error("no route"))
+        : acting(accepted)(url, init);
+    console_({ sending });
+
+    await press(wordOfDoing("up", false));
+
+    expect(await screen.findByText(m.eyebrow_lost_track())).toBeInTheDocument();
+  });
+
+  // A record is one request among several, and an outcome that arrived for one
+  // of them says nothing about the rest.
+  it("leaves the other records where they were", async () => {
+    console_({ sending: acting(accepted, undefined, [going, rendered]) });
+
+    await press(wordOfDoing("up", false));
+    await press(wordOfDoing("seed", false));
+
+    expect(await screen.findByText(m.eyebrow_finished())).toBeInTheDocument();
+    expect(screen.getByText(m.eyebrow_taken_on())).toBeInTheDocument();
+    expect(screen.getByText(titleOfDoing("up", false))).toBeInTheDocument();
+  });
+
+  it("asks again until there is something to say", async () => {
+    const sent: Sent = { bodies: [], redeemed: [] };
+    console_({
+      sending: acting(accepted, sent, [going, going, rendered]),
+      pausing: atOnce,
+    });
+
+    await press(wordOfDoing("up", false));
+
+    expect(await screen.findByText(m.eyebrow_finished())).toBeInTheDocument();
+    expect(sent.redeemed).toHaveLength(3);
+  });
+
+  // A record nobody is looking at is not a reason to keep asking lemonfiber
+  // anything.
+  it("stops asking once the record is put away", async () => {
+    const sent: Sent = { bodies: [], redeemed: [] };
+    let go = (): void => undefined;
+    const held = (): Promise<void> =>
+      new Promise((resolve) => {
+        go = () => {
+          resolve();
+        };
+      });
+    console_({ sending: acting(accepted, sent, [going]), pausing: held });
+
+    await press(wordOfDoing("up", false));
+    await screen.findByText(titleOfDoing("up", false));
+    await press(m.action_hide_record());
+    go();
+    await settle();
+
+    expect(sent.redeemed).toHaveLength(1);
+  });
+
+  it("stops asking once the screen is put away", async () => {
+    const sent: Sent = { bodies: [], redeemed: [] };
+    let go = (): void => undefined;
+    const held = (): Promise<void> =>
+      new Promise((resolve) => {
+        go = () => {
+          resolve();
+        };
+      });
+    const screening = console_({
+      sending: acting(accepted, sent, [going]),
+      pausing: held,
+    });
+
+    await press(wordOfDoing("up", false));
+    await screen.findByText(titleOfDoing("up", false));
+    screening.unmount();
+    go();
+    await settle();
+
+    expect(sent.redeemed).toHaveLength(1);
+  });
+
+  // A key is minted once a run, so an asking refused is a page holding a key
+  // from a run that has ended.
+  it("forgets the key when the asking is turned away", async () => {
+    const refused = vi.fn();
+    console_({
+      sending: acting(accepted, undefined, [{ status: 403, body: "" }]),
+      onrefused: refused,
+    });
+
+    await press(wordOfDoing("up", false));
+
+    await waitFor(() => {
+      expect(refused).toHaveBeenCalled();
+    });
   });
 });
 
@@ -409,7 +723,7 @@ describe("when lemonfiber will not do what was asked", () => {
     const said = "The action `up` needs `forms`, which was not given.";
     console_({ sending: acting({ status: 400, body: said }) });
 
-    await press(wordOfDoing("up"));
+    await press(wordOfDoing("up", false));
 
     expect(await screen.findByText(said)).toBeInTheDocument();
   });
@@ -424,20 +738,20 @@ describe("when lemonfiber will not do what was asked", () => {
       onrefused: refused,
     });
 
-    await press(wordOfDoing("up"));
+    await press(wordOfDoing("up", false));
 
     await waitFor(() => {
       expect(refused).toHaveBeenCalled();
     });
-    expect(screen.queryByText(titleOfDoing("up"))).toBeNull();
+    expect(screen.queryByText(titleOfDoing("up", false))).toBeNull();
   });
 
   it("records work that finished while the request was open", async () => {
     console_({
-      sending: acting({ status: 200, body: enveloped("reset", {}) }),
+      sending: acting({ status: 200, body: enveloped("quality", {}) }),
     });
 
-    await press(wordOfDoing("up"));
+    await press(wordOfDoing("up", false));
 
     expect(await screen.findByText(m.work_done())).toBeInTheDocument();
   });

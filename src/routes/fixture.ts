@@ -6,7 +6,7 @@
  * a field that changes shape a compiler error here before it is a blank space on
  * a panel.
  */
-import type { Moment, Service, Stack } from "../lib/wire";
+import type { Form, Forms, Moment, Service, Stack } from "../lib/wire";
 import type { Controls, Work } from "../lib/work";
 
 /** Bytes free on a disk with room on it. */
@@ -129,24 +129,104 @@ export const unavailable = {
   data: { reason: "The download client is not answering." },
 } as const;
 
+/** The forms this stack declares, in the order the manifest declares them. */
+export const declared: readonly Form[] = [
+  {
+    id: "core",
+    name: "Core",
+    description: "The tunnel, the download programs, and what finds things.",
+    composable: false,
+  },
+  {
+    id: "media",
+    name: "Media",
+    description: "Your library, and what serves it to the household.",
+    composable: true,
+  },
+  {
+    id: "extras",
+    name: "Extras",
+    description: "Requests from the household, and the pages that answer them.",
+    composable: true,
+  },
+];
+
+/** Every form the stack declares, as the listing answers. */
+export const forms: Forms = { forms: [...declared] };
+
+/** The form a story takes up, by the id the listing gave it. */
+export const chosenForm = "media";
+
 /** Nothing has been asked of the stack, and nothing is holding anything up. */
 export const controls: Controls = {
+  forms: { ok: true, value: forms },
+  chosen: [],
   work: [],
   waiting: undefined,
   confirming: undefined,
   busy: false,
+  onchoose: () => undefined,
   onpress: () => undefined,
   onleave: () => undefined,
   ondrop: () => undefined,
   onhush: () => undefined,
 };
 
+/** The name lemonfiber gave work it took on. */
+export const job = "9f2c41ab7d0e5c63";
+
 /** Work the runtime is holding, under the name the reply gave it. */
 export const started: Work = {
   id: "1",
   doing: "up",
+  scoped: false,
   at: "under-way",
-  job: "9f2c41ab7d0e5c63",
+  job,
+};
+
+/** Work whose name was redeemed, and which had finished. */
+export const finished: Work = {
+  id: "2",
+  doing: "up",
+  scoped: false,
+  at: "done",
+  job,
+};
+
+/** What lemonfiber said about work that ran and stopped. */
+export const wentWrong =
+  "The container engine refused to start gluetun: no such device /dev/net/tun.";
+
+/** Work whose name was redeemed, and which had stopped. */
+export const stopped: Work = {
+  id: "3",
+  doing: "up",
+  scoped: false,
+  at: "stopped",
+  said: wentWrong,
+};
+
+/** Work under a name this run no longer knows. */
+export const forgotten: Work = {
+  id: "4",
+  doing: "restart",
+  scoped: true,
+  at: "forgotten",
+  job,
+};
+
+/** What lemonfiber said when it could not be asked at all. */
+export const notAnswering =
+  "lemonfiber is not answering. It may have been stopped.";
+
+/** Work this page has lost the thread of. */
+export const adrift: Work = {
+  id: "5",
+  doing: "pull",
+  scoped: true,
+  at: "adrift",
+  job,
+  said: notAnswering,
 };
 
 /** What a wait says while it is still waiting, in lemonfiber's own words. */
