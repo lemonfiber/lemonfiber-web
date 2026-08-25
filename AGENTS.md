@@ -38,7 +38,10 @@ nouns are data and stay literal.
 not a spec path. They go in the commit trailer and the pull request body.
 `scripts/guards.mjs` fails the build on one.
 
-**Accessibility is a gate, not an aspiration.** `npm run a11y` serves
+**Accessibility is a gate, not an aspiration.** A Svelte `a11y_*` compiler
+warning stops the compile rather than being printed beside it — `onwarn` in
+`svelte.config.js` refuses the whole family, and `scripts/guards.mjs` refuses it
+again over every component, including one nothing imports yet. `npm run a11y` serves
 `storybook-static` and drives it in a browser. Every story is rendered five ways —
 the light theme, the explicit dark theme, the system preference a reader who never
 touched the toggle gets, a request for more contrast, and forced colours — and axe
@@ -100,7 +103,8 @@ src/app.css       brand tokens mapped to this interface's names, the element
                   otherwise restate
 messages/en.json  every word a person reads
 scripts/          the gate's own tooling: structural guards, the accessibility
-                  sweep, the built app's wire-version declaration
+                  sweep, the compiler warnings the build refuses, the built
+                  app's wire-version declaration
 .storybook/       preview, and the helpers that put real components in a snippet
 ```
 
