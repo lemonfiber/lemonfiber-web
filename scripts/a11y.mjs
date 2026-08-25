@@ -3,9 +3,10 @@
  * Drives every built story in a browser and fails on anything it finds.
  *
  * Axe runs over each story once per rendering in `THEMES`. Three further passes
- * read one rendering each: somewhere focus cannot leave, movement a reduced-motion
- * preference does not stop or that repeats fast enough to flash, and a page that
- * scrolls sideways at 320 pixels.
+ * read one rendering each: somewhere focus cannot leave and a place it lands
+ * without drawing a ring, movement a reduced-motion preference does not stop or
+ * that repeats fast enough to flash, and a page that scrolls sideways at 320
+ * pixels.
  *
  * Storybook's a11y addon is configured to treat a violation as an error, but
  * building Storybook never renders a story, so nothing was checking. This is
@@ -138,8 +139,14 @@ for (const theme of THEMES) {
  * more than there are places to land should reach every one of them; reaching
  * fewer means focus is circling inside something it cannot get out of.
  *
- * One pass, in one palette: a trap is structural, and a colour neither makes
- * nor unmakes one.
+ * The same walk reads what each landing draws. `:focus-visible` matches on
+ * keyboard entry, so the ring a keyboard reader steers by is on the page after
+ * a `Tab` and not after the scripted `focus()` a component test would use,
+ * which Chromium does not reliably match.
+ *
+ * One pass, in one palette. A trap is structural, and a colour neither makes
+ * nor unmakes one. Forced colours are left out of the ring: the user agent
+ * draws its own there and overrides the stylesheet's.
  */
 const FOCUSABLE = [
   "a[href]",
@@ -150,48 +157,116 @@ const FOCUSABLE = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(", ");
 
+/** The narrowest outline that counts as drawn, in device pixels. */
+const RING = 2;
+
+/** A colour the ground shows straight through: an alpha of nothing. */
+const CLEAR = /^rgba\([^)]*,\s*0(?:\.0+)?\)$/;
+
+/**
+ * Whether focus drew something here that was not drawn before it.
+ *
+ * Either mark answers: an outline at least `RING` wide, in a colour that is
+ * not transparent, or a shadow. A control that replaces the ring with a
+ * shadow passes on the shadow.
+ *
+ * Both are read against what the same element drew unfocused. Three controls
+ * in this interface carry `box-shadow: inset 0 0 0 1px` for as long as they
+ * are the current place, so a shadow being present is not an indicator of
+ * focus, and a shadow having appeared is. `outline-width` reads 3px through an
+ * `outline-style: none`, so the style is what says whether a line is drawn at
+ * all and the width only how wide the drawn one is.
+ */
+function draws(at) {
+  const isOutlined =
+    at.outlineStyle !== "none" &&
+    Number.parseFloat(at.outlineWidth) >= RING &&
+    !CLEAR.test(at.outlineColor) &&
+    at.outline !== at.wasOutline;
+  const isShadowed = at.shadow !== "none" && at.shadow !== at.wasShadow;
+  return isOutlined || isShadowed;
+}
+
+/** Where focus is, what it draws there, and what the same element drew before. */
+const LANDED = () => {
+  const here = document.activeElement;
+  if (!(here instanceof HTMLElement)) return null;
+  const landing = here.dataset["landing"];
+  if (landing === undefined) return null;
+  const style = getComputedStyle(here);
+  const first = here.classList[0];
+  const word = (here.textContent ?? "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .slice(0, 40);
+  return {
+    landing,
+    where:
+      `${here.tagName.toLowerCase()}${first === undefined ? "" : `.${first}`}` +
+      (word === "" ? "" : ` “${word}”`),
+    outline: style.outline,
+    outlineStyle: style.outlineStyle,
+    outlineWidth: style.outlineWidth,
+    outlineColor: style.outlineColor,
+    shadow: style.boxShadow,
+    wasOutline: here.dataset["ring"] ?? "",
+    wasShadow: here.dataset["shadow"] ?? "",
+  };
+};
+
 const keyboard = await browser.newContext({
   viewport: { width: 1200, height: 700 },
 });
 const tabbing = await keyboard.newPage();
 
+let landings = 0;
+
 for (const id of stories) {
   await tabbing.goto(storyAt(port, id), { waitUntil: "networkidle" });
 
   // Number each place focus can land, once, so reading where it is costs a
-  // property rather than a walk of the document.
+  // property rather than a walk of the document. What each draws unfocused is
+  // written down in the same pass, while nothing on the page has focus.
   //
   // A roving tabindex takes a group of controls out of the tab order and
   // leaves one in — a radio group is meant to be entered once and moved
   // through by arrow. Counting the others as places to land would read
   // correct behaviour as a trap.
   const places = await tabbing.evaluate((selector) => {
-    const landings = [...document.querySelectorAll(selector)].filter(
+    const spots = [...document.querySelectorAll(selector)].filter(
       (element) =>
         element instanceof HTMLElement &&
         element.offsetParent !== null &&
         element.getAttribute("tabindex") !== "-1",
     );
-    landings.forEach((element, index) => {
+    spots.forEach((element, index) => {
+      const style = getComputedStyle(element);
       element.dataset["landing"] = String(index);
+      element.dataset["ring"] = style.outline;
+      element.dataset["shadow"] = style.boxShadow;
     });
-    return landings.length;
+    return spots.length;
   }, FOCUSABLE);
 
-  // One place to land cannot trap anything: there is nowhere to circle.
-  if (places < 2) continue;
+  // Nowhere to land is nothing to walk.
+  if (places === 0) continue;
 
   const reached = new Set();
   for (let press = 0; press < places + 1; press += 1) {
     await tabbing.keyboard.press("Tab");
-    const at = await tabbing.evaluate(() => {
-      const here = document.activeElement;
-      return here instanceof HTMLElement ? (here.dataset["landing"] ?? "") : "";
-    });
-    if (at !== "") reached.add(at);
+    const at = await tabbing.evaluate(LANDED);
+    if (at === null || reached.has(at.landing)) continue;
+    reached.add(at.landing);
+    landings += 1;
+    if (!draws(at)) {
+      found.push(
+        `focus    ${"no ring".padEnd(18)} ${id}\n        ${at.where} — outline ${at.outline}, box-shadow ${at.shadow}`,
+      );
+    }
   }
 
-  if (reached.size < places) {
+  // One place to land cannot trap anything: there is nowhere to circle.
+  if (places > 1 && reached.size < places) {
     found.push(
       `keyboard ${"trap".padEnd(18)} ${id}\n        focus reached ${String(reached.size)} of ${String(places)} places to land`,
     );
@@ -335,7 +410,9 @@ await reading.close();
 await browser.close();
 server.close();
 
-const checked = `${String(stories.length)} stories × ${THEMES.map((t) => t.as ?? t.name).join(", ")}`;
+const checked =
+  `${String(stories.length)} stories × ${THEMES.map((t) => t.as ?? t.name).join(", ")}` +
+  `, ${String(landings)} focus landings`;
 if (found.length > 0) {
   console.error(
     `a11y: ${String(found.length)} violation(s) across ${checked}\n`,
