@@ -199,11 +199,12 @@ const LANDED = () => {
     .trim()
     .replace(/\s+/g, " ")
     .slice(0, 40);
+  const named = here.tagName.toLowerCase();
+  const marked = first === undefined ? "" : `.${first}`;
+  const said = word === "" ? "" : ` “${word}”`;
   return {
     landing,
-    where:
-      `${here.tagName.toLowerCase()}${first === undefined ? "" : `.${first}`}` +
-      (word === "" ? "" : ` “${word}”`),
+    where: `${named}${marked}${said}`,
     outline: style.outline,
     outlineStyle: style.outlineStyle,
     outlineWidth: style.outlineWidth,
