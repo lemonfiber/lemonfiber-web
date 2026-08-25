@@ -6,7 +6,18 @@
  * a field that changes shape a compiler error here before it is a blank space on
  * a panel.
  */
-import type { Form, Forms, Moment, Service, Stack } from "../lib/wire";
+import type {
+  Diagnosis,
+  Form,
+  Forms,
+  Household,
+  Logged,
+  Moment,
+  Remedy,
+  Service,
+  Stack,
+  Verdict,
+} from "../lib/wire";
 import type { Controls, Work } from "../lib/work";
 
 /** Bytes free on a disk with room on it. */
@@ -236,3 +247,220 @@ export const stillWaiting =
 /** What lemonfiber says about a request it would not carry out. */
 export const wouldNot =
   "The action `restart` needs `forms`, which was not given.";
+
+/**
+ * The problem a warning or a failure carries.
+ *
+ * The wire carries a problem's fields beside the outcome rather than under a
+ * name of their own, and the generated types for those two verdicts hold the
+ * outcome and nothing else — so a fixture that put a real answer together has
+ * to say what the wire says rather than what the contract declares.
+ */
+interface Trouble {
+  readonly code: string;
+  readonly severity: "advisory" | "warning" | "error" | "critical";
+  readonly state:
+    "actionable" | "guided" | "remediable" | "unknown" | "suppressed";
+  readonly summary: string;
+  readonly meaning: string;
+  readonly remedies: readonly Remedy[];
+}
+
+/**
+ * A warning or a failure, as the endpoint renders one.
+ *
+ * The fields go beside the outcome rather than under a name of their own, which
+ * is how the wire carries them and is more than the generated type declares.
+ */
+function troubled(outcome: "warn" | "fail", problem: Trouble): Verdict {
+  return { outcome, ...problem };
+}
+
+/** The disk filling up, as a check reports it. */
+const filling: Trouble = {
+  code: "storage.headroom",
+  severity: "warning",
+  state: "actionable",
+  summary: "Less than a tenth of the data volume is free.",
+  meaning:
+    "Imports will start failing before downloads do, and a failed import leaves the download where it is.",
+  remedies: [
+    {
+      action: "Delete what has already been watched, or add a larger volume.",
+      detail: "The library folder is the one that grows.",
+    },
+    { action: "Pause the queue until there is room.", detail: null },
+  ],
+};
+
+/** A service that is up and failing its own health check. */
+const unanswered: Trouble = {
+  code: "services.health",
+  severity: "error",
+  state: "guided",
+  summary: "Prowlarr has not answered its health check for three minutes.",
+  meaning:
+    "Nothing can be searched for while it is down, so nothing new will arrive.",
+  remedies: [
+    {
+      action: "Read what it said for itself, below, and restart it.",
+      detail: "Restarting it alone will not free the port it cannot bind to.",
+    },
+  ],
+};
+
+/** One run of the checks, with every kind of verdict in it. */
+export const diagnosis: Diagnosis = {
+  overall: "broken",
+  findings: [
+    {
+      check: "environment.docker",
+      category: "environment",
+      title: "Docker is installed and its daemon is answering",
+      verdict: {
+        outcome: "pass",
+        note: "Docker Engine 27.3.1 on this machine",
+      },
+    },
+    {
+      check: "storage.headroom",
+      category: "storage",
+      title: "There is room on the data volume to keep importing",
+      verdict: troubled("warn", filling),
+    },
+    {
+      check: "services.health",
+      category: "services",
+      title: "Every service is answering its own health check",
+      service: "prowlarr",
+      caused_by: "network.tunnel",
+      said: "FATAL could not bind to the tunnel: address in use\nretrying in 30s",
+      verdict: troubled("fail", unanswered),
+    },
+    {
+      check: "vpn.egress-match",
+      category: "vpn",
+      title: "Torrent traffic leaves through the tunnel",
+      verdict: {
+        outcome: "unverified",
+        reason:
+          "The download client would not say which address it went out from.",
+        remedy: {
+          action: "Start the download client and run the checks again.",
+          detail: "This one is the reason the tunnel cannot be proved.",
+        },
+      },
+    },
+    {
+      check: "providers.quota",
+      category: "providers",
+      title: "The Usenet provider still has quota left",
+      verdict: {
+        outcome: "skipped",
+        reason: "No Usenet provider is set up, so there is no quota to read.",
+      },
+    },
+  ],
+};
+
+/** A run in which everything that ran passed. */
+export const allWell: Diagnosis = {
+  overall: "healthy",
+  findings: [
+    {
+      check: "environment.docker",
+      category: "environment",
+      title: "Docker is installed and its daemon is answering",
+      verdict: { outcome: "pass", note: null },
+    },
+  ],
+};
+
+/** The checks about the disk, on their own. */
+export const diskChecks: Diagnosis = {
+  overall: "degraded",
+  findings: [
+    {
+      check: "storage.one-filesystem",
+      category: "storage",
+      title: "Downloads and the library are on one filesystem",
+      verdict: {
+        outcome: "pass",
+        note: "so an import links rather than copying",
+      },
+    },
+    {
+      check: "storage.headroom",
+      category: "storage",
+      title: "There is room on the data volume to keep importing",
+      verdict: troubled("warn", filling),
+    },
+  ],
+};
+
+/**
+ * What the services said lately.
+ *
+ * One name is twenty-one characters, which is what makes the width decide where
+ * the name goes; one line is a path with nothing in it to break on.
+ */
+export const scrollback: readonly Logged[] = [
+  {
+    service: "sonarr",
+    stream: "stdout",
+    at: "2026-08-25T09:41:02.113Z",
+    line: "INFO grabbed The.Expanse.S06E01.2160p.WEB-DL",
+  },
+  {
+    service: "calibre-web-automated",
+    stream: "stdout",
+    at: "2026-08-25T09:41:04.887Z",
+    line: "INFO shelved The Long Way to a Small Angry Planet",
+  },
+  {
+    service: "qbittorrent",
+    stream: "stderr",
+    at: null,
+    line: "saved /downloads/complete/Some.Release.2160p.WEB-DL.DDP5.1.H.265-GROUP/some.release.2160p.mkv",
+  },
+  {
+    service: "sonarr",
+    stream: "stderr",
+    at: "2026-08-25T09:41:09.004Z",
+    line: "WARN import failed: permission denied writing into the library folder",
+  },
+];
+
+/** What the household has asked for. */
+export const household: Household = {
+  available: true,
+  findings: [],
+  members: [
+    {
+      name: "Ada",
+      requests: [
+        { title: "The Expanse", media: "series", state: "partly-here" },
+        { title: "Arrival", media: "film", state: "here" },
+        { title: "Andor", media: "series", state: "getting" },
+      ],
+    },
+    {
+      name: "Kit",
+      requests: [
+        { title: null, media: "film", state: "waiting-for-approval" },
+        { title: "Some Film Nobody Filed", media: "film", state: "failed" },
+        { title: "An Older Thing", media: null, state: null },
+        { title: null, media: null, state: "declined" },
+      ],
+    },
+  ],
+};
+
+/** A household nothing could be read from, which is not an empty one. */
+export const unread: Household = {
+  available: false,
+  findings: [
+    "The request service answered, but its list of requests could not be read.",
+  ],
+  members: [],
+};

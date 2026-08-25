@@ -1,14 +1,17 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import Panel from "../components/Panel.svelte";
-  import Value from "../components/Value.svelte";
+  import Checks from "./Checks.svelte";
   import Dashboard from "./Dashboard.svelte";
+  import Logs from "./Logs.svelte";
+  import Requests from "./Requests.svelte";
   import Shell from "./Shell.svelte";
+  import Storage from "./Storage.svelte";
   import type { Kind, Reading } from "@lemonfiber/sdk-ts";
   import { acting, type Acted } from "../api/acting";
   import {
     asked,
     carrying,
+    scrollback,
     turnedAway,
     watching,
     type Reaching,
@@ -22,8 +25,15 @@
   } from "../api/redeeming";
   import type { Flow } from "../lib/flow";
   import type { Freshness } from "../lib/freshness";
-  import { nameOf, ours, pathOf, placeAt, type Place } from "../lib/route";
-  import type { Forms, Moment, Stack } from "../lib/wire";
+  import { ours, pathOf, placeAt, type Place } from "../lib/route";
+  import type {
+    Diagnosis,
+    Forms,
+    Household,
+    Logged,
+    Moment,
+    Stack,
+  } from "../lib/wire";
   import {
     costly,
     givenFor,
@@ -31,7 +41,6 @@
     type Doing,
     type Work,
   } from "../lib/work";
-  import * as m from "../paraglide/messages.js";
 
   interface Props {
     /** What reaching this run takes. */
@@ -53,7 +62,7 @@
   /** How many milliseconds make a second. */
   const A_SECOND = 1000;
 
-  /** A screen nothing has been built for yet stamps nothing. */
+  /** A source that has not answered yet stamps nothing. */
   const UNSTAMPED: Freshness = { kind: "never" };
 
   let place = $state<Place>(placeAt(globalThis.location.pathname));
@@ -61,6 +70,11 @@
   let programs = $state<Reading<Stack> | undefined>(undefined);
   let forms = $state<Reading<Forms> | undefined>(undefined);
   let chosen = $state<readonly string[]>([]);
+  let diagnosis = $state<Reading<Diagnosis> | undefined>(undefined);
+  let aboutDisk = $state<Reading<Diagnosis> | undefined>(undefined);
+  let lines = $state<Reading<readonly Logged[]> | undefined>(undefined);
+  let household = $state<Reading<Household> | undefined>(undefined);
+  let stamped = $state<Freshness>(UNSTAMPED);
   let moment = $state<Moment | undefined>(undefined);
   let flow = $state<Flow>("opening");
   let read = $state<Freshness>({ kind: "never" });
@@ -87,7 +101,56 @@
     if (!ours(event)) return;
     event.preventDefault();
     globalThis.history.pushState(undefined, "", pathOf(to));
+    arrive(to);
+  }
+
+  /**
+   * Arrive somewhere and ask what that place is drawn from.
+   *
+   * The stamp is dropped on the way in. It says when the reading behind the
+   * screen being read answered, and the one left behind by the screen before it
+   * would date this one by another screen's clock.
+   */
+  function arrive(to: Place): void {
     place = to;
+    stamped = UNSTAMPED;
+    void askFor(to);
+  }
+
+  /**
+   * Ask the endpoint the place being read is drawn from.
+   *
+   * One place, one asking. A screen nobody is looking at is not worth a request,
+   * and the scrollback least of all — it is the one read that is answered by
+   * however many lines the services have written.
+   */
+  async function askFor(where: Place): Promise<void> {
+    switch (where) {
+      case "overview":
+        await ask();
+        return;
+      case "checks":
+        diagnosis = noted(await asked(reaching, "checks", "doctor"));
+        return;
+      case "storage":
+        aboutDisk = noted(await asked(reaching, "storage", "doctor"));
+        return;
+      case "logs":
+        lines = noted(await scrollback(reaching));
+        return;
+      case "requests":
+        household = noted(await asked(reaching, "requests", "household"));
+        return;
+    }
+  }
+
+  /**
+   * Take what an endpoint answered, and say when it answered.
+   */
+  function noted<T>(answer: Reading<T>): Reading<T> {
+    stamped = { kind: "answered", secondsAgo: 0 };
+    if (turnedAway(answer)) onrefused();
+    return answer;
   }
 
   /**
@@ -297,11 +360,11 @@
 
   onMount(() => {
     const back = (): void => {
-      place = placeAt(globalThis.location.pathname);
+      arrive(placeAt(globalThis.location.pathname));
     };
 
     globalThis.addEventListener("popstate", back);
-    void ask();
+    void askFor(place);
     const stop = listen();
 
     return () => {
@@ -315,17 +378,30 @@
 <!--
   The operator's console: where the page is, and everything it has been told.
 
-  The readings and the stream are asked for once, here, and handed down. A screen
-  is given what it draws rather than fetching it, which is what lets the same
-  screen be drawn from a fixture in a story and swept for the things a browser
-  can only be asked about once a whole page is assembled.
+  The stream is opened once, here. A reading is asked for on the way into the
+  place it draws — one place, one asking — and the answer is handed down. A
+  screen is given what it draws rather than fetching it, which is what lets the
+  same screen be drawn from a fixture in a story and swept for the things a
+  browser can only be asked about once a whole page is assembled.
+
+  The disk is the one screen with two sources: the volume comes off the stream,
+  which is where it is measured, and the checks about it come off a reading.
 -->
 <Shell {place} ongo={go}>
   {#if place === "overview"}
     <Dashboard {stack} {programs} {moment} {flow} {read} {live} {controls} />
+  {:else if place === "checks"}
+    <Checks {diagnosis} freshness={stamped} />
+  {:else if place === "storage"}
+    <Storage
+      disk={moment?.storage}
+      {live}
+      diagnosis={aboutDisk}
+      read={stamped}
+    />
+  {:else if place === "logs"}
+    <Logs scrollback={lines} freshness={stamped} />
   {:else}
-    <Panel title={nameOf(place)} freshness={UNSTAMPED}>
-      <Value state="unknown" absent={m.home_unfinished()} />
-    </Panel>
+    <Requests {household} freshness={stamped} />
   {/if}
 </Shell>
