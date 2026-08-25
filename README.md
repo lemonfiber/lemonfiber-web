@@ -96,8 +96,9 @@ a browser (after `npm run storybook:build`).
 The Rust workspace's standards apply here from the first commit, in their web
 equivalents: 100% coverage across lines, statements, branches and functions;
 `strict` TypeScript with `any` and non-null assertions banned; zero lint warnings
-tolerated; architecture and file-size guards; accessibility asserted in the
-component tests and swept over every built story in a browser. The
+tolerated; architecture and file-size guards; every Svelte `a11y_` warning
+refused at the compile, and accessibility asserted in the component tests and
+swept over every built story in a browser. The
 [spec page](https://github.com/lemonfiber/spec/blob/main/30-repos/lemonfiber-web.md)
 maps each one to the workspace rule it mirrors.
 

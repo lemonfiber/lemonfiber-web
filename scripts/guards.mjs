@@ -3,6 +3,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join, extname, relative } from "node:path";
 import { compile, parse } from "svelte/compiler";
+import { refuses, refusal } from "./warned.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const SRC = join(ROOT, "src");
@@ -256,19 +257,36 @@ for (const file of files) {
     if (tree !== undefined) measure(tree.css);
   }
 
-  // Svelte inserts `?? ''` fallbacks the type system already makes unreachable,
-  // which no test can cover and the 100% gate will not forgive. Two authoring
-  // shapes produce them: interpolation inside an attribute string, and an
-  // interpolation sharing a parent with a sibling. Both are invisible in the
-  // source and obvious in the output, so the output is what is read.
+  // What the Svelte compiler says about a component, and what it makes of it.
   if (ext === ".svelte" && !file.endsWith(".stories.svelte")) {
-    let js;
+    let made;
     try {
-      js = compile(text, { generate: "client", dev: false }).js.code;
+      made = compile(text, {
+        generate: "client",
+        dev: false,
+        filename: relative(ROOT, file),
+      });
     } catch (error) {
       fail(file, null, `does not compile: ${String(error)}`);
       continue;
     }
+
+    // A control only a pointer can reach is something the compiler already
+    // names. The build refuses it too, through `onwarn` in `svelte.config.js`,
+    // but a build compiles only what something imports; this walks every
+    // component, whether anything imports it yet or not.
+    for (const warning of made.warnings) {
+      if (refuses(warning))
+        fail(file, warning.start?.line ?? null, refusal(warning));
+    }
+
+    // Svelte inserts `?? ''` fallbacks the type system already makes
+    // unreachable, which no test can cover and the 100% gate will not forgive.
+    // Two authoring shapes produce them: interpolation inside an attribute
+    // string, and an interpolation sharing a parent with a sibling. Both are
+    // invisible in the source and obvious in the output, so the output is what
+    // is read.
+    const js = made.js.code;
 
     for (const call of js.matchAll(
       /\$\.(set_text|set_attribute|set_class)\([^;]*?\?\? ''/g,
