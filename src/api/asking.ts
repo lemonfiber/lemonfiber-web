@@ -14,6 +14,7 @@ import {
   malformed,
   parse,
   refused,
+  refusalIn,
   TOKEN_HEADER,
   unreachable,
   type Arrival,
@@ -37,9 +38,6 @@ const STREAM = "/api/events";
 
 /** Where the scrollback is served. */
 const SCROLLBACK = "/api/logs";
-
-/** The statuses that are lemonfiber, or something in front of it, saying no. */
-const TURNED_AWAY = new Set([401, 403]);
 
 /** What reaching one running lemonfiber takes. */
 export interface Reaching {
@@ -134,6 +132,10 @@ export function carrying<K extends Kind>(
  * A run mints a key once, so a refusal is not something to retry — it is the
  * page holding a key from a run that has ended, and the only way out is to be
  * given the current one.
+ *
+ * The key alone. A read lemonfiber ran and could not answer is its own failure
+ * and arrives as its own kind, so nothing here takes a stopped container engine
+ * for a credential and asks an operator to replace one that is working.
  */
 export function turnedAway(...answers: readonly Reading<unknown>[]): boolean {
   return answers.some(
@@ -170,6 +172,11 @@ export async function scrollback(
 
 /**
  * The body one request came back with, or why it did not.
+ *
+ * The scrollback is the one read whose status this surface reads for itself, so
+ * the reading of it is the client package's rather than a second copy: which
+ * status means which kind is settled where lemonfiber raises it, and a list kept
+ * here would answer wrongly the moment one was added.
  */
 async function said(reaching: Reaching, url: string): Promise<Reading<string>> {
   try {
@@ -179,42 +186,10 @@ async function said(reaching: Reaching, url: string): Promise<Reading<string>> {
     });
     const body = await answer.text();
     if (answer.ok) return { ok: true, value: body };
-    return { ok: false, problem: turnedDown(answer.status, body) };
+    return { ok: false, problem: refusalIn(answer.status, body) };
   } catch {
     return { ok: false, problem: unreachable() };
   }
-}
-
-/**
- * The problem an answer that was not a success is, given the body it came with.
- *
- * A key this run refuses is a refusal and nothing else. A command that ran and
- * failed is answered with an `error` envelope carrying one plain sentence, and
- * that sentence is what an operator needs — a body this cannot read tells them
- * no more than silence would. The same reading the client package gives every
- * other endpoint, which it keeps to itself.
- */
-function turnedDown(status: number, body: string): Problem {
-  if (TURNED_AWAY.has(status)) return refused();
-
-  const summary = summaryIn(body);
-  return summary === undefined ? unreachable() : refused(summary);
-}
-
-/**
- * The one plain sentence an `error` envelope carries.
- *
- * The kind names the payload; it does not prove its shape. The summary is read
- * as something arriving off a wire, so an envelope labelled `error` that carries
- * no sentence yields none.
- */
-function summaryIn(body: string): string | undefined {
-  const envelope = parse<unknown>(body);
-  if (!envelope.ok || !isKind(envelope.value, "error")) return undefined;
-
-  const summary: unknown = envelope.value.data.summary;
-  if (typeof summary !== "string" || summary.trim() === "") return undefined;
-  return summary.trim();
 }
 
 /**

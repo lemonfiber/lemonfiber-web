@@ -143,6 +143,28 @@ describe("turnedAway", () => {
 
     expect(turnedAway(fine)).toBe(false);
   });
+
+  // The defect this exists for. A read lemonfiber ran and could not answer used
+  // to arrive as the same kind a rejected key does, so a stopped container engine
+  // took the operator's key away and asked for another one.
+  it("is false when lemonfiber's own answering failed", async () => {
+    const broke = await asked(
+      reaching(
+        answering(
+          enveloped("error", {
+            summary: "The container engine is not running.",
+          }),
+          false,
+          500,
+        ),
+      ),
+      "status",
+      "status",
+    );
+
+    expect(broke).toMatchObject({ ok: false, problem: { kind: "failed" } });
+    expect(turnedAway(broke)).toBe(false);
+  });
 });
 
 /** One line of one service's output, as the endpoint renders it. */
@@ -228,7 +250,22 @@ describe("scrollback", () => {
 
     expect(got).toMatchObject({
       ok: false,
-      problem: { kind: "refused", message: said },
+      problem: { kind: "failed", message: said },
+    });
+  });
+
+  // This read takes its own status, so it is the one that could disagree with
+  // every other about what a status means. It reads through the client package
+  // instead, and the kind is the proof it does.
+  it("reads a name lemonfiber does not have the way every other read does", async () => {
+    const said = "There is no read named `logz`.";
+    const got = await scrollback(
+      reaching(answering(enveloped("error", { summary: said }), false, 404)),
+    );
+
+    expect(got).toMatchObject({
+      ok: false,
+      problem: { kind: "missing", message: said },
     });
   });
 

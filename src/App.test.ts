@@ -27,6 +27,32 @@ const answering: Sending = () =>
 const refusing: Sending = () =>
   Promise.resolve({ ok: false, status: 401, text: () => Promise.resolve("") });
 
+/** What lemonfiber says when the thing it would have asked is not running. */
+const engineDown =
+  "The container engine is not running, so nothing could be asked of it.";
+
+/** A transport answering the way lemonfiber answers a read it could not carry out. */
+const breaking: Sending = () =>
+  Promise.resolve({
+    ok: false,
+    status: 500,
+    text: () =>
+      Promise.resolve(
+        JSON.stringify({
+          api_version: API_VERSION,
+          kind: "error",
+          data: {
+            code: "engine-down",
+            summary: engineDown,
+            meaning: "Nothing in the stack can be reached while it is stopped.",
+            remedies: [],
+            severity: "error",
+            state: "actionable",
+          },
+        }),
+      ),
+  });
+
 const silent: Fetching = () => Promise.resolve({ ok: false, body: null });
 
 const app = (sending: Sending = answering): void => {
@@ -73,6 +99,22 @@ describe("App", () => {
     app();
 
     expect(await screen.findByText(worstService.name)).toBeInTheDocument();
+  });
+
+  // The key was never the problem. A read lemonfiber ran and could not answer is
+  // its own failure, and taking the key away sends the operator to rotate a
+  // credential that is working while what actually stopped goes unsaid.
+  it("keeps the key when lemonfiber's own answering failed, and says what failed", async () => {
+    remember(sessionStorage, key);
+    app(breaking);
+
+    // Every panel the failed read fills says it, so the sentence is asked for by
+    // the reading rather than by the count of panels drawing it.
+    expect((await screen.findAllByText(engineDown))[0]).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { level: 1, name: m.unlock_title() }),
+    ).not.toBeInTheDocument();
+    expect(remembered(sessionStorage)).toBe(key);
   });
 
   // A key is minted once per run, so a refusal means this page holds one from a
