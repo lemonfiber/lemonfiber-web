@@ -220,7 +220,21 @@ const keyboard = await browser.newContext({
 });
 const tabbing = await keyboard.newPage();
 
+/**
+ * The fewest places focus has ever landed across the gallery.
+ *
+ * Well under the 319 a full run reaches, because the floor is here to catch a
+ * selector that matches nothing rather than to police the number.
+ */
+const FEWEST_LANDINGS = 100;
+
+/** The fewest elements the motion sweep has ever looked at. */
+const FEWEST_WALKED = 200;
+
 let landings = 0;
+
+/// How many elements the motion sweep looked at, across every story.
+let walked = 0;
 
 for (const id of stories) {
   await tabbing.goto(storyAt(port, id), { waitUntil: "networkidle" });
@@ -321,7 +335,8 @@ const MOVING = () => {
   const parts = (list) => list.split(",").map((one) => one.trim());
   const root = document.querySelector("#storybook-root");
   const moving = [];
-  for (const element of root === null ? [] : root.querySelectorAll("*")) {
+  const within = root === null ? [] : [...root.querySelectorAll("*")];
+  for (const element of within) {
     for (const pseudo of [undefined, "::before", "::after"]) {
       const style = getComputedStyle(element, pseudo);
       const first = element.classList[0];
@@ -357,7 +372,7 @@ const MOVING = () => {
       }
     }
   }
-  return moving;
+  return { walked: within.length, moving };
 };
 
 /**
@@ -394,7 +409,9 @@ const measuring = await reading.newPage();
 for (const id of stories) {
   await measuring.goto(storyAt(port, id), { waitUntil: "networkidle" });
 
-  for (const one of await measuring.evaluate(MOVING)) {
+  const flashing = await measuring.evaluate(MOVING);
+  walked += flashing.walked;
+  for (const one of flashing.moving) {
     if (!one.forever || one.period >= FLASH) continue;
     found.push(
       `flash    ${"repeats".padEnd(18)} ${id}\n        ${one.where} — ${one.what} every ${String(one.period)}s, for ever`,
@@ -402,7 +419,9 @@ for (const id of stories) {
   }
 
   await measuring.emulateMedia({ reducedMotion: "reduce" });
-  for (const one of await measuring.evaluate(MOVING)) {
+  const stilled = await measuring.evaluate(MOVING);
+  walked += stilled.walked;
+  for (const one of stilled.moving) {
     if (one.period === 0) continue;
     found.push(
       `motion   ${"still moves".padEnd(18)} ${id}\n        ${one.where} — ${one.what} over ${String(one.period)}s`,
@@ -431,6 +450,27 @@ server.close();
 const checked =
   `${String(stories.length)} stories × ${THEMES.map((t) => t.as ?? t.name).join(", ")}` +
   `, ${String(landings)} focus landings`;
+
+// What the sweep reached, held to a floor.
+//
+// Both numbers were counted and only printed, so a selector that stopped matching
+// took its whole check with it and reported clean: no place to land is no ring to
+// read and no trap to walk into, and no element under the container is nothing
+// moving. A sweep that found nothing is not a clean sweep, and the two figures
+// below are what tell those apart.
+for (const [reached, fewest, what] of [
+  [landings, FEWEST_LANDINGS, "places for focus to land"],
+  [walked, FEWEST_WALKED, "elements under the story root"],
+]) {
+  if (reached < fewest) {
+    console.error(
+      `a11y: found ${String(reached)} ${what}, under the floor of ${String(fewest)} — ` +
+        `the selector has stopped matching and this check is no longer running`,
+    );
+    process.exit(1);
+  }
+}
+
 if (found.length > 0) {
   console.error(
     `a11y: ${String(found.length)} violation(s) across ${checked}\n`,
