@@ -13,7 +13,6 @@ import type {
   Household,
   Logged,
   Moment,
-  Remedy,
   Service,
   Stack,
   Verdict,
@@ -252,29 +251,27 @@ export const wouldNot =
  * The problem a warning or a failure carries.
  *
  * The wire carries a problem's fields beside the outcome rather than under a
- * name of their own, and the generated types for those two verdicts hold the
- * outcome and nothing else — so a fixture that put a real answer together has
- * to say what the wire says rather than what the contract declares.
+ * name of their own, and the contract now declares them, so this is taken from
+ * the generated verdict rather than restated beside it. A hand-written copy of a
+ * generated shape is a second declaration of one thing, and it was written when
+ * the contract described the outcome and nothing else.
  */
-interface Trouble {
-  readonly code: string;
-  readonly severity: "advisory" | "warning" | "error" | "critical";
-  readonly state:
-    "actionable" | "guided" | "remediable" | "unknown" | "suppressed";
-  readonly summary: string;
-  readonly meaning: string;
-  readonly remedies: readonly Remedy[];
-}
+type Trouble = Omit<Extract<Verdict, { outcome: "warn" }>, "outcome">;
 
 /**
- * A warning or a failure, as the endpoint renders one.
+ * A warning, as the endpoint renders one.
  *
  * The fields go beside the outcome rather than under a name of their own, which
- * is how the wire carries them and is more than the generated type declares.
+ * is how the wire carries them and is now what the generated type declares.
+ *
+ * A warning and a failure are separate arms of that type, so each is built under
+ * its own literal. One function taking the outcome as an argument would hold a
+ * value belonging to neither arm.
  */
-function troubled(outcome: "warn" | "fail", problem: Trouble): Verdict {
-  return { outcome, ...problem };
-}
+const warned = (problem: Trouble): Verdict => ({ outcome: "warn", ...problem });
+
+/** A failure, as the endpoint renders one. */
+const failed = (problem: Trouble): Verdict => ({ outcome: "fail", ...problem });
 
 /** The disk filling up, as a check reports it. */
 const filling: Trouble = {
@@ -326,7 +323,7 @@ export const diagnosis: Diagnosis = {
       check: "storage.headroom",
       category: "storage",
       title: "There is room on the data volume to keep importing",
-      verdict: troubled("warn", filling),
+      verdict: warned(filling),
     },
     {
       check: "services.health",
@@ -335,7 +332,7 @@ export const diagnosis: Diagnosis = {
       service: "prowlarr",
       caused_by: "network.tunnel",
       said: "FATAL could not bind to the tunnel: address in use\nretrying in 30s",
-      verdict: troubled("fail", unanswered),
+      verdict: failed(unanswered),
     },
     {
       check: "vpn.egress-match",
@@ -393,7 +390,7 @@ export const diskChecks: Diagnosis = {
       check: "storage.headroom",
       category: "storage",
       title: "There is room on the data volume to keep importing",
-      verdict: troubled("warn", filling),
+      verdict: warned(filling),
     },
   ],
 };
