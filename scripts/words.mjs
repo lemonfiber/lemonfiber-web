@@ -46,12 +46,32 @@ function withoutPlaceholders(said) {
   return prose;
 }
 
+/** Whether this character is part of a word rather than the punctuation around it. */
+function spells(character) {
+  return /[\p{L}\p{N}']/u.test(character);
+}
+
+/**
+ * One word with the punctuation around it taken off.
+ *
+ * Walked from each end rather than matched, a pattern anchored at both ends of a
+ * run being one an adversarial string can make slow.
+ */
+function bare(word) {
+  const letters = [...word];
+  let from = 0;
+  let to = letters.length;
+  while (from < to && !spells(letters[from])) from += 1;
+  while (to > from && !spells(letters[to - 1])) to -= 1;
+  return letters.slice(from, to).join("");
+}
+
 /** The words in a piece of text, each stripped of the punctuation around it. */
 function words(prose) {
   return prose
     .split(/\s+/u)
     .filter((word) => word !== "")
-    .map((word) => word.replaceAll(/^[^\p{L}\p{N}']+|[^\p{L}\p{N}']+$/gu, ""));
+    .map(bare);
 }
 
 // ── Idiom and cultural reference ────────────────────────────────────────
@@ -118,7 +138,7 @@ function idioms(said) {
  * be writing down a judgement nobody made, and the console asking the binary what
  * a word means is the answer that keeps one explanation of it.
  */
-const ORDINARY = [];
+const ORDINARY = new Set();
 
 /**
  * Every run of two or more capitals in a word, with names left out.
@@ -131,7 +151,7 @@ function runsOfCapitals(word) {
   const found = [];
   let run = "";
   for (const letter of word) {
-    if (/[A-Z]/u.test(letter) || (run !== "" && /[0-9]/u.test(letter))) {
+    if (/[A-Z]/u.test(letter) || (run !== "" && /\d/u.test(letter))) {
       run += letter;
       continue;
     }
@@ -161,7 +181,7 @@ function runsOfCapitals(word) {
 function acronyms(said, ordinary) {
   return words(withoutPlaceholders(said))
     .flatMap((word) => runsOfCapitals(word))
-    .filter((short) => !ordinary.includes(short));
+    .filter((short) => !ordinary.has(short));
 }
 
 // ── Never the reader's fault ────────────────────────────────────────────
@@ -173,7 +193,7 @@ function acronyms(said, ordinary) {
  * right to. These are read together with the words for the person rather than on
  * their own, what turns a fault into blame being who is standing next to it.
  */
-const FAULT = [
+const FAULT = new Set([
   "wrong",
   "wrongly",
   "invalid",
@@ -201,10 +221,10 @@ const FAULT = [
   "messed",
   "sloppy",
   "supposed",
-];
+]);
 
 /** The person reading, in the words a message would name them by. */
-const READER = [
+const READER = new Set([
   "you",
   "your",
   "yours",
@@ -213,7 +233,7 @@ const READER = [
   "you've",
   "you'd",
   "you'll",
-];
+]);
 
 /** How near a fault has to stand to the person before it is being said of them. */
 const NEARBY = 4;
@@ -244,12 +264,12 @@ function faultsBesideTheReader(plainly) {
   const said = words(plainly);
   const found = [];
   said.forEach((word, at) => {
-    if (!FAULT.includes(word)) return;
+    if (!FAULT.has(word)) return;
     const near = said.slice(
       Math.max(0, at - NEARBY),
       Math.min(said.length, at + NEARBY + 1),
     );
-    const reader = near.find((word) => READER.includes(word));
+    const reader = near.find((word) => READER.has(word));
     if (reader !== undefined) found.push(`${reader} … ${word}`);
   });
   return found;
@@ -311,7 +331,7 @@ const PROVEN = [
   },
   {
     rule: "acronym declared ordinary",
-    find: (said) => acronyms(said, ["URL"]),
+    find: (said) => acronyms(said, new Set(["URL"])),
     refuses: [
       "Paste the NZB on the line that says where lemonfiber is listening",
     ],
