@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   spec-check:
-    uses: lemonfiber/spec/.github/workflows/spec-check.yml@24892a988c8277f58e14aaa441beae2f234d47aa # main
+    uses: lemonfiber/spec/.github/workflows/spec-check.yml@a32ee06e5b7eb5366a0a50db1ed2b0c5f380303a # main
   hygiene:
     uses: lemonfiber/spec/.github/workflows/hygiene.yml@24892a988c8277f58e14aaa441beae2f234d47aa # main
   security:
