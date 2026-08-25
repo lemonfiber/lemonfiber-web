@@ -130,8 +130,82 @@ const files = (await walk(SRC)).filter(
   (f) => !GENERATED.some((d) => f.includes(d)),
 );
 
+/**
+ * A story, which is a workbench rather than a screen this product ships.
+ *
+ * Its sample copy is an argument handed to a component, not a sentence a person
+ * reads here, and its lines are outside the coverage gate. Two rules stand down
+ * for it on that account: the collection point for words, and the fallbacks
+ * Svelte inserts that a covered file would have to reach.
+ *
+ * The compiler's word on the markup it draws is not among them. Storybook draws a
+ * story, `.storybook/main.ts` takes one written in either language, and a control
+ * only a pointer can reach is one there as much as anywhere.
+ */
+const isStory = (file) => file.endsWith(".stories.svelte");
+
+/** Whether the compiler's word is read for a file, a story's markup included. */
+const isDrawn = (file) => extname(file) === ".svelte";
+
+/**
+ * Markup the compiler's word must refuse, and markup it must let through.
+ *
+ * No file in this tree may carry the defect this refuses, so a sweep that found
+ * nothing looks exactly like a rule that reads nothing. Each case is a name the
+ * sweep has to reach a verdict under and the markup it reaches one on: a story,
+ * which Storybook draws and this walk skipped until now; a directory of this
+ * repository's whose name merely holds the word `node_modules`; a dependency's
+ * own markup, which is not this repository's to change; and a control a keyboard
+ * reaches, which no rule may refuse.
+ */
+const POINTER_ONLY = "<div onclick={() => undefined}></div>";
+const REACHABLE = "<button onclick={() => undefined}>Go</button>";
+
+const PROVEN = [
+  {
+    at: "src/components/Proven.stories.svelte",
+    markup: POINTER_ONLY,
+    refused: true,
+  },
+  {
+    at: "node_modules_cache/src/Proven.svelte",
+    markup: POINTER_ONLY,
+    refused: true,
+  },
+  {
+    at: "node_modules/whoever/Proven.svelte",
+    markup: POINTER_ONLY,
+    refused: false,
+  },
+  { at: "src/components/Proven.svelte", markup: REACHABLE, refused: false },
+];
+
+for (const { at, markup, refused } of PROVEN) {
+  if (!isDrawn(at))
+    failures.push(
+      `${at}  the sweep reads no compiler's word here, and has to: every file drawing markup is read`,
+    );
+
+  const said = compile(markup, {
+    generate: "client",
+    dev: false,
+    filename: at,
+  }).warnings.filter((warning) => refuses(warning));
+
+  const stopped = said.length > 0;
+  if (stopped === refused) continue;
+  failures.push(
+    refused
+      ? `${at}  lets this through, and must not: ${markup}`
+      : `${at}  refuses this, and must not: ${markup} (${said.map(refusal).join(", ")})`,
+  );
+}
+
+/** How many files drawing markup the compiler's word was read for. */
+let read = 0;
+
 for (const file of files) {
-  const ext = extname(file);
+  const story = isStory(file);
   const text = await readFile(file, "utf8");
   const lines = text.split("\n");
 
@@ -183,7 +257,7 @@ for (const file of files) {
   // template is one no translator will ever see, and moving it later means
   // finding it first. Read from the parsed template: a regex over the source
   // cannot tell an attribute name from a sentence.
-  if (ext === ".svelte" && !file.endsWith(".stories.svelte")) {
+  if (isDrawn(file) && !story) {
     let tree;
     try {
       tree = parse(text, { modern: true });
@@ -258,7 +332,8 @@ for (const file of files) {
   }
 
   // What the Svelte compiler says about a component, and what it makes of it.
-  if (ext === ".svelte" && !file.endsWith(".stories.svelte")) {
+  if (isDrawn(file)) {
+    read += 1;
     let made;
     try {
       made = compile(text, {
@@ -287,10 +362,11 @@ for (const file of files) {
     // invisible in the source and obvious in the output, so the output is what
     // is read.
     const js = made.js.code;
+    const fallbacks = story
+      ? []
+      : js.matchAll(/\$\.(set_text|set_attribute|set_class)\([^;]*?\?\? ''/g);
 
-    for (const call of js.matchAll(
-      /\$\.(set_text|set_attribute|set_class)\([^;]*?\?\? ''/g,
-    )) {
+    for (const call of fallbacks) {
       const upto = js.slice(0, call.index);
       fail(
         file,
@@ -300,6 +376,17 @@ for (const file of files) {
       );
     }
   }
+}
+
+// A file kind quietly left out of the compile is how a story came to be skipped:
+// the sweep read one file fewer and reported the same clean line. What was
+// walked and what was read are counted against each other rather than left to
+// agree.
+const draws = files.filter(isDrawn).length;
+if (read !== draws) {
+  failures.push(
+    `the sweep  read the compiler's word for ${String(read)} of the ${String(draws)} files that draw markup`,
+  );
 }
 
 // Brand states its dark palette only under `[data-lf-theme="ink"]`, and the

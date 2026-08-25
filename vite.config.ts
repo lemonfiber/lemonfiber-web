@@ -34,6 +34,7 @@ export default defineConfig({
       exclude: [
         "src/**/*.test.ts",
         "src/**/*.stories.ts",
+        "src/**/*.stories.svelte",
         "src/main.ts",
         "src/paraglide/**",
       ],
