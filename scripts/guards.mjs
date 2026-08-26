@@ -49,8 +49,36 @@ const ADDRESS = /\b(?:\d{1,3}\.){3}\d{1,3}\b/g;
 const RESERVED =
   /^(?:127\.|0\.0\.0\.0$|192\.0\.2\.|198\.51\.100\.|203\.0\.113\.)/;
 
-/** A line that is, or continues, a comment. */
-const COMMENT = /^\s*(?:\/\/|\/\*|\*|#|<!--)/;
+/**
+ * A line that is, continues, or ends in a comment.
+ *
+ * A citation put at the end of a line of code is a citation in a comment. The
+ * `//` a URL carries is not one, which is what the lookbehind leaves out.
+ */
+const COMMENT = /^\s*(?:\/\/|\/\*|\*|#|<!--)|(?<!:)\/\/|\/\*|<!--/;
+
+/**
+ * The attributes whose value is read out to somebody who cannot see the screen.
+ *
+ * An accessible name is a sentence a person reads, and one written in the
+ * template is a sentence no translator sees and `scripts/words.mjs` never
+ * reads — which is the corpus that refuses an idiom, an undeclared acronym and
+ * a fault named beside the reader. One word is enough here: none of these
+ * carries anything but words, and `alt=""` carries none at all.
+ */
+const NAMES = new Set([
+  "alt",
+  "aria-description",
+  "aria-label",
+  "aria-placeholder",
+  "aria-roledescription",
+  "aria-valuetext",
+  "placeholder",
+  "title",
+]);
+
+/** How many words make a run of them a sentence rather than a name. */
+const A_LABEL = 2;
 
 /** What stands between one term of a declaration's value and the next. */
 const BETWEEN_TERMS = /[\s(),/]+/;
@@ -121,6 +149,103 @@ function measures(property, value) {
       DRAWS_A_LINE.has(property) &&
       Math.abs(Number(size)) <= HAIRLINE;
     if (!drawn) found.push(`${size}${unit}`);
+  }
+  return found;
+}
+
+/** The words a piece of text holds, with everything that is not one left out. */
+function wordsIn(said) {
+  return said
+    .trim()
+    .split(/\s+/)
+    .filter((word) => /[A-Za-z]{2,}/.test(word));
+}
+
+/** What one attribute states in place, as against what it takes from a key. */
+function stated(value) {
+  if (!Array.isArray(value)) return "";
+  return value
+    .filter((part) => part.type === "Text" && typeof part.data === "string")
+    .map((part) => part.data)
+    .join("");
+}
+
+/** How many words make this attribute prose, or nothing where it holds none. */
+function enoughFor(name, component) {
+  if (NAMES.has(name)) return 1;
+  return component ? A_LABEL : undefined;
+}
+
+/**
+ * Every run of words a template states in place rather than taking from a key.
+ *
+ * Three places one can sit. A text node is the obvious one. An accessible name
+ * lives in an attribute, and is read out to exactly the reader who has nothing
+ * else to go on. An argument handed to a component is a sentence the component
+ * draws, wherever the component happens to draw it.
+ *
+ * The whole tree is walked rather than a named few of its branches. What a
+ * block holds is under `consequent`, `alternate`, `body` or `fallback`
+ * depending on the block, and a walk that named its way down reached the markup
+ * outside every one of them and none of the markup inside. Attributes are read
+ * by name and not descended into: the text inside one is a class list as often
+ * as it is a sentence.
+ */
+function proseIn(tree) {
+  const found = [];
+  const visit = (node) => {
+    if (node === null || typeof node !== "object") return;
+    if (Array.isArray(node)) {
+      for (const child of node) visit(child);
+      return;
+    }
+    if (node.type === "Comment" || node.type === "Attribute") return;
+    if (node.type === "Text" && typeof node.data === "string") {
+      const words = wordsIn(node.data);
+      if (words.length >= A_LABEL) found.push(words.join(" "));
+    }
+    const component =
+      node.type === "Component" || node.type === "SvelteComponent";
+    const attributes = Array.isArray(node.attributes) ? node.attributes : [];
+    for (const attribute of attributes) {
+      if (attribute.type !== "Attribute") continue;
+      const wanted = enoughFor(attribute.name, component);
+      if (wanted === undefined) continue;
+      const words = wordsIn(stated(attribute.value));
+      if (words.length >= wanted) {
+        found.push(`${attribute.name}="${words.join(" ")}"`);
+      }
+    }
+    for (const [key, child] of Object.entries(node)) {
+      if (key === "attributes" || key === "metadata") continue;
+      visit(child);
+    }
+  };
+  visit(tree);
+  return found;
+}
+
+/**
+ * Where one block of custom properties and another disagree.
+ *
+ * The second must state every property the first does, at the same value. It is
+ * one palette written twice — once under the attribute brand answers, once for
+ * the system preference brand does not cover — and a value changed in one and
+ * not the other leaves two dark paths saying different things.
+ */
+function apart(theirs, mine, named, where) {
+  const found = [];
+  for (const [name, value] of theirs) {
+    const said = mine.get(name);
+    if (said === undefined) {
+      found.push(
+        `${where} does not set ${name}, which ${named} does — dark mode would fall back to the light value`,
+      );
+    } else if (said !== value) {
+      found.push(
+        `${name} is ${said} for ${where} and ${value} in ${named} — the two dark paths disagree`,
+      );
+    }
   }
   return found;
 }
@@ -201,6 +326,119 @@ for (const { at, markup, refused } of PROVEN) {
   );
 }
 
+/**
+ * What each rule below must refuse, and what it must let through.
+ *
+ * A sweep that finds nothing looks exactly like a rule that reads nothing, and
+ * this tree is clean, so each rule is shown catching what it is for before the
+ * run reports that it found none. A rule quietly narrowed until it catches
+ * nothing fails here rather than printing `clean`.
+ */
+const REFUSES = [
+  {
+    rule: "prose in the template",
+    find: (markup) => proseIn(parse(markup, { modern: true }).fragment),
+    refuses: [
+      "<p>Every figure below is the last one confirmed</p>",
+      '<button aria-label="Hide this record"></button>',
+      '<img src={art} alt="A poster nobody wrote a key for" />',
+      '<abbr title="What that word means"></abbr>',
+      '<input placeholder="The key lemonfiber printed" />',
+      '<Action label="Try again" />',
+      "{#if lost}<p>Nothing is trying again</p>{/if}",
+      '{#each rows as row}<button aria-label="Hide this row"></button>{/each}',
+    ],
+    allows: [
+      "<p>{m.banner_contact_prose()}</p>",
+      "<button aria-label={m.action_hide_record()}></button>",
+      '<img src={art} alt="" />',
+      '<Action label={m.action_try_again()} weight="firm" />',
+      '<span class="tag alarm" role="status"></span>',
+      "{#if lost}<p>{m.banner_contact_prose()}</p>{/if}",
+    ],
+  },
+  {
+    rule: "a line that carries a comment",
+    find: (line) => (COMMENT.test(line) ? [line] : []),
+    refuses: [
+      "// what this does",
+      "  * and what it does not",
+      "const A_SECOND = 1000; // a second, in milliseconds",
+      "<!-- the operator's first screen -->",
+      "  color: var(--ink); /* the strongest foreground */",
+    ],
+    allows: [
+      'const at = "https://127.0.0.1:7777";',
+      "const share = free / total;",
+      "const said = m.stuck_for({ stall, span });",
+    ],
+  },
+  {
+    rule: "a citation",
+    find: (line) => (cites(line) ? [line] : []),
+    refuses: [
+      "ARCH-R74 settles where a problem lies",
+      "ADR-0012 says the assets are embedded",
+      "G3-R4 asks for a visible ring",
+      "Spec: 20-architecture/contracts/web-api.md",
+    ],
+    allows: [
+      "the status the endpoint answers a refused read with",
+      "R2 names nothing on its own",
+      "the reading of what is running",
+    ],
+  },
+  {
+    rule: "two dark palettes that disagree",
+    find: () =>
+      apart(
+        new Map([
+          ["--alarm", "#e8705c"],
+          ["--warn-tint", "#35240f"],
+        ]),
+        new Map([
+          ["--alarm", "#b02a1a"],
+          ["--ok", "#9db856"],
+        ]),
+        "one block",
+        "the other",
+      ),
+    refuses: [undefined],
+    allows: [],
+  },
+  {
+    rule: "two dark palettes that agree",
+    find: () =>
+      apart(
+        new Map([["--alarm", "#e8705c"]]),
+        new Map([
+          ["--alarm", "#e8705c"],
+          ["--ok", "#9db856"],
+        ]),
+        "one block",
+        "the other",
+      ),
+    refuses: [],
+    allows: [undefined],
+  },
+];
+
+for (const { rule, find, refuses: refused, allows } of REFUSES) {
+  for (const said of refused) {
+    if (find(said).length === 0)
+      failures.push(
+        `the ${rule} rule  lets this through, and must not: ${String(said)}`,
+      );
+  }
+  for (const said of allows) {
+    const found = find(said);
+    if (found.length > 0)
+      failures.push(
+        `the ${rule} rule  refuses this, and must not: ${String(said)} (${found.join(", ")})`,
+      );
+  }
+}
+
 /** How many files drawing markup the compiler's word was read for. */
 let read = 0;
 
@@ -265,26 +503,7 @@ for (const file of files) {
       tree = undefined;
     }
 
-    const prose = [];
-    const visit = (node) => {
-      if (node === null || typeof node !== "object") return;
-      if (Array.isArray(node)) {
-        for (const child of node) visit(child);
-        return;
-      }
-      if (node.type === "Comment") return;
-      if (node.type === "Text" && typeof node.data === "string") {
-        const words = node.data
-          .trim()
-          .split(/\s+/)
-          .filter((w) => /[A-Za-z]{2,}/.test(w));
-        if (words.length >= 2) prose.push(words.join(" "));
-      }
-      for (const key of ["fragment", "nodes", "children", "body"]) {
-        if (key in node) visit(node[key]);
-      }
-    };
-    if (tree !== undefined) visit(tree.fragment);
+    const prose = tree === undefined ? [] : proseIn(tree.fragment);
 
     for (const found of prose) {
       fail(
@@ -391,7 +610,8 @@ if (read !== draws) {
 
 // Brand states its dark palette only under `[data-lf-theme="ink"]`, and the
 // surface also has to answer `prefers-color-scheme`, which brand does not
-// cover. That leaves one set of values written in two places, so the two are
+// cover. The surface's own severity palette is stated under both for the same
+// reason. That leaves two sets of values written twice each, so both pairs are
 // compared here rather than left to drift apart unnoticed.
 const BRAND_TOKENS = join(
   ROOT,
@@ -420,38 +640,43 @@ function declarations(css, opener) {
   return found;
 }
 
+const surface = await readFile(join(SRC, "app.css"), "utf8");
 const brandInk = declarations(
   await readFile(BRAND_TOKENS, "utf8"),
   '[data-lf-theme="ink"] {',
 );
+const surfaceInk = declarations(surface, '[data-lf-theme="ink"] {');
 const surfaceDark = declarations(
-  await readFile(join(SRC, "app.css"), "utf8"),
+  surface,
   ':root:not([data-lf-theme="paper"]) {',
 );
 
-if (brandInk === undefined || surfaceDark === undefined) {
+if (
+  brandInk === undefined ||
+  surfaceInk === undefined ||
+  surfaceDark === undefined
+) {
   fail(
     join(SRC, "app.css"),
     null,
-    "cannot find both dark palettes to compare — brand's ink block or the surface's system-preference block has moved",
+    "cannot find all three dark palettes to compare — brand's ink block, the surface's own ink block or its system-preference block has moved",
   );
 } else {
-  for (const [name, value] of brandInk) {
-    const mine = surfaceDark.get(name);
-    if (mine === undefined) {
-      fail(
-        join(SRC, "app.css"),
-        null,
-        `the system-preference block does not set ${name}, which brand's ink theme does — dark mode would fall back to the light value`,
-      );
-    } else if (mine !== value) {
-      fail(
-        join(SRC, "app.css"),
-        null,
-        `${name} is ${mine} for the system preference and ${value} in brand's ink theme — the two dark paths disagree`,
-      );
-    }
-  }
+  const said = [
+    ...apart(
+      brandInk,
+      surfaceDark,
+      "brand's ink theme",
+      "the system-preference block",
+    ),
+    ...apart(
+      surfaceInk,
+      surfaceDark,
+      "the surface's own ink block",
+      "the system-preference block",
+    ),
+  ];
+  for (const one of said) fail(join(SRC, "app.css"), null, one);
 }
 
 if (failures.length > 0) {
