@@ -10,6 +10,7 @@ export default tseslint.config(
       "dist/",
       "coverage/",
       "storybook-static/",
+      ".svelte-check/",
       "playwright-report/",
       "test-results/",
       "src/generated/**",
