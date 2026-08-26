@@ -13,6 +13,7 @@ import {
   isKind,
   malformed,
   parse,
+  refusalIn,
   refused,
   TOKEN_HEADER,
   unreachable,
@@ -37,9 +38,6 @@ const STREAM = "/api/events";
 
 /** Where the scrollback is served. */
 const SCROLLBACK = "/api/logs";
-
-/** The statuses that are lemonfiber, or something in front of it, saying no. */
-const TURNED_AWAY = new Set([401, 403]);
 
 /** What reaching one running lemonfiber takes. */
 export interface Reaching {
@@ -179,42 +177,15 @@ async function said(reaching: Reaching, url: string): Promise<Reading<string>> {
     });
     const body = await answer.text();
     if (answer.ok) return { ok: true, value: body };
-    return { ok: false, problem: turnedDown(answer.status, body) };
+    // The client package's own reading, rather than a second copy of it. The
+    // scrollback is the one answer here that is not one document, so `read` can
+    // not do this on the way past — which is the caller `refusalIn` is offered
+    // for. Everything else this surface asks for is read through `Client`, and
+    // gets the same reading without asking.
+    return { ok: false, problem: refusalIn(answer.status, body) };
   } catch {
     return { ok: false, problem: unreachable() };
   }
-}
-
-/**
- * The problem an answer that was not a success is, given the body it came with.
- *
- * A key this run refuses is a refusal and nothing else. A command that ran and
- * failed is answered with an `error` envelope carrying one plain sentence, and
- * that sentence is what an operator needs — a body this cannot read tells them
- * no more than silence would. The same reading the client package gives every
- * other endpoint, which it keeps to itself.
- */
-function turnedDown(status: number, body: string): Problem {
-  if (TURNED_AWAY.has(status)) return refused();
-
-  const summary = summaryIn(body);
-  return summary === undefined ? unreachable() : refused(summary);
-}
-
-/**
- * The one plain sentence an `error` envelope carries.
- *
- * The kind names the payload; it does not prove its shape. The summary is read
- * as something arriving off a wire, so an envelope labelled `error` that carries
- * no sentence yields none.
- */
-function summaryIn(body: string): string | undefined {
-  const envelope = parse<unknown>(body);
-  if (!envelope.ok || !isKind(envelope.value, "error")) return undefined;
-
-  const summary: unknown = envelope.value.data.summary;
-  if (typeof summary !== "string" || summary.trim() === "") return undefined;
-  return summary.trim();
 }
 
 /**
