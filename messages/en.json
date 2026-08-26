@@ -186,7 +186,7 @@
   "nav_storage": "The disk",
   "nav_requests": "What's been asked for",
   "unlock_title": "Open the console",
-  "unlock_prose": "lemonfiber printed a key when it started serving. Paste it here to see your stack. The key is only good for this run, and it is never written down.",
+  "unlock_prose": "lemonfiber printed a key when it started serving. Paste it here to see your stack. The key is only good for this run; this tab holds it until you close it, and nothing writes it to disk.",
   "unlock_label": "The key lemonfiber printed",
   "unlock_refused_lead": "This run would not take the key this page held.",
   "unlock_refused_prose": "A key is minted once, when lemonfiber starts serving, so the one this page held is from a run that has ended. Paste the one the run now serving printed.",

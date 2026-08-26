@@ -42,6 +42,10 @@
   Where it replaced a console the run turned away, it says so where a reader who
   cannot see the screen change is told, and takes the focus the swapped-out
   screen dropped.
+
+  It is a form, so the key is handed over by the enter key as well as by the
+  control. A key is pasted rather than typed, and pressing enter after pasting
+  is what a person does next.
 -->
 <main class="ask">
   <h1 tabindex="-1" use:landing>{m.unlock_title()}</h1>
@@ -56,22 +60,23 @@
   {/if}
   <p class="prose">{m.unlock_prose()}</p>
 
-  <Field
-    label={m.unlock_label()}
-    value={typed}
-    hint={m.unlock_hint()}
-    oninput={(value: string) => {
-      typed = value;
-    }}
-  />
-
-  <Action
-    label={m.unlock_open()}
-    weight="firm"
-    onclick={() => {
+  <form
+    onsubmit={(event: SubmitEvent) => {
+      event.preventDefault();
       if (given !== "") onopen(given);
     }}
-  />
+  >
+    <Field
+      label={m.unlock_label()}
+      value={typed}
+      hint={m.unlock_hint()}
+      oninput={(value: string) => {
+        typed = value;
+      }}
+    />
+
+    <Action label={m.unlock_open()} weight="firm" submits />
+  </form>
 </main>
 
 <style>

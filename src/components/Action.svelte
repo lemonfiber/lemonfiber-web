@@ -8,14 +8,28 @@
     weight?: Weight | undefined;
     /** Whether pressing it does nothing for now. */
     off?: boolean | undefined;
+    /**
+     * Whether this is the control a form is completed by. One form, one of
+     * these; everything else standing in a form is a button and nothing else.
+     */
+    submits?: boolean | undefined;
     /** What pressing it does. */
     onclick?: (() => void) | undefined;
   }
 
-  let { label, weight = "quiet", off = false, onclick }: Props = $props();
+  let {
+    label,
+    weight = "quiet",
+    off = false,
+    submits = false,
+    onclick,
+  }: Props = $props();
 
-  function pressed(): void {
-    if (off) return;
+  function pressed(event: MouseEvent): void {
+    if (off) {
+      event.preventDefault();
+      return;
+    }
     onclick?.();
   }
 </script>
@@ -28,8 +42,11 @@
   space and enter, and named by its own words, none of which a rebuilt one
   gets for free.
 
-  `type` is fixed rather than offered. A control inside a form defaults to
-  submitting it, which is a second thing to press by accident.
+  It is a button unless it is told it completes a form. A control inside a form
+  defaults to submitting it, which is a second thing to press by accident; the
+  one that does complete the form says so, and is what makes the enter key
+  finish what was typed. A control with nothing to do for the moment submits
+  nothing either, `aria-disabled` being a word to a reader and not a brake.
 
   A control with nothing to do for the moment says so rather than leaving the
   page: `disabled` takes a button out of the tab order, and a reader whose focus
@@ -43,7 +60,7 @@
   class="act"
   class:firm={weight === "firm"}
   class:off
-  type="button"
+  type={submits ? "submit" : "button"}
   aria-disabled={off}
   onclick={pressed}
 >

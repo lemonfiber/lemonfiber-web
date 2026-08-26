@@ -53,6 +53,16 @@ describe("Action", () => {
       "button",
     );
   });
+
+  // One control completes a form, and it is the one that says it does. That is
+  // also what makes the enter key finish what was typed.
+  it("completes the form it stands in where it says it does", () => {
+    render(Action, { label: words, submits: true });
+    expect(screen.getByRole("button", { name: words })).toHaveAttribute(
+      "type",
+      "submit",
+    );
+  });
 });
 
 describe("a control with nothing to do for the moment", () => {
@@ -63,6 +73,26 @@ describe("a control with nothing to do for the moment", () => {
     await userEvent.click(screen.getByRole("button", { name: words }));
 
     expect(pressed).not.toHaveBeenCalled();
+  });
+
+  // `aria-disabled` is a word to a reader and not a brake, so a control that
+  // completes a form has to be stopped from completing it as well.
+  it("completes no form while there is nothing to do", async () => {
+    const sent = vi.fn();
+    const { container } = render(Action, {
+      label: words,
+      off: true,
+      submits: true,
+    });
+    const form = document.createElement("form");
+    form.addEventListener("submit", sent);
+    const button = screen.getByRole("button", { name: words });
+    form.append(button);
+    container.append(form);
+
+    await userEvent.click(screen.getByRole("button", { name: words }));
+
+    expect(sent).not.toHaveBeenCalled();
   });
 
   it("says so where a reader is told rather than only shown", () => {

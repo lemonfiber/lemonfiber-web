@@ -64,6 +64,20 @@ describe("Unlock", () => {
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
+  // A key is pasted rather than typed, and pressing enter after pasting is what
+  // a person does next.
+  it("hands over the key on enter, without reaching for the control", async () => {
+    const opened = vi.fn();
+    render(Unlock, { onopen: opened });
+
+    await userEvent.type(
+      screen.getByRole("textbox", { name: m.unlock_label() }),
+      `${key}{Enter}`,
+    );
+
+    expect(opened).toHaveBeenCalledWith(key);
+  });
+
   it("asks for nothing on an empty box", async () => {
     const opened = vi.fn();
     render(Unlock, { onopen: opened });
