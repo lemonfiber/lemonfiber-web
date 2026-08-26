@@ -17,6 +17,17 @@
 # is, and names the commits in between. A count would be the wrong thing to
 # report: most commits on the client change nothing this surface reaches, and
 # "behind by eleven" reads as an emergency where the list reads as a decision.
+#
+# This reports rather than gates, which is what `Q-R68` asks of it. Bumping the
+# pin is a deliberate act — the commits it takes are read before they are taken —
+# and the pin is meant to lag, so running this on pull requests would refuse
+# every unrelated change for the whole stretch between the client moving and
+# this surface catching up. A red run here is news about sdk-ts, not a fault in
+# whichever commit happened to be last.
+#
+# So the run says which of those it is. A check nobody is required to pass, that
+# has been red for days, is otherwise indistinguishable from a check that is
+# broken, and the only reader who can tell them apart is one who already knew.
 name: sdk-drift
 on:
   workflow_dispatch:
@@ -43,9 +54,18 @@ jobs:
         run: |
           set -euo pipefail
 
+          # What the run page shows above the log. The verdict is written there
+          # as well as printed, so what this check found and what it is for are
+          # read together — the reader who has to be told it reports rather than
+          # gates is the one who did not go looking for the workflow file.
+          say() {
+            printf '%s\n' "$1"
+            printf '%s\n' "$1" >>"${GITHUB_STEP_SUMMARY:-/dev/null}"
+          }
+
           # The revision the manifest pins is the one `npm run client` builds,
           # so it is the client this surface is actually drawn through.
-          pin=$(python3 - <<'PY'
+          if ! pin=$(python3 - 2>unreadable.txt <<'PY'
           import json
           import pathlib
           import re
@@ -66,7 +86,20 @@ jobs:
 
           print(revision)
           PY
-          )
+          ); then
+            say '## The pinned client could not be read'
+            say ''
+            say '**This check reports; it gates nothing.** It did not get as far as'
+            say 'comparing anything, so this is not news about sdk-ts either: the'
+            say 'manifest does not name the client the way this expects, and what'
+            say 'this surface is drawn through is unknown rather than behind.'
+            say ''
+            say '```'
+            say "$(cat unreadable.txt)"
+            say '```'
+            echo '::error::the pinned client could not be read from package.json — this check reports it and gates nothing'
+            exit 1
+          fi
 
           # Bare and blob-less: this reads the history and none of the files,
           # because a list of commits is the whole of what is being asked for.
@@ -75,15 +108,23 @@ jobs:
           head=$(git -C sdk-ts.git rev-parse main)
 
           if ! git -C sdk-ts.git cat-file -e "${pin}^{commit}" 2>/dev/null; then
-            echo "pinned:      ${pin}"
-            echo "sdk-ts main: ${head}"
-            echo "::error::the pinned revision is not a commit in sdk-ts"
-            echo "the manifest names a revision that repository's history does not contain"
+            say '## The pinned revision is not a commit in sdk-ts'
+            say ''
+            say '**This check reports; it gates nothing.** This is not the lag it'
+            say 'usually finds, though, and it is not news about sdk-ts: the manifest'
+            say 'names a revision that repository has no commit for, so what this'
+            say 'surface is drawn through is not something anyone else can fetch.'
+            say ''
+            say "- pinned in \`package.json\`: \`${pin}\`"
+            say "- sdk-ts main: \`${head}\`"
+            echo '::error::the pinned revision is not a commit in sdk-ts — this check reports it and gates nothing'
             exit 1
           fi
 
           if [ "$pin" = "$head" ]; then
-            echo "the console is drawn through sdk-ts ${pin}, which is what main is."
+            say '## The pinned client is current'
+            say ''
+            say "The console is drawn through sdk-ts \`${pin}\`, which is what main is."
             exit 0
           fi
 
@@ -93,16 +134,37 @@ jobs:
           # pin is not a point on the line this compares against, and reporting
           # it as current would be a different wrong answer.
           if [ -z "$behind" ]; then
-            echo "pinned:      ${pin}"
-            echo "sdk-ts main: ${head}"
-            echo "::error::the pinned revision is not on sdk-ts main"
+            say '## The pinned revision is not on sdk-ts main'
+            say ''
+            say '**This check reports; it gates nothing.** This is not the lag it'
+            say 'usually finds: the pin is a commit sdk-ts holds, but not one main'
+            say 'reaches, so it sits ahead of main or on a history main no longer'
+            say 'carries. There is no list of commits to take, because the pin is not'
+            say 'a point on the line this compares against.'
+            say ''
+            say "- pinned in \`package.json\`: \`${pin}\`"
+            say "- sdk-ts main: \`${head}\`"
+            echo '::error::the pinned revision is not on sdk-ts main — this check reports it and gates nothing'
             exit 1
           fi
 
-          echo "pinned:      ${pin}"
-          echo "sdk-ts main: ${head}"
-          echo "the console has not taken these:"
-          echo "$behind"
-          echo "::error::the pinned client is behind sdk-ts main"
-          echo "point the dependency at ${head} in package.json, then run npm install so the lockfile moves with it"
+          say '## The pinned client is behind'
+          say ''
+          say '**This check reports; it gates nothing.** A red run means sdk-ts has'
+          say 'moved on since this surface last took it, which is expected between'
+          say 'bumps — it does not mean this check is broken, and it is not failing'
+          say 'any pull request.'
+          say ''
+          say "- pinned in \`package.json\`: \`${pin}\`"
+          say "- sdk-ts main: \`${head}\`"
+          say ''
+          say 'The console has not taken these:'
+          say ''
+          say '```'
+          say "$behind"
+          say '```'
+          say ''
+          say "To catch up: point the dependency at \`${head}\` in \`package.json\`,"
+          say "then run \`npm install\` so the lockfile moves with it."
+          echo '::error::the pinned client is behind sdk-ts main — this check reports it and gates nothing'
           exit 1
