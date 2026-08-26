@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Action from "../components/Action.svelte";
   import Banner from "../components/Banner.svelte";
   import Attention from "./panels/Attention.svelte";
   import Coming from "./panels/Coming.svelte";
@@ -14,6 +15,7 @@
   import type { Freshness } from "../lib/freshness";
   import type { Moment, Stack } from "../lib/wire";
   import type { Controls } from "../lib/work";
+  import * as m from "../paraglide/messages.js";
 
   interface Props {
     /** What the whole stack amounts to, from the reading of it. */
@@ -30,9 +32,15 @@
     live: Freshness;
     /** What can be asked of the stack, and what has come of asking. */
     controls: Controls;
+    /**
+     * What asking for the live connection again does. Omitted while something
+     * is still opening it, which is a connection with nothing to press.
+     */
+    onretry?: (() => void) | undefined;
   }
 
-  let { stack, programs, moment, flow, read, live, controls }: Props = $props();
+  let { stack, programs, moment, flow, read, live, controls, onretry }: Props =
+    $props();
 
   const said = $derived(saidOfFlow(flow));
   const graded = $derived(moment === undefined ? read : live);
@@ -50,7 +58,9 @@
 
   The banner speaks for the connection rather than for any panel. A screen whose
   figures were true a minute ago is a claim about the whole screen, and a panel
-  cannot make it.
+  cannot make it. Where nothing is opening the connection any more it carries the
+  one control that asks for it, since a screen saying contact was lost and
+  offering nothing to press leaves reloading the page as the only way back.
 
   The two panels that act sit under the two that grade, so what is on offer is
   read after what it is for. The forms come first of the two: what the controls
@@ -59,7 +69,15 @@
 -->
 <Board>
   {#if said !== undefined}
-    <Banner tone={toneOfFlow(flow)} lead={said.lead} prose={said.prose} />
+    {#snippet again()}
+      <Action label={m.action_try_again()} onclick={onretry} />
+    {/snippet}
+    <Banner
+      tone={toneOfFlow(flow)}
+      lead={said.lead}
+      prose={said.prose}
+      actions={onretry === undefined ? undefined : again}
+    />
   {/if}
 
   <div class="pair">

@@ -98,6 +98,47 @@ function saying(said: readonly string[]): Fetching {
 /** A stream that will not open at all. */
 const silent: Fetching = () => Promise.resolve({ ok: false, body: null });
 
+/** A stream that will not open at all, counting every asking. */
+function refused(openings: { count: number }): Fetching {
+  return () => {
+    openings.count += 1;
+    return Promise.resolve({ ok: false, body: null });
+  };
+}
+
+/** A stream that carries what it was given and stays open. */
+function holding(said: readonly string[]): Fetching {
+  return () =>
+    Promise.resolve({
+      ok: true,
+      body: new ReadableStream<Uint8Array>({
+        start(controller) {
+          const bytes = new TextEncoder();
+          for (const one of said) controller.enqueue(bytes.encode(one));
+        },
+      }),
+    });
+}
+
+/** A stream that refuses its first opening and carries on the next. */
+function openingLater(said: readonly string[]): Fetching {
+  let asked = 0;
+  return () => {
+    asked += 1;
+    if (asked === 1) return Promise.resolve({ ok: false, body: null });
+    return Promise.resolve({
+      ok: true,
+      body: new ReadableStream<Uint8Array>({
+        start(controller) {
+          const bytes = new TextEncoder();
+          for (const one of said) controller.enqueue(bytes.encode(one));
+          controller.close();
+        },
+      }),
+    });
+  };
+}
+
 /**
  * A stream that opens only after the current task, and counts its openings.
  *
@@ -175,6 +216,41 @@ describe("the console", () => {
     expect(
       await screen.findByText(m.banner_contact_lead()),
     ).toBeInTheDocument();
+  });
+
+  // Reopening is what a stream that carried and broke is given. A first opening
+  // that failed is not one of those, so a banner saying it is being retried
+  // would be describing something nothing is doing.
+  it("tries a first opening once, and says nothing is trying again", async () => {
+    const openings = { count: 0 };
+    console_({ fetching: refused(openings) });
+
+    expect(
+      await screen.findByText(m.banner_contact_prose()),
+    ).toBeInTheDocument();
+    await settle();
+
+    expect(openings.count).toBe(1);
+  });
+
+  it("opens the connection again when the operator asks for it", async () => {
+    console_({ fetching: openingLater([framed("dashboard", moment)]) });
+
+    await userEvent.click(
+      await screen.findByRole("button", { name: m.action_try_again() }),
+    );
+
+    expect(await screen.findByText(worst)).toBeInTheDocument();
+  });
+
+  // A control asking for what is already under way asks for nothing.
+  it("offers nothing to press while the stream is carrying", async () => {
+    console_({ fetching: holding([framed("dashboard", moment)]) });
+
+    expect(await screen.findByText(worst)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: m.action_try_again() }),
+    ).toBeNull();
   });
 
   it("says so when the key is not the one this run expects", async () => {
