@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/svelte";
+import { render, screen, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
@@ -93,6 +93,30 @@ describe("the banner", () => {
     const lead = screen.getByText(m.flow_stale_lead());
     expect(lead.closest("[role='status']")).not.toBeNull();
     expect(screen.getByText(m.flow_stale_prose())).toBeInTheDocument();
+  });
+
+  // Reloading the page is the only other way back, and nothing on the screen
+  // says so.
+  it("offers the connection again where nothing is opening it", async () => {
+    const retry = vi.fn();
+    board({ flow: "lost", onretry: retry });
+
+    await userEvent.click(
+      within(screen.getByRole("alert")).getByRole("button", {
+        name: m.action_try_again(),
+      }),
+    );
+
+    expect(retry).toHaveBeenCalledTimes(1);
+  });
+
+  // Something is already opening it, and a second control asking for what is
+  // under way is a control that does nothing.
+  it("offers nothing to press while the connection is being opened", () => {
+    board({ flow: "opening" });
+    expect(
+      screen.queryByRole("button", { name: m.action_try_again() }),
+    ).toBeNull();
   });
 });
 

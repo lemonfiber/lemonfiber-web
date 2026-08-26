@@ -80,8 +80,10 @@ export const TheConnectionDropped: Story = {
 };
 
 /**
- * Nothing answered at all. The banner interrupts, and each panel says in the
- * source's own words why it is empty rather than showing a zero.
+ * Nothing answered at all, and nothing is opening the connection again: a first
+ * opening is tried once. The banner interrupts, carries the one control that
+ * asks for the connection again, and each panel says in the source's own words
+ * why it is empty rather than showing a zero.
  */
 export const NothingAnswered: Story = {
   args: {
@@ -103,6 +105,7 @@ export const NothingAnswered: Story = {
     flow: "lost",
     read: { kind: "silent", secondsAgo: 240 },
     live: never,
+    onretry: () => undefined,
   },
 };
 

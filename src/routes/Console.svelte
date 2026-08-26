@@ -83,6 +83,10 @@
   let waitingSaid = $state<string | undefined>(undefined);
   let confirming = $state<Doing | undefined>(undefined);
   let busy = $state(false);
+  let listening = $state(false);
+
+  /** What ends the listening there is, for as long as there is one. */
+  let gate = new AbortController();
 
   /** When the last moment arrived, for measuring a silence against. */
   let carried = 0;
@@ -178,18 +182,25 @@
 
   /**
    * Listen to the stream until this screen is put away.
+   *
+   * Whether anything is still listening is held, so the screen can say so. A
+   * stream that opened and broke is reopened a few times; one that never opened
+   * is tried once, and a stream that has given up looks from here exactly like
+   * one that is still trying.
    */
-  function listen(): () => void {
-    const gate = new AbortController();
-    const opened = watching(reaching, gate.signal);
+  function listen(): void {
+    const opening = new AbortController();
+    gate = opening;
+    const opened = watching(reaching, opening.signal);
     if (!opened.ok) {
       flow = "lost";
-      return () => undefined;
+      return;
     }
 
+    listening = true;
     void (async () => {
       for await (const arrival of opened.arrivals) {
-        if (gate.signal.aborted) break;
+        if (opening.signal.aborted) break;
         if (arrival.at === "lost") {
           lost();
         } else if (carrying(arrival, MOMENTS)) {
@@ -209,11 +220,21 @@
           waitingSaid = arrival.data;
         }
       }
+      listening = false;
     })();
+  }
 
-    return () => {
-      gate.abort();
-    };
+  /**
+   * Open the stream again, for a connection nothing is opening on its own.
+   *
+   * Reopening is what a stream that carried and broke is given; a first opening
+   * that failed is not one of those and is tried once. So the asking is the
+   * operator's to make, and it is made from the banner that says so.
+   */
+  function reopen(): void {
+    gate.abort();
+    flow = "opening";
+    listen();
   }
 
   /**
@@ -365,12 +386,12 @@
 
     globalThis.addEventListener("popstate", back);
     void askFor(place);
-    const stop = listen();
+    listen();
 
     return () => {
       here = false;
       globalThis.removeEventListener("popstate", back);
-      stop();
+      gate.abort();
     };
   });
 </script>
@@ -378,18 +399,28 @@
 <!--
   The operator's console: where the page is, and everything it has been told.
 
-  The stream is opened once, here. A reading is asked for on the way into the
-  place it draws — one place, one asking — and the answer is handed down. A
-  screen is given what it draws rather than fetching it, which is what lets the
-  same screen be drawn from a fixture in a story and swept for the things a
-  browser can only be asked about once a whole page is assembled.
+  The stream is opened here, and opened again from here when the operator asks
+  for it. A reading is asked for on the way into the place it draws — one place,
+  one asking — and the answer is handed down. A screen is given what it draws
+  rather than fetching it, which is what lets the same screen be drawn from a
+  fixture in a story and swept for the things a browser can only be asked about
+  once a whole page is assembled.
 
   The disk is the one screen with two sources: the volume comes off the stream,
   which is where it is measured, and the checks about it come off a reading.
 -->
 <Shell {place} ongo={go}>
   {#if place === "overview"}
-    <Dashboard {stack} {programs} {moment} {flow} {read} {live} {controls} />
+    <Dashboard
+      {stack}
+      {programs}
+      {moment}
+      {flow}
+      {read}
+      {live}
+      {controls}
+      onretry={listening ? undefined : reopen}
+    />
   {:else if place === "checks"}
     <Checks {diagnosis} freshness={stamped} />
   {:else if place === "storage"}
