@@ -37,6 +37,14 @@ const saying = (status: number, body: string): Sending =>
 const enveloped = (kind: string, data: unknown): string =>
   JSON.stringify({ api_version: API_VERSION, kind, data });
 
+/** What a reverse proxy in front of lemonfiber answers with when it cannot. */
+const proxyPage = [
+  "<html>",
+  "<head><title>502 Bad Gateway</title></head>",
+  "<body><center><h1>502 Bad Gateway</h1></center></body>",
+  "</html>",
+].join("\n");
+
 const asking = (over: { at?: string; sending: Sending }): Reaching => ({
   at: over.at ?? here,
   token: key,
@@ -174,22 +182,61 @@ describe("when lemonfiber will not do it", () => {
       nothing,
     );
 
-    expect(came).toStrictEqual({ at: "declined", said: malformed().message });
+    expect(came).toStrictEqual({
+      at: "declined",
+      said: unreachable().message,
+    });
+  });
+});
+
+// Whatever stands between this page and lemonfiber answers in its own words,
+// under a status of its own choosing. Rendering that as lemonfiber's sentence
+// puts a proxy's page, or a bare document, where an operator reads what
+// lemonfiber said.
+describe("when the reply did not come from lemonfiber", () => {
+  it.each([
+    ["a page from whatever answered instead", proxyPage],
+    ["a document that is not an envelope", '{"detail":"forbidden"}'],
+    [
+      "an envelope whose sentence is not one",
+      enveloped("error", { code: "engine-absent", summary: { text: "no" } }),
+    ],
+    [
+      "an envelope carrying no sentence at all",
+      enveloped("error", { code: "engine-absent", summary: null }),
+    ],
+  ])("says lemonfiber is not answering for %s", async (_what, body) => {
+    const came = await acting(
+      asking({ sending: saying(502, body) }),
+      "up",
+      nothing,
+    );
+
+    expect(came).toStrictEqual({
+      at: "declined",
+      said: unreachable().message,
+    });
   });
 });
 
 describe("when the key is not this run's", () => {
   // The page holds a key a run has ended with, and no retry can help. Saying so
   // apart from every other refusal is what lets the page forget it and ask.
-  it("says it was turned away rather than that lemonfiber said no", async () => {
-    const came = await acting(
-      asking({ sending: saying(403, "") }),
-      "down",
-      nothing,
-    );
+  //
+  // 403 is what lemonfiber answers with and 401 is what something in front of it
+  // may answer with instead, and both mean the same thing to whoever is reading.
+  it.each([401, 403])(
+    "says a %s was turned away rather than that lemonfiber said no",
+    async (status) => {
+      const came = await acting(
+        asking({ sending: saying(status, "") }),
+        "down",
+        nothing,
+      );
 
-    expect(came).toStrictEqual({ at: "turned-away" });
-  });
+      expect(came).toStrictEqual({ at: "turned-away" });
+    },
+  );
 });
 
 describe("when the reply cannot be read at all", () => {

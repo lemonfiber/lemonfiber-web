@@ -15,21 +15,20 @@
  * Work confined to lemonfiber's own files has finished by the time a reply could
  * be written and is answered with its outcome.
  *
- * A refusal is answered in lemonfiber's own words, either as the sentence this
- * surface says about a request it would not carry out or as the problem
- * envelope a command that failed renders. Both are carried out of here as the
- * sentence, so nothing above renders a bare status.
+ * A reply that was not a success is read by the client package. Which status
+ * carries which reading is written there once, and a body that opens as markup
+ * or as a document it cannot read came from whatever stands between this page
+ * and lemonfiber rather than from lemonfiber — so it is reported as not
+ * answering rather than handed on as lemonfiber's words. The key is the one
+ * refusal read from the status alone; every other reading carries a sentence,
+ * so nothing above renders a bare status.
  */
-import { isKind, malformed, parse } from "@lemonfiber/sdk-ts";
+import { isKind, malformed, parse, refusalIn } from "@lemonfiber/sdk-ts";
 import type { Reaching } from "./asking";
 import { reached, succeeded } from "./reached";
-import { saidIn } from "./said";
 
 /** Where an action is asked for. */
 const ACTIONS = "/api/actions/";
-
-/** The status a request carrying the wrong key is turned away with. */
-const TURNED_AWAY = 403;
 
 /** The status work handed to the runtime is answered with. */
 const ACCEPTED = 202;
@@ -55,7 +54,7 @@ export type Acted =
   | { readonly at: "started"; readonly job: string }
   /** Finished while the request was still open. */
   | { readonly at: "settled" }
-  /** Not carried out, in the words of whoever would not carry it out. */
+  /** Not carried out, and why, in lemonfiber's words where it wrote any. */
   | { readonly at: "declined"; readonly said: string }
   /** The key this page is using is not the one this run is expecting. */
   | { readonly at: "turned-away" };
@@ -75,8 +74,12 @@ export async function acting(
   if (!answer.ok) return { at: "declined", said: answer.problem.message };
 
   const { status, said } = answer;
-  if (status === TURNED_AWAY) return { at: "turned-away" };
-  if (!succeeded(status)) return { at: "declined", said: saidIn(said) };
+  if (!succeeded(status)) {
+    const problem = refusalIn(status, said);
+    return problem.kind === "refused"
+      ? { at: "turned-away" }
+      : { at: "declined", said: problem.message };
+  }
 
   const read = parse<unknown>(said);
   if (!read.ok) return { at: "declined", said: read.problem.message };

@@ -7,8 +7,14 @@
  *
  * The status is what says where the work got to, so the reply is read for its
  * status before it is read for anything else — which is why this is here rather
- * than through the client's own reader, whose business is the envelope and
- * which has one answer for every status that is not a plain success.
+ * than through the client's own reader, which has one answer for every status
+ * that is not a plain success. What each status that is not a success means is
+ * still the client's: a body that did not come from lemonfiber is reported as
+ * not answering rather than handed on as lemonfiber's words, and the key is the
+ * one refusal read from the status alone. So is the envelope: a reply this page
+ * counts as an outcome is read for the wire version it was written under, since
+ * a document from a lemonfiber speaking another version is not an outcome this
+ * page can stand behind.
  *
  * A name this run never handed out is absent rather than unfinished. Nothing
  * carries a job across a restart, so a tab reopened onto a lemonfiber that has
@@ -19,15 +25,12 @@
  * well; it is this page that has lost the thread, and saying the work stopped
  * would be this page's guess reported as lemonfiber's word.
  */
+import { parse, refusalIn } from "@lemonfiber/sdk-ts";
 import type { Reaching } from "./asking";
 import { reached, succeeded } from "./reached";
-import { saidIn } from "./said";
 
 /** Where a name is redeemed. */
 const JOBS = "/api/jobs/";
-
-/** The status a request carrying the wrong key is turned away with. */
-const TURNED_AWAY = 403;
 
 /** The status work still going is answered with. */
 const STILL_GOING = 202;
@@ -77,9 +80,15 @@ export async function redeeming(
   if (!answer.ok) return { at: "adrift", said: answer.problem.message };
 
   const { status, said } = answer;
-  if (status === TURNED_AWAY) return { at: "turned-away" };
   if (status === NEVER_HANDED_OUT) return { at: "forgotten" };
-  if (status === STILL_GOING) return { at: "running" };
-  if (!succeeded(status)) return { at: "stopped", said: saidIn(said) };
-  return { at: "finished" };
+  if (!succeeded(status)) {
+    const problem = refusalIn(status, said);
+    return problem.kind === "refused"
+      ? { at: "turned-away" }
+      : { at: "stopped", said: problem.message };
+  }
+
+  const read = parse<unknown>(said);
+  if (!read.ok) return { at: "adrift", said: read.problem.message };
+  return status === STILL_GOING ? { at: "running" } : { at: "finished" };
 }

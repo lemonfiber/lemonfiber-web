@@ -1,7 +1,9 @@
 import {
   API_VERSION,
+  malformed,
   TOKEN_HEADER,
   unreachable,
+  wrongVersion,
   type Fetching,
   type Sending,
 } from "@lemonfiber/sdk-ts";
@@ -36,6 +38,28 @@ const saying = (status: number, body = ""): Sending =>
 /** One envelope, rendered as the server renders it. */
 const enveloped = (kind: string, data: unknown): string =>
   JSON.stringify({ api_version: API_VERSION, kind, data });
+
+/** What a reverse proxy in front of lemonfiber answers with when it cannot. */
+const proxyPage = [
+  "<html>",
+  "<head><title>502 Bad Gateway</title></head>",
+  "<body><center><h1>502 Bad Gateway</h1></center></body>",
+  "</html>",
+].join("\n");
+
+/** One lifecycle report, as the endpoint renders a finished job. */
+const ranTo = (over: Record<string, unknown> = {}): string =>
+  JSON.stringify({
+    api_version: API_VERSION,
+    kind: "lifecycle",
+    data: {
+      action: "up",
+      command: ["compose", "up"],
+      profile: "core",
+      condition: "active",
+    },
+    ...over,
+  });
 
 const asking = (over: { at?: string; sending: Sending }): Reaching => ({
   at: over.at ?? here,
@@ -143,10 +167,70 @@ describe("where the work got to", () => {
     expect(came).toStrictEqual({ at: "forgotten" });
   });
 
-  it("says it was turned away where the key is not this run's", async () => {
-    const came = await redeeming(asking({ sending: saying(403) }), job);
+  // 403 is what lemonfiber answers with and 401 is what something in front of
+  // it may answer with instead, and both mean the same thing to whoever is
+  // reading.
+  it.each([401, 403])(
+    "says a %s was turned away where the key is not this run's",
+    async (status) => {
+      const came = await redeeming(asking({ sending: saying(status) }), job);
 
-    expect(came).toStrictEqual({ at: "turned-away" });
+      expect(came).toStrictEqual({ at: "turned-away" });
+    },
+  );
+});
+
+// Whatever stands between this page and lemonfiber answers in its own words,
+// under a status of its own choosing. Rendering that as lemonfiber's account of
+// what stopped the work puts a proxy's page where an operator reads what
+// lemonfiber said.
+describe("when the reply did not come from lemonfiber", () => {
+  it.each([
+    ["a page from whatever answered instead", proxyPage],
+    ["a document that is not an envelope", '{"detail":"gone"}'],
+    [
+      "an envelope whose sentence is not one",
+      enveloped("error", { code: "engine-absent", summary: { text: "no" } }),
+    ],
+    [
+      "an envelope carrying no sentence at all",
+      enveloped("error", { code: "engine-absent", summary: null }),
+    ],
+  ])("says lemonfiber is not answering for %s", async (_what, body) => {
+    const came = await redeeming(asking({ sending: saying(502, body) }), job);
+
+    expect(came).toStrictEqual({
+      at: "stopped",
+      said: unreachable().message,
+    });
+  });
+});
+
+// The status alone says where the work got to; it says nothing about which
+// version of the interface wrote the document beside it.
+describe("the version the answer was written under", () => {
+  it.each([200, 202])(
+    "loses the thread where a %s speaks another version",
+    async (status) => {
+      const came = await redeeming(
+        asking({ sending: saying(status, ranTo({ api_version: 99 })) }),
+        job,
+      );
+
+      expect(came).toStrictEqual({
+        at: "adrift",
+        said: wrongVersion(API_VERSION, 99).message,
+      });
+    },
+  );
+
+  it("loses the thread where the answer is not an envelope at all", async () => {
+    const came = await redeeming(
+      asking({ sending: saying(200, "not json") }),
+      job,
+    );
+
+    expect(came).toStrictEqual({ at: "adrift", said: malformed().message });
   });
 });
 
