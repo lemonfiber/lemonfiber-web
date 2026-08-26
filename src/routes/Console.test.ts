@@ -938,6 +938,31 @@ const unanswered: Sending = (url, init) => {
   return readings(url, init);
 };
 
+/**
+ * A transport that holds the household's answer until it is let go, and never
+ * answers the checks at all.
+ *
+ * What that leaves is a reader standing on a screen whose own reading has not
+ * come back, while the one they left answers behind them.
+ */
+function heldBack(): { sending: Sending; answer: () => void } {
+  let answer!: () => void;
+  const held = new Promise<void>((resolve) => {
+    answer = resolve;
+  });
+
+  const sending: Sending = async (url, init) => {
+    if (url.includes("/api/checks")) return new Promise(() => undefined);
+    if (url.includes("/api/requests")) await held;
+    return readings(url, init);
+  };
+
+  return { sending, answer };
+}
+
+/** A minute, in the milliseconds a clock is moved by. */
+const A_MINUTE = 60_000;
+
 /** Go where the menu leads, and wait for what is there. */
 const goTo = async (place: Parameters<typeof nameOf>[0]): Promise<void> => {
   await userEvent.click(
@@ -1008,6 +1033,51 @@ describe("what each place is drawn from", () => {
     await goTo("requests");
 
     expect(screen.getByText(m.fresh_never())).toBeInTheDocument();
+  });
+
+  // `noted` is called by whichever request resolved, not by whichever screen is
+  // being read. An answer that landed after the reader moved on would put one
+  // screen's clock on another's.
+  it("takes no stamp from an answer the screen before it asked for", async () => {
+    const holding = heldBack();
+    console_({ sending: holding.sending });
+    await goTo("requests");
+    await goTo("checks");
+
+    holding.answer();
+    await waitFor(() => {
+      expect(screen.getByText(m.waiting_answer())).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(m.fresh_never())).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        m.fresh_answered({ span: m.span_seconds({ count: 0 }) }),
+      ),
+    ).toBeNull();
+  });
+
+  // A stamp is a span rather than a moment. One written down when the source
+  // answered says "just now" for as long as the screen is open, and the whole
+  // apparatus is there to say how much a panel can be trusted.
+  it("ages a stamp as the clock moves", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      console_({ sending: readings });
+      await screen.findAllByText(
+        m.fresh_answered({ span: m.span_seconds({ count: 0 }) }),
+      );
+
+      await vi.advanceTimersByTimeAsync(A_MINUTE);
+
+      expect(
+        screen.getAllByText(
+          m.fresh_answered({ span: m.span_minutes({ count: 1 }) }),
+        ).length,
+      ).toBeGreaterThan(0);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("says so when a place is asked for with a key this run refuses", async () => {

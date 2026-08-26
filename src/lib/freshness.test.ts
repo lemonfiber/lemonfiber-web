@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { type Freshness, spanFor, stampFor, stateFor } from "./freshness";
+import {
+  answeredAt,
+  silentSince,
+  spanFor,
+  stampFor,
+  stateFor,
+  type Freshness,
+} from "./freshness";
+
+/** One instant, and the same clock a minute later. */
+const at = 1_700_000_000_000;
+const aMinuteOn = at + 60_000;
 
 describe("spanFor", () => {
   it("counts seconds up to a minute", () => {
@@ -29,6 +40,34 @@ describe("spanFor", () => {
   // Two machines' clocks disagreeing is ordinary. "-3s ago" is not.
   it("says just now rather than something impossible", () => {
     expect(spanFor(-3)).toBe("0s");
+  });
+});
+
+// A stamp is a span rather than a moment: what it says goes on being true only
+// for as long as it takes to say it, so the span is worked out against the clock
+// each time rather than written down when the source answered.
+describe("dating a source against the clock", () => {
+  it("says how long ago a source answered", () => {
+    expect(answeredAt(at, at)).toEqual({ kind: "answered", secondsAgo: 0 });
+    expect(answeredAt(at, aMinuteOn)).toEqual({
+      kind: "answered",
+      secondsAgo: 60,
+    });
+  });
+
+  it("says how long a source has been silent", () => {
+    expect(silentSince(at, aMinuteOn)).toEqual({
+      kind: "silent",
+      secondsAgo: 60,
+    });
+  });
+
+  // Two clocks disagreeing is ordinary, and the words a span is read as floor
+  // at nothing rather than claiming something impossible.
+  it("hands a clock that runs backwards to the words to settle", () => {
+    expect(stampFor(answeredAt(aMinuteOn, at))).toBe(
+      stampFor({ kind: "answered", secondsAgo: 0 }),
+    );
   });
 });
 
