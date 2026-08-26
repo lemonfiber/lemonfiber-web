@@ -24,7 +24,7 @@
     type Redeemed,
   } from "../api/redeeming";
   import type { Flow } from "../lib/flow";
-  import type { Freshness } from "../lib/freshness";
+  import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
   import { ours, pathOf, placeAt, type Place } from "../lib/route";
   import type {
     Diagnosis,
@@ -59,8 +59,8 @@
   /** What the stream calls a line said while a wait is still waiting. */
   const WAITING = "start" satisfies Kind;
 
-  /** How many milliseconds make a second. */
-  const A_SECOND = 1000;
+  /** How often every stamp on the screen is worked out again. */
+  const A_TICK = 1000;
 
   /** A source that has not answered yet stamps nothing. */
   const UNSTAMPED: Freshness = { kind: "never" };
@@ -74,11 +74,12 @@
   let aboutDisk = $state<Reading<Diagnosis> | undefined>(undefined);
   let lines = $state<Reading<readonly Logged[]> | undefined>(undefined);
   let household = $state<Reading<Household> | undefined>(undefined);
-  let stamped = $state<Freshness>(UNSTAMPED);
+  let stampedAt = $state<number | undefined>(undefined);
   let moment = $state<Moment | undefined>(undefined);
   let flow = $state<Flow>("opening");
-  let read = $state<Freshness>({ kind: "never" });
-  let live = $state<Freshness>({ kind: "never" });
+  let readAt = $state<number | undefined>(undefined);
+  let carriedAt = $state<number | undefined>(undefined);
+  let now = $state(Date.now());
   let work = $state<readonly Work[]>([]);
   let waitingSaid = $state<string | undefined>(undefined);
   let confirming = $state<Doing | undefined>(undefined);
@@ -88,14 +89,39 @@
   /** What ends the listening there is, for as long as there is one. */
   let gate = new AbortController();
 
-  /** When the last moment arrived, for measuring a silence against. */
-  let carried = 0;
-
   /** How many things this tab has asked for, which is what names each record. */
   let counted = 0;
 
   /** Whether this screen is still being looked at. */
   let here = true;
+
+  /**
+   * What the live connection's own stamp says.
+   *
+   * A connection that is carrying dates its figures from when they arrived; one
+   * that has stopped dates them from the same moment and says how long it has
+   * been quiet since. One that has never carried has nothing to date.
+   */
+  function dated(
+    at: number | undefined,
+    doing: Flow,
+    clock: number,
+  ): Freshness {
+    if (at === undefined) return UNSTAMPED;
+    return doing === "live" ? answeredAt(at, clock) : silentSince(at, clock);
+  }
+
+  /**
+   * Every stamp on the screen, worked out against the clock rather than written
+   * down when the source answered.
+   */
+  const stamped = $derived(
+    stampedAt === undefined ? UNSTAMPED : answeredAt(stampedAt, now),
+  );
+  const read = $derived(
+    readAt === undefined ? UNSTAMPED : answeredAt(readAt, now),
+  );
+  const live = $derived(dated(carriedAt, flow, now));
 
   /**
    * Go somewhere the menu leads, where the browser was not asked for something
@@ -117,7 +143,7 @@
    */
   function arrive(to: Place): void {
     place = to;
-    stamped = UNSTAMPED;
+    stampedAt = undefined;
     void askFor(to);
   }
 
@@ -134,25 +160,34 @@
         await ask();
         return;
       case "checks":
-        diagnosis = noted(await asked(reaching, "checks", "doctor"));
+        diagnosis = noted(where, await asked(reaching, "checks", "doctor"));
         return;
       case "storage":
-        aboutDisk = noted(await asked(reaching, "storage", "doctor"));
+        aboutDisk = noted(where, await asked(reaching, "storage", "doctor"));
         return;
       case "logs":
-        lines = noted(await scrollback(reaching));
+        lines = noted(where, await scrollback(reaching));
         return;
       case "requests":
-        household = noted(await asked(reaching, "requests", "household"));
+        household = noted(
+          where,
+          await asked(reaching, "requests", "household"),
+        );
         return;
     }
   }
 
   /**
    * Take what an endpoint answered, and say when it answered.
+   *
+   * The stamp is the screen's own, and this is called by whichever request
+   * resolved rather than by whichever screen is being read. An answer that
+   * landed after the reader moved on dates nothing: it would put one screen's
+   * clock on another's. Being turned away is not the screen's own and is passed
+   * on wherever the reader has gone.
    */
-  function noted<T>(answer: Reading<T>): Reading<T> {
-    stamped = { kind: "answered", secondsAgo: 0 };
+  function noted<T>(where: Place, answer: Reading<T>): Reading<T> {
+    if (where === place) stampedAt = Date.now();
     if (turnedAway(answer)) onrefused();
     return answer;
   }
@@ -175,7 +210,7 @@
     stack = whole;
     programs = each;
     forms = declared;
-    read = { kind: "answered", secondsAgo: 0 };
+    readAt = Date.now();
 
     if (turnedAway(whole, each, declared)) onrefused();
   }
@@ -205,16 +240,12 @@
           lost();
         } else if (carrying(arrival, MOMENTS)) {
           moment = arrival.data;
-          carried = Date.now();
           if (arrival.at === "live") {
             flow = "live";
-            live = { kind: "answered", secondsAgo: 0 };
+            carriedAt = Date.now();
           } else {
             flow = "stale";
-            live = {
-              kind: "silent",
-              secondsAgo: arrival.quietForMs / A_SECOND,
-            };
+            carriedAt = Date.now() - arrival.quietForMs;
           }
         } else if (carrying(arrival, WAITING)) {
           waitingSaid = arrival.data;
@@ -243,12 +274,7 @@
    * date.
    */
   function lost(): void {
-    if (moment === undefined) {
-      flow = "lost";
-      return;
-    }
-    flow = "stale";
-    live = { kind: "silent", secondsAgo: (Date.now() - carried) / A_SECOND };
+    flow = moment === undefined ? "lost" : "stale";
   }
 
   /**
@@ -387,9 +413,13 @@
     globalThis.addEventListener("popstate", back);
     void askFor(place);
     listen();
+    const clock = globalThis.setInterval(() => {
+      now = Date.now();
+    }, A_TICK);
 
     return () => {
       here = false;
+      globalThis.clearInterval(clock);
       globalThis.removeEventListener("popstate", back);
       gate.abort();
     };

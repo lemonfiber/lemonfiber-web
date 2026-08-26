@@ -8,6 +8,7 @@
 import * as m from "../paraglide/messages.js";
 import type { State } from "./state";
 
+const A_SECOND = 1000;
 const A_MINUTE = 60;
 const AN_HOUR = 3600;
 
@@ -33,6 +34,25 @@ export function spanFor(seconds: number): string {
   if (whole < AN_HOUR)
     return m.span_minutes({ count: Math.floor(whole / A_MINUTE) });
   return m.span_hours({ count: Math.floor(whole / AN_HOUR) });
+}
+
+/**
+ * How long ago a source answered, read against the clock.
+ *
+ * A stamp is a span rather than a moment, and a span written down when the
+ * source answered says "just now" for as long as the screen is open. So what a
+ * screen holds is when the source answered, and the span is worked out each time
+ * the clock moves.
+ */
+export function answeredAt(at: number, now: number): Freshness {
+  return { kind: "answered", secondsAgo: (now - at) / A_SECOND };
+}
+
+/**
+ * How long a source has been silent, from the last moment it was not.
+ */
+export function silentSince(at: number, now: number): Freshness {
+  return { kind: "silent", secondsAgo: (now - at) / A_SECOND };
 }
 
 /**
