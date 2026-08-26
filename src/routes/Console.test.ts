@@ -56,6 +56,17 @@ const refusing: Sending = () =>
     text: () => Promise.resolve(""),
   });
 
+/** What lemonfiber says when it ran the request and its own answering failed. */
+const engineDown = "The container engine is not running.";
+
+/** A transport that answers every reading with that failure. */
+const failing: Sending = () =>
+  Promise.resolve({
+    ok: false,
+    status: 500,
+    text: () => Promise.resolve(enveloped("error", { summary: engineDown })),
+  });
+
 /** One event, framed as the stream frames it. */
 const framed = (kind: string, data: unknown): string =>
   `event: ${kind}\ndata: ${JSON.stringify({ api_version: API_VERSION, kind, data })}\n\n`;
@@ -172,6 +183,20 @@ describe("the console", () => {
     await waitFor(() => {
       expect(refused).toHaveBeenCalled();
     });
+  });
+
+  // Being sent back to the unlock screen means the key held here is discarded,
+  // and a key that was working is not what a stopped container engine needs
+  // put right. Every reading here failed, so the one that decides this had
+  // every chance to read a failure as the key.
+  it("keeps the key when it is lemonfiber's answering that failed", async () => {
+    const refused = vi.fn();
+    console_({ sending: failing, onrefused: refused });
+
+    const said = await screen.findAllByText(engineDown);
+
+    expect(said.length).toBeGreaterThan(0);
+    expect(refused).not.toHaveBeenCalled();
   });
 
   // A client is configured with the address the binary printed; there is

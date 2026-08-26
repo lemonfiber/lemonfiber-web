@@ -143,6 +143,28 @@ describe("turnedAway", () => {
 
     expect(turnedAway(fine)).toBe(false);
   });
+
+  // The key and the answering are different problems with opposite remedies,
+  // and this is the predicate that decides whether a working key is thrown
+  // away. A run that failed is not one, however badly it failed.
+  it("is false when lemonfiber ran the request and failed at it", async () => {
+    const broke = await asked(
+      reaching(
+        answering(
+          enveloped("error", {
+            summary: "The container engine is not running.",
+          }),
+          false,
+          500,
+        ),
+      ),
+      "status",
+      "status",
+    );
+
+    expect(broke.ok).toBe(false);
+    expect(turnedAway(broke)).toBe(false);
+  });
 });
 
 /** One line of one service's output, as the endpoint renders it. */
@@ -219,7 +241,8 @@ describe("scrollback", () => {
 
   // A command that ran and failed is answered with an `error` envelope carrying
   // one plain sentence, and that sentence is the whole of what an operator can
-  // act on.
+  // act on. It is the answering that failed, not the key: this used to arrive
+  // as `refused`, which sent whoever read it to fetch a key that was working.
   it("hands on the sentence lemonfiber failed with", async () => {
     const said = "The container engine is not running.";
     const got = await scrollback(
@@ -228,8 +251,22 @@ describe("scrollback", () => {
 
     expect(got).toMatchObject({
       ok: false,
-      problem: { kind: "refused", message: said },
+      problem: { kind: "failed", message: said },
     });
+  });
+
+  // The endpoint refuses some requests before any command runs, and answers
+  // those in prose rather than in an envelope. What the status says about where
+  // the fault lies is carried through: a name lemonfiber does not have and a
+  // request it cannot answer as asked are separately actionable, and neither is
+  // the key.
+  it.each([
+    [400, "misasked", "There is no such stream."],
+    [404, "missing", "No form is named that."],
+  ])("reads a %s as %s", async (status, kind, said) => {
+    const got = await scrollback(reaching(answering(said, false, status)));
+
+    expect(got).toMatchObject({ ok: false, problem: { kind, message: said } });
   });
 
   it.each([
