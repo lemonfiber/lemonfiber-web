@@ -6,7 +6,17 @@ import {
   standingOf,
   wordOfRequestState,
 } from "./household";
+import type { RequestState } from "./wire";
 import * as m from "../paraglide/messages.js";
+
+/**
+ * A word from a lemonfiber whose vocabulary is wider than this build's.
+ *
+ * The wire version stays one number while words are added under it, so a running
+ * binary can answer with one the generated types do not name and the version
+ * gate still passes. There is no way to write one but to say so.
+ */
+const unnamedState = "held-for-review" as unknown as RequestState;
 
 describe("where a request stands", () => {
   it.each(everyRequestState)("has a word for %s", (state) => {
@@ -31,6 +41,22 @@ describe("where a request stands", () => {
       m.request_state_unrecognised(),
     );
     expect(standingOf({})).toBe(m.request_state_unrecognised());
+  });
+
+  // The wire version is one number and the vocabulary under it grows, so the
+  // service can name a state that is not absent and is not one of the seven
+  // either. Falling off the end of the switch would leave the cell blank.
+  it("says the same where the state is a word rather than nothing", () => {
+    expect(
+      standingOf({
+        title: "Arrival",
+        media: "film",
+        state: unnamedState,
+      }),
+    ).toBe(m.request_state_unrecognised());
+    expect(everyRequestState.map(wordOfRequestState)).not.toContain(
+      m.request_state_unrecognised(),
+    );
   });
 });
 

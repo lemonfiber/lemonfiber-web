@@ -17,7 +17,31 @@ import {
   wordOfLink,
   wordOfStall,
   wordOfStanding,
+  type Health,
+  type Measured,
+  type Service,
+  type Space,
+  type Stack,
+  type Stall,
 } from "./wire";
+import * as m from "../paraglide/messages.js";
+
+/**
+ * Words from a lemonfiber whose vocabulary is wider than this build's.
+ *
+ * The wire version stays one number while words are added under it, so a running
+ * binary can answer with one the generated types do not name and the version
+ * gate still passes. There is no way to write one but to say so.
+ */
+const unnamedServiceState = "paused" as unknown as Service["state"];
+const unnamedStanding = "wedged" as unknown as Health["standing"];
+const unnamedCondition = "draining" as unknown as Stack["condition"];
+const unnamedStall = "throttled" as unknown as Stall["stall"];
+const unnamedLink = "reflinking" as unknown as Space["hardlink"];
+const unnamedReading = {
+  reading: "guessed",
+  value: 1024,
+} as unknown as Measured;
 
 describe("stateOfService", () => {
   it.each(everyServiceState)("gives %s a state the interface has", (state) => {
@@ -213,5 +237,56 @@ describe("wordOfLink", () => {
   // One copy of a file and two are the difference this phrase exists to carry.
   it("tells linking and copying apart", () => {
     expect(wordOfLink("linking")).not.toBe(wordOfLink("copying"));
+  });
+});
+
+// The wire version is one number and the vocabulary under it grows, so a
+// running binary can answer with a word this build's contract does not name.
+// Falling off the end of a switch hands back `undefined`, which reaches a screen
+// as a blank where a word was owed.
+describe("a word this build has no entry for", () => {
+  it("reads a service state it does not know as one it has not measured", () => {
+    expect(stateOfService(unnamedServiceState)).toBe("unknown");
+  });
+
+  it("shows no count for a grading it does not know", () => {
+    expect(stateOfStanding(unnamedStanding)).toBe("unknown");
+  });
+
+  it("draws a grading it does not know without shouting about it", () => {
+    expect(toneOfStanding(unnamedStanding)).toBe("calm");
+  });
+
+  it("gives a grading it does not know a phrase of its own", () => {
+    expect(wordOfStanding(unnamedStanding)).toBe(m.standing_unrecognised());
+    expect(everyStanding.map(wordOfStanding)).not.toContain(
+      m.standing_unrecognised(),
+    );
+  });
+
+  it("gives a reading of what is running that it does not know a clause", () => {
+    expect(wordOfCondition(unnamedCondition)).toBe(m.condition_unrecognised());
+  });
+
+  it("reads a stall it does not know as one it cannot grade", () => {
+    expect(stateOfStall(unnamedStall)).toBe("unknown");
+  });
+
+  it("gives a stall it does not know a sentence of its own", () => {
+    expect(wordOfStall(unnamedStall)).toBe(m.stall_unrecognised());
+    expect(everyStall.map(wordOfStall)).not.toContain(m.stall_unrecognised());
+  });
+
+  it("gives an import it does not know a phrase rather than a blank", () => {
+    expect(wordOfLink(unnamedLink)).toBe(m.link_unrecognised());
+  });
+
+  // A figure whose reading is a word this build cannot place is not a figure it
+  // may put on the screen: the reading is what says how far to trust it.
+  it("shows no figure for a reading it does not know", () => {
+    expect(figureOf(unnamedReading, bytes)).toEqual({
+      state: "unknown",
+      figure: undefined,
+    });
   });
 });

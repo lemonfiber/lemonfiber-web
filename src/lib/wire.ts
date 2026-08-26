@@ -9,6 +9,12 @@
  * The payload types are taken from the contract the server generated rather than
  * restated here, so a field that changes shape is a compiler error and not a
  * blank space on a panel.
+ *
+ * A running lemonfiber's vocabulary can be wider than the contract this build
+ * was generated against: the wire version stays one number while words are added
+ * under it, so a word can arrive that is not in the union the types name. Every
+ * reading here says so rather than falling off the end of its switch, which is
+ * an `undefined` handed on as a word.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import type { State, Tone } from "./state";
@@ -186,6 +192,8 @@ export function stateOfService(state: Service["state"]): State {
       return "stopped";
     case "host-managed":
       return "unknown";
+    default:
+      return "unknown";
   }
 }
 
@@ -214,6 +222,8 @@ export function figureOf(
       return { state: "quiet", figure: written(reading.value) };
     case "unknown":
       return { state: "unknown", figure: undefined };
+    default:
+      return { state: "unknown", figure: undefined };
   }
 }
 
@@ -224,9 +234,20 @@ export function figureOf(
  * wrong" rather than as "nothing has looked".
  */
 export function stateOfStanding(standing: Health["standing"]): State {
-  return standing === "unknown" || standing === "unconfigured"
-    ? "unknown"
-    : "known";
+  switch (standing) {
+    case "healthy":
+    case "advisory":
+    case "degraded":
+    case "stopped":
+    case "broken":
+    case "critical":
+      return "known";
+    case "unknown":
+    case "unconfigured":
+      return "unknown";
+    default:
+      return "unknown";
+  }
 }
 
 /**
@@ -248,6 +269,8 @@ export function toneOfStanding(standing: Health["standing"]): Tone {
     case "broken":
     case "critical":
       return "alarm";
+    default:
+      return "calm";
   }
 }
 
@@ -272,6 +295,8 @@ export function wordOfStanding(standing: Health["standing"]): string {
       return m.standing_critical();
     case "unknown":
       return m.standing_unknown();
+    default:
+      return m.standing_unrecognised();
   }
 }
 
@@ -288,6 +313,8 @@ export function wordOfCondition(condition: Stack["condition"]): string {
       return m.condition_partial();
     case "active":
       return m.condition_active();
+    default:
+      return m.condition_unrecognised();
   }
 }
 
@@ -308,6 +335,8 @@ export function stateOfStall(stall: Stall["stall"]): State {
     case "orphaned":
     case "stalled-download":
       return "stopped";
+    default:
+      return "unknown";
   }
 }
 
@@ -330,6 +359,8 @@ export function wordOfStall(stall: Stall["stall"]): string {
       return m.stall_waiting_indefinitely();
     case "slow":
       return m.stall_slow();
+    default:
+      return m.stall_unrecognised();
   }
 }
 
@@ -344,5 +375,7 @@ export function wordOfLink(link: Space["hardlink"]): string {
       return m.link_copying();
     case "unknown":
       return m.value_cannot_say();
+    default:
+      return m.link_unrecognised();
   }
 }

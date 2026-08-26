@@ -9,6 +9,13 @@
  *
  * Nothing here decides anything. The grading and the outcome are the server's;
  * what this chooses is how loudly each is drawn and which sentence it reads as.
+ *
+ * Each of these reads a word off the wire, and a running lemonfiber's vocabulary
+ * can be wider than the contract this build was generated against: the wire
+ * version stays one number while words are added under it, so the version gate
+ * passes and a word arrives that is not in the union. Every one of them says so
+ * and draws the finding it belongs to. None of them falls off the end, which is
+ * an `undefined` a screen reads a field off.
  */
 import type { Category, Outcome, Overall, Remedy, Verdict } from "./wire";
 import type { Tone } from "./state";
@@ -67,6 +74,8 @@ export function toneOfOverall(overall: Overall): Tone {
       return "watch";
     case "broken":
       return "alarm";
+    default:
+      return "calm";
   }
 }
 
@@ -92,6 +101,11 @@ export function gradingOf(overall: Overall): Grading {
         lead: m.overall_unknown_lead(),
         prose: m.overall_unknown_prose(),
       };
+    default:
+      return {
+        lead: m.overall_unrecognised_lead(),
+        prose: m.overall_unrecognised_prose(),
+      };
   }
 }
 
@@ -112,6 +126,8 @@ export function toneOfOutcome(outcome: Outcome): Tone {
       return "watch";
     case "fail":
       return "alarm";
+    default:
+      return "calm";
   }
 }
 
@@ -130,6 +146,8 @@ export function wordOfOutcome(outcome: Outcome): string {
       return m.outcome_unverified();
     case "skipped":
       return m.outcome_skipped();
+    default:
+      return m.outcome_unrecognised();
   }
 }
 
@@ -156,6 +174,8 @@ export function wordOfCategory(category: Category): string {
       return m.category_queue();
     case "config":
       return m.category_config();
+    default:
+      return m.category_unrecognised();
   }
 }
 
@@ -186,11 +206,10 @@ const SILENT: Account = {
  * What a verdict says for itself.
  *
  * The two verdicts that carry a problem carry its fields beside the outcome
- * rather than under a name of their own, and the generated types for those two
- * hold the outcome and nothing else — so those fields are read off the answer
- * and checked as they are read. A verdict carrying something other than what is
- * named here reads as one that said nothing, which is a finding with its title
- * and its outcome rather than one with an empty sentence under it.
+ * rather than under a name of their own, and the generated types name every one
+ * of them, so they are read as the fields they are. A verdict whose outcome is
+ * not one of the five reads as one that said nothing, which is a finding with
+ * its title and its outcome rather than one with an empty sentence under it.
  */
 export function accountOf(verdict: Verdict): Account {
   switch (verdict.outcome) {
@@ -206,30 +225,12 @@ export function accountOf(verdict: Verdict): Account {
       };
     case "warn":
     case "fail":
-      return troubled(verdict);
+      return {
+        summary: verdict.summary,
+        meaning: verdict.meaning,
+        remedies: verdict.remedies,
+      };
+    default:
+      return SILENT;
   }
-}
-
-/** The problem a warning or a failure carries, read off the answer. */
-function troubled(verdict: Verdict): Account {
-  const held = verdict as unknown as Record<string, unknown>;
-  const summary = held["summary"];
-  const meaning = held["meaning"];
-  return {
-    summary: typeof summary === "string" ? summary : undefined,
-    meaning: typeof meaning === "string" ? meaning : undefined,
-    remedies: listed(held["remedies"]).filter(isRemedy),
-  };
-}
-
-/** Whatever arrived where a list was expected, as a list. */
-function listed(held: unknown): readonly unknown[] {
-  return Array.isArray(held) ? (held as readonly unknown[]) : [];
-}
-
-/** Whether one thing in that list is a remedy. */
-function isRemedy(held: unknown): held is Remedy {
-  if (typeof held !== "object" || held === null) return false;
-  const fields = held as Record<string, unknown>;
-  return typeof fields["action"] === "string";
 }

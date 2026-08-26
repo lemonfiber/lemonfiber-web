@@ -162,6 +162,54 @@ describe("a run with nothing in it", () => {
   });
 });
 
+// The wire version is one number and the vocabulary under it grows, so a
+// running lemonfiber can report a check whose outcome, or whose family, this
+// build's contract does not name. The screen reads a field off whatever the
+// verdict is read as, so falling off the end of that switch takes the whole
+// screen down rather than one row.
+describe("a word this build has no entry for", () => {
+  /** One run whose only finding is worded in a vocabulary wider than this one. */
+  function wider(over: Record<string, unknown>): Reading<Diagnosis> {
+    const said: unknown = {
+      overall: "unknown",
+      findings: [
+        {
+          check: "queue.pressure",
+          category: "queue",
+          title: "The queue is being worked through",
+          verdict: { outcome: "pass", note: null },
+          ...over,
+        },
+      ],
+    };
+    return { ok: true, value: said as Diagnosis };
+  }
+
+  it("draws the finding, and says the outcome is not a word it knows", () => {
+    checks(wider({ verdict: { outcome: "inconclusive" } }));
+
+    expect(
+      screen.getByRole("heading", {
+        name: "The queue is being worked through",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(m.outcome_unrecognised())).toBeInTheDocument();
+  });
+
+  it("says the family is not one it knows rather than drawing a blank tag", () => {
+    checks(wider({ category: "hardware" }));
+
+    expect(screen.getByText(m.category_unrecognised())).toBeInTheDocument();
+  });
+
+  it("says a grading it cannot place rather than grading nothing", () => {
+    const graded: unknown = { ...allWell, overall: "inconclusive" };
+    checks({ ok: true, value: graded as Diagnosis });
+
+    expect(screen.getByText(m.overall_unrecognised_lead())).toBeInTheDocument();
+  });
+});
+
 describe("when the reading did not answer", () => {
   it("says so in the words the client used", () => {
     checks(notAnswering, { kind: "silent", secondsAgo: 240 });
