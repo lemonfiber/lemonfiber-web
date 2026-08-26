@@ -503,6 +503,10 @@ function acting(
 const press = (label: string): Promise<void> =>
   userEvent.click(screen.getByRole("button", { name: label }));
 
+/** The region a question, a record and the wait's own line all sit in. */
+const asked = (): HTMLElement =>
+  screen.getByRole("status", { name: m.running_asked() });
+
 /** Takes one form up, by the name its control is announced under. */
 const choose = (id: string): Promise<void> => {
   const form = declared.find((one) => one.id === id);
@@ -1088,5 +1092,61 @@ describe("what each place is drawn from", () => {
     await waitFor(() => {
       expect(refused).toHaveBeenCalled();
     });
+  });
+});
+
+// A control removed under a reader's own focus drops that focus to the document.
+// Nothing is announced there, the next tab starts at the top of the page, and
+// the row that answered the press is what they were reaching for. The panel
+// silences a control that can do nothing rather than taking it away for exactly
+// this reason; these four take their own row with them and cannot be silenced.
+describe("where the reader is left when a row goes away", () => {
+  const said = "Still starting: sonarr, radarr — 25 seconds so far, of 180.";
+
+  beforeEach(() => {
+    globalThis.history.replaceState(undefined, "", "/");
+  });
+
+  it("stands them in the region the record was in", async () => {
+    console_({ sending: acting(accepted, undefined, [going]) });
+    await press(wordOfDoing("up", false));
+    await screen.findByText(titleOfDoing("up", false));
+
+    await press(m.action_hide_record());
+
+    expect(screen.queryByText(titleOfDoing("up", false))).toBeNull();
+    expect(asked()).toHaveFocus();
+  });
+
+  it("stands them there when the costly question is answered yes", async () => {
+    console_({ sending: acting(accepted, undefined, [going]) });
+    await press(wordOfDoing("down", false));
+    await screen.findByText(m.confirm_stop_title());
+
+    await press(m.action_stop_everything());
+
+    expect(screen.queryByText(m.confirm_stop_title())).toBeNull();
+    expect(asked()).toHaveFocus();
+  });
+
+  it("stands them there when it is answered no", async () => {
+    console_({ sending: acting(accepted) });
+    await press(wordOfDoing("down", false));
+    await screen.findByText(m.confirm_stop_title());
+
+    await press(m.action_leave_running());
+
+    expect(screen.queryByText(m.confirm_stop_title())).toBeNull();
+    expect(asked()).toHaveFocus();
+  });
+
+  it("stands them there when the wait's own line is put away", async () => {
+    console_({ fetching: saying([framed("start", said)]) });
+    await screen.findByText(said);
+
+    await press(m.action_hide_line());
+
+    expect(screen.queryByText(said)).toBeNull();
+    expect(asked()).toHaveFocus();
   });
 });

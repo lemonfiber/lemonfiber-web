@@ -18,3 +18,10 @@ type Story = StoryObj<typeof meta>;
  * it up, so this is the one thing the page asks a person for.
  */
 export const AskingForTheKey: Story = {};
+
+/**
+ * The same screen, arrived at because a run would not take the key the page
+ * held. It says so where a reader who cannot see the screen change is told, and
+ * the console it replaced is gone.
+ */
+export const AfterTheRunRefusedTheKey: Story = { args: { refused: true } };
