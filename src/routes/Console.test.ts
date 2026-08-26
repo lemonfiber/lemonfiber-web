@@ -98,6 +98,47 @@ function saying(said: readonly string[]): Fetching {
 /** A stream that will not open at all. */
 const silent: Fetching = () => Promise.resolve({ ok: false, body: null });
 
+/** A stream that will not open at all, counting every asking. */
+function refused(openings: { count: number }): Fetching {
+  return () => {
+    openings.count += 1;
+    return Promise.resolve({ ok: false, body: null });
+  };
+}
+
+/** A stream that carries what it was given and stays open. */
+function holding(said: readonly string[]): Fetching {
+  return () =>
+    Promise.resolve({
+      ok: true,
+      body: new ReadableStream<Uint8Array>({
+        start(controller) {
+          const bytes = new TextEncoder();
+          for (const one of said) controller.enqueue(bytes.encode(one));
+        },
+      }),
+    });
+}
+
+/** A stream that refuses its first opening and carries on the next. */
+function openingLater(said: readonly string[]): Fetching {
+  let asked = 0;
+  return () => {
+    asked += 1;
+    if (asked === 1) return Promise.resolve({ ok: false, body: null });
+    return Promise.resolve({
+      ok: true,
+      body: new ReadableStream<Uint8Array>({
+        start(controller) {
+          const bytes = new TextEncoder();
+          for (const one of said) controller.enqueue(bytes.encode(one));
+          controller.close();
+        },
+      }),
+    });
+  };
+}
+
 /**
  * A stream that opens only after the current task, and counts its openings.
  *
@@ -175,6 +216,41 @@ describe("the console", () => {
     expect(
       await screen.findByText(m.banner_contact_lead()),
     ).toBeInTheDocument();
+  });
+
+  // Reopening is what a stream that carried and broke is given. A first opening
+  // that failed is not one of those, so a banner saying it is being retried
+  // would be describing something nothing is doing.
+  it("tries a first opening once, and says nothing is trying again", async () => {
+    const openings = { count: 0 };
+    console_({ fetching: refused(openings) });
+
+    expect(
+      await screen.findByText(m.banner_contact_prose()),
+    ).toBeInTheDocument();
+    await settle();
+
+    expect(openings.count).toBe(1);
+  });
+
+  it("opens the connection again when the operator asks for it", async () => {
+    console_({ fetching: openingLater([framed("dashboard", moment)]) });
+
+    await userEvent.click(
+      await screen.findByRole("button", { name: m.action_try_again() }),
+    );
+
+    expect(await screen.findByText(worst)).toBeInTheDocument();
+  });
+
+  // A control asking for what is already under way asks for nothing.
+  it("offers nothing to press while the stream is carrying", async () => {
+    console_({ fetching: holding([framed("dashboard", moment)]) });
+
+    expect(await screen.findByText(worst)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: m.action_try_again() }),
+    ).toBeNull();
   });
 
   it("says so when the key is not the one this run expects", async () => {
@@ -862,6 +938,31 @@ const unanswered: Sending = (url, init) => {
   return readings(url, init);
 };
 
+/**
+ * A transport that holds the household's answer until it is let go, and never
+ * answers the checks at all.
+ *
+ * What that leaves is a reader standing on a screen whose own reading has not
+ * come back, while the one they left answers behind them.
+ */
+function heldBack(): { sending: Sending; answer: () => void } {
+  let answer!: () => void;
+  const held = new Promise<void>((resolve) => {
+    answer = resolve;
+  });
+
+  const sending: Sending = async (url, init) => {
+    if (url.includes("/api/checks")) return new Promise(() => undefined);
+    if (url.includes("/api/requests")) await held;
+    return readings(url, init);
+  };
+
+  return { sending, answer };
+}
+
+/** A minute, in the milliseconds a clock is moved by. */
+const A_MINUTE = 60_000;
+
 /** Go where the menu leads, and wait for what is there. */
 const goTo = async (place: Parameters<typeof nameOf>[0]): Promise<void> => {
   await userEvent.click(
@@ -932,6 +1033,51 @@ describe("what each place is drawn from", () => {
     await goTo("requests");
 
     expect(screen.getByText(m.fresh_never())).toBeInTheDocument();
+  });
+
+  // `noted` is called by whichever request resolved, not by whichever screen is
+  // being read. An answer that landed after the reader moved on would put one
+  // screen's clock on another's.
+  it("takes no stamp from an answer the screen before it asked for", async () => {
+    const holding = heldBack();
+    console_({ sending: holding.sending });
+    await goTo("requests");
+    await goTo("checks");
+
+    holding.answer();
+    await waitFor(() => {
+      expect(screen.getByText(m.waiting_answer())).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(m.fresh_never())).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        m.fresh_answered({ span: m.span_seconds({ count: 0 }) }),
+      ),
+    ).toBeNull();
+  });
+
+  // A stamp is a span rather than a moment. One written down when the source
+  // answered says "just now" for as long as the screen is open, and the whole
+  // apparatus is there to say how much a panel can be trusted.
+  it("ages a stamp as the clock moves", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      console_({ sending: readings });
+      await screen.findAllByText(
+        m.fresh_answered({ span: m.span_seconds({ count: 0 }) }),
+      );
+
+      await vi.advanceTimersByTimeAsync(A_MINUTE);
+
+      expect(
+        screen.getAllByText(
+          m.fresh_answered({ span: m.span_minutes({ count: 1 }) }),
+        ).length,
+      ).toBeGreaterThan(0);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("says so when a place is asked for with a key this run refuses", async () => {
