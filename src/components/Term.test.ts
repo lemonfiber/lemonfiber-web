@@ -1,4 +1,4 @@
-import { unreachable, type Reading } from "@lemonfiber/sdk-ts";
+import { missing, unreachable, type Reading } from "@lemonfiber/sdk-ts";
 import { render, screen } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
@@ -40,6 +40,15 @@ const known = (): Explaining => answering({ ok: true, value: explained });
 /** One word, with nothing behind it. */
 const silent = (): Explaining =>
   answering({ ok: false, problem: unreachable() });
+
+/** One word the table has no entry for, said in the binary's own sentence. */
+const unknown = (): Explaining =>
+  answering({
+    ok: false,
+    problem: missing(
+      "`nonsense` is not one of the words this product explains",
+    ),
+  });
 
 const pressing = () => screen.getByRole("button", { name: anchor });
 
@@ -98,6 +107,15 @@ describe("Term", () => {
     await userEvent.click(pressing());
 
     expect(await screen.findByText(m.word_unanswered())).toBeInTheDocument();
+  });
+
+  it("says there is no entry when the table holds none for the word", async () => {
+    render(Term, given(unknown()));
+
+    await userEvent.click(pressing());
+
+    expect(await screen.findByText(m.word_no_entry())).toBeInTheDocument();
+    expect(screen.queryByText(m.word_unanswered())).not.toBeInTheDocument();
   });
 
   it("asks once, however often it is opened", async () => {

@@ -89,6 +89,27 @@ describe("asking what a word means", () => {
     ]);
   });
 
+  // The one answer asking again cannot change. The binary answered, and what it
+  // answered is that there is no entry.
+  it("keeps an answer that says the table has no entry for the word", async () => {
+    const refusal = enveloped("error", {
+      code: "WORD-1",
+      summary: "`nonsense` is not one of the words this product explains",
+      meaning: "What is explained here is this ecosystem's own vocabulary.",
+      remedies: [],
+      severity: "error",
+      state: "actionable",
+    });
+    const sending = saying(404, refusal);
+    const explain = explaining(asking(sending));
+
+    const first = await explain("nonsense");
+    await explain("nonsense");
+
+    expect(first).toMatchObject({ ok: false, problem: { kind: "missing" } });
+    expect(sending).toHaveBeenCalledTimes(1);
+  });
+
   it("asks again after an answer that never came", async () => {
     const sending = saying(500);
     const explain = explaining(asking(sending));
