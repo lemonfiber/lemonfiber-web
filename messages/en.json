@@ -188,6 +188,8 @@
   "unlock_title": "Open the console",
   "unlock_prose": "lemonfiber printed a key when it started serving. Paste it here to see your stack. The key is only good for this run, and it is never written down.",
   "unlock_label": "The key lemonfiber printed",
+  "unlock_refused_lead": "This run would not take the key this page held.",
+  "unlock_refused_prose": "A key is minted once, when lemonfiber starts serving, so the one this page held is from a run that has ended. Paste the one the run now serving printed.",
   "unlock_hint": "It is a long word of letters and numbers, on the line that says where lemonfiber is listening.",
   "unlock_open": "Open the console",
   "waiting_answer": "Waiting for lemonfiber to answer",

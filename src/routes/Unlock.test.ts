@@ -47,6 +47,23 @@ describe("Unlock", () => {
     expect(opened).toHaveBeenCalledWith(key);
   });
 
+  // Which of the two reasons this screen is here is what it says, and one of
+  // them is the only account a reader gets of a console that vanished.
+  it("says a run refused the key where that is why it is here", () => {
+    render(Unlock, { onopen: vi.fn(), refused: true });
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      m.unlock_refused_lead(),
+    );
+    expect(screen.getByText(m.unlock_refused_prose())).toBeInTheDocument();
+  });
+
+  it("says nothing of the sort where nothing was refused", () => {
+    render(Unlock, { onopen: vi.fn() });
+
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
   it("asks for nothing on an empty box", async () => {
     const opened = vi.fn();
     render(Unlock, { onopen: opened });
