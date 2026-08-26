@@ -49,13 +49,20 @@ const ADDRESS = /\b(?:\d{1,3}\.){3}\d{1,3}\b/g;
 const RESERVED =
   /^(?:127\.|0\.0\.0\.0$|192\.0\.2\.|198\.51\.100\.|203\.0\.113\.)/;
 
+/** A line that opens a comment, or carries one on from the line above. */
+const OPENS_A_COMMENT = /^\s*(?:\/\/|\/\*|\*|#|<!--)/;
+
+/** A comment that starts partway along a line. */
+const ENDS_IN_A_COMMENT = /(?<!:)\/\/|\/\*|<!--/;
+
 /**
- * A line that is, continues, or ends in a comment.
+ * Whether a line is, carries on, or ends in a comment.
  *
  * A citation put at the end of a line of code is a citation in a comment. The
  * `//` a URL carries is not one, which is what the lookbehind leaves out.
  */
-const COMMENT = /^\s*(?:\/\/|\/\*|\*|#|<!--)|(?<!:)\/\/|\/\*|<!--/;
+const comments = (line) =>
+  OPENS_A_COMMENT.test(line) || ENDS_IN_A_COMMENT.test(line);
 
 /**
  * The attributes whose value is read out to somebody who cannot see the screen.
@@ -176,6 +183,31 @@ function enoughFor(name, component) {
   return component ? A_LABEL : undefined;
 }
 
+/** The words one node states in place, attribute by attribute. */
+function namesIn(node) {
+  const found = [];
+  const component =
+    node.type === "Component" || node.type === "SvelteComponent";
+  const attributes = Array.isArray(node.attributes) ? node.attributes : [];
+  for (const attribute of attributes) {
+    if (attribute.type !== "Attribute") continue;
+    const wanted = enoughFor(attribute.name, component);
+    if (wanted === undefined) continue;
+    const words = wordsIn(stated(attribute.value));
+    if (words.length >= wanted) {
+      found.push(`${attribute.name}="${words.join(" ")}"`);
+    }
+  }
+  return found;
+}
+
+/** The words one node states in place, without reading what it holds. */
+function spokenBy(node) {
+  if (node.type !== "Text") return namesIn(node);
+  const words = typeof node.data === "string" ? wordsIn(node.data) : [];
+  return words.length >= A_LABEL ? [words.join(" ")] : [];
+}
+
 /**
  * Every run of words a template states in place rather than taking from a key.
  *
@@ -200,25 +232,9 @@ function proseIn(tree) {
       return;
     }
     if (node.type === "Comment" || node.type === "Attribute") return;
-    if (node.type === "Text" && typeof node.data === "string") {
-      const words = wordsIn(node.data);
-      if (words.length >= A_LABEL) found.push(words.join(" "));
-    }
-    const component =
-      node.type === "Component" || node.type === "SvelteComponent";
-    const attributes = Array.isArray(node.attributes) ? node.attributes : [];
-    for (const attribute of attributes) {
-      if (attribute.type !== "Attribute") continue;
-      const wanted = enoughFor(attribute.name, component);
-      if (wanted === undefined) continue;
-      const words = wordsIn(stated(attribute.value));
-      if (words.length >= wanted) {
-        found.push(`${attribute.name}="${words.join(" ")}"`);
-      }
-    }
+    found.push(...spokenBy(node));
     for (const [key, child] of Object.entries(node)) {
-      if (key === "attributes" || key === "metadata") continue;
-      visit(child);
+      if (key !== "attributes" && key !== "metadata") visit(child);
     }
   };
   visit(tree);
@@ -359,7 +375,7 @@ const REFUSES = [
   },
   {
     rule: "a line that carries a comment",
-    find: (line) => (COMMENT.test(line) ? [line] : []),
+    find: (line) => (comments(line) ? [line] : []),
     refuses: [
       "// what this does",
       "  * and what it does not",
@@ -471,7 +487,7 @@ for (const file of files) {
     if (/@ts-(?:ignore|expect-error|nocheck)/.test(line))
       fail(file, at, "TypeScript escape hatch");
 
-    if (COMMENT.test(line) && cites(line))
+    if (comments(line) && cites(line))
       fail(
         file,
         at,
