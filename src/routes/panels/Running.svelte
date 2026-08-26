@@ -33,6 +33,22 @@
     freshness,
   }: Props = $props();
 
+  /** The region a row sits in, bound as soon as the panel draws one. */
+  let asked!: HTMLDivElement;
+
+  /**
+   * Put the reader where the row they were standing in was.
+   *
+   * Four controls here take their own row off the screen. A button removed
+   * under a reader's focus drops that focus to the document, where nothing is
+   * announced and the next tab starts at the top of the page. The region the
+   * row sat in is named and holds whatever is left of it, so landing there says
+   * where they are.
+   */
+  function landing(): void {
+    asked.focus();
+  }
+
   const scoped = $derived(chosen.length > 0);
   const asking = $derived(askingOf(confirming, scoped));
   const silent = $derived(busy || asking !== undefined);
@@ -76,6 +92,10 @@
   What puts a row away names what it puts away. A reader listing the controls on
   a screen is given the names and nothing around them, and four of one name is
   four controls they cannot tell apart.
+
+  Each of those four takes its own row with it, so each hands focus to the region
+  the row was in rather than letting it fall to the document. `aria-disabled`
+  covers the control that is silenced; this covers the control that is gone.
 -->
 <Panel title={m.panel_running()} {freshness} flush>
   <div class="scope" role="status">
@@ -106,7 +126,14 @@
     {/each}
   </div>
 
-  <div class="asked" class:parted role="status" aria-label={m.running_asked()}>
+  <div
+    class="asked"
+    class:parted
+    role="status"
+    aria-label={m.running_asked()}
+    tabindex="-1"
+    bind:this={asked}
+  >
     {#if asking !== undefined}
       {#snippet answering()}
         <Action
@@ -114,9 +141,16 @@
           weight="firm"
           onclick={() => {
             onpress(asking.doing);
+            landing();
           }}
         />
-        <Action label={m.action_leave_running()} onclick={onleave} />
+        <Action
+          label={m.action_leave_running()}
+          onclick={() => {
+            onleave();
+            landing();
+          }}
+        />
       {/snippet}
       <Item
         state="stopped"
@@ -129,7 +163,13 @@
 
     {#if waiting !== undefined}
       {#snippet hushing()}
-        <Action label={m.action_hide_line()} onclick={onhush} />
+        <Action
+          label={m.action_hide_line()}
+          onclick={() => {
+            onhush();
+            landing();
+          }}
+        />
       {/snippet}
       <Item
         state="part"
@@ -147,6 +187,7 @@
           label={m.action_hide_record()}
           onclick={() => {
             ondrop(one.id);
+            landing();
           }}
         />
       {/snippet}
@@ -184,5 +225,11 @@
      has asked anything of ends at its own border rather than at a spare line. */
   .parted {
     border-top: 1px solid var(--line);
+  }
+
+  /* Focus is put here after a row is taken away, and it is not a place the tab
+     order stops at, so the ring would mark somewhere nobody steered to. */
+  .asked:focus {
+    outline: none;
   }
 </style>

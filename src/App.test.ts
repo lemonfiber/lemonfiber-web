@@ -89,4 +89,33 @@ describe("App", () => {
     ).toBeInTheDocument();
     expect(remembered(sessionStorage)).toBeUndefined();
   });
+
+  // The whole page is swapped under whoever was reading the console. A reader
+  // who cannot see that happen is told nothing unless the screen that replaced
+  // it says so, and is left standing on the document unless it takes the focus
+  // the old screen dropped.
+  it("says why the console went, and stands the reader at the top of it", async () => {
+    remember(sessionStorage, key);
+    app(refusing);
+
+    const heading = await screen.findByRole("heading", {
+      level: 1,
+      name: m.unlock_title(),
+    });
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      m.unlock_refused_lead(),
+    );
+    expect(heading).toHaveFocus();
+  });
+
+  // A tab that never had a key is not a handover, and nothing was taken away.
+  it("says nothing of the sort, and takes no focus, on a first visit", () => {
+    app();
+
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(
+      screen.getByRole("heading", { level: 1, name: m.unlock_title() }),
+    ).not.toHaveFocus();
+  });
 });

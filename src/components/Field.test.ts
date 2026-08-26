@@ -27,6 +27,17 @@ describe("Field", () => {
     await userEvent.tab();
     expect(screen.getByLabelText(provider.label)).toHaveFocus();
   });
+
+  // Nothing typed into one of these is prose: a key, a port, a path, a count.
+  // A checker underlines every one of them, and on a key it also hands what was
+  // typed to whatever the checker is.
+  it("is not spell-checked", () => {
+    render(Field, provider);
+    expect(screen.getByLabelText(provider.label)).toHaveAttribute(
+      "spellcheck",
+      "false",
+    );
+  });
 });
 
 describe("the line under the box", () => {

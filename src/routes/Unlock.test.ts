@@ -47,6 +47,37 @@ describe("Unlock", () => {
     expect(opened).toHaveBeenCalledWith(key);
   });
 
+  // Which of the two reasons this screen is here is what it says, and one of
+  // them is the only account a reader gets of a console that vanished.
+  it("says a run refused the key where that is why it is here", () => {
+    render(Unlock, { onopen: vi.fn(), refused: true });
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      m.unlock_refused_lead(),
+    );
+    expect(screen.getByText(m.unlock_refused_prose())).toBeInTheDocument();
+  });
+
+  it("says nothing of the sort where nothing was refused", () => {
+    render(Unlock, { onopen: vi.fn() });
+
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  // A key is pasted rather than typed, and pressing enter after pasting is what
+  // a person does next.
+  it("hands over the key on enter, without reaching for the control", async () => {
+    const opened = vi.fn();
+    render(Unlock, { onopen: opened });
+
+    await userEvent.type(
+      screen.getByRole("textbox", { name: m.unlock_label() }),
+      `${key}{Enter}`,
+    );
+
+    expect(opened).toHaveBeenCalledWith(key);
+  });
+
   it("asks for nothing on an empty box", async () => {
     const opened = vi.fn();
     render(Unlock, { onopen: opened });
