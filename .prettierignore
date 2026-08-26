@@ -1,6 +1,7 @@
 dist/
 coverage/
 storybook-static/
+.svelte-check/
 node_modules/
 src/generated/
 src/paraglide/
