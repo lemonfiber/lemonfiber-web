@@ -46,6 +46,10 @@
   It is controlled: it shows the value it was told to show and asks for the
   one that was typed. The screen that owns the setting is the one that finds
   out whether the change took.
+
+  Nothing typed into one of these is prose: a key, a port, a path, a count. A
+  spell-checker underlines every one of them as a mistake, and on a key it also
+  hands what was typed to whatever the checker is.
 -->
 <div class="field">
   <label for={boxId}>{label}</label>
@@ -53,6 +57,7 @@
     id={boxId}
     class:figure
     type="text"
+    spellcheck="false"
     {value}
     aria-describedby={described}
     oninput={(event) => {
