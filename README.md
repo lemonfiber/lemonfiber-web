@@ -108,7 +108,7 @@ These are the load-bearing rules, and each has a spec requirement behind it:
 
 | Rule                                   | Why                                                                                                                                                                |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Reach anything but `lemonfiber`**    | No CDN, no font host, no analytics, no telemetry. Assets are embedded at build time, which is also what makes the interface identical on Linux, Windows and macOS  |
+| **Reach anything but `lemonfiber`**    | No CDN, no font host, no analytics, no telemetry. Every asset it draws is embedded at build time                                                                   |
 | **Talk to the API directly**           | Transport, the event stream and version negotiation belong to [`@lemonfiber/sdk-ts`](https://github.com/lemonfiber/sdk-ts); this repo renders what the SDK returns |
 | **Implement behaviour**                | If the answer is not in an envelope, the surface does not know it (`G1-R2`)                                                                                        |
 | **Invent an action**                   | Everything it can do, the CLI can do (`ARCH-R48`)                                                                                                                  |
@@ -123,6 +123,14 @@ These are the load-bearing rules, and each has a spec requirement behind it:
 
 Both are pinned in [`package.json`](package.json); that file is the version of
 record, so nothing here restates it.
+
+The type is the one thing not embedded. `src/app.css` names Golos Text for the
+interface, Bricolage Grotesque for the wordmark and DM Mono for figures, and no
+`@font-face` ships here — `@lemonfiber/brand` owns type and gives this repo the
+tokens rather than the files. So each of the three falls back to the platform's
+own stack wherever the face is not installed, and until the faces ship the
+interface is identical across Linux, Windows and macOS in everything but its
+lettering.
 
 ## Contributing
 
