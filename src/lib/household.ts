@@ -47,12 +47,19 @@ export function wordOfRequestState(state: RequestState): string {
       return m.request_state_here();
     case "gone":
       return m.request_state_gone();
+    default:
+      return m.request_state_unrecognised();
   }
 }
 
 /**
  * Where it stands, or that the request service reported something this build
  * has no word for.
+ *
+ * Two ways that happens. The service may say nothing at all, which the contract
+ * allows; or it may say a word added to the vocabulary since this build's
+ * contract was generated, which the wire version does not tell apart. Both read
+ * as the same sentence, since both are the same thing to whoever is reading.
  */
 export function standingOf(request: Request): string {
   const state = request.state ?? undefined;

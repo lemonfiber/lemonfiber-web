@@ -11,12 +11,20 @@ import {
   wordOfCategory,
   wordOfOutcome,
 } from "./verdict";
-import type { Verdict } from "./wire";
+import type { Category, Outcome, Overall, Verdict } from "./wire";
 import * as m from "../paraglide/messages.js";
 
-/** A verdict as the wire renders it, which the generated types do not declare. */
-const answered = (held: Record<string, unknown>): Verdict =>
-  held as unknown as Verdict;
+/**
+ * Words from a lemonfiber whose vocabulary is wider than this build's.
+ *
+ * The wire version stays one number while words are added under it, so a running
+ * binary can answer with one the generated types do not name and the version
+ * gate still passes. There is no way to write one but to say so.
+ */
+const unnamedOutcome = "inconclusive" as unknown as Outcome;
+const unnamedCategory = "hardware" as unknown as Category;
+const unnamedOverall = "inconclusive" as unknown as Overall;
+const unnamedVerdict = { outcome: "inconclusive" } as unknown as Verdict;
 
 describe("what a run of the checks came to", () => {
   it.each(everyOverall)("gives %s a severity the interface has", (overall) => {
@@ -116,20 +124,23 @@ describe("what a verdict said for itself", () => {
   });
 
   // The wire carries a problem's fields beside the outcome, and the generated
-  // types for those two verdicts hold the outcome alone.
+  // types name every one of them — which is what this is written without a cast
+  // to say. It would not compile against a contract that named the outcome
+  // alone.
   it.each(["warn", "fail"] as const)(
     "reads what a %s carries beside its outcome",
     (outcome) => {
-      const account = accountOf(
-        answered({
-          outcome,
-          summary: "The disk is nearly full.",
-          meaning: "Imports will fail before downloads do.",
-          remedies: [
-            { action: "Delete what has been watched.", detail: "the library" },
-          ],
-        }),
-      );
+      const account = accountOf({
+        outcome,
+        code: "storage.headroom",
+        severity: "warning",
+        state: "actionable",
+        summary: "The disk is nearly full.",
+        meaning: "Imports will fail before downloads do.",
+        remedies: [
+          { action: "Delete what has been watched.", detail: "the library" },
+        ],
+      });
 
       expect(account.summary).toBe("The disk is nearly full.");
       expect(account.meaning).toBe("Imports will fail before downloads do.");
@@ -138,29 +149,46 @@ describe("what a verdict said for itself", () => {
       ]);
     },
   );
+});
 
-  // A verdict carrying something other than what is expected reads as one that
-  // said nothing, which is a finding with its title and its outcome rather than
-  // one with an empty sentence under it.
-  it("says nothing where the fields are not the ones named", () => {
-    expect(
-      accountOf(answered({ outcome: "warn", summary: 12, meaning: null })),
-    ).toEqual({ summary: undefined, meaning: undefined, remedies: [] });
+// The wire version is one number and the vocabulary under it grows, so a
+// running binary can answer with a word this build's contract does not name.
+// Falling off the end of a switch hands back `undefined`, and the screen reads
+// a field off what a verdict said.
+describe("a word this build has no entry for", () => {
+  it("gives an outcome it does not know a word of its own", () => {
+    expect(wordOfOutcome(unnamedOutcome)).toBe(m.outcome_unrecognised());
+    expect(everyOutcome.map(wordOfOutcome)).not.toContain(
+      m.outcome_unrecognised(),
+    );
   });
 
-  it("keeps no remedy from a list that is not one", () => {
-    expect(
-      accountOf(answered({ outcome: "fail", remedies: "do something" }))
-        .remedies,
-    ).toEqual([]);
+  it("draws an outcome it does not know without shouting about it", () => {
+    expect(toneOfOutcome(unnamedOutcome)).toBe("calm");
   });
 
-  it.each([[null], [7], [{ detail: "nothing to do" }]])(
-    "drops %s from a list of remedies",
-    (held) => {
-      expect(
-        accountOf(answered({ outcome: "fail", remedies: [held] })).remedies,
-      ).toEqual([]);
-    },
-  );
+  it("gives a family it does not know a word rather than a blank tag", () => {
+    expect(wordOfCategory(unnamedCategory)).toBe(m.category_unrecognised());
+    expect(everyCategory.map(wordOfCategory)).not.toContain(
+      m.category_unrecognised(),
+    );
+  });
+
+  it("says a run it cannot grade came to a word it does not know", () => {
+    const grading = gradingOf(unnamedOverall);
+
+    expect(grading.lead).toBe(m.overall_unrecognised_lead());
+    expect(grading.prose).toBe(m.overall_unrecognised_prose());
+    expect(toneOfOverall(unnamedOverall)).toBe("calm");
+  });
+
+  // The screen reads `.summary` off whatever this hands back, so an account is
+  // owed for every verdict rather than for the five that were named.
+  it("reads a verdict it cannot place as one that said nothing", () => {
+    expect(accountOf(unnamedVerdict)).toEqual({
+      summary: undefined,
+      meaning: undefined,
+      remedies: [],
+    });
+  });
 });
