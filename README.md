@@ -31,8 +31,10 @@
 A **static application with no server of its own**. It is built to a directory of
 files, and on a version tag [`publish.yml`](.github/workflows/publish.yml) pushes
 that build output to a `built-<tag>` tag — the form the `lemonfiber` binary takes
-it in, as a pinned submodule it embeds. No version tag has been cut here yet, and
-`lemonfiber` declares no submodule for it, so no binary carries the app today.
+it in, as a pinned submodule it embeds. `v0.1.0` is cut, so `built-v0.1.0` is what
+`lemonfiber` pins at `assets/web` and embeds. The build declares the wire version it
+speaks in `app.json`, and the binary refuses to compile against an app that speaks
+one it does not serve.
 
 `lemonfiber`'s
 [web API](https://github.com/lemonfiber/spec/blob/main/20-architecture/contracts/web-api.md)
