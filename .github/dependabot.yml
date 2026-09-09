@@ -55,6 +55,25 @@ updates:
     cooldown:
       default-days: 3
     groups:
+      # First match wins, so the pair is claimed before the wildcard.
+      #
+      # `@vitest/coverage-v8@X` declares an exact peer on `vitest@X` — the same
+      # version down to the patch — so the two are one upgrade wearing two
+      # names. Offered apart, neither pull request can go green: each resolves
+      # against the other package's unchanged pin and `npm ci` refuses with
+      # `ERESOLVE`. A partial upgrade is a state nobody chose, and here it is not
+      # even a state that can be reached, in either order.
+      #
+      # Majors are grouped for that reason, as they are for the pages pipeline in
+      # `website-docs.lemonfiber.app`. `@vitest/eslint-plugin` is left out on
+      # purpose: it peers on `vitest: "*"` and carries its own major line, so
+      # grouping it would hold an upgrade back rather than make one possible.
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/coverage-v8"
+        update-types: ["major", "minor", "patch"]
       npm:
         patterns: ["*"]
+        # Majors are left out, so each arrives on its own carrying `major`.
         update-types: ["minor", "patch"]
