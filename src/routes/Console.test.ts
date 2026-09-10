@@ -9,7 +9,6 @@ import {
   diagnosis,
   diskChecks,
   forms,
-  household,
   job,
   moment,
   scrollback,
@@ -17,6 +16,7 @@ import {
   worst,
   worstService,
 } from "./fixture";
+import { household } from "./house";
 import { nameOf } from "../lib/route";
 import { namesItsForms, titleOfDoing, wordOfDoing } from "../lib/work";
 import * as m from "../paraglide/messages.js";

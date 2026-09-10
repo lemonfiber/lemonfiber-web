@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Requests from "./Requests.svelte";
-import { household, unread } from "./fixture";
+import { household, unread } from "./house";
 
 const answered = { kind: "answered", secondsAgo: 8 } as const;
 const never = { kind: "never" } as const;

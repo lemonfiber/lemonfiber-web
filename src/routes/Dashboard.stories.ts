@@ -15,6 +15,7 @@ import {
   unavailable,
   wouldNot,
 } from "./fixture";
+import { doorNumbered, frontDoor, house } from "./house";
 import { everyFlow } from "../lib/flow";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
@@ -110,7 +111,7 @@ export const NothingAnswered: Story = {
 };
 
 /**
- * Three panels whose sources could not fill them. Each says so inside its own
+ * Five panels whose sources could not fill them. Each says so inside its own
  * border, in the words its source used, and the panels beside them carry on —
  * which is the whole of degrading honestly.
  */
@@ -121,6 +122,8 @@ export const PanelsThatCouldNotBeFilled: Story = {
       storage: unavailable,
       transfers: unavailable,
       queue: unavailable,
+      door: unavailable,
+      household: unavailable,
     },
   },
 };
@@ -286,4 +289,149 @@ export const EverythingAskedForSoFar: Story = {
  */
 export const AskingNow: Story = {
   args: { controls: { ...controls, busy: true } },
+};
+
+/**
+ * The operator named a front door and this stack will not send anybody there.
+ * The worked-out door stands, and the sentence under it carries what they
+ * wrote and why it is not it — so an operator whose setting was refused finds
+ * their own words rather than a door they did not choose.
+ */
+export const TheDoorTheOperatorNamedWasRefused: Story = {
+  args: {
+    moment: {
+      ...moment,
+      door: {
+        panel: "ready",
+        data: {
+          ...frontDoor,
+          chosen: {
+            chosen: "refused",
+            door: {
+              named: "qbittorrent",
+              because:
+                "Nobody in the house should learn the download client exists.",
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+/**
+ * The door is answering and nothing on this machine can say where another
+ * device would reach it. A different thing to fix from a service that is down,
+ * and told apart from it — one is fixed by starting something, the other by
+ * giving this machine an address the household's devices can use.
+ */
+export const TheDoorHasNowhereToBeReachedAt: Story = {
+  args: {
+    moment: {
+      ...moment,
+      door: {
+        panel: "ready",
+        data: {
+          ...frontDoor,
+          standing: "stranded",
+          address: null,
+          meaning:
+            "The request surface is answering here, and nothing on this machine can say what address another device would reach it at.",
+        },
+      },
+    },
+  },
+};
+
+/**
+ * Nothing at all is published to the household: an operator-only stack. Said
+ * as that rather than by pointing at something absent, and the address that
+ * would have been handed out is not substituted for.
+ */
+export const NoFrontDoorAtAll: Story = {
+  args: {
+    moment: {
+      ...moment,
+      door: {
+        panel: "ready",
+        data: {
+          standing: "none",
+          chosen: { chosen: "derived" },
+          service: null,
+          facing: null,
+          address: null,
+          meaning:
+            "This stack publishes nothing anybody in the house could begin at.",
+          beside: [],
+        },
+      },
+    },
+  },
+};
+
+/**
+ * A machine with no friendly name to publish. The address is a number, so what
+ * is worth knowing about it sits under it as a caption: a number can change on
+ * its own, and a bookmark that stops working is a question for the operator.
+ */
+export const AnAddressThatMayChange: Story = {
+  args: {
+    moment: {
+      ...moment,
+      door: {
+        panel: "ready",
+        data: {
+          ...frontDoor,
+          address: {
+            url: doorNumbered,
+            caution:
+              "This is a number rather than a name, and the house's router may hand out a different one.",
+          },
+        },
+      },
+    },
+  },
+};
+
+/**
+ * Nothing in the house is waiting on the operator. Said in words, because an
+ * empty table reads as a table nobody filled in.
+ */
+export const NothingIsWaitingOnTheOperator: Story = {
+  args: {
+    moment: {
+      ...moment,
+      household: {
+        panel: "ready",
+        data: {
+          ...house,
+          members: house.members.map((one) => ({ ...one, requests: [] })),
+        },
+      },
+    },
+  },
+};
+
+/**
+ * The record could not be read at all. The same empty list as a house nobody
+ * lives in, and the opposite fact — which is why the answer carries which of
+ * the two it is, and why the panel says it.
+ */
+export const TheHouseCouldNotBeRead: Story = {
+  args: {
+    moment: {
+      ...moment,
+      household: {
+        panel: "ready",
+        data: {
+          ...house,
+          available: false,
+          members: [],
+          findings: [
+            "The media server answered, and its list of accounts could not be read.",
+          ],
+        },
+      },
+    },
+  },
 };
