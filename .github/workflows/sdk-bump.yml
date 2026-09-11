@@ -1,0 +1,253 @@
+# Take the client, so that nobody else has to.
+#
+# `sdk-drift` is a required check here, and it compares the pinned revision of
+# `@lemonfiber/sdk-ts` against that repository's main. That is correct and it is
+# what `Q-R68` asks for, but it has a cost nothing was paying down: every commit
+# on the client turns every open pull request here red, including ones that
+# touch nothing near it. An author who came to fix a stylesheet is handed a
+# dependency bump.
+#
+# In one evening the client moved four times and cost four unrelated bumps. The
+# gate was right every time. The gate is not the thing to change.
+#
+# So this does the bump. `sdk-moved` in the client fires it on every push to the
+# client's main, and it opens — or updates — one pull request that takes the
+# client. What an author sees then is a check that is already green, or a pull
+# request from the bot sitting beside their own with the reason in it.
+#
+# It merges itself only when the rebuild is clean. A client that changes a shape
+# this surface draws is a change here rather than a bump, which is the state
+# issue #65 described for three weeks, and that is not a thing to merge unread.
+name: sdk-bump
+
+on:
+  # How the client asks. `sdk-moved` there dispatches this on every push to its
+  # main, so the cadence is the change rather than the calendar.
+  workflow_dispatch:
+  # The floor, for a dispatch that never arrived.
+  schedule:
+    - cron: "10 8 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  # One bump at a time. Two runs racing would each reset the branch under the
+  # other, and the pull request would end up describing neither.
+  group: sdk-bump
+  cancel-in-progress: false
+
+env:
+  BRANCH: chore/the-console-takes-the-client
+  SDK: lemonfiber/sdk-ts
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      # The commit has to be signed — `main` requires it — and a commit made
+      # with the workflow's own token is not. Minting an app token also means
+      # the pull request's checks actually run: one opened by `GITHUB_TOKEN`
+      # triggers no workflows, so its required checks would never report and it
+      # could never merge. Both reasons point at the same token.
+      - name: Mint a token that can open a pull request here
+        id: token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.RELEASE_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Is the pin behind at all
+        id: behind
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+        run: |
+          set -euo pipefail
+          pin="$(npm pkg get 'dependencies.@lemonfiber/sdk-ts' | tr -d '"' | sed 's/.*#//')"
+          head="$(gh api "repos/${SDK}/commits/main" --jq .sha)"
+          echo "pin=${pin}" >> "$GITHUB_OUTPUT"
+          echo "head=${head}" >> "$GITHUB_OUTPUT"
+          if [ "$pin" = "$head" ]; then
+            echo "moved=no" >> "$GITHUB_OUTPUT"
+            echo "The console is on ${head}, which is what the client's main is."
+            echo "## The console is already on the client's main" >>"${GITHUB_STEP_SUMMARY:-/dev/null}"
+          else
+            echo "moved=yes" >> "$GITHUB_OUTPUT"
+            echo "Pinned ${pin}; the client's main is ${head}."
+          fi
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        if: steps.behind.outputs.moved == 'yes'
+        with:
+          node-version-file: .nvmrc
+
+      - name: Take the client and rebuild against it
+        id: build
+        if: steps.behind.outputs.moved == 'yes'
+        continue-on-error: true
+        env:
+          HEAD_SHA: ${{ steps.behind.outputs.head }}
+        run: |
+          set -euo pipefail
+          npm pkg set "dependencies.@lemonfiber/sdk-ts=github:${SDK}#${HEAD_SHA}"
+          # The manifest moved, so the lockfile has to follow it before anything
+          # installs from it. `--package-lock-only` writes the lockfile and
+          # installs nothing, which is the half that is wanted here.
+          npm install --package-lock-only --ignore-scripts
+          # Then install exactly what that lockfile now says, running no
+          # lifecycle scripts — the hardened install this repository uses
+          # everywhere else.
+          npm ci --ignore-scripts
+          # Which leaves the one dependency that ships its sources unbuilt, so
+          # it is built by name. `scripts/client.mjs` exists for precisely this.
+          npm run client
+          npm run messages
+          npm run types
+
+      - name: Put the change on the branch, signed
+        id: commit
+        if: steps.behind.outputs.moved == 'yes'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          PIN: ${{ steps.behind.outputs.pin }}
+          HEAD_SHA: ${{ steps.behind.outputs.head }}
+          CLEAN: ${{ steps.build.outcome }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          # `main` requires signed commits, and only commits GitHub itself makes
+          # are signed here. `createCommitOnBranch` is that: it writes the files
+          # and signs the result, so the branch is mergeable rather than merely
+          # pushed.
+          base="$(gh api "repos/${REPO}/commits/main" --jq .sha)"
+          if gh api "repos/${REPO}/git/ref/heads/${BRANCH}" >/dev/null 2>&1; then
+            # Reset to main first: the branch is the bot's alone, and carrying
+            # yesterday's bump under today's would describe two changes as one.
+            gh api --method PATCH "repos/${REPO}/git/refs/heads/${BRANCH}" \
+              -F sha="${base}" -F force=true >/dev/null
+          else
+            gh api --method POST "repos/${REPO}/git/refs" \
+              -f ref="refs/heads/${BRANCH}" -f sha="${base}" >/dev/null
+          fi
+
+          if [ "$CLEAN" = "success" ]; then
+            body="Regenerated against the client and type-checked clean."
+          else
+            body="The rebuild did not come out clean, so this is a change here rather than a bump. Read it before merging."
+          fi
+
+          # The request goes in a file, not in an argument. A lockfile's base64
+          # is hundreds of kilobytes and the first version of this passed it on
+          # the command line, where it died on `Argument list too long` — after
+          # the rebuild had already succeeded, which is the worst place to fail.
+          #
+          # Building the JSON in Python also means the message and the file
+          # contents are encoded rather than quoted into place by hand.
+          python3 - "$REPO" "$BRANCH" "$base" "$HEAD_SHA" "$PIN" "$body" <<'PY' >request.json
+          import base64
+          import json
+          import sys
+
+          repo, branch, base, head, pin, note = sys.argv[1:7]
+          files = ["package.json", "package-lock.json"]
+
+          print(json.dumps({
+              "query": (
+                  "mutation($input: CreateCommitOnBranchInput!) "
+                  "{ createCommitOnBranch(input: $input) { commit { oid } } }"
+              ),
+              "variables": {
+                  "input": {
+                      "branch": {
+                          "repositoryNameWithOwner": repo,
+                          "branchName": branch,
+                      },
+                      "expectedHeadOid": base,
+                      "message": {
+                          "headline": f"chore(client): take sdk-ts {head[:7]}",
+                          # commitlint, dco and spec-check each read this, and
+                          # spec-check closes a pull request whose citation it
+                          # cannot resolve.
+                          "body": (
+                              f"The console is drawn through this client and nothing else, so a client it has not taken is a fact about this repository. {note}\n\n"
+                              f"Was {pin}.\n\n"
+                              "Signed-off-by: lemonfiber release <release@lemonfiber.app>\n"
+                              "Spec: Q-R68"
+                          ),
+                      },
+                      "fileChanges": {
+                          "additions": [
+                              {
+                                  "path": name,
+                                  "contents": base64.b64encode(
+                                      open(name, "rb").read()
+                                  ).decode(),
+                              }
+                              for name in files
+                          ]
+                      },
+                  }
+              },
+          }))
+          PY
+
+          gh api graphql --input request.json >/dev/null
+
+          echo "clean=${CLEAN}" >> "$GITHUB_OUTPUT"
+
+      - name: Open the pull request, or leave the open one updated
+        if: steps.behind.outputs.moved == 'yes'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          PIN: ${{ steps.behind.outputs.pin }}
+          HEAD_SHA: ${{ steps.behind.outputs.head }}
+          CLEAN: ${{ steps.commit.outputs.clean }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          if [ "$CLEAN" = "success" ]; then
+            verdict="**\`npm run types\` is clean.** Nothing this surface draws changed shape."
+          else
+            verdict="**The rebuild did not come out clean.** The client has changed a shape this surface draws, so taking it is a change here rather than a bump — the same state issue #65 described. Read the failing run before merging; do not force it green."
+          fi
+
+          existing="$(gh pr list --repo "${REPO}" --head "${BRANCH}" --state open --json number --jq '.[0].number // ""')"
+          if [ -n "$existing" ]; then
+            echo "::notice::#${existing} updated to ${HEAD_SHA}"
+            echo "Pull request #${existing} updated." >>"${GITHUB_STEP_SUMMARY:-/dev/null}"
+          else
+            created="$(gh pr create --repo "${REPO}" --head "${BRANCH}" --base main \
+              --title "chore(client): take sdk-ts ${HEAD_SHA:0:7}" \
+              --body "$(printf '%s\n' \
+                "\`sdk-drift\` is a required check here, and the pin was behind. This takes the client so that the next author to open a pull request is not handed a dependency bump they did not come for." \
+                "" \
+                "- was: \`${PIN}\`" \
+                "- now: \`${HEAD_SHA}\`" \
+                "" \
+                "${verdict}" \
+                "" \
+                "Opened by \`sdk-bump\`, which the client's own \`sdk-moved\` fires on every push to its main." \
+                "" \
+                "Spec: Q-R68")")"
+            # `gh pr create` prints the pull request's URL, not its number.
+            existing="${created##*/}"
+            echo "::notice::opened #${existing}"
+          fi
+
+          # Merge itself only where the rebuild was clean. Everything else is a
+          # change to this surface and wants a person.
+          if [ "$CLEAN" = "success" ]; then
+            gh pr merge "${existing}" --repo "${REPO}" --squash --auto \
+              && echo "auto-merge armed on #${existing}; it lands when the gates agree." \
+              || echo "::warning::could not arm auto-merge on #${existing}; merge it by hand."
+          else
+            echo "::warning::#${existing} needs reading: the rebuild was not clean."
+          fi
