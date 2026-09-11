@@ -19,30 +19,25 @@
 # "behind by eleven" reads as an emergency where the list reads as a decision.
 #
 # `Q-R68` requires that comparison to run on pull requests, fail them, and be a
-# required status check. It does not, here, yet. That is a decision with a date
-# on it rather than an omission, and `Q-R71` is why it is written down:
+# required status check. It does, on all three.
 #
-#   Reason      The pin is 21 kinds behind and taking it is not the two-file
-#               bump the last two were. `HouseholdMemberRequest.id` became
-#               required, and the dashboard snapshot gained a front-door panel
-#               and a household panel that the contract itself says belong on
-#               the screen. Filling those is a product decision, not a
-#               regenerate, so no author of an unrelated pull request could
-#               clear this gate.
-#   Waits on    https://github.com/lemonfiber/lemonfiber-web/issues/65
-#   Reviewed    2026-10-12
-#   Turns on    by adding `pull_request:` to the triggers below and adding
-#               `sdk-drift` to the required status checks on `main`
+# It was deferred once, with a date and a reason: the pin had fallen 21 kinds
+# behind, `HouseholdMemberRequest.id` had become required, and the dashboard
+# snapshot had gained a front-door panel and a household panel that the contract
+# itself says belong on the screen. Filling those was a product decision rather
+# than a regenerate, so no author of an unrelated pull request could have cleared
+# this gate, and gating on it would have been a freeze rather than a gate.
 #
-# Gating before that lands would refuse every pull request in this repository on
-# work in flight elsewhere, which is not a gate but a freeze. So this keeps
-# reporting in the meantime — and every run says which of the two it is in its
-# own summary, because a red X that needs this file read to interpret is the
-# thing that let the last one sit for days. Past the review date it says the
-# deferral is overdue, since a date nothing reads is the silent omission again
-# with a comment around it.
+# Those panels are drawn and the pin is current, so the condition is met and the
+# gate is on. What that costs an author now is a two-file bump, which is what it
+# was always meant to cost.
+#
+# Every run still says which verdict it reached in its own summary, because a red
+# X that needs this file read to interpret is the thing that let the last drift
+# sit for days.
 name: sdk-drift
 on:
+  pull_request:
   workflow_dispatch:
   schedule:
     # Weekly, as the contract drift check runs. The client's main is also where
@@ -65,8 +60,6 @@ jobs:
       - name: Compare the pinned client with the one its repository serves
         env:
           SDK: https://github.com/lemonfiber/sdk-ts.git
-          ISSUE: https://github.com/lemonfiber/lemonfiber-web/issues/65
-          REVIEW: "2026-10-12"
         run: |
           set -euo pipefail
 
@@ -77,28 +70,6 @@ jobs:
           say() {
             printf '%s\n' "$1"
             printf '%s\n' "$1" >>"${GITHUB_STEP_SUMMARY:-/dev/null}"
-          }
-
-          # Said on every red run, whichever red it is. The point of the block is
-          # that nobody has to open this file to tell an expected failure from a
-          # broken check, which is exactly what nobody did last time.
-          deferral() {
-            say ''
-            say '### This is the deferred gate, not a broken check'
-            say ''
-            say "\`Q-R68\` requires this comparison to gate. It does not here yet, on"
-            say "purpose and with a date on it (\`Q-R71\`): the pin is behind by more"
-            say 'than a bump, and gating before that is resolved would refuse every'
-            say 'pull request in this repository on work in flight elsewhere.'
-            say ''
-            say "- waits on: ${ISSUE}"
-            say "- deferral reviewed: ${REVIEW}"
-            say "- turns on by: adding \`pull_request:\` to \`.github/workflows/sdk-drift.yml\`"
-            say "  and adding \`sdk-drift\` to the required status checks on \`main\`"
-            if [[ "$(date -u +%F)" > "$REVIEW" ]]; then
-              say ''
-              say "**The deferral is overdue.** It was to be reviewed on ${REVIEW}."
-            fi
           }
 
           # The revision the manifest pins is the one `npm run client` builds,
@@ -137,7 +108,6 @@ jobs:
             say "\`\`\`"
             say "$(cat unreadable.txt)"
             say "\`\`\`"
-            deferral
             echo '::error::the pinned client could not be read from package.json — the @lemonfiber/sdk-ts entry must be github:lemonfiber/sdk-ts# followed by a full 40-character commit hash'
             exit 1
           fi
@@ -161,7 +131,6 @@ jobs:
             say ''
             say 'To fix it: point the dependency at a revision sdk-ts holds — `'"${head}"'`'
             say "is what main is — and run \`npm install\` so the lockfile moves with it."
-            deferral
             echo "::error::the pinned revision is not a commit in sdk-ts — point @lemonfiber/sdk-ts at github:lemonfiber/sdk-ts#${head} in package.json and run npm install"
             exit 1
           fi
@@ -171,10 +140,8 @@ jobs:
             say ''
             say "The console is drawn through sdk-ts \`${pin}\`, which is what main is."
             say ''
-            say "The \`Q-R68\` gate is still deferred here (see the header of"
-            say "\`.github/workflows/sdk-drift.yml\`). A green run is the condition it was"
-            say "waiting for: with ${ISSUE} closed, add \`pull_request:\` to this workflow"
-            say "and make \`sdk-drift\` a required status check."
+            say "This is a required check on every pull request (\`Q-R68\`), so the"
+            say "console cannot fall behind the client without somebody being told."
             exit 0
           fi
 
@@ -196,7 +163,6 @@ jobs:
             say ''
             say "To fix it: point the dependency at \`${head}\` in \`package.json\` and"
             say "run \`npm install\` so the lockfile moves with it."
-            deferral
             echo "::error::the pinned revision is not on sdk-ts main — point @lemonfiber/sdk-ts at github:lemonfiber/sdk-ts#${head} in package.json and run npm install"
             exit 1
           fi
@@ -216,8 +182,8 @@ jobs:
           say ''
           say "To catch up: point the dependency at \`${head}\` in \`package.json\`, then"
           say "run \`npm install\` so the lockfile moves with it, and \`npm run client\` to"
-          say "rebuild against it. Where that leaves \`npm run types\` red, the catch-up is"
-          say "the change ${ISSUE} describes rather than a bump."
-          deferral
+          say "rebuild against it. If \`npm run types\` goes red on that, the client has"
+          say "changed a shape this surface draws, and taking it is a change here rather"
+          say "than a bump — say so in the pull request instead of forcing it green."
           echo "::error::the pinned client is behind sdk-ts main — point @lemonfiber/sdk-ts at github:lemonfiber/sdk-ts#${head} in package.json, run npm install, then npm run client"
           exit 1
