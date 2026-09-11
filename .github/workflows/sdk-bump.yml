@@ -96,7 +96,16 @@ jobs:
         run: |
           set -euo pipefail
           npm pkg set "dependencies.@lemonfiber/sdk-ts=github:${SDK}#${HEAD_SHA}"
-          npm install
+          # The manifest moved, so the lockfile has to follow it before anything
+          # installs from it. `--package-lock-only` writes the lockfile and
+          # installs nothing, which is the half that is wanted here.
+          npm install --package-lock-only --ignore-scripts
+          # Then install exactly what that lockfile now says, running no
+          # lifecycle scripts — the hardened install this repository uses
+          # everywhere else.
+          npm ci --ignore-scripts
+          # Which leaves the one dependency that ships its sources unbuilt, so
+          # it is built by name. `scripts/client.mjs` exists for precisely this.
           npm run client
           npm run messages
           npm run types
