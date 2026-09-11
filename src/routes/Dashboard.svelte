@@ -3,7 +3,9 @@
   import Banner from "../components/Banner.svelte";
   import Attention from "./panels/Attention.svelte";
   import Coming from "./panels/Coming.svelte";
+  import Door from "./panels/Door.svelte";
   import Forms from "./panels/Forms.svelte";
+  import Household from "./panels/Household.svelte";
   import Programs from "./panels/Programs.svelte";
   import Running from "./panels/Running.svelte";
   import Space from "./panels/Space.svelte";
@@ -66,6 +68,12 @@
   read after what it is for. The forms come first of the two: what the controls
   reach is chosen there, and a control read before the thing it acts on is a
   control read without its subject.
+
+  The door and the house stand together under what needs the operator, and are
+  the household's side of the same stack: the one address to hand somebody who
+  lives here, and what the people who were handed it are waiting on. A request
+  nobody has ruled on is waiting on the operator as much as a stalled import is,
+  and it appears nowhere else on this screen.
 -->
 <Board>
   {#if said !== undefined}
@@ -95,6 +103,10 @@
   <Running {...controls} freshness={live} />
 
   <Attention stuck={moment?.stuck} freshness={live} />
+
+  <Door door={moment?.door} freshness={live} />
+
+  <Household household={moment?.household} freshness={live} />
 
   <Programs {programs} freshness={read} />
 

@@ -6,11 +6,11 @@
  * a field that changes shape a compiler error here before it is a blank space on
  * a panel.
  */
+import { frontDoor, house } from "./house";
 import type {
   Diagnosis,
   Form,
   Forms,
-  Household,
   Logged,
   Moment,
   Service,
@@ -87,12 +87,14 @@ export const worst = "Prowlarr has stopped and nothing is being found.";
 /** One moment of the stack, with every panel filled. */
 export const moment: Moment = {
   alerts: [],
+  door: { panel: "ready", data: frontDoor },
   health: {
     affected: [],
     standing: "degraded",
     wanting_attention: 2,
     worst,
   },
+  household: { panel: "ready", data: house },
   queue: {
     panel: "ready",
     data: [
@@ -429,31 +431,6 @@ export const scrollback: readonly Logged[] = [
   },
 ];
 
-/** What the household has asked for. */
-export const household: Household = {
-  available: true,
-  findings: [],
-  members: [
-    {
-      name: "Ada",
-      requests: [
-        { title: "The Expanse", media: "series", state: "partly-here" },
-        { title: "Arrival", media: "film", state: "here" },
-        { title: "Andor", media: "series", state: "getting" },
-      ],
-    },
-    {
-      name: "Kit",
-      requests: [
-        { title: null, media: "film", state: "waiting-for-approval" },
-        { title: "Some Film Nobody Filed", media: "film", state: "failed" },
-        { title: "An Older Thing", media: null, state: null },
-        { title: null, media: null, state: "declined" },
-      ],
-    },
-  ],
-};
-
 /**
  * One word explained, in the words the binary answered with.
  *
@@ -467,13 +444,4 @@ export const explained: Word = {
     "Lets one file appear in two places while taking up the space once — so importing is instant and costs no extra disk.",
   deep: "Both names point at the same data. Deleting one leaves the other working. This is why the download folder and the library should sit on one volume: across two, the file has to be copied instead, which takes time and twice the room.",
   also_called: [],
-};
-
-/** A household nothing could be read from, which is not an empty one. */
-export const unread: Household = {
-  available: false,
-  findings: [
-    "The request service answered, but its list of requests could not be read.",
-  ],
-  members: [],
 };

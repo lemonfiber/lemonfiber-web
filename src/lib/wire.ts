@@ -98,8 +98,56 @@ export type Transfer = Ready<Moment["transfers"]>[number];
 /** One service's queue. */
 export type Waiting = Ready<Moment["queue"]>[number];
 
+/** The front door, or the reason it could not be read. */
+export type Doorway = Moment["door"];
+
+/** The front door, where it could be read. */
+export type Door = Ready<Doorway>;
+
+/** Where the front door stands. */
+export type DoorStanding = Door["standing"];
+
+/** What a service published to the household is to the people in the house. */
+export type Facing = NonNullable<Door["facing"]>;
+
+/** One thing the household can reach that is not the door. */
+export type Beside = Door["beside"][number];
+
+/** How the front door came to be the one it is. */
+export type Chosen = Door["chosen"];
+
+/** Who is in the house, or the reason it could not be read. */
+export type Folk = Moment["household"];
+
+/** Who is in the house, where it could be read. */
+export type House = Ready<Folk>;
+
+/** One person in the house, and everything they have asked for. */
+export type Person = House["members"][number];
+
+/** One thing a person in the house asked for. */
+export type Asked = Person["requests"][number];
+
+/** What one person may watch. */
+export type Access = Person["access"];
+
+/** What one person is held to, in one word. */
+export type Restriction = Access["restriction"];
+
+/** What becomes of content the media server has no rating for. */
+export type Unrated = Access["unrated"];
+
+/** What one person may ask for, and what their period has left of it. */
+export type Allowance = NonNullable<Person["asking"]>;
+
+/** Where one person stands against what their period allows them. */
+export type Allowed = Allowance["standing"];
+
+/** What happens to what the house asks for. */
+export type Policy = Allowance["policy"];
+
 /** Anything the stream delivers as a panel: its content, or why there is none. */
-export type Held = Disk | Transfers | Queues;
+export type Held = Disk | Transfers | Queues | Doorway | Folk;
 
 /** One thing in the pipeline that has stopped. */
 export type Stall = Moment["stuck"][number];

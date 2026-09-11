@@ -4,13 +4,13 @@ import {
   controls,
   diagnosis,
   diskChecks,
-  household,
   moment,
   scrollback,
   stack,
   started,
   stillWaiting,
 } from "./fixture";
+import { household } from "./house";
 import {
   checking,
   logging,

@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/svelte";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import Requests from "./Requests.svelte";
-import { household, unread } from "./fixture";
+import { household, unread } from "./house";
 import type { Freshness } from "../lib/freshness";
 import { wordOfRequestState } from "../lib/household";
 import type { Household } from "../lib/wire";
