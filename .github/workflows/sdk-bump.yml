@@ -127,14 +127,25 @@ jobs:
           # and signs the result, so the branch is mergeable rather than merely
           # pushed.
           base="$(gh api "repos/${REPO}/commits/main" --jq .sha)"
-          if gh api "repos/${REPO}/git/ref/heads/${BRANCH}" >/dev/null 2>&1; then
-            # Reset to main first: the branch is the bot's alone, and carrying
-            # yesterday's bump under today's would describe two changes as one.
-            gh api --method PATCH "repos/${REPO}/git/refs/heads/${BRANCH}" \
+
+          # Built on a scratch ref and moved across in one step, rather than
+          # resetting the pull request's own branch to main first.
+          #
+          # The reset is what the branch needs — it is the bot's alone, and
+          # carrying yesterday's bump under today's would describe two changes
+          # as one — but doing it in place leaves the branch briefly identical
+          # to `main`, and GitHub closes a pull request whose branch holds no
+          # commits. It happened twice: each run closed the open pull request
+          # and opened a replacement, so the number changed under anyone who
+          # had commented on it. Building elsewhere and moving the branch
+          # straight from yesterday's commit to today's keeps it open.
+          staging="${BRANCH}-staging"
+          if gh api "repos/${REPO}/git/ref/heads/${staging}" >/dev/null 2>&1; then
+            gh api --method PATCH "repos/${REPO}/git/refs/heads/${staging}" \
               -F sha="${base}" -F force=true >/dev/null
           else
             gh api --method POST "repos/${REPO}/git/refs" \
-              -f ref="refs/heads/${BRANCH}" -f sha="${base}" >/dev/null
+              -f ref="refs/heads/${staging}" -f sha="${base}" >/dev/null
           fi
 
           if [ "$CLEAN" = "success" ]; then
@@ -150,7 +161,7 @@ jobs:
           #
           # Building the JSON in Python also means the message and the file
           # contents are encoded rather than quoted into place by hand.
-          python3 - "$REPO" "$BRANCH" "$base" "$HEAD_SHA" "$PIN" "$body" <<'PY' >request.json
+          python3 - "$REPO" "$staging" "$base" "$HEAD_SHA" "$PIN" "$body" <<'PY' >request.json
           import base64
           import json
           import sys
@@ -198,7 +209,26 @@ jobs:
           }))
           PY
 
-          gh api graphql --input request.json >/dev/null
+          built="$(gh api graphql --input request.json --jq '.data.createCommitOnBranch.commit.oid')"
+
+          if ! printf '%s' "$built" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "::error::the commit was not created; got '${built}'"
+            exit 1
+          fi
+
+          # One move, so the branch goes from yesterday's commit to today's
+          # without ever being equal to `main`.
+          if gh api "repos/${REPO}/git/ref/heads/${BRANCH}" >/dev/null 2>&1; then
+            gh api --method PATCH "repos/${REPO}/git/refs/heads/${BRANCH}" \
+              -F sha="${built}" -F force=true >/dev/null
+          else
+            gh api --method POST "repos/${REPO}/git/refs" \
+              -f ref="refs/heads/${BRANCH}" -f sha="${built}" >/dev/null
+          fi
+
+          # The scratch ref has done its job. Left behind it would show up in
+          # the branch list as something a reader has to work out.
+          gh api --method DELETE "repos/${REPO}/git/refs/heads/${staging}" >/dev/null 2>&1 || true
 
           echo "clean=${CLEAN}" >> "$GITHUB_OUTPUT"
 
