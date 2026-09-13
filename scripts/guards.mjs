@@ -272,6 +272,18 @@ const files = (await walk(SRC)).filter(
 );
 
 /**
+ * Refuse the list before anything is claimed about what is in it.
+ *
+ * Nearly every rule below is a claim about an absence — no hardcoded colour, no
+ * untranslated string, no file over the cap — and a claim about an absence is
+ * satisfied by having looked at nothing. `walk` throws on a directory that is
+ * gone, which is loud; a filter that stops matching is not, and would leave every
+ * one of them passing with only the count at the end to show it.
+ */
+if (files.length === 0)
+  fail(SRC, null, "holds nothing, so every rule over it passed on nothing");
+
+/**
  * A story, which is a workbench rather than a screen this product ships.
  *
  * Its sample copy is an argument handed to a component, not a sentence a person
