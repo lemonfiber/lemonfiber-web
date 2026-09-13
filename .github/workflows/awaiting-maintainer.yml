@@ -1,0 +1,52 @@
+# The maintainer queue flag. Triggers are declared here because a reusable
+# cannot declare its caller's; the behaviour lives in the spec repo. OPS-R26, OPS-R27.
+#
+# The list below is also the wait list. The flag only goes up once every check
+# `main` requires has passed, and the reusable reads this same list back out of
+# this file to know what it must see finish first — so a workflow missing from it
+# is a workflow the gate never waits for and never re-evaluates on. `main`
+# requires sixteen checks here and they come from three workflows:
+#
+#   ci         spec-check / spec-check, dco / dco, commitlint / commitlint,
+#              hygiene / {actionlint, invite, links, markdown, pins,
+#              shared-files, typos}, security / {gitleaks, osv-scanner},
+#              sonar-gate / gate
+#   gate       gate
+#   sdk-drift  sdk-drift
+#
+# `sonar-gate / gate` is a job of `ci` here rather than of a `sonar` workflow of
+# its own, which is why `ci` covers it and no fourth workflow is named. Two of
+# the contexts are called `gate` and `sonar-gate / gate` and they are different
+# checks: `gate` is this repository's own build gate in `gate.yml`.
+#
+# `SonarCloud Code Analysis` is required too and is posted by the SonarCloud app
+# rather than by a workflow, so it cannot be waited for by name; `sonar-gate /
+# gate` reads that summary and cannot succeed before it exists.
+#
+# `sdk-drift` is waited for because a flag raised without it would go up on a
+# pull request whose pinned client is behind — the state `sdk-bump` exists to
+# take off an author's hands.
+#
+# Add a workflow to branch protection and it belongs here in the same change.
+name: awaiting-maintainer
+on:
+  workflow_run:
+    workflows: [ci, gate, sdk-drift]
+    types: [completed]
+  pull_request_review:
+    types: [submitted]
+  # Fork PRs carry a read-only token under `pull_request`, so the close event has
+  # to run in the base repo's context to be able to edit a label at all.
+  pull_request_target:
+    types: [closed]
+permissions:
+  contents: read
+
+jobs:
+  awaiting:
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: lemonfiber/spec/.github/workflows/awaiting-maintainer.yml@a269e7f347ed92988cbf03394130b6fee93347da # main
+    secrets:
+      DISCORD_MAINTAINERS_WEBHOOK: ${{ secrets.DISCORD_MAINTAINERS_WEBHOOK }}
