@@ -7,6 +7,7 @@
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../../lib/freshness";
   import type { Tone } from "../../lib/state";
+  import { isSetAside, wordOfFixing } from "../../lib/trouble";
   import {
     accountOf,
     toneOfOutcome,
@@ -45,6 +46,8 @@
     readonly tone: Tone;
     /** The family the check belongs to. */
     readonly family: string;
+    /** Where it stands with being fixed, where the verdict says. */
+    readonly standing: string | undefined;
     /** What was checked. */
     readonly title: string;
     /** What was seen, or what could not be. */
@@ -57,8 +60,12 @@
     readonly about: string | undefined;
     /** The check whose finding explains this one, where another does. */
     readonly caused: string | undefined;
+    /** The problem that produced this one, where another produced it. */
+    readonly cause: string | undefined;
     /** What the service said for itself, where it said anything. */
     readonly output: string | undefined;
+    /** The raw detail behind the plain sentences, where there is any. */
+    readonly detail: string | undefined;
   }
 
   const shown = $derived(
@@ -78,11 +85,14 @@
     const account = accountOf(finding.verdict);
     const service = finding.service ?? undefined;
     const caused = finding.caused_by ?? undefined;
+    const fixing = account.fixing;
+    const aside = fixing !== undefined && isSetAside(fixing);
 
     return {
       word: wordOfOutcome(outcome),
-      tone: toneOfOutcome(outcome),
+      tone: aside ? "calm" : toneOfOutcome(outcome),
       family: wordOfCategory(finding.category),
+      standing: fixing === undefined ? undefined : wordOfFixing(fixing),
       title: finding.title,
       summary: account.summary,
       meaning: account.meaning,
@@ -95,7 +105,9 @@
         caused === undefined
           ? undefined
           : m.finding_explained_by({ check: caused }),
+      cause: account.cause,
       output: spoken(finding.said ?? undefined),
+      detail: spoken(account.detail),
     };
   }
 
@@ -119,6 +131,21 @@
   What the service said for itself is carried through unchanged and wraps rather
   than scrolls. An operator reading a permission denial has the whole of it, and
   a page that went sideways to show it would cost them the rest of the screen.
+
+  The raw detail is last on the row, under everything written to be read. It is
+  there for the operator who wants it and costs nothing to the one who does not,
+  which is what putting it anywhere above the plain sentences would stop being
+  true of.
+
+  A third tag says where the finding stands with being fixed. Which of them
+  lemonfiber can put right, which wants the operator somewhere else, and which
+  the operator has already set aside are different work, and a row that named
+  only the outcome left them all looking like the same work.
+
+  A finding set aside keeps its place and loses its weight. It is not resolved,
+  so hiding it would be a screen saying nothing is wrong when something is; it
+  is answered, so leaving it shouting would put it back in front of the operator
+  who already dealt with it.
 -->
 <Panel {title} {freshness} flush={listed}>
   {#if shown !== undefined && listed}
@@ -129,6 +156,9 @@
           <p class="marks">
             <Tag label={one.word} tone={one.tone} />
             <Tag label={one.family} />
+            {#if one.standing !== undefined}
+              <Tag label={one.standing} />
+            {/if}
             {#if one.about !== undefined}
               <span class="about">{one.about}</span>
             {/if}
@@ -153,12 +183,20 @@
               {/each}
             </ul>
           {/if}
+          {#if one.cause !== undefined}
+            <p class="eyebrow">{m.finding_caused()}</p>
+            <p class="prose">{one.cause}</p>
+          {/if}
           {#if one.caused !== undefined}
             <p class="quiet">{one.caused}</p>
           {/if}
           {#if one.output !== undefined}
             <p class="eyebrow">{m.finding_said()}</p>
             <pre class="output">{one.output}</pre>
+          {/if}
+          {#if one.detail !== undefined}
+            <p class="eyebrow">{m.finding_detail()}</p>
+            <pre class="output">{one.detail}</pre>
           {/if}
         </div>
       </article>

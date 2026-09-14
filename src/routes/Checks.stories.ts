@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Checks from "./Checks.svelte";
-import { allWell, diagnosis } from "./fixture";
+import { allWell, diagnosis } from "./findings";
 
 const answered = { kind: "answered", secondsAgo: 6 } as const;
 const never = { kind: "never" } as const;
@@ -48,7 +48,7 @@ export const HealthCouldNotBeEstablished: Story = {
   args: {
     diagnosis: {
       ok: true,
-      value: { overall: "unknown", findings: diagnosis.findings.slice(3) },
+      value: { overall: "unknown", findings: diagnosis.findings.slice(4) },
     },
   },
 };

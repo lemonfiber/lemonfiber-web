@@ -10,6 +10,7 @@
   import Running from "./panels/Running.svelte";
   import Space from "./panels/Space.svelte";
   import Standing from "./panels/Standing.svelte";
+  import Told from "./panels/Told.svelte";
   import Tunnel from "./panels/Tunnel.svelte";
   import Waiting from "./panels/Waiting.svelte";
   import Board from "./Board.svelte";
@@ -90,6 +91,12 @@
   reach is chosen there, and a control read before the thing it acts on is a
   control read without its subject.
 
+  What the operator has already been told stands under what needs them now. It
+  is the one channel that reaches them without anything having been set up, so
+  it is on the screen whether or not a phone or a chat room was ever wired to
+  it; and it holds what has ended as well as what is running, which is what the
+  panel above it does not, so the two are read in that order rather than mixed.
+
   The door and the house stand together under what needs the operator, and are
   the household's side of the same stack: the one address to hand somebody who
   lives here, and what the people who were handed it are waiting on. A request
@@ -139,6 +146,8 @@
   <Running {...controls} freshness={live} />
 
   <Attention stuck={moment?.stuck} freshness={live} />
+
+  <Told alerts={moment?.alerts} freshness={live} />
 
   <Door door={moment?.door} freshness={live} />
 

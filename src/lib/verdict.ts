@@ -18,6 +18,7 @@
  * an `undefined` a screen reads a field off.
  */
 import type { Category, Outcome, Overall, Remedy, Verdict } from "./wire";
+import type { Fixing } from "./trouble";
 import type { Tone } from "./state";
 import * as m from "../paraglide/messages.js";
 
@@ -185,6 +186,11 @@ export function wordOfCategory(category: Category): string {
  * One shape over five verdicts, so a screen reads a finding without a branch
  * per outcome: the evidence behind a pass, the reason a check could not run or
  * did not apply, and what a warning or a failure means and what to do about it.
+ *
+ * The plain sentences and the raw detail are separate fields rather than one
+ * run of text, which is what lets a screen lead with the first and set the
+ * second after it. A verdict that carries neither a detail nor a cause reads as
+ * one that has none, which is a finding drawn without the sections for them.
  */
 export interface Account {
   /** What happened, in one plain sentence. */
@@ -193,6 +199,12 @@ export interface Account {
   readonly meaning: string | undefined;
   /** What to do, most likely first. */
   readonly remedies: readonly Remedy[];
+  /** The raw technical detail, for the reader who wants it. */
+  readonly detail: string | undefined;
+  /** What the problem behind this one was, where another produced it. */
+  readonly cause: string | undefined;
+  /** Where it stands with respect to being fixed. */
+  readonly fixing: Fixing | undefined;
 }
 
 /** A verdict that says nothing beyond its outcome. */
@@ -200,6 +212,9 @@ const SILENT: Account = {
   summary: undefined,
   meaning: undefined,
   remedies: [],
+  detail: undefined,
+  cause: undefined,
+  fixing: undefined,
 };
 
 /**
@@ -219,8 +234,8 @@ export function accountOf(verdict: Verdict): Account {
       return { ...SILENT, summary: verdict.reason };
     case "unverified":
       return {
+        ...SILENT,
         summary: verdict.reason,
-        meaning: undefined,
         remedies: [verdict.remedy],
       };
     case "warn":
@@ -229,6 +244,9 @@ export function accountOf(verdict: Verdict): Account {
         summary: verdict.summary,
         meaning: verdict.meaning,
         remedies: verdict.remedies,
+        detail: verdict.detail ?? undefined,
+        cause: verdict.cause?.summary,
+        fixing: verdict.state,
       };
     default:
       return SILENT;

@@ -2,8 +2,9 @@ import { render, screen } from "@testing-library/svelte";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import Checks from "./Checks.svelte";
-import { allWell, diagnosis } from "./fixture";
+import { allWell, diagnosis } from "./findings";
 import type { Freshness } from "../lib/freshness";
+import { everyFixing, wordOfFixing } from "../lib/trouble";
 import { everyOverall, gradingOf, wordOfOutcome } from "../lib/verdict";
 import type { Diagnosis } from "../lib/wire";
 import * as m from "../paraglide/messages.js";
@@ -152,6 +153,79 @@ describe("each finding", () => {
     });
 
     expect(screen.queryByText(m.finding_said())).toBeNull();
+  });
+});
+
+describe("the detail under a finding", () => {
+  // The plain sentences are what an operator reads. The raw detail is there for
+  // the one who wants it, after them rather than in front of them.
+  it("carries the raw detail, and sets it after the plain account", () => {
+    checks({ ok: true, value: diagnosis });
+    const said = panel().textContent;
+
+    expect(said).toContain("connection refused");
+    expect(said.indexOf(m.finding_detail())).toBeGreaterThan(
+      said.indexOf(
+        "Nothing can be searched for while it is down, so nothing new will arrive.",
+      ),
+    );
+  });
+
+  // A full disk producing eleven failures is one problem. The check reports the
+  // one that produced it rather than leaving the symptom to stand alone.
+  it("reports the problem that produced this one", () => {
+    checks({ ok: true, value: diagnosis });
+
+    expect(screen.getByText(m.finding_caused())).toBeInTheDocument();
+    expect(
+      screen.getByText("The tunnel is holding the port Prowlarr binds to."),
+    ).toBeInTheDocument();
+  });
+
+  it("promises neither where the verdict carries neither", () => {
+    checks({ ok: true, value: allWell });
+
+    expect(screen.queryByText(m.finding_detail())).toBeNull();
+    expect(screen.queryByText(m.finding_caused())).toBeNull();
+  });
+});
+
+describe("where a finding stands with being fixed", () => {
+  // What lemonfiber can put right, what wants the operator somewhere else, and
+  // what they have already answered are different work, and a row naming only
+  // the outcome leaves all three looking like the same work.
+  it("says which of them it is", () => {
+    checks({ ok: true, value: diagnosis });
+
+    expect(screen.getByText(wordOfFixing("guided"))).toBeInTheDocument();
+    expect(screen.getByText(wordOfFixing("actionable"))).toBeInTheDocument();
+    expect(screen.getByText(wordOfFixing("suppressed"))).toBeInTheDocument();
+  });
+
+  it("says nothing of it where the verdict carries none", () => {
+    checks({ ok: true, value: allWell });
+
+    for (const fixing of everyFixing) {
+      expect(screen.queryByText(wordOfFixing(fixing))).toBeNull();
+    }
+  });
+
+  /** The row one finding is drawn on, by the title over it. */
+  const rowOf = (title: string): Element | null =>
+    screen.getByRole("heading", { name: title }).closest("article");
+
+  // It is not resolved, so hiding it would be a screen saying nothing is wrong
+  // when something is; it is answered, so leaving it shouting would put it back
+  // in front of the operator who already dealt with it.
+  it("keeps one the operator set aside, without the weight of a live one", () => {
+    checks({ ok: true, value: diagnosis });
+
+    expect(
+      rowOf("Imports link into the library rather than copying"),
+    ).not.toHaveClass("alarm");
+    expect(
+      rowOf("Every service is answering its own health check"),
+    ).toHaveClass("alarm");
   });
 });
 

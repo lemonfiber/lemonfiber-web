@@ -8,7 +8,7 @@
  */
 import { frontDoor, house } from "./house";
 import type {
-  Diagnosis,
+  Alert,
   Form,
   Forms,
   Logged,
@@ -16,7 +16,6 @@ import type {
   Service,
   Stack,
   Tunnel,
-  Verdict,
   Word,
 } from "../lib/wire";
 import type { Controls, Work } from "../lib/work";
@@ -102,6 +101,15 @@ export const stack: Stack = {
   forms: [],
   services: [...services],
   undeclared: [],
+  // A service that starts, stops and reports its state like any other, and
+  // that lemonfiber can do none of the work needing to know what it is for.
+  unsupported: [
+    {
+      what: "bazarr",
+      because:
+        "Its declaration leaves out the part that says where to reach it.",
+    },
+  ],
   // What each verb takes the stack away for, which a screen says before it asks
   // anybody to confirm one. The teardown that waits for downloads is the one with
   // nothing to bound it: what it waits for belongs to whoever is seeding.
@@ -117,12 +125,60 @@ export const stack: Stack = {
 /** The worst thing wrong, as the grading names it. */
 export const worst = "Prowlarr has stopped and nothing is being found.";
 
+/**
+ * An interruption that is running, grouped across the checks it speaks for.
+ *
+ * One event over two checks rather than two alerts, which is the difference
+ * between a screen an operator reads and one they learn to scroll past.
+ */
+export const raised: Alert = {
+  check: "vpn.egress-match",
+  kind: "vpn-egress",
+  moment: "onset",
+  severity: "critical",
+  summary: "Downloading left this machine outside the tunnel.",
+  remedies: ["Stop the download client, then start the tunnel again."],
+  affected: ["vpn.egress-match", "vpn.killswitch"],
+};
+
+/** A condition that is over, kept rather than dropped once it cleared. */
+export const cleared: Alert = {
+  check: "storage.headroom",
+  kind: "disk-headroom",
+  moment: "resolved",
+  severity: "warning",
+  summary: "There is room on the data volume again.",
+  remedies: [],
+  affected: ["storage.headroom"],
+};
+
 /** One moment of the stack, with every panel filled. */
 export const moment: Moment = {
-  alerts: [],
+  alerts: [raised, cleared],
   door: { panel: "ready", data: frontDoor },
   health: {
-    affected: [],
+    // Two root causes, counted once each. The nine imports the first of them
+    // stopped are under it rather than beside it, which is what keeps the list
+    // agreeing with the figure above it.
+    affected: [
+      {
+        check: "services.health",
+        severity: "error",
+        summary: "Prowlarr is not answering its health check.",
+        remedies: [
+          "Read what it said for itself, then start it again.",
+          "Check that nothing else holds the port it binds to.",
+        ],
+        downstream: ["queue.depth", "providers.reachable"],
+      },
+      {
+        check: "storage.headroom",
+        severity: "warning",
+        summary: "Less than a tenth of the data volume is free.",
+        remedies: [],
+        downstream: [],
+      },
+    ],
     standing: "degraded",
     wanting_attention: 2,
     worst,
@@ -282,154 +338,6 @@ export const stillWaiting =
 /** What lemonfiber says about a request it would not carry out. */
 export const wouldNot =
   "The action `restart` needs `forms`, which was not given.";
-
-/**
- * The problem a warning or a failure carries.
- *
- * The wire carries a problem's fields beside the outcome rather than under a
- * name of their own, and the contract now declares them, so this is taken from
- * the generated verdict rather than restated beside it. A hand-written copy of a
- * generated shape is a second declaration of one thing, and it was written when
- * the contract described the outcome and nothing else.
- */
-type Trouble = Omit<Extract<Verdict, { outcome: "warn" }>, "outcome">;
-
-/**
- * A warning, as the endpoint renders one.
- *
- * The fields go beside the outcome rather than under a name of their own, which
- * is how the wire carries them and is now what the generated type declares.
- *
- * A warning and a failure are separate arms of that type, so each is built under
- * its own literal. One function taking the outcome as an argument would hold a
- * value belonging to neither arm.
- */
-const warned = (problem: Trouble): Verdict => ({ outcome: "warn", ...problem });
-
-/** A failure, as the endpoint renders one. */
-const failed = (problem: Trouble): Verdict => ({ outcome: "fail", ...problem });
-
-/** The disk filling up, as a check reports it. */
-const filling: Trouble = {
-  code: "storage.headroom",
-  severity: "warning",
-  state: "actionable",
-  summary: "Less than a tenth of the data volume is free.",
-  meaning:
-    "Imports will start failing before downloads do, and a failed import leaves the download where it is.",
-  remedies: [
-    {
-      action: "Delete what has already been watched, or add a larger volume.",
-      detail: "The library folder is the one that grows.",
-    },
-    { action: "Pause the queue until there is room.", detail: null },
-  ],
-};
-
-/** A service that is up and failing its own health check. */
-const unanswered: Trouble = {
-  code: "services.health",
-  severity: "error",
-  state: "guided",
-  summary: "Prowlarr has not answered its health check for three minutes.",
-  meaning:
-    "Nothing can be searched for while it is down, so nothing new will arrive.",
-  remedies: [
-    {
-      action: "Read what it said for itself, below, and restart it.",
-      detail: "Restarting it alone will not free the port it cannot bind to.",
-    },
-  ],
-};
-
-/** One run of the checks, with every kind of verdict in it. */
-export const diagnosis: Diagnosis = {
-  overall: "broken",
-  findings: [
-    {
-      check: "environment.docker",
-      category: "environment",
-      title: "Docker is installed and its daemon is answering",
-      verdict: {
-        outcome: "pass",
-        note: "Docker Engine 27.3.1 on this machine",
-      },
-    },
-    {
-      check: "storage.headroom",
-      category: "storage",
-      title: "There is room on the data volume to keep importing",
-      verdict: warned(filling),
-    },
-    {
-      check: "services.health",
-      category: "services",
-      title: "Every service is answering its own health check",
-      service: "prowlarr",
-      caused_by: "network.tunnel",
-      said: "FATAL could not bind to the tunnel: address in use\nretrying in 30s",
-      verdict: failed(unanswered),
-    },
-    {
-      check: "vpn.egress-match",
-      category: "vpn",
-      title: "Torrent traffic leaves through the tunnel",
-      verdict: {
-        outcome: "unverified",
-        reason:
-          "The download client would not say which address it went out from.",
-        remedy: {
-          action: "Start the download client and run the checks again.",
-          detail: "This one is the reason the tunnel cannot be proved.",
-        },
-      },
-    },
-    {
-      check: "providers.quota",
-      category: "providers",
-      title: "The Usenet provider still has quota left",
-      verdict: {
-        outcome: "skipped",
-        reason: "No Usenet provider is set up, so there is no quota to read.",
-      },
-    },
-  ],
-};
-
-/** A run in which everything that ran passed. */
-export const allWell: Diagnosis = {
-  overall: "healthy",
-  findings: [
-    {
-      check: "environment.docker",
-      category: "environment",
-      title: "Docker is installed and its daemon is answering",
-      verdict: { outcome: "pass", note: null },
-    },
-  ],
-};
-
-/** The checks about the disk, on their own. */
-export const diskChecks: Diagnosis = {
-  overall: "degraded",
-  findings: [
-    {
-      check: "storage.one-filesystem",
-      category: "storage",
-      title: "Downloads and the library are on one filesystem",
-      verdict: {
-        outcome: "pass",
-        note: "so an import links rather than copying",
-      },
-    },
-    {
-      check: "storage.headroom",
-      category: "storage",
-      title: "There is room on the data volume to keep importing",
-      verdict: warned(filling),
-    },
-  ],
-};
 
 /**
  * What the services said lately.

@@ -16,6 +16,7 @@ import { doorAddress, frontDoor, house } from "./house";
 import {
   adrift,
   chosenForm,
+  cleared,
   controls,
   declared,
   finished,
@@ -42,6 +43,7 @@ import {
   wordOfRequestState,
 } from "../lib/household";
 import { wordFor } from "../lib/state";
+import { wordOfSeverity } from "../lib/trouble";
 import {
   everyServiceState,
   stateOfService,
@@ -113,6 +115,7 @@ const everyPanel: readonly string[] = [
   m.panel_forms(),
   m.panel_running(),
   m.panel_attention(),
+  m.panel_told(),
   m.panel_front_door(),
   m.panel_household(),
   m.panel_programs(),
@@ -295,6 +298,62 @@ describe("how things stand", () => {
     board({ stack: read, moment, flow: "live", live: answered, read: never });
     expect(panel()).toHaveTextContent(stampFor(answered));
   });
+
+  // A count on its own is a number nobody can act on, and the operator reading
+  // it here is the one who would otherwise go looking for the rest of it.
+  it("expands to each thing wrong and what to do about it", () => {
+    board({ stack: read, moment, flow: "live" });
+
+    expect(panel()).toHaveTextContent(m.affected_lead());
+    expect(panel()).toHaveTextContent(
+      "Prowlarr is not answering its health check.",
+    );
+    expect(panel()).toHaveTextContent(
+      "Less than a tenth of the data volume is free.",
+    );
+    expect(panel()).toHaveTextContent(m.finding_to_do());
+    expect(panel()).toHaveTextContent(
+      "Read what it said for itself, then start it again.",
+    );
+    expect(panel()).toHaveTextContent(
+      "Check that nothing else holds the port it binds to.",
+    );
+  });
+
+  it("says how much each thing wrong matters", () => {
+    board({ stack: read, moment, flow: "live" });
+
+    expect(panel()).toHaveTextContent(wordOfSeverity("error"));
+    expect(panel()).toHaveTextContent(wordOfSeverity("warning"));
+  });
+
+  // Nine imports a full disk stopped are one thing wrong. Set under the cause
+  // rather than beside it, the list agrees with the figure above it.
+  it("sets what follows from a cause under that cause", () => {
+    board({ stack: read, moment, flow: "live" });
+
+    expect(panel()).toHaveTextContent(m.affected_follows());
+    expect(panel()).toHaveTextContent("queue.depth");
+    expect(panel()).toHaveTextContent("providers.reachable");
+  });
+
+  // A heading over a list that is not there would promise one.
+  it("expands to nothing where nothing is wrong", () => {
+    board({
+      stack: read,
+      moment: changed({
+        health: {
+          affected: [],
+          standing: "healthy",
+          wanting_attention: 0,
+          worst: null,
+        },
+      }),
+      flow: "live",
+    });
+
+    expect(panel()).not.toHaveTextContent(m.affected_lead());
+  });
 });
 
 describe("the disk", () => {
@@ -419,6 +478,41 @@ describe("the programs", () => {
     });
     expect(panel()).toHaveTextContent("Nothing answered.");
   });
+
+  // Left out, such a service reads as one lemonfiber forgot rather than one it
+  // was told about in terms it could not follow.
+  it("names a service it can do less with, and why", () => {
+    board({ programs: read, read: answered });
+
+    expect(panel()).toHaveTextContent(m.programs_less());
+    expect(panel()).toHaveTextContent("bazarr");
+    expect(panel()).toHaveTextContent(
+      "Its declaration leaves out the part that says where to reach it.",
+    );
+  });
+
+  it("says nothing of them where the reading names none", () => {
+    board({ programs: { ok: true, value: { ...stack, unsupported: [] } } });
+    expect(panel()).not.toHaveTextContent(m.programs_less());
+  });
+
+  // A build whose contract never named the field at all is the same screen as
+  // one whose reading named none, rather than a panel with a hole in it.
+  it("says nothing of them where the reading has no such field", () => {
+    board({
+      programs: {
+        ok: true,
+        value: {
+          condition: stack.condition,
+          forms: stack.forms,
+          services: stack.services,
+          undeclared: stack.undeclared,
+          disturbs: stack.disturbs,
+        },
+      },
+    });
+    expect(panel()).not.toHaveTextContent(m.programs_less());
+  });
 });
 
 describe("what is coming in", () => {
@@ -533,6 +627,57 @@ describe("what needs the operator", () => {
   it("says plainly when nothing is wrong", () => {
     board({ moment: changed({ stuck: [] }), flow: "live" });
     expect(screen.getByText(m.figure_nothing_wrong())).toBeInTheDocument();
+  });
+});
+
+describe("what the operator has been told", () => {
+  const panel = (): HTMLElement =>
+    screen.getByRole("region", { name: m.panel_told() });
+
+  // The one channel that needs nothing set up. A condition carried only by a
+  // channel somebody has to configure is one nobody was told about.
+  it("carries what happened, how much it matters and what to do", () => {
+    board({ moment, flow: "live" });
+
+    expect(panel()).toHaveTextContent(
+      "Downloading left this machine outside the tunnel.",
+    );
+    expect(panel()).toHaveTextContent(wordOfSeverity("critical"));
+    expect(panel()).toHaveTextContent(m.finding_to_do());
+    expect(panel()).toHaveTextContent(
+      "Stop the download client, then start the tunnel again.",
+    );
+  });
+
+  // A tunnel that dropped and came back matters, and a screen showing only what
+  // is wrong now has nothing to say about the hour the operator was away.
+  it("keeps what is over, and says which way it went", () => {
+    board({ moment, flow: "live" });
+
+    expect(panel()).toHaveTextContent(
+      "There is room on the data volume again.",
+    );
+    expect(panel()).toHaveTextContent(m.told_onset());
+    expect(panel()).toHaveTextContent(m.told_resolved());
+  });
+
+  // One event across several services is one row naming all of them, not the
+  // same thing said once per service.
+  it("names every check a grouped interruption speaks for", () => {
+    board({ moment, flow: "live" });
+
+    expect(panel()).toHaveTextContent(m.told_speaks_for());
+    expect(panel()).toHaveTextContent("vpn.killswitch");
+  });
+
+  it("names none where an interruption speaks only for itself", () => {
+    board({ moment: changed({ alerts: [cleared] }), flow: "live" });
+    expect(panel()).not.toHaveTextContent(m.told_speaks_for());
+  });
+
+  it("says plainly when nothing has interrupted", () => {
+    board({ moment: changed({ alerts: [] }), flow: "live" });
+    expect(panel()).toHaveTextContent(m.told_none());
   });
 });
 

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Storage from "./Storage.svelte";
-import { diskChecks, moment, unavailable } from "./fixture";
+import { moment, unavailable } from "./fixture";
+import { diskChecks } from "./findings";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
 const never = { kind: "never" } as const;
