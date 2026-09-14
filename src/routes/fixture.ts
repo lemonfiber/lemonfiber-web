@@ -30,6 +30,8 @@ const SPEED = 12_000_000;
 export const worstService: Service = {
   id: "prowlarr",
   name: "Prowlarr",
+  describes:
+    "Holds your indexer accounts in one place and shares them with everything else",
   state: "stopped",
   criticality: "important",
   profile: "core",
@@ -43,6 +45,7 @@ export const services: readonly Service[] = [
   {
     id: "sonarr",
     name: "Sonarr",
+    describes: "Watches for new episodes and fetches them",
     state: "unhealthy",
     criticality: "core",
     profile: "core",
@@ -51,6 +54,7 @@ export const services: readonly Service[] = [
   {
     id: "radarr",
     name: "Radarr",
+    describes: "Watches for films and fetches them",
     state: "starting",
     criticality: "core",
     profile: "core",
@@ -59,6 +63,8 @@ export const services: readonly Service[] = [
   {
     id: "gluetun",
     name: "Gluetun",
+    describes:
+      "Routes torrent traffic through your VPN and blocks it if the VPN drops",
     state: "healthy",
     criticality: "critical",
     profile: "core",
@@ -67,6 +73,7 @@ export const services: readonly Service[] = [
   {
     id: "plex",
     name: "Plex",
+    describes: "Plays your library back, in the house and away from it",
     state: "host-managed",
     criticality: "optional",
     profile: "extras",
@@ -79,6 +86,17 @@ export const stack: Stack = {
   condition: "degraded",
   forms: [],
   services: [...services],
+  undeclared: [],
+  // What each verb takes the stack away for, which a screen says before it asks
+  // anybody to confirm one. The teardown that waits for downloads is the one with
+  // nothing to bound it: what it waits for belongs to whoever is seeding.
+  disturbs: {
+    starting: { bound: "bounded", seconds: 180 },
+    stopping: { bound: "bounded", seconds: 10 },
+    stopping_after_downloads: { bound: "open-ended", until: "downloads" },
+    restarting: { bound: "bounded", seconds: 180 },
+    switching: { bound: "bounded", seconds: 180 },
+  },
 };
 
 /** The worst thing wrong, as the grading names it. */
