@@ -378,6 +378,7 @@ describe("the programs", () => {
               id: "one",
               name: "One",
               state,
+              describes: "Does the one job this fixture is about",
               criticality: "core",
               profile: "core",
               depends_on: [],
