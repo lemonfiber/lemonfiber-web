@@ -1,16 +1,14 @@
 import {
-  API_VERSION,
   malformed,
   TOKEN_HEADER,
   unreachable,
   type Fetching,
   type Sending,
-  type ByKind,
-  type Kind,
 } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
 import { acting, type Arguments } from "./acting";
 import type { Reaching } from "./asking";
+import { enveloped, notFromLemonfiber, proxyPage, replying } from "./bodies";
 import { stack } from "../routes/fixture";
 
 const key = ["a", "run", "key"].join("-");
@@ -27,37 +25,8 @@ const elsewhere = ["http:", "", "example.test"].join("/");
 const fetching: Fetching = () => Promise.resolve({ ok: true, body: null });
 
 /** Whatever this reply is, said as the transport hands it over. */
-const saying = (status: number, body: string): Sending =>
-  vi.fn(() =>
-    Promise.resolve({
-      ok: status >= 200 && status < 300,
-      status,
-      text: () => Promise.resolve(body),
-    }),
-  );
-
-/** One envelope, rendered as the server renders it. */
-const enveloped = <K extends Kind>(kind: K, data: ByKind[K]["data"]): string =>
-  JSON.stringify({ api_version: API_VERSION, kind, data });
-
-/**
- * A body no lemonfiber sends, for the readings whose subject is refusing one.
- *
- * Every other payload here is judged against the generated contract, which is
- * what keeps a stand-in from agreeing with the reader whoever wrote it wrote.
- * These are the ones that exist to be disagreed with, so they say so in their
- * own name rather than by being declared loosely.
- */
-const notFromLemonfiber = (kind: string, data: unknown): string =>
-  JSON.stringify({ api_version: API_VERSION, kind, data });
-
-/** What a reverse proxy in front of lemonfiber answers with when it cannot. */
-const proxyPage = [
-  "<html>",
-  "<head><title>502 Bad Gateway</title></head>",
-  "<body><center><h1>502 Bad Gateway</h1></center></body>",
-  "</html>",
-].join("\n");
+const saying = (status: number, body = ""): Sending =>
+  vi.fn(() => Promise.resolve(replying(status, body)));
 
 const asking = (over: { at?: string; sending: Sending }): Reaching => ({
   at: over.at ?? here,

@@ -1,12 +1,7 @@
-import {
-  API_VERSION,
-  type ByKind,
-  type Fetching,
-  type Kind,
-  type Sending,
-} from "@lemonfiber/sdk-ts";
+import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import { asked, scrollback, turnedAway, watching } from "./asking";
+import { enveloped, failure, notFromLemonfiber } from "./bodies";
 import { moment, stack } from "../routes/fixture";
 
 const key = ["a", "run", "key"].join("-");
@@ -18,31 +13,6 @@ const here = "http://127.0.0.1:7777";
  * to be refused by the client.
  */
 const elsewhere = ["http:", "", "example.test"].join("/");
-
-/** One answer, as the binary would render it. */
-const enveloped = <K extends Kind>(kind: K, data: ByKind[K]["data"]): string =>
-  JSON.stringify({ api_version: API_VERSION, kind, data });
-
-/**
- * A body no lemonfiber sends, for the readings whose subject is refusing one.
- *
- * Every other payload here is judged against the generated contract, which is
- * what keeps a stand-in from agreeing with the reader whoever wrote it wrote.
- * These are the ones that exist to be disagreed with, so they say so in their
- * own name rather than by being declared loosely.
- */
-const notFromLemonfiber = (kind: string, data: unknown): string =>
-  JSON.stringify({ api_version: API_VERSION, kind, data });
-
-/** One refusal, as a command that ran and failed renders it. */
-const failure = (summary: string): ByKind["error"]["data"] => ({
-  code: "engine-absent",
-  summary,
-  meaning: "Nothing can be started until it is.",
-  remedies: [],
-  severity: "error",
-  state: "actionable",
-});
 
 /** A transport that answers every request with the same body. */
 const answering = (body: string, ok = true, status = 200): Sending => {

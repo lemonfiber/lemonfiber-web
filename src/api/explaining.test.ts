@@ -1,14 +1,8 @@
-import {
-  API_VERSION,
-  TOKEN_HEADER,
-  type Fetching,
-  type Sending,
-  type ByKind,
-  type Kind,
-} from "@lemonfiber/sdk-ts";
+import { TOKEN_HEADER, type Fetching, type Sending } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
 import { explaining } from "./explaining";
 import type { Reaching } from "./asking";
+import { enveloped } from "./bodies";
 import { explained } from "../routes/fixture";
 
 const key = ["a", "run", "key"].join("-");
@@ -26,10 +20,6 @@ const saying = (status: number, body = ""): Sending =>
       text: () => Promise.resolve(body),
     }),
   );
-
-/** One envelope, rendered as the server renders it. */
-const enveloped = <K extends Kind>(kind: K, data: ByKind[K]["data"]): string =>
-  JSON.stringify({ api_version: API_VERSION, kind, data });
 
 const asking = (sending: Sending): Reaching => ({
   at: here,
