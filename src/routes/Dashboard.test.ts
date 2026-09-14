@@ -3,7 +3,15 @@ import userEvent from "@testing-library/user-event";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
 import Dashboard from "./Dashboard.svelte";
-import { moment, services, stack, unavailable, worst } from "./fixture";
+import {
+  leaking,
+  moment,
+  services,
+  stack,
+  tunnel,
+  unavailable,
+  worst,
+} from "./fixture";
 import { doorAddress, frontDoor, house } from "./house";
 import {
   adrift,
@@ -75,6 +83,10 @@ function board(over: Partial<Parameters<typeof Dashboard>[1]> = {}): void {
 /** The stream's moment, with one part of it replaced. */
 const changed = (over: Partial<Moment>): Moment => ({ ...moment, ...over });
 
+/** The same moment, with the tunnel read some other way. */
+const tunnelAs = (over: Partial<typeof tunnel>): Moment =>
+  changed({ vpn: { panel: "ready", data: { ...tunnel, ...over } } });
+
 /** The same moment, with the front door read some other way. */
 const doorAs = (over: Partial<Door>): Moment =>
   changed({ door: { panel: "ready", data: { ...frontDoor, ...over } } });
@@ -97,6 +109,7 @@ const houseAs = (over: Partial<House>): Moment =>
 const everyPanel: readonly string[] = [
   m.panel_standing(),
   m.panel_space(),
+  m.panel_tunnel(),
   m.panel_forms(),
   m.panel_running(),
   m.panel_attention(),
@@ -1175,5 +1188,103 @@ describe("who is in the house", () => {
   it("holds a place before the stream has delivered", () => {
     board();
     expect(panel()).toHaveTextContent(m.waiting_answer());
+  });
+});
+
+// B3 puts the tunnel second on the screen because it is the only item with
+// consequences outside the machine, and the one fact on it that is evidence
+// rather than a claim is whether the download client's own traffic goes that
+// way. A tunnel that is up and carrying nothing looks fine on every other line.
+describe("the tunnel", () => {
+  const panel = (): HTMLElement =>
+    screen.getByRole("region", { name: m.panel_tunnel() });
+
+  it("gives the address it leaves from and the country it is in", () => {
+    board({ moment, live: answered });
+    expect(within(panel()).getByText(tunnel.exit_ip)).toBeInTheDocument();
+    expect(within(panel()).getByText(tunnel.country)).toBeInTheDocument();
+  });
+
+  it("says the download client's own traffic goes the same way", () => {
+    board({ moment, live: answered });
+    expect(within(panel()).getByText(m.tunnel_carrying())).toBeInTheDocument();
+    expect(
+      within(panel()).getByText(m.tunnel_leaving_from()),
+    ).toBeInTheDocument();
+  });
+
+  it("names the port the provider forwards", () => {
+    board({ moment, live: answered });
+    expect(
+      within(panel()).getByText(
+        m.tunnel_port_forwarded({ number: tunnel.forwarded_port ?? 0 }),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  // Running without a forwarded port is an ordinary place to be, so what it
+  // says is what it costs rather than an absence dressed as a fault.
+  it("says what no forwarded port costs rather than reporting a fault", () => {
+    board({ moment: tunnelAs({ forwarded_port: null }), live: answered });
+    expect(within(panel()).getByText(m.tunnel_port_none())).toBeInTheDocument();
+  });
+
+  it("says plainly where the downloading is not going through it", () => {
+    board({ moment: changed({ vpn: { panel: "ready", data: leaking } }) });
+    expect(within(panel()).getByText(m.tunnel_leaking())).toBeInTheDocument();
+    expect(within(panel()).getByText(m.tunnel_mismatch())).toBeInTheDocument();
+  });
+
+  it("says why the panel is empty where the tunnel could not be read", () => {
+    board({ moment: changed({ vpn: unavailable }), live: answered });
+    expect(
+      within(panel()).getByText(unavailable.data.reason),
+    ).toBeInTheDocument();
+  });
+
+  // A panel drawn permanently red for a choice somebody made on purpose is a
+  // fault reported against the operator.
+  it("is not on the screen at all where no tunnel is configured", () => {
+    board({ moment: changed({ vpn: null }), live: answered });
+    expect(screen.queryByRole("region", { name: m.panel_tunnel() })).toBeNull();
+  });
+});
+
+// The page reaching lemonfiber and lemonfiber reaching what it reads the
+// figures off are two connections, and the second can fail while the first is
+// carrying. A screen that graded itself by the stream alone would call a
+// moment current because it arrived on time, whatever was behind it.
+describe("what lemonfiber says about its own reach", () => {
+  it("says nothing where every source answered", () => {
+    board({ moment, flow: "live", live: answered });
+    expect(screen.queryByText(m.telemetry_disconnected_lead())).toBeNull();
+  });
+
+  it("interrupts where nothing is refreshing the figures", () => {
+    board({
+      moment: changed({ telemetry: "disconnected" }),
+      flow: "live",
+      live: answered,
+    });
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      m.telemetry_disconnected_lead(),
+    );
+    expect(
+      screen.getByText(m.telemetry_disconnected_prose()),
+    ).toBeInTheDocument();
+  });
+
+  it("says which panels to doubt where only some sources answered", () => {
+    board({
+      moment: changed({ telemetry: "degraded" }),
+      flow: "live",
+      live: answered,
+    });
+    expect(screen.getByText(m.telemetry_degraded_lead())).toBeInTheDocument();
+  });
+
+  it("says nothing about its own reach before the stream has carried", () => {
+    board();
+    expect(screen.queryByText(m.telemetry_degraded_lead())).toBeNull();
   });
 });

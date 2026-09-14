@@ -4,12 +4,14 @@ import {
   TOKEN_HEADER,
   unreachable,
   wrongVersion,
+  type ByKind,
   type Fetching,
   type Sending,
 } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
 import { pausing, redeeming } from "./redeeming";
 import type { Reaching } from "./asking";
+import { enveloped, notFromLemonfiber, proxyPage, replying } from "./bodies";
 
 const key = ["a", "run", "key"].join("-");
 const here = "http://127.0.0.1:7777";
@@ -27,39 +29,27 @@ const fetching: Fetching = () => Promise.resolve({ ok: true, body: null });
 
 /** Whatever this reply is, said as the transport hands it over. */
 const saying = (status: number, body = ""): Sending =>
-  vi.fn(() =>
-    Promise.resolve({
-      ok: status >= 200 && status < 300,
-      status,
-      text: () => Promise.resolve(body),
-    }),
-  );
-
-/** One envelope, rendered as the server renders it. */
-const enveloped = (kind: string, data: unknown): string =>
-  JSON.stringify({ api_version: API_VERSION, kind, data });
-
-/** What a reverse proxy in front of lemonfiber answers with when it cannot. */
-const proxyPage = [
-  "<html>",
-  "<head><title>502 Bad Gateway</title></head>",
-  "<body><center><h1>502 Bad Gateway</h1></center></body>",
-  "</html>",
-].join("\n");
+  vi.fn(() => Promise.resolve(replying(status, body)));
 
 /** One lifecycle report, as the endpoint renders a finished job. */
-const ranTo = (over: Record<string, unknown> = {}): string =>
-  JSON.stringify({
-    api_version: API_VERSION,
-    kind: "lifecycle",
-    data: {
-      action: "up",
-      command: ["compose", "up"],
-      profile: "core",
-      condition: "active",
-    },
-    ...over,
-  });
+const ran: ByKind["lifecycle"]["data"] = {
+  action: "up",
+  command: ["compose", "up", "-d"],
+  plan: {
+    dropped: [],
+    forms: ["core"],
+    profiles: ["core"],
+    services: ["gluetun"],
+  },
+  rehearsed: false,
+  services: [],
+  stack_edits: [],
+  condition: "active",
+};
+
+/** That report, said to be written for whichever wire version is named. */
+const ranTo = (over: { api_version: number }): string =>
+  JSON.stringify({ kind: "lifecycle", data: ran, ...over });
 
 const asking = (over: { at?: string; sending: Sending }): Reaching => ({
   at: over.at ?? here,
@@ -119,15 +109,7 @@ describe("where the work got to", () => {
   it("says it finished where lemonfiber rendered what it came to", async () => {
     const came = await redeeming(
       asking({
-        sending: saying(
-          200,
-          enveloped("lifecycle", {
-            action: "up",
-            command: ["compose", "up"],
-            profile: "core",
-            condition: "active",
-          }),
-        ),
+        sending: saying(200, enveloped("lifecycle", ran)),
       }),
       job,
     );
@@ -190,11 +172,14 @@ describe("when the reply did not come from lemonfiber", () => {
     ["a document that is not an envelope", '{"detail":"gone"}'],
     [
       "an envelope whose sentence is not one",
-      enveloped("error", { code: "engine-absent", summary: { text: "no" } }),
+      notFromLemonfiber("error", {
+        code: "engine-absent",
+        summary: { text: "no" },
+      }),
     ],
     [
       "an envelope carrying no sentence at all",
-      enveloped("error", { code: "engine-absent", summary: null }),
+      notFromLemonfiber("error", { code: "engine-absent", summary: null }),
     ],
   ])("says lemonfiber is not answering for %s", async (_what, body) => {
     const came = await redeeming(asking({ sending: saying(502, body) }), job);

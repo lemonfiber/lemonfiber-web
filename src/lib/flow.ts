@@ -6,6 +6,7 @@
  * rather than to a panel, and the words for it live here.
  */
 import type { Tone } from "./state";
+import type { Telemetry } from "./wire";
 import * as m from "../paraglide/messages.js";
 
 /**
@@ -65,5 +66,68 @@ export function saidOfFlow(flow: Flow): Said | undefined {
       return { lead: m.flow_stale_lead(), prose: m.flow_stale_prose() };
     case "lost":
       return { lead: m.banner_contact_lead(), prose: m.banner_contact_prose() };
+  }
+}
+
+/**
+ * How badly lemonfiber's own reach wants the operator.
+ *
+ * A screen filled from a source that could read some of what it was asked for
+ * is worth watching; one whose figures nothing is refreshing is the thing to
+ * act on. A machine with nothing running and one with nothing set up are each
+ * an ordinary place to be, and neither is a fault.
+ */
+export function toneOfTelemetry(telemetry: Telemetry): Tone {
+  switch (telemetry) {
+    case "live":
+    case "no-stack":
+    case "unconfigured":
+      return "calm";
+    case "degraded":
+      return "watch";
+    case "disconnected":
+      return "alarm";
+    default:
+      return "calm";
+  }
+}
+
+/**
+ * What lemonfiber's own reach has to be told, or nothing where it has it all.
+ *
+ * The connection above this one is between the page and lemonfiber; this one is
+ * between lemonfiber and what it reads the figures off. Both can be carrying
+ * and only one of them can be, so a screen that says the live connection is
+ * fine and nothing else would be current and wrong at the same time.
+ */
+export function saidOfTelemetry(telemetry: Telemetry): Said | undefined {
+  switch (telemetry) {
+    case "live":
+      return undefined;
+    case "degraded":
+      return {
+        lead: m.telemetry_degraded_lead(),
+        prose: m.telemetry_degraded_prose(),
+      };
+    case "disconnected":
+      return {
+        lead: m.telemetry_disconnected_lead(),
+        prose: m.telemetry_disconnected_prose(),
+      };
+    case "no-stack":
+      return {
+        lead: m.telemetry_none_lead(),
+        prose: m.telemetry_none_prose(),
+      };
+    case "unconfigured":
+      return {
+        lead: m.telemetry_unset_lead(),
+        prose: m.telemetry_unset_prose(),
+      };
+    default:
+      return {
+        lead: m.telemetry_unrecognised_lead(),
+        prose: m.telemetry_unrecognised_prose(),
+      };
   }
 }

@@ -10,10 +10,17 @@
   import Running from "./panels/Running.svelte";
   import Space from "./panels/Space.svelte";
   import Standing from "./panels/Standing.svelte";
+  import Tunnel from "./panels/Tunnel.svelte";
   import Waiting from "./panels/Waiting.svelte";
   import Board from "./Board.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
-  import { saidOfFlow, toneOfFlow, type Flow } from "../lib/flow";
+  import {
+    saidOfFlow,
+    saidOfTelemetry,
+    toneOfFlow,
+    toneOfTelemetry,
+    type Flow,
+  } from "../lib/flow";
   import type { Freshness } from "../lib/freshness";
   import type { Moment, Stack } from "../lib/wire";
   import type { Controls } from "../lib/work";
@@ -46,6 +53,9 @@
 
   const said = $derived(saidOfFlow(flow));
   const graded = $derived(moment === undefined ? read : live);
+  const tunnel = $derived(
+    moment === undefined ? undefined : (moment.vpn ?? null),
+  );
 </script>
 
 <!--
@@ -63,6 +73,17 @@
   cannot make it. Where nothing is opening the connection any more it carries the
   one control that asks for it, since a screen saying contact was lost and
   offering nothing to press leaves reloading the page as the only way back.
+
+  A second banner speaks for lemonfiber's own reach, which is a different fact
+  from this page's reach to lemonfiber and can fail while that one is carrying.
+  A stream arriving on time with nothing behind it is exactly the screen that
+  would otherwise read as current, so the reading lemonfiber sends about itself
+  is drawn rather than inferred from the stream that carried it.
+
+  The tunnel stands directly under the grading. It is the one thing on this
+  screen with consequences outside the machine, and its panel is left out
+  altogether where no tunnel is configured — a permanently red panel for a
+  choice somebody made on purpose is a fault reported against the operator.
 
   The two panels that act sit under the two that grade, so what is on offer is
   read after what it is for. The forms come first of the two: what the controls
@@ -88,10 +109,25 @@
     />
   {/if}
 
+  {#if moment !== undefined}
+    {@const reach = saidOfTelemetry(moment.telemetry)}
+    {#if reach !== undefined}
+      <Banner
+        tone={toneOfTelemetry(moment.telemetry)}
+        lead={reach.lead}
+        prose={reach.prose}
+      />
+    {/if}
+  {/if}
+
   <div class="pair">
     <Standing {stack} health={moment?.health} freshness={graded} />
     <Space disk={moment?.storage} freshness={live} />
   </div>
+
+  {#if tunnel !== null}
+    <Tunnel {tunnel} freshness={live} />
+  {/if}
 
   <Forms
     forms={controls.forms}

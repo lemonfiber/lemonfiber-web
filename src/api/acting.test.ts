@@ -1,5 +1,4 @@
 import {
-  API_VERSION,
   malformed,
   TOKEN_HEADER,
   unreachable,
@@ -9,6 +8,8 @@ import {
 import { describe, expect, it, vi } from "vitest";
 import { acting, type Arguments } from "./acting";
 import type { Reaching } from "./asking";
+import { enveloped, notFromLemonfiber, proxyPage, replying } from "./bodies";
+import { stack } from "../routes/fixture";
 
 const key = ["a", "run", "key"].join("-");
 const here = "http://127.0.0.1:7777";
@@ -24,26 +25,8 @@ const elsewhere = ["http:", "", "example.test"].join("/");
 const fetching: Fetching = () => Promise.resolve({ ok: true, body: null });
 
 /** Whatever this reply is, said as the transport hands it over. */
-const saying = (status: number, body: string): Sending =>
-  vi.fn(() =>
-    Promise.resolve({
-      ok: status >= 200 && status < 300,
-      status,
-      text: () => Promise.resolve(body),
-    }),
-  );
-
-/** One envelope, rendered as the server renders it. */
-const enveloped = (kind: string, data: unknown): string =>
-  JSON.stringify({ api_version: API_VERSION, kind, data });
-
-/** What a reverse proxy in front of lemonfiber answers with when it cannot. */
-const proxyPage = [
-  "<html>",
-  "<head><title>502 Bad Gateway</title></head>",
-  "<body><center><h1>502 Bad Gateway</h1></center></body>",
-  "</html>",
-].join("\n");
+const saying = (status: number, body = ""): Sending =>
+  vi.fn(() => Promise.resolve(replying(status, body)));
 
 const asking = (over: { at?: string; sending: Sending }): Reaching => ({
   at: over.at ?? here,
@@ -119,7 +102,7 @@ describe("when the work outlives the request", () => {
 
   it("will not take a reply that accepts work without naming it", async () => {
     const came = await acting(
-      asking({ sending: saying(202, enveloped("status", { services: [] })) }),
+      asking({ sending: saying(202, enveloped("status", stack)) }),
       "up",
       nothing,
     );
@@ -132,7 +115,14 @@ describe("when the work had finished before the reply", () => {
   it("says so rather than inventing a name for work nothing is doing", async () => {
     const came = await acting(
       asking({
-        sending: saying(200, enveloped("quality", { confirmed: true })),
+        sending: saying(
+          200,
+          enveloped("quality", {
+            choices: [],
+            customised: false,
+            disposition: "reapplied",
+          }),
+        ),
       }),
       "quality-reapply",
       nothing,
@@ -199,11 +189,14 @@ describe("when the reply did not come from lemonfiber", () => {
     ["a document that is not an envelope", '{"detail":"forbidden"}'],
     [
       "an envelope whose sentence is not one",
-      enveloped("error", { code: "engine-absent", summary: { text: "no" } }),
+      notFromLemonfiber("error", {
+        code: "engine-absent",
+        summary: { text: "no" },
+      }),
     ],
     [
       "an envelope carrying no sentence at all",
-      enveloped("error", { code: "engine-absent", summary: null }),
+      notFromLemonfiber("error", { code: "engine-absent", summary: null }),
     ],
   ])("says lemonfiber is not answering for %s", async (_what, body) => {
     const came = await acting(

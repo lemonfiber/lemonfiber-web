@@ -15,6 +15,7 @@ import type {
   Moment,
   Service,
   Stack,
+  Tunnel,
   Verdict,
   Word,
 } from "../lib/wire";
@@ -25,6 +26,20 @@ const FREE = 412_000_000_000;
 
 /** Bytes a second a usenet download runs at. */
 const SPEED = 12_000_000;
+
+/** The port the provider forwards to the download client. */
+const FORWARDED = 51_413;
+
+/** The tunnel, carrying the downloading it is there to carry. */
+export const tunnel: Tunnel = {
+  country: "Iceland",
+  egress_matches: true,
+  exit_ip: "198.51.100.42",
+  forwarded_port: FORWARDED,
+};
+
+/** The tunnel up, and the downloading going out past it. */
+export const leaking: Tunnel = { ...tunnel, egress_matches: false };
 
 /** The service the reading names first, which is the worst of them. */
 export const worstService: Service = {
@@ -151,7 +166,7 @@ export const moment: Moment = {
       },
     ],
   },
-  vpn: null,
+  vpn: { panel: "ready", data: tunnel },
 };
 
 /** A panel whose source could not fill it. */

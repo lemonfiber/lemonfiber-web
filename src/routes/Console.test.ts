@@ -1,6 +1,12 @@
 import { render, screen, waitFor, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
-import { API_VERSION, type Fetching, type Sending } from "@lemonfiber/sdk-ts";
+import {
+  API_VERSION,
+  type ByKind,
+  type Fetching,
+  type Kind,
+  type Sending,
+} from "@lemonfiber/sdk-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Console from "./Console.svelte";
 import {
@@ -32,7 +38,7 @@ const here = "http://127.0.0.1:7777";
 const elsewhere = ["http:", "", "example.test"].join("/");
 
 /** One envelope, rendered as an endpoint renders it. */
-const enveloped = (kind: string, data: unknown): string =>
+const enveloped = <K extends Kind>(kind: K, data: ByKind[K]["data"]): string =>
   JSON.stringify({ api_version: API_VERSION, kind, data });
 
 /** A transport that answers each reading with what that endpoint answers. */
@@ -64,11 +70,21 @@ const failing: Sending = () =>
   Promise.resolve({
     ok: false,
     status: 500,
-    text: () => Promise.resolve(enveloped("error", { summary: engineDown })),
+    text: () =>
+      Promise.resolve(
+        enveloped("error", {
+          code: "engine-absent",
+          summary: engineDown,
+          meaning: "Nothing can be started until it is.",
+          remedies: [],
+          severity: "error",
+          state: "actionable",
+        }),
+      ),
   });
 
 /** One event, framed as the stream frames it. */
-const framed = (kind: string, data: unknown): string =>
+const framed = <K extends Kind>(kind: K, data: ByKind[K]["data"]): string =>
   `event: ${kind}\ndata: ${JSON.stringify({ api_version: API_VERSION, kind, data })}\n\n`;
 
 /**
@@ -326,7 +342,15 @@ describe("what the live connection carries", () => {
   });
 
   it("ignores an event carrying something this screen is not drawn from", async () => {
-    console_({ fetching: saying([framed("log", { line: "something" })]) });
+    console_({
+      fetching: saying([
+        framed("log", {
+          service: "sonarr",
+          stream: "stdout",
+          line: "something",
+        }),
+      ]),
+    });
     expect(
       await screen.findByText(m.banner_contact_lead()),
     ).toBeInTheDocument();
@@ -432,7 +456,15 @@ const rendered: Says = {
   body: enveloped("lifecycle", {
     action: "up",
     command: ["compose", "up", "-d"],
-    profile: "core",
+    plan: {
+      dropped: [],
+      forms: ["core"],
+      profiles: ["core"],
+      services: ["gluetun"],
+    },
+    rehearsed: false,
+    services: [],
+    stack_edits: [],
     condition: "active",
   }),
 };
@@ -859,7 +891,14 @@ describe("when lemonfiber will not do what was asked", () => {
 
   it("records work that finished while the request was open", async () => {
     console_({
-      sending: acting({ status: 200, body: enveloped("quality", {}) }),
+      sending: acting({
+        status: 200,
+        body: enveloped("quality", {
+          choices: [],
+          customised: false,
+          disposition: "reapplied",
+        }),
+      }),
     });
 
     await press(wordOfDoing("up", false));
