@@ -1,7 +1,13 @@
-import { API_VERSION, type Fetching, type Sending } from "@lemonfiber/sdk-ts";
+import {
+  API_VERSION,
+  type ByKind,
+  type Fetching,
+  type Kind,
+  type Sending,
+} from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import { asked, scrollback, turnedAway, watching } from "./asking";
-import { stack } from "../routes/fixture";
+import { moment, stack } from "../routes/fixture";
 
 const key = ["a", "run", "key"].join("-");
 const here = "http://127.0.0.1:7777";
@@ -14,8 +20,29 @@ const here = "http://127.0.0.1:7777";
 const elsewhere = ["http:", "", "example.test"].join("/");
 
 /** One answer, as the binary would render it. */
-const enveloped = (kind: string, data: unknown): string =>
+const enveloped = <K extends Kind>(kind: K, data: ByKind[K]["data"]): string =>
   JSON.stringify({ api_version: API_VERSION, kind, data });
+
+/**
+ * A body no lemonfiber sends, for the readings whose subject is refusing one.
+ *
+ * Every other payload here is judged against the generated contract, which is
+ * what keeps a stand-in from agreeing with the reader whoever wrote it wrote.
+ * These are the ones that exist to be disagreed with, so they say so in their
+ * own name rather than by being declared loosely.
+ */
+const notFromLemonfiber = (kind: string, data: unknown): string =>
+  JSON.stringify({ api_version: API_VERSION, kind, data });
+
+/** One refusal, as a command that ran and failed renders it. */
+const failure = (summary: string): ByKind["error"]["data"] => ({
+  code: "engine-absent",
+  summary,
+  meaning: "Nothing can be started until it is.",
+  remedies: [],
+  severity: "error",
+  state: "actionable",
+});
 
 /** A transport that answers every request with the same body. */
 const answering = (body: string, ok = true, status = 200): Sending => {
@@ -83,7 +110,7 @@ describe("asked", () => {
   // Reading a payload under the wrong kind is fields with changed meanings.
   it("refuses an envelope calling itself something else", async () => {
     const got = await asked(
-      reaching(answering(enveloped("doctor", stack))),
+      reaching(answering(notFromLemonfiber("doctor", stack))),
       "status",
       "status",
     );
@@ -103,7 +130,7 @@ describe("watching", () => {
   });
 
   it("hands over what the stream said", async () => {
-    const said = `event: dashboard\ndata: ${enveloped("dashboard", { telemetry: "live" })}\n\n`;
+    const said = `event: dashboard\ndata: ${enveloped("dashboard", moment)}\n\n`;
     const got = watching(
       reaching(answering("{}"), streaming([said])),
       new AbortController().signal,
@@ -151,9 +178,7 @@ describe("turnedAway", () => {
     const broke = await asked(
       reaching(
         answering(
-          enveloped("error", {
-            summary: "The container engine is not running.",
-          }),
+          enveloped("error", failure("The container engine is not running.")),
           false,
           500,
         ),
@@ -246,7 +271,7 @@ describe("scrollback", () => {
   it("hands on the sentence lemonfiber failed with", async () => {
     const said = "The container engine is not running.";
     const got = await scrollback(
-      reaching(answering(enveloped("error", { summary: said }), false, 500)),
+      reaching(answering(enveloped("error", failure(said)), false, 500)),
     );
 
     expect(got).toMatchObject({
@@ -272,8 +297,8 @@ describe("scrollback", () => {
   it.each([
     ["a body it cannot read", ""],
     ["an envelope of another kind", enveloped("status", stack)],
-    ["an error that carries no sentence", enveloped("error", {})],
-    ["an error whose sentence is blank", enveloped("error", { summary: " " })],
+    ["an error that carries no sentence", notFromLemonfiber("error", {})],
+    ["an error whose sentence is blank", enveloped("error", failure(" "))],
   ])("reads a failure with %s as lemonfiber not answering", async (_, body) => {
     const got = await scrollback(reaching(answering(body, false, 500)));
 

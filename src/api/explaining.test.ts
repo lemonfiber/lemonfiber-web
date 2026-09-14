@@ -3,6 +3,8 @@ import {
   TOKEN_HEADER,
   type Fetching,
   type Sending,
+  type ByKind,
+  type Kind,
 } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
 import { explaining } from "./explaining";
@@ -26,7 +28,7 @@ const saying = (status: number, body = ""): Sending =>
   );
 
 /** One envelope, rendered as the server renders it. */
-const enveloped = (kind: string, data: unknown): string =>
+const enveloped = <K extends Kind>(kind: K, data: ByKind[K]["data"]): string =>
   JSON.stringify({ api_version: API_VERSION, kind, data });
 
 const asking = (sending: Sending): Reaching => ({
