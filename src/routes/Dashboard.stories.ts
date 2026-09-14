@@ -6,6 +6,7 @@ import {
   controls,
   finished,
   forgotten,
+  leaking,
   moment,
   notAnswering,
   stack,
@@ -111,7 +112,52 @@ export const NothingAnswered: Story = {
 };
 
 /**
- * Five panels whose sources could not fill them. Each says so inside its own
+ * The tunnel is up, connected where the operator chose, and the download
+ * program's own traffic is not going through it. Every other line on the panel
+ * reads fine, which is exactly why the comparison is the one that carries the
+ * mark: a tunnel carrying nothing is invisible without it.
+ */
+export const TheDownloadingIsNotInTheTunnel: Story = {
+  args: { moment: { ...moment, vpn: { panel: "ready", data: leaking } } },
+};
+
+/**
+ * A provider that forwards no port. An ordinary place to be rather than a
+ * fault, so the panel says what it costs — fewer people able to reach you to
+ * share with — instead of marking an absence red.
+ */
+export const NoPortIsForwarded: Story = {
+  args: {
+    moment: {
+      ...moment,
+      vpn: {
+        panel: "ready",
+        data: { ...leaking, egress_matches: true, forwarded_port: null },
+      },
+    },
+  },
+};
+
+/**
+ * No tunnel is configured, and the panel is left out altogether rather than
+ * drawn permanently red for a choice somebody made on purpose.
+ */
+export const NoTunnelIsConfigured: Story = {
+  args: { moment: { ...moment, vpn: null } },
+};
+
+/**
+ * lemonfiber can no longer reach what it reads the figures off, while this
+ * page's own connection to lemonfiber is carrying normally. Two connections,
+ * and the one that failed is the one nothing on the screen would otherwise say
+ * anything about.
+ */
+export const LemonfiberCannotReachTheEngine: Story = {
+  args: { moment: { ...moment, telemetry: "disconnected" } },
+};
+
+/**
+ * Six panels whose sources could not fill them. Each says so inside its own
  * border, in the words its source used, and the panels beside them carry on —
  * which is the whole of degrading honestly.
  */
@@ -124,6 +170,7 @@ export const PanelsThatCouldNotBeFilled: Story = {
       queue: unavailable,
       door: unavailable,
       household: unavailable,
+      vpn: unavailable,
     },
   },
 };

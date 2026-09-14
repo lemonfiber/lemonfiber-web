@@ -98,6 +98,15 @@ export type Transfer = Ready<Moment["transfers"]>[number];
 /** One service's queue. */
 export type Waiting = Ready<Moment["queue"]>[number];
 
+/** How much of what the screen shows lemonfiber could read this refresh. */
+export type Telemetry = Moment["telemetry"];
+
+/** The tunnel, or the reason it could not be read. */
+export type Tunnelled = NonNullable<Moment["vpn"]>;
+
+/** The tunnel, where it could be read. */
+export type Tunnel = Ready<Tunnelled>;
+
 /** The front door, or the reason it could not be read. */
 export type Doorway = Moment["door"];
 
@@ -147,7 +156,7 @@ export type Allowed = Allowance["standing"];
 export type Policy = Allowance["policy"];
 
 /** Anything the stream delivers as a panel: its content, or why there is none. */
-export type Held = Disk | Transfers | Queues | Doorway | Folk;
+export type Held = Disk | Transfers | Queues | Doorway | Folk | Tunnelled;
 
 /** One thing in the pipeline that has stopped. */
 export type Stall = Moment["stuck"][number];
@@ -208,6 +217,15 @@ export const everyStall: readonly Stall["stall"][] = [
   "stalled-download",
   "waiting-indefinitely",
   "slow",
+];
+
+/** Every reading of how much of the screen is being kept current. */
+export const everyTelemetry: readonly Telemetry[] = [
+  "live",
+  "degraded",
+  "disconnected",
+  "no-stack",
+  "unconfigured",
 ];
 
 /** Every way an import can put a finished download into the library. */
