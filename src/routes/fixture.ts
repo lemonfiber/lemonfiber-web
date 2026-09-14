@@ -87,6 +87,16 @@ export const stack: Stack = {
   forms: [],
   services: [...services],
   undeclared: [],
+  // What each verb takes the stack away for, which a screen says before it asks
+  // anybody to confirm one. The teardown that waits for downloads is the one with
+  // nothing to bound it: what it waits for belongs to whoever is seeding.
+  disturbs: {
+    starting: { bound: "bounded", seconds: 180 },
+    stopping: { bound: "bounded", seconds: 10 },
+    stopping_after_downloads: { bound: "open-ended", until: "downloads" },
+    restarting: { bound: "bounded", seconds: 180 },
+    switching: { bound: "bounded", seconds: 180 },
+  },
 };
 
 /** The worst thing wrong, as the grading names it. */
