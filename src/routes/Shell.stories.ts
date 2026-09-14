@@ -2,14 +2,13 @@ import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Shell from "./Shell.svelte";
 import {
   controls,
-  diagnosis,
-  diskChecks,
   moment,
   scrollback,
   stack,
   started,
   stillWaiting,
 } from "./fixture";
+import { diagnosis, diskChecks } from "./findings";
 import { household } from "./house";
 import {
   checking,

@@ -177,13 +177,15 @@ export const PanelsThatCouldNotBeFilled: Story = {
 
 /**
  * A stack with nothing wrong. Nothing stuck, nothing downloading, nothing
- * queued — said in words, because a row of zeroes reads as a measurement and
- * these are absences.
+ * queued, nothing the operator has been told — said in words, because a row of
+ * zeroes reads as a measurement and these are absences. The grading expands to
+ * nothing either: a heading over a list that is not there would promise one.
  */
 export const NothingWrong: Story = {
   args: {
     moment: {
       ...moment,
+      alerts: [],
       health: {
         affected: [],
         standing: "healthy",

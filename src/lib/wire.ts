@@ -80,6 +80,15 @@ export type Service = Stack["services"][number];
 /** The one-line grading every surface reads. */
 export type Health = Moment["health"];
 
+/** One thing that is wrong, as the expanded grading lists it. */
+export type Affected = Health["affected"][number];
+
+/** One interruption, as the operator has already been told about it. */
+export type Alert = Moment["alerts"][number];
+
+/** A service lemonfiber runs and can do less with, and why. */
+export type Unsupported = NonNullable<Stack["unsupported"]>[number];
+
 /** The disk, or the reason it could not be read. */
 export type Disk = Moment["storage"];
 

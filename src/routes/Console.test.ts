@@ -12,8 +12,6 @@ import Console from "./Console.svelte";
 import {
   chosenForm,
   declared,
-  diagnosis,
-  diskChecks,
   forms,
   job,
   moment,
@@ -22,6 +20,7 @@ import {
   worst,
   worstService,
 } from "./fixture";
+import { diagnosis, diskChecks } from "./findings";
 import { household } from "./house";
 import { nameOf } from "../lib/route";
 import { namesItsForms, titleOfDoing, wordOfDoing } from "../lib/work";

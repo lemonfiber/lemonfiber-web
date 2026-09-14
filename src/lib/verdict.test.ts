@@ -149,6 +149,59 @@ describe("what a verdict said for itself", () => {
       ]);
     },
   );
+
+  // The plain sentences and the raw detail are separate fields, which is what
+  // lets a screen lead with the first and set the second after it.
+  it("keeps the raw detail apart from the sentences written to be read", () => {
+    const account = accountOf({
+      outcome: "fail",
+      code: "services.health",
+      severity: "error",
+      state: "guided",
+      summary: "Prowlarr is not answering.",
+      meaning: "Nothing new will arrive while it is down.",
+      remedies: [],
+      detail: "connection refused (7)",
+    });
+
+    expect(account.detail).toBe("connection refused (7)");
+    expect(account.summary).toBe("Prowlarr is not answering.");
+  });
+
+  // Eleven failures sharing a full disk are one problem, and the cause is what
+  // a screen reports rather than each symptom standing on its own.
+  it("carries the problem that produced this one", () => {
+    const account = accountOf({
+      outcome: "warn",
+      code: "services.health",
+      severity: "warning",
+      state: "remediable",
+      summary: "Prowlarr is not answering.",
+      meaning: "Nothing new will arrive while it is down.",
+      remedies: [],
+      cause: {
+        code: "network.tunnel",
+        severity: "critical",
+        state: "guided",
+        summary: "The tunnel is holding the port it binds to.",
+        meaning: "Everything going out through it is waiting.",
+        remedies: [],
+      },
+    });
+
+    expect(account.cause).toBe("The tunnel is holding the port it binds to.");
+    expect(account.fixing).toBe("remediable");
+  });
+
+  // A screen draws a section for each of these, so a verdict that carries none
+  // has to read as one that has none rather than as one nobody asked.
+  it("carries neither where the verdict states neither", () => {
+    const account = accountOf({ outcome: "pass", note: null });
+
+    expect(account.detail).toBeUndefined();
+    expect(account.cause).toBeUndefined();
+    expect(account.fixing).toBeUndefined();
+  });
 });
 
 // The wire version is one number and the vocabulary under it grows, so a
