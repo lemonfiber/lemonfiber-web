@@ -35,6 +35,8 @@ const alert: Alert = {
   moment: "onset",
   severity: "critical",
   summary: "Downloading left this machine outside the tunnel.",
+  meaning:
+    "Traffic that should have been inside the tunnel was not, for as long as this lasted.",
   remedies: ["Stop the download client, then start the tunnel again."],
   affected: ["vpn.egress-match"],
 };

@@ -41,6 +41,8 @@
     readonly tone: Tone;
     /** What is wrong, in one line. */
     readonly summary: string;
+    /** What it costs the operator, which is the half between the two. */
+    readonly meaning: string;
     /** What to do about it, most likely first. */
     readonly remedies: readonly string[];
     /** What is also wrong because of this, counted with it rather than again. */
@@ -61,6 +63,7 @@
       weight: wordOfSeverity(one.severity),
       tone: toneOfSeverity(one.severity),
       summary: one.summary,
+      meaning: one.meaning,
       remedies: one.remedies,
       downstream: one.downstream,
     };
@@ -108,6 +111,7 @@
               <span class="check">{one.check}</span>
             </p>
             <p class="prose">{one.summary}</p>
+            <p class="prose">{one.meaning}</p>
             {#if one.remedies.length > 0}
               <p class="eyebrow">{m.finding_to_do()}</p>
               <ul class="listed">

@@ -15,4 +15,4 @@ jobs:
     permissions:
       contents: read
       issues: write
-    uses: lemonfiber/spec/.github/workflows/label-sync.yml@a269e7f347ed92988cbf03394130b6fee93347da # main
+    uses: lemonfiber/spec/.github/workflows/label-sync.yml@04447ba64dbbdbce7af81cace90b69e89601fdac # main

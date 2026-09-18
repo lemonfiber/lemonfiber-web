@@ -318,6 +318,12 @@ describe("how things stand", () => {
     expect(panel()).toHaveTextContent(
       "Check that nothing else holds the port it binds to.",
     );
+    expect(panel()).toHaveTextContent(
+      "Nothing new is being found, and anything waiting on a search stays where it is.",
+    );
+    expect(panel()).toHaveTextContent(
+      "A download large enough to fill the rest will fail partway and leave what it wrote.",
+    );
   });
 
   it("says how much each thing wrong matters", () => {
@@ -647,6 +653,28 @@ describe("what the operator has been told", () => {
     expect(panel()).toHaveTextContent(
       "Stop the download client, then start the tunnel again.",
     );
+  });
+
+  // An alert that names the event and the fix leaves the operator to work out
+  // for themselves what it cost them, which is the judgement the line exists to
+  // save. Its order carries that: what happened, what it costs, what to do.
+  it("sets what it costs between what happened and what to do", () => {
+    board({ moment, flow: "live" });
+
+    const said = panel().textContent;
+    const happened = said.indexOf(
+      "Downloading left this machine outside the tunnel.",
+    );
+    const costs = said.indexOf(
+      "Traffic that should have been inside the tunnel was not, for as long as this lasted.",
+    );
+    const todo = said.indexOf(
+      "Stop the download client, then start the tunnel again.",
+    );
+
+    expect(happened).toBeGreaterThan(-1);
+    expect(costs).toBeGreaterThan(happened);
+    expect(todo).toBeGreaterThan(costs);
   });
 
   // A tunnel that dropped and came back matters, and a screen showing only what

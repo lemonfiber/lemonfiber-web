@@ -29,6 +29,8 @@
     readonly tone: Tone;
     /** What happened, in the words the condition was raised with. */
     readonly summary: string;
+    /** What it costs the operator, which is the half between the two. */
+    readonly meaning: string;
     /** What to do about it, most likely first. */
     readonly remedies: readonly string[];
     /** Every check it speaks for, where it speaks for more than one. */
@@ -45,6 +47,7 @@
       weight: wordOfSeverity(alert.severity),
       tone: toneOfAlert(alert),
       summary: alert.summary,
+      meaning: alert.meaning,
       remedies: alert.remedies,
       grouped: alert.affected.length > 1 ? alert.affected : [],
     };
@@ -83,6 +86,7 @@
             <Tag label={one.weight} tone={one.tone} />
           </p>
           <h3>{one.summary}</h3>
+          <p class="prose">{one.meaning}</p>
           {#if one.remedies.length > 0}
             <p class="eyebrow">{m.finding_to_do()}</p>
             <ul class="listed">
@@ -150,6 +154,13 @@
     margin: 0;
     font-size: var(--text-item);
     font-weight: 600;
+  }
+
+  .prose {
+    margin: var(--sp-2) 0 0;
+    max-width: 76ch;
+    font-size: var(--text-prose);
+    color: var(--muted);
   }
 
   .eyebrow {
