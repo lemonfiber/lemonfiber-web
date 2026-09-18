@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@lemonfiber/brand": "github:lemonfiber/brand#82d7ce5b85b32ffa6be3925513e037e4af63dfcc",
-    "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#03c209824aef31bb4c96a67bf34d08f74fa7ac4c"
+    "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#f371f04d5cbbe551cbea35415f5d27f664c12b5b"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
