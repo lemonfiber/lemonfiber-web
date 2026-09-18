@@ -137,6 +137,8 @@ export const raised: Alert = {
   moment: "onset",
   severity: "critical",
   summary: "Downloading left this machine outside the tunnel.",
+  meaning:
+    "Traffic that should have been inside the tunnel was not, for as long as this lasted.",
   remedies: ["Stop the download client, then start the tunnel again."],
   affected: ["vpn.egress-match", "vpn.killswitch"],
 };
@@ -148,6 +150,7 @@ export const cleared: Alert = {
   moment: "resolved",
   severity: "warning",
   summary: "There is room on the data volume again.",
+  meaning: "Nothing is at risk of failing to write while this holds.",
   remedies: [],
   affected: ["storage.headroom"],
 };
@@ -165,6 +168,8 @@ export const moment: Moment = {
         check: "services.health",
         severity: "error",
         summary: "Prowlarr is not answering its health check.",
+        meaning:
+          "Nothing new is being found, and anything waiting on a search stays where it is.",
         remedies: [
           "Read what it said for itself, then start it again.",
           "Check that nothing else holds the port it binds to.",
@@ -175,6 +180,8 @@ export const moment: Moment = {
         check: "storage.headroom",
         severity: "warning",
         summary: "Less than a tenth of the data volume is free.",
+        meaning:
+          "A download large enough to fill the rest will fail partway and leave what it wrote.",
         remedies: [],
         downstream: [],
       },
