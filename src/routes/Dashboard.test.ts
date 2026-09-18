@@ -661,7 +661,7 @@ describe("what the operator has been told", () => {
   it("sets what it costs between what happened and what to do", () => {
     board({ moment, flow: "live" });
 
-    const said = panel().textContent ?? "";
+    const said = panel().textContent;
     const happened = said.indexOf(
       "Downloading left this machine outside the tunnel.",
     );
