@@ -483,7 +483,14 @@ for (const file of files) {
       /https?:\/\/(?!127\.0\.0\.1|localhost)/.test(line) &&
       !/^\s*(?:\/\/|\*|<!--)/.test(line)
     ) {
-      fail(file, at, "external origin");
+      fail(
+        file,
+        at,
+        "an external origin. This surface reaches lemonfiber at the address it was " +
+          "served from and nothing else — no CDN, no font host, no analytics — so a " +
+          "third-party address here is a request a household cannot see coming. Go " +
+          "through `@lemonfiber/sdk-ts`, or carry the asset in this repository",
+      );
     }
 
     for (const [found] of line.matchAll(ADDRESS)) {
@@ -495,9 +502,24 @@ for (const file of files) {
         );
     }
 
-    if (/eslint-disable/.test(line)) fail(file, at, "eslint-disable");
+    if (/eslint-disable/.test(line))
+      fail(
+        file,
+        at,
+        "an eslint-disable. There are two answers to a lint finding — change the " +
+          "code, or change the rule in `eslint.config.js` with a reason, reviewed. A " +
+          "local suppression is neither: it hides the finding in the place least " +
+          "likely to be read again",
+      );
     if (/@ts-(?:ignore|expect-error|nocheck)/.test(line))
-      fail(file, at, "TypeScript escape hatch");
+      fail(
+        file,
+        at,
+        "a TypeScript escape hatch. The types are what says this surface draws the " +
+          "shapes the API actually serves, and a line the compiler is told to skip is " +
+          "a shape nothing checked. Fix the type, or widen it where the value is " +
+          "genuinely unknown and narrow it at the edge",
+      );
 
     if (comments(line) && cites(line))
       fail(
@@ -516,7 +538,13 @@ for (const file of files) {
   });
 
   if (!file.endsWith(".test.ts") && lines.length > LINE_CAP) {
-    fail(file, null, `${lines.length} lines, cap is ${LINE_CAP}`);
+    fail(
+      file,
+      null,
+      `${lines.length} lines, over the cap of ${LINE_CAP}. A file past it is one ` +
+        "nobody reads before editing. Split it along a seam it already has rather " +
+        "than raising the cap",
+    );
   }
 
   // Every word a person reads comes from `messages/`. A string sitting in a
