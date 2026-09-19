@@ -114,7 +114,7 @@ describe("handing over a password", () => {
   // Verifying a password is deliberately expensive, and a form completed again
   // while the first attempt is still out would spend that twice.
   it("sends one attempt while one is still out", async () => {
-    let admit = (_came: Arrived): void => undefined;
+    let admit: (came: Arrived) => void = () => undefined;
     const asked = vi.fn<Admitting>(
       () =>
         new Promise<Arrived>((resolve) => {
