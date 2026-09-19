@@ -84,11 +84,22 @@ it is `git config core.hooksPath .githooks`, per clone, and git cannot read
 
 ## The gate
 
-Everything CI runs, in one command:
-
 ```console
+just ready     # once per clone, and again whenever the SDK moves
 npm run ci
 ```
+
+`npm run ci` is exactly what the `gate` job runs, which is the whole of CI over
+this repository's own source — and it is not the whole of CI. `gate.yml` does two
+things first that are **not** in the chain: `npm run client` builds the SDK this
+surface is drawn through, and `playwright install` fetches the browser the
+accessibility sweep drives. Without them the eleven steps run, reach `a11y`, and
+fail there. `just ready` is those two, and `just ci` depends on it.
+
+What the command leaves out is named in the [`justfile`](justfile) beside `just
+ci`: the four commit rules, which `.githooks/commit-msg` refuses before the push;
+`sdk-drift`, which compares this surface against the SDK's published contract; and
+the forge-side jobs.
 
 The individual steps are the `scripts` in [`package.json`](package.json), and each
 runs on its own while you work — `npm test` for the fast loop, `npm run storybook`
