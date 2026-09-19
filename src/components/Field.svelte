@@ -15,6 +15,13 @@
     confirmed?: string | undefined;
     /** Sets the value in the figure face, and narrows the box to fit one. */
     figure?: boolean | undefined;
+    /**
+     * What the box is for, where whatever keeps the reader's passwords can fill
+     * it in. A secret is hidden as it is typed. A box for anything else is left
+     * alone: an address, a port and a count are this machine's, and offering
+     * them to a password keeper is offering it the wrong thing.
+     */
+    purpose?: "who" | "secret" | undefined;
     /** What typing in it asks for. */
     oninput?: ((value: string) => void) | undefined;
   }
@@ -25,8 +32,13 @@
     hint,
     confirmed,
     figure = false,
+    purpose,
     oninput,
   }: Props = $props();
+
+  const FILLS = { who: "username", secret: "current-password" } as const;
+
+  const fills = $derived(purpose === undefined ? undefined : FILLS[purpose]);
 
   const uid = $props.id();
   const boxId = `${uid}-box`;
@@ -56,7 +68,8 @@
   <input
     id={boxId}
     class:figure
-    type="text"
+    type={purpose === "secret" ? "password" : "text"}
+    autocomplete={fills}
     spellcheck="false"
     {value}
     aria-describedby={described}

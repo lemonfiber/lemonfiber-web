@@ -83,6 +83,48 @@ describe("a box holding a figure", () => {
   });
 });
 
+describe("a box holding a secret", () => {
+  const asked = { label: "Your password", value: "" } as const;
+
+  // A password shown on the screen is a password read over a shoulder.
+  it("hides what is typed into it", () => {
+    render(Field, { ...asked, purpose: "secret" });
+    expect(screen.getByLabelText(asked.label)).toHaveAttribute(
+      "type",
+      "password",
+    );
+  });
+
+  it("is offered to whatever keeps the reader's passwords", () => {
+    render(Field, { ...asked, purpose: "secret" });
+    expect(screen.getByLabelText(asked.label)).toHaveAttribute(
+      "autocomplete",
+      "current-password",
+    );
+  });
+
+  it("names the account the password goes with", () => {
+    render(Field, { label: "Your name", value: "", purpose: "who" });
+    expect(screen.getByLabelText("Your name")).toHaveAttribute(
+      "autocomplete",
+      "username",
+    );
+  });
+
+  // An address, a port and a count are this machine's. Offering one to a
+  // password keeper is offering it the wrong thing.
+  it("offers a box for anything else to nobody", () => {
+    render(Field, provider);
+    expect(screen.getByLabelText(provider.label)).not.toHaveAttribute(
+      "autocomplete",
+    );
+    expect(screen.getByLabelText(provider.label)).toHaveAttribute(
+      "type",
+      "text",
+    );
+  });
+});
+
 describe("what typing in a box asks for", () => {
   it("hands over what the box now holds", async () => {
     const typed = vi.fn();

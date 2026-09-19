@@ -3,6 +3,7 @@
   import Console from "./routes/Console.svelte";
   import Unlock from "./routes/Unlock.svelte";
   import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
+  import { admitting, type Offered } from "./api/admitting";
   import { forget, remember, remembered } from "./api/token";
 
   interface Props {
@@ -23,11 +24,18 @@
 </script>
 
 <!--
-  Either the page has this run's key or it is asking for it.
+  Either the page is carrying something this run takes, or it is asking for it.
 
-  A refusal is not something to retry: a key is minted once per run, so a page
-  holding one the server will not take is holding one from a run that has ended.
-  It is forgotten, and the operator is asked for the current one.
+  Two things open it and both travel in the same header, so everything above the
+  door holds one thing rather than two. A key is minted once per run; a session
+  is exchanged for a password and lasts until it runs out or the password behind
+  it changes. Whether either is still good is the run's answer alone — a page
+  keeping its own copy of when a session ends would be a second opinion about
+  who is admitted.
+
+  A refusal is not something to retry with the same thing: whatever the page was
+  holding, the run has stopped taking it. It is forgotten, and the door is
+  asked again.
 
   Which of the two reasons this screen is here is carried with it. A console
   replaced mid-read leaves a reader looking at a screen they did not ask for,
@@ -37,6 +45,7 @@
 {#if token === undefined}
   <Unlock
     {refused}
+    onsignin={(offered: Offered) => admitting({ at, sending }, offered)}
     onopen={(given: string) => {
       remember(store, given);
       token = given;
