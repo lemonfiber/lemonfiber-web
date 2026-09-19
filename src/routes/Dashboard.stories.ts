@@ -16,7 +16,7 @@ import {
   unavailable,
   wouldNot,
 } from "./fixture";
-import { doorNumbered, frontDoor, house } from "./house";
+import { doorNumbered, frontDoor, house, unaskedHouse } from "./house";
 import { everyFlow } from "../lib/flow";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
@@ -481,6 +481,21 @@ export const TheHouseCouldNotBeRead: Story = {
           ],
         },
       },
+    },
+  },
+};
+
+/**
+ * The media server listed everybody and the request service was not asked, so
+ * nobody's requests were read. The panel says it could not be read rather than
+ * that nothing is waiting — the two arrive as the same empty list, and an
+ * operator told the second would go to bed on somebody's unruled request.
+ */
+export const NobodysRequestsWereRead: Story = {
+  args: {
+    moment: {
+      ...moment,
+      household: { panel: "ready", data: unaskedHouse },
     },
   },
 };

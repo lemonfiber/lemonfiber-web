@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   allowanceOf,
+  askingWasRead,
   everyAllowed,
   everyPolicy,
   everyRequestState,
@@ -390,5 +391,20 @@ describe("what is waiting on the operator", () => {
 
   it("finds nothing in a house that has asked for nothing", () => {
     expect(waitingOn([])).toEqual([]);
+  });
+});
+
+describe("whether what the house asked for was read at all", () => {
+  // The request service is asked once for the whole household, and the policy
+  // is what it answers with.
+  it("was read where the service answered with a policy", () => {
+    for (const policy of everyPolicy) expect(askingWasRead(policy)).toBe(true);
+  });
+
+  // Absent and null are the same absence: the contract writes an unread policy
+  // as null, and a report this build's contract predates has no field at all.
+  it("was not read where the service could not be asked", () => {
+    expect(askingWasRead(null)).toBe(false);
+    expect(askingWasRead(undefined)).toBe(false);
   });
 });

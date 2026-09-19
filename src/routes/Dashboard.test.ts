@@ -1290,6 +1290,27 @@ describe("who is in the house", () => {
     expect(panel()).toHaveTextContent(m.household_nothing_waiting());
   });
 
+  // The request service is asked once for the whole household, so a policy it
+  // could not be asked for is a policy nobody's requests were read under. Every
+  // member then carries the same empty list a member who has asked for nothing
+  // carries, and an operator told nothing is waiting would go to bed on it.
+  it("refuses to say nothing is waiting where nothing was read", () => {
+    board({
+      moment: houseAs({
+        policy: null,
+        members: house.members.map((one) => ({
+          ...one,
+          asking: null,
+          requests: [],
+        })),
+      }),
+      flow: "live",
+    });
+
+    expect(panel()).toHaveTextContent(m.household_requests_unread());
+    expect(panel()).not.toHaveTextContent(m.household_nothing_waiting());
+  });
+
   it("names everybody the media server holds an account for", () => {
     board({ moment, flow: "live" });
     for (const person of house.members) {

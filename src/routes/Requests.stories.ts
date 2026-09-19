@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Requests from "./Requests.svelte";
-import { household, unread } from "./house";
+import { household, unasked, unread } from "./house";
 
 const answered = { kind: "answered", secondsAgo: 8 } as const;
 const never = { kind: "never" } as const;
@@ -80,4 +80,14 @@ export const NothingAnswered: Story = {
     },
     freshness: { kind: "silent", secondsAgo: 300 },
   },
+};
+
+/**
+ * The media server listed everybody and the request service was not asked, so
+ * nobody's requests were read. Each panel says that rather than standing empty:
+ * an empty panel under somebody's name reads as a person who has asked for
+ * nothing, which is the opposite of what happened.
+ */
+export const NobodysRequestsWereRead: Story = {
+  args: { household: { ok: true, value: unasked } },
 };

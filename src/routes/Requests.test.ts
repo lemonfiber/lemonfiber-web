@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/svelte";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import Requests from "./Requests.svelte";
-import { household, unread } from "./house";
+import { household, unasked, unread } from "./house";
 import type { Freshness } from "../lib/freshness";
 import { wordOfRequestState } from "../lib/household";
 import type { Household } from "../lib/wire";
@@ -132,5 +132,35 @@ describe("when the reading did not answer", () => {
     );
 
     expect(screen.getByText("Nothing answered.")).toBeInTheDocument();
+  });
+});
+
+describe("a member with nothing under their name", () => {
+  // Nour has an account and has asked for nothing. An empty table under her
+  // name says only that the table is empty.
+  it("says they have asked for nothing, where the service was asked", () => {
+    asked({ ok: true, value: household });
+
+    const nour = screen.getByRole("region", { name: "Nour" });
+    expect(nour).toHaveTextContent(m.requests_member_none());
+  });
+
+  // The same empty list, and the opposite fact. Somebody who concluded from
+  // this screen that nobody in the house is waiting on them would be wrong.
+  it("says what they asked for could not be read, where it could not", () => {
+    asked({ ok: true, value: unasked });
+
+    for (const member of unasked.members) {
+      expect(
+        screen.getByRole("region", { name: member.name }),
+      ).toHaveTextContent(m.requests_member_unread());
+    }
+    expect(screen.queryByText(m.requests_member_none())).toBeNull();
+  });
+
+  it("draws no table for a member with nothing to put in one", () => {
+    asked({ ok: true, value: unasked });
+
+    expect(screen.queryByRole("table")).toBeNull();
   });
 });
