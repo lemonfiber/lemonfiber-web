@@ -47,3 +47,28 @@ export const PortForwarded: Story = {
     confirmed: m.field_port_forwarded(),
   },
 };
+
+/**
+ * The account a password goes with, offered to whatever keeps the reader's
+ * passwords so the two are filled in together.
+ */
+export const WhoIsSigningIn: Story = {
+  args: {
+    label: m.wayin_name_label(),
+    value: "",
+    hint: m.wayin_name_hint(),
+    purpose: "who",
+  },
+};
+
+/**
+ * A password, hidden as it is typed. A password shown on the screen is a
+ * password read over a shoulder.
+ */
+export const ASecret: Story = {
+  args: {
+    label: m.wayin_password_label(),
+    value: "",
+    purpose: "secret",
+  },
+};
