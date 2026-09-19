@@ -59,9 +59,14 @@
   one that was typed. The screen that owns the setting is the one that finds
   out whether the change took.
 
-  Nothing typed into one of these is prose: a key, a port, a path, a count. A
-  spell-checker underlines every one of them as a mistake, and on a key it also
-  hands what was typed to whatever the checker is.
+  Nothing typed into one of these is prose: a key, a port, a path, a count, a
+  name, a password. A spell-checker underlines every one of them as a mistake,
+  and on a secret it also hands what was typed to whatever the checker is.
+
+  What the box is for is said to the browser only where it is a credential.
+  Whatever keeps the reader's passwords fills a name and a password in together
+  and has no business with an address or a port, so it is told about the two and
+  about nothing else.
 -->
 <div class="field">
   <label for={boxId}>{label}</label>
