@@ -6,6 +6,7 @@
   import Value from "../../components/Value.svelte";
   import type { Freshness } from "../../lib/freshness";
   import {
+    askingWasRead,
     saidOfPolicy,
     shownOf,
     waitingOn,
@@ -142,9 +143,13 @@
           {columns}
           rows={rows(waiting)}
         />
-      {:else}
+      {:else if askingWasRead(shown.policy)}
         <div class="says">
           <Value state="known" absent={m.household_nothing_waiting()} />
+        </div>
+      {:else}
+        <div class="says">
+          <Value state="unknown" absent={m.household_requests_unread()} />
         </div>
       {/if}
 

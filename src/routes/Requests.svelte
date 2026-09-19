@@ -6,7 +6,12 @@
   import Value from "../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
-  import { kindOfRequest, nameOfRequest, standingOf } from "../lib/household";
+  import {
+    askingWasRead,
+    kindOfRequest,
+    nameOfRequest,
+    standingOf,
+  } from "../lib/household";
   import type { Column, Row } from "../lib/table";
   import type { Household, Member } from "../lib/wire";
   import * as m from "../paraglide/messages.js";
@@ -30,6 +35,7 @@
     household?.ok === false ? household.problem.message : undefined,
   );
   const members = $derived(report?.members);
+  const read = $derived(askingWasRead(report?.policy));
   const unread = $derived(report?.findings ?? []);
 
   /**
@@ -83,8 +89,15 @@
 <Board>
   {#if members !== undefined && nothing === undefined}
     {#each members as member (member.name)}
-      <Panel title={member.name} {freshness} flush>
-        <DataTable label={member.name} {columns} rows={rows(member)} />
+      {@const asked = member.requests.length > 0}
+      <Panel title={member.name} {freshness} flush={asked}>
+        {#if asked}
+          <DataTable label={member.name} {columns} rows={rows(member)} />
+        {:else if read}
+          <Value state="known" absent={m.requests_member_none()} />
+        {:else}
+          <Value state="unknown" absent={m.requests_member_unread()} />
+        {/if}
       </Panel>
     {/each}
   {:else if nothing !== undefined}

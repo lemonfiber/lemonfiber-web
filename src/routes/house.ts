@@ -169,3 +169,26 @@ export const unread: Household = {
   ],
   members: [],
 };
+
+/**
+ * The same house, with the request service unasked.
+ *
+ * The media server listed everybody, so there are members to draw. The request
+ * service was not asked, so the policy is absent and nobody's requests were
+ * read — which arrives as the same empty list a member who has asked for
+ * nothing arrives with, and means the opposite.
+ */
+export const unasked: Household = {
+  ...household,
+  policy: null,
+  allows: null,
+  findings: [noRequestService],
+  members: household.members.map((member) => ({
+    ...member,
+    asking: null,
+    requests: [],
+  })),
+};
+
+/** The same house with the request service unasked, as the stream carries it. */
+export const unaskedHouse: House = unasked;

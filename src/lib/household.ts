@@ -166,6 +166,20 @@ export function saidOfPolicy(policy: Policy | null | undefined): string {
 }
 
 /**
+ * Whether what the house asked for was read at all.
+ *
+ * The request service is asked once for the whole household, and the policy is
+ * what it answers with — so a policy that could not be read is a policy nobody's
+ * requests were read under. Every member then carries an empty list, which is
+ * the same empty list as a member who has asked for nothing and the opposite
+ * fact. A screen that claims nothing is waiting from one of them is claiming it
+ * from both.
+ */
+export function askingWasRead(policy: Policy | null | undefined): boolean {
+  return policy !== null && policy !== undefined;
+}
+
+/**
  * Where one person stands against what their period allows them.
  */
 export function wordOfAllowed(standing: Allowed): string {
