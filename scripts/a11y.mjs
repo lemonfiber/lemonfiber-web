@@ -241,75 +241,95 @@ async function walkFocus() {
   const tabbing = await keyboard.newPage();
 
   for (const id of stories) {
-    await tabbing.goto(storyAt(port, id), { waitUntil: "networkidle" });
-
-    // Number each place focus can land, once, so reading where it is costs a
-    // property rather than a walk of the document. What each draws unfocused is
-    // written down in the same pass, while nothing on the page has focus.
-    //
-    // A roving tabindex takes a group of controls out of the tab order and
-    // leaves one in — a radio group is meant to be entered once and moved
-    // through by arrow. Counting the others as places to land would read
-    // correct behaviour as a trap.
-    const places = await tabbing.evaluate((selector) => {
-      const spots = [...document.querySelectorAll(selector)].filter(
-        (element) =>
-          element instanceof HTMLElement &&
-          element.getClientRects().length > 0 &&
-          getComputedStyle(element).visibility !== "hidden" &&
-          element.getAttribute("tabindex") !== "-1",
-      );
-      spots.forEach((element, index) => {
-        const style = getComputedStyle(element);
-        element.dataset["landing"] = String(index);
-        element.dataset["ring"] = style.outline;
-        element.dataset["shadow"] = style.boxShadow;
-      });
-      return spots.length;
-    }, FOCUSABLE);
-
-    // Nowhere to land is nothing to walk.
-    if (places === 0) continue;
-
-    const reached = new Set();
-    for (let press = 0; press < places + 1; press += 1) {
-      await tabbing.keyboard.press("Tab");
-      const at = await tabbing.evaluate(LANDED);
-      if (at === null || reached.has(at.landing)) continue;
-      reached.add(at.landing);
-      landings += 1;
-      if (!draws(at)) {
-        found.push(
-          `focus    ${"no ring".padEnd(18)} ${id}\n        ${at.where} — outline ${at.outline}, box-shadow ${at.shadow}`,
-        );
-      }
-    }
-
-    // Back the way it came. A trap that lets focus forward and not back is a trap
-    // for anyone who overshoots, which is the ordinary way a keyboard is used, and
-    // a walk in one direction cannot see it.
-    const back = new Set();
-    for (let press = 0; press < places + 1; press += 1) {
-      await tabbing.keyboard.press("Shift+Tab");
-      const at = await tabbing.evaluate(LANDED);
-      if (at === null) continue;
-      back.add(at.landing);
-    }
-
-    // One place to land cannot trap anything: there is nowhere to circle.
-    if (places > 1 && reached.size < places) {
-      found.push(
-        `keyboard ${"trap".padEnd(18)} ${id}\n        focus reached ${String(reached.size)} of ${String(places)} places to land`,
-      );
-    }
-    if (places > 1 && back.size < reached.size) {
-      found.push(
-        `keyboard ${"trap going back".padEnd(18)} ${id}\n        focus reached ${String(reached.size)} of ${String(places)} going forward and ${String(back.size)} coming back`,
-      );
-    }
+    await walkStory(tabbing, id);
   }
 
   await keyboard.close();
+}
+
+/** One story walked by keyboard: forward through every place, then back. */
+async function walkStory(tabbing, id) {
+  await tabbing.goto(storyAt(port, id), { waitUntil: "networkidle" });
+
+  // Number each place focus can land, once, so reading where it is costs a
+  // property rather than a walk of the document. What each draws unfocused is
+  // written down in the same pass, while nothing on the page has focus.
+  //
+  // A roving tabindex takes a group of controls out of the tab order and
+  // leaves one in — a radio group is meant to be entered once and moved
+  // through by arrow. Counting the others as places to land would read
+  // correct behaviour as a trap.
+  const places = await tabbing.evaluate((selector) => {
+    const spots = [...document.querySelectorAll(selector)].filter(
+      (element) =>
+        element instanceof HTMLElement &&
+        element.getClientRects().length > 0 &&
+        getComputedStyle(element).visibility !== "hidden" &&
+        element.getAttribute("tabindex") !== "-1",
+    );
+    spots.forEach((element, index) => {
+      const style = getComputedStyle(element);
+      element.dataset["landing"] = String(index);
+      element.dataset["ring"] = style.outline;
+      element.dataset["shadow"] = style.boxShadow;
+    });
+    return spots.length;
+  }, FOCUSABLE);
+
+  // Nowhere to land is nothing to walk.
+  if (places === 0) return;
+
+  const reached = await tabForward(tabbing, id, places);
+  const back = await tabBack(tabbing, places);
+
+  // One place to land cannot trap anything: there is nowhere to circle.
+  if (places > 1 && reached.size < places) {
+    found.push(
+      `keyboard ${"trap".padEnd(18)} ${id}\n        focus reached ${String(reached.size)} of ${String(places)} places to land`,
+    );
+  }
+  if (places > 1 && back.size < reached.size) {
+    found.push(
+      `keyboard ${"trap going back".padEnd(18)} ${id}\n        focus reached ${String(reached.size)} of ${String(places)} going forward and ${String(back.size)} coming back`,
+    );
+  }
+}
+
+/**
+ * Tab once more than there are places to land, reading the ring at each place
+ * focus reaches for the first time. Answers the places reached.
+ */
+async function tabForward(tabbing, id, places) {
+  const reached = new Set();
+  for (let press = 0; press < places + 1; press += 1) {
+    await tabbing.keyboard.press("Tab");
+    const at = await tabbing.evaluate(LANDED);
+    if (at === null || reached.has(at.landing)) continue;
+    reached.add(at.landing);
+    landings += 1;
+    if (!draws(at)) {
+      found.push(
+        `focus    ${"no ring".padEnd(18)} ${id}\n        ${at.where} — outline ${at.outline}, box-shadow ${at.shadow}`,
+      );
+    }
+  }
+  return reached;
+}
+
+/**
+ * Back the way it came. A trap that lets focus forward and not back is a trap
+ * for anyone who overshoots, which is the ordinary way a keyboard is used, and
+ * a walk in one direction cannot see it. Answers the places reached.
+ */
+async function tabBack(tabbing, places) {
+  const back = new Set();
+  for (let press = 0; press < places + 1; press += 1) {
+    await tabbing.keyboard.press("Shift+Tab");
+    const at = await tabbing.evaluate(LANDED);
+    if (at === null) continue;
+    back.add(at.landing);
+  }
+  return back;
 }
 
 /**
@@ -457,7 +477,7 @@ async function readMotion() {
 // another. Findings are sorted before they are printed, so the report reads the
 // same whichever pass finishes first.
 await Promise.all([...THEMES.map(sweepWithAxe), walkFocus(), readMotion()]);
-found.sort();
+found.sort((one, other) => one.localeCompare(other));
 
 await browser.close();
 server.close();
