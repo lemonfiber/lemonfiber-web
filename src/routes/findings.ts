@@ -7,7 +7,15 @@
  * contract rather than invented, which makes a field that changes shape a
  * compiler error here before it is a blank space on a panel.
  */
-import type { Diagnosis, Verdict } from "../lib/wire";
+import type { Diagnosis, Origin, Verdict } from "../lib/wire";
+
+/**
+ * This build's own, which nearly every check is.
+ *
+ * Named once rather than spelled on every finding, so the few that are not stand
+ * out in the fixture the way they stand out on the screen.
+ */
+const STOCK: Origin = { origin: "bundled" };
 
 /**
  * The problem a warning or a failure carries.
@@ -108,6 +116,7 @@ export const diagnosis: Diagnosis = {
       check: "environment.docker",
       category: "environment",
       title: "Docker is installed and its daemon is answering",
+      origin: STOCK,
       verdict: {
         outcome: "pass",
         note: "Docker Engine 27.3.1 on this machine",
@@ -117,12 +126,14 @@ export const diagnosis: Diagnosis = {
       check: "storage.headroom",
       category: "storage",
       title: "There is room on the data volume to keep importing",
+      origin: STOCK,
       verdict: warned(filling),
     },
     {
       check: "services.health",
       category: "services",
       title: "Every service is answering its own health check",
+      origin: STOCK,
       service: "prowlarr",
       caused_by: "network.tunnel",
       said: "FATAL could not bind to the tunnel: address in use\nretrying in 30s",
@@ -132,12 +143,14 @@ export const diagnosis: Diagnosis = {
       check: "storage.hardlink",
       category: "storage",
       title: "Imports link into the library rather than copying",
+      origin: STOCK,
       verdict: failed(setAside),
     },
     {
       check: "vpn.egress-match",
       category: "vpn",
       title: "Torrent traffic leaves through the tunnel",
+      origin: STOCK,
       verdict: {
         outcome: "unverified",
         reason:
@@ -152,9 +165,20 @@ export const diagnosis: Diagnosis = {
       check: "providers.quota",
       category: "providers",
       title: "The Usenet provider still has quota left",
+      origin: STOCK,
       verdict: {
         outcome: "skipped",
         reason: "No Usenet provider is set up, so there is no quota to read.",
+      },
+    },
+    {
+      check: "plex.library",
+      category: "services",
+      title: "Plex can read the library it serves from",
+      origin: { origin: "plugin", named: "plex" },
+      verdict: {
+        outcome: "pass",
+        note: "Every library folder is readable from inside its container",
       },
     },
   ],
@@ -168,6 +192,7 @@ export const allWell: Diagnosis = {
       check: "environment.docker",
       category: "environment",
       title: "Docker is installed and its daemon is answering",
+      origin: STOCK,
       verdict: { outcome: "pass", note: null },
     },
   ],
@@ -181,6 +206,7 @@ export const diskChecks: Diagnosis = {
       check: "storage.one-filesystem",
       category: "storage",
       title: "Downloads and the library are on one filesystem",
+      origin: STOCK,
       verdict: {
         outcome: "pass",
         note: "so an import links rather than copying",
@@ -190,7 +216,60 @@ export const diskChecks: Diagnosis = {
       check: "storage.headroom",
       category: "storage",
       title: "There is room on the data volume to keep importing",
+      origin: STOCK,
       verdict: warned(filling),
+    },
+  ],
+};
+
+/**
+ * A run whose checks came from everywhere a check can come from.
+ *
+ * The stack's own first, so a screen that only looked at the first row to decide
+ * whether anything was marked would say nothing. After it a plugin's check, one
+ * the operator added, and two nobody could place — one with the reason the stack
+ * gave, and one whose reason it left blank.
+ */
+export const attributed: Diagnosis = {
+  overall: "healthy",
+  findings: [
+    {
+      check: "environment.docker",
+      category: "environment",
+      title: "Docker is installed and its daemon is answering",
+      origin: STOCK,
+      verdict: { outcome: "pass", note: null },
+    },
+    {
+      check: "plex.library",
+      category: "services",
+      title: "Plex can read the library it serves from",
+      origin: { origin: "plugin", named: "plex" },
+      verdict: { outcome: "pass", note: null },
+    },
+    {
+      check: "network.reach-nas",
+      category: "network",
+      title: "The storage box on the home network answers",
+      origin: { origin: "operator" },
+      verdict: { outcome: "pass", note: null },
+    },
+    {
+      check: "komga.scan",
+      category: "services",
+      title: "Komga has finished reading the comics folder",
+      origin: {
+        origin: "unknown",
+        why: "The plugin that declared it is no longer installed.",
+      },
+      verdict: { outcome: "pass", note: null },
+    },
+    {
+      check: "queue.stalled",
+      category: "queue",
+      title: "Nothing in the queue has stopped moving",
+      origin: { origin: "unknown", why: "  " },
+      verdict: { outcome: "pass", note: null },
     },
   ],
 };

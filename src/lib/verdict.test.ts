@@ -6,12 +6,13 @@ import {
   everyOutcome,
   everyOverall,
   gradingOf,
+  markOfOrigin,
   toneOfOutcome,
   toneOfOverall,
   wordOfCategory,
   wordOfOutcome,
 } from "./verdict";
-import type { Category, Outcome, Overall, Verdict } from "./wire";
+import type { Category, Origin, Outcome, Overall, Verdict } from "./wire";
 import * as m from "../paraglide/messages.js";
 
 /**
@@ -25,6 +26,7 @@ const unnamedOutcome = "inconclusive" as unknown as Outcome;
 const unnamedCategory = "hardware" as unknown as Category;
 const unnamedOverall = "inconclusive" as unknown as Overall;
 const unnamedVerdict = { outcome: "inconclusive" } as unknown as Verdict;
+const unnamedOrigin = { origin: "inherited" } as unknown as Origin;
 
 describe("what a run of the checks came to", () => {
   it.each(everyOverall)("gives %s a severity the interface has", (overall) => {
@@ -243,5 +245,41 @@ describe("a word this build has no entry for", () => {
       meaning: undefined,
       remedies: [],
     });
+  });
+});
+
+describe("where a check came from", () => {
+  it("leaves the stack's own unmarked", () => {
+    expect(markOfOrigin({ origin: "bundled" })).toBeUndefined();
+  });
+
+  it("names the plugin that put a check there", () => {
+    expect(markOfOrigin({ origin: "plugin", named: "plex" })).toBe(
+      m.finding_from_plugin({ named: "plex" }),
+    );
+  });
+
+  it("says the operator added one", () => {
+    expect(markOfOrigin({ origin: "operator" })).toBe(
+      m.finding_from_operator(),
+    );
+  });
+
+  it("gives the reason the stack could not place one", () => {
+    expect(
+      markOfOrigin({ origin: "unknown", why: " the manifest is unreadable " }),
+    ).toBe(m.finding_from_unknown({ why: "the manifest is unreadable" }));
+  });
+
+  /** An origin the stack could not establish and gave no reason for. */
+  const unexplained: Origin = { origin: "unknown", why: " " };
+
+  // Not knowing is never read as the stack's own, whatever form it arrives in.
+  it.each([
+    ["a blank reason", unexplained],
+    ["no origin at all", undefined],
+    ["an origin this build has no word for", unnamedOrigin],
+  ])("marks a check nobody could place, given %s", (_, origin) => {
+    expect(markOfOrigin(origin)).toBe(m.finding_from_unrecognised());
   });
 });

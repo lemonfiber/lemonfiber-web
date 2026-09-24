@@ -17,7 +17,14 @@
  * and draws the finding it belongs to. None of them falls off the end, which is
  * an `undefined` a screen reads a field off.
  */
-import type { Category, Outcome, Overall, Remedy, Verdict } from "./wire";
+import type {
+  Category,
+  Origin,
+  Outcome,
+  Overall,
+  Remedy,
+  Verdict,
+} from "./wire";
 import type { Fixing } from "./trouble";
 import type { Tone } from "./state";
 import * as m from "../paraglide/messages.js";
@@ -250,5 +257,40 @@ export function accountOf(verdict: Verdict): Account {
       };
     default:
       return SILENT;
+  }
+}
+
+/**
+ * Where a check came from, said beside it — or nothing, where it is this build's
+ * own.
+ *
+ * The stack's own checks are nearly every row, and a word repeated on each of
+ * them is a word nobody reads; every other origin is marked, so the one row a
+ * plugin or the operator put there is the one that stands out. A screen that
+ * marks any row says once what an unmarked one is.
+ *
+ * Not being able to say is never read as this build's own. A reason the stack
+ * could not establish it is said with it, and a lemonfiber older or newer than
+ * this contract — one that sends no origin, or one this build has no word for —
+ * is marked as nobody being able to say, since a confident attribution that is
+ * wrong is worse than an admitted gap.
+ */
+export function markOfOrigin(origin: Origin | undefined): string | undefined {
+  switch (origin?.origin) {
+    case "bundled":
+      return undefined;
+    case "operator":
+      return m.finding_from_operator();
+    case "plugin":
+      return m.finding_from_plugin({ named: origin.named });
+    case "unknown": {
+      const why = origin.why.trim();
+      return why === ""
+        ? m.finding_from_unrecognised()
+        : m.finding_from_unknown({ why });
+    }
+    case undefined:
+    default:
+      return m.finding_from_unrecognised();
   }
 }
