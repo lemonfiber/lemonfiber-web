@@ -18,6 +18,11 @@ jobs:
   gate:
     name: gate
     runs-on: ubuntu-latest
+    # The longest of 26 green runs before the sweep's passes ran side by side
+    # took 24.6 minutes (run 35770751392); the two since took 9.4 and 9.9.
+    # Without a bound, a browser that stops answering holds a runner for
+    # GitHub's default of six hours.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
