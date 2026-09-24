@@ -105,7 +105,9 @@ const { server, port } = await serve();
 const browser = await chromium.launch();
 
 const found = [];
-for (const theme of THEMES) {
+
+/** Axe over every story, in one rendering. */
+async function sweepWithAxe(theme) {
   // axe rejects the implicit context `browser.newPage()` opens.
   const context = await browser.newContext({
     viewport: { width: 1200, height: 700 },
@@ -215,11 +217,6 @@ const LANDED = () => {
   };
 };
 
-const keyboard = await browser.newContext({
-  viewport: { width: 1200, height: 700 },
-});
-const tabbing = await keyboard.newPage();
-
 /**
  * The fewest places focus has ever landed across the gallery.
  *
@@ -236,76 +233,84 @@ let landings = 0;
 /// How many elements the motion sweep looked at, across every story.
 let walked = 0;
 
-for (const id of stories) {
-  await tabbing.goto(storyAt(port, id), { waitUntil: "networkidle" });
+/** Every story walked by keyboard, forward and back. */
+async function walkFocus() {
+  const keyboard = await browser.newContext({
+    viewport: { width: 1200, height: 700 },
+  });
+  const tabbing = await keyboard.newPage();
 
-  // Number each place focus can land, once, so reading where it is costs a
-  // property rather than a walk of the document. What each draws unfocused is
-  // written down in the same pass, while nothing on the page has focus.
-  //
-  // A roving tabindex takes a group of controls out of the tab order and
-  // leaves one in — a radio group is meant to be entered once and moved
-  // through by arrow. Counting the others as places to land would read
-  // correct behaviour as a trap.
-  const places = await tabbing.evaluate((selector) => {
-    const spots = [...document.querySelectorAll(selector)].filter(
-      (element) =>
-        element instanceof HTMLElement &&
-        element.getClientRects().length > 0 &&
-        getComputedStyle(element).visibility !== "hidden" &&
-        element.getAttribute("tabindex") !== "-1",
-    );
-    spots.forEach((element, index) => {
-      const style = getComputedStyle(element);
-      element.dataset["landing"] = String(index);
-      element.dataset["ring"] = style.outline;
-      element.dataset["shadow"] = style.boxShadow;
-    });
-    return spots.length;
-  }, FOCUSABLE);
+  for (const id of stories) {
+    await tabbing.goto(storyAt(port, id), { waitUntil: "networkidle" });
 
-  // Nowhere to land is nothing to walk.
-  if (places === 0) continue;
+    // Number each place focus can land, once, so reading where it is costs a
+    // property rather than a walk of the document. What each draws unfocused is
+    // written down in the same pass, while nothing on the page has focus.
+    //
+    // A roving tabindex takes a group of controls out of the tab order and
+    // leaves one in — a radio group is meant to be entered once and moved
+    // through by arrow. Counting the others as places to land would read
+    // correct behaviour as a trap.
+    const places = await tabbing.evaluate((selector) => {
+      const spots = [...document.querySelectorAll(selector)].filter(
+        (element) =>
+          element instanceof HTMLElement &&
+          element.getClientRects().length > 0 &&
+          getComputedStyle(element).visibility !== "hidden" &&
+          element.getAttribute("tabindex") !== "-1",
+      );
+      spots.forEach((element, index) => {
+        const style = getComputedStyle(element);
+        element.dataset["landing"] = String(index);
+        element.dataset["ring"] = style.outline;
+        element.dataset["shadow"] = style.boxShadow;
+      });
+      return spots.length;
+    }, FOCUSABLE);
 
-  const reached = new Set();
-  for (let press = 0; press < places + 1; press += 1) {
-    await tabbing.keyboard.press("Tab");
-    const at = await tabbing.evaluate(LANDED);
-    if (at === null || reached.has(at.landing)) continue;
-    reached.add(at.landing);
-    landings += 1;
-    if (!draws(at)) {
+    // Nowhere to land is nothing to walk.
+    if (places === 0) continue;
+
+    const reached = new Set();
+    for (let press = 0; press < places + 1; press += 1) {
+      await tabbing.keyboard.press("Tab");
+      const at = await tabbing.evaluate(LANDED);
+      if (at === null || reached.has(at.landing)) continue;
+      reached.add(at.landing);
+      landings += 1;
+      if (!draws(at)) {
+        found.push(
+          `focus    ${"no ring".padEnd(18)} ${id}\n        ${at.where} — outline ${at.outline}, box-shadow ${at.shadow}`,
+        );
+      }
+    }
+
+    // Back the way it came. A trap that lets focus forward and not back is a trap
+    // for anyone who overshoots, which is the ordinary way a keyboard is used, and
+    // a walk in one direction cannot see it.
+    const back = new Set();
+    for (let press = 0; press < places + 1; press += 1) {
+      await tabbing.keyboard.press("Shift+Tab");
+      const at = await tabbing.evaluate(LANDED);
+      if (at === null) continue;
+      back.add(at.landing);
+    }
+
+    // One place to land cannot trap anything: there is nowhere to circle.
+    if (places > 1 && reached.size < places) {
       found.push(
-        `focus    ${"no ring".padEnd(18)} ${id}\n        ${at.where} — outline ${at.outline}, box-shadow ${at.shadow}`,
+        `keyboard ${"trap".padEnd(18)} ${id}\n        focus reached ${String(reached.size)} of ${String(places)} places to land`,
+      );
+    }
+    if (places > 1 && back.size < reached.size) {
+      found.push(
+        `keyboard ${"trap going back".padEnd(18)} ${id}\n        focus reached ${String(reached.size)} of ${String(places)} going forward and ${String(back.size)} coming back`,
       );
     }
   }
 
-  // Back the way it came. A trap that lets focus forward and not back is a trap
-  // for anyone who overshoots, which is the ordinary way a keyboard is used, and
-  // a walk in one direction cannot see it.
-  const back = new Set();
-  for (let press = 0; press < places + 1; press += 1) {
-    await tabbing.keyboard.press("Shift+Tab");
-    const at = await tabbing.evaluate(LANDED);
-    if (at === null) continue;
-    back.add(at.landing);
-  }
-
-  // One place to land cannot trap anything: there is nowhere to circle.
-  if (places > 1 && reached.size < places) {
-    found.push(
-      `keyboard ${"trap".padEnd(18)} ${id}\n        focus reached ${String(reached.size)} of ${String(places)} places to land`,
-    );
-  }
-  if (places > 1 && back.size < reached.size) {
-    found.push(
-      `keyboard ${"trap going back".padEnd(18)} ${id}\n        focus reached ${String(reached.size)} of ${String(places)} going forward and ${String(back.size)} coming back`,
-    );
-  }
+  await keyboard.close();
 }
-
-await keyboard.close();
 
 /**
  * What moves, and how wide it gets.
@@ -401,48 +406,58 @@ const FLASH = 1 / 3;
  */
 const NARROW = 320;
 
-const reading = await browser.newContext({
-  viewport: { width: 1200, height: 700 },
-});
-const measuring = await reading.newPage();
+/** Every story read for movement, and measured at a narrow window. */
+async function readMotion() {
+  const reading = await browser.newContext({
+    viewport: { width: 1200, height: 700 },
+  });
+  const measuring = await reading.newPage();
 
-for (const id of stories) {
-  await measuring.goto(storyAt(port, id), { waitUntil: "networkidle" });
+  for (const id of stories) {
+    await measuring.goto(storyAt(port, id), { waitUntil: "networkidle" });
 
-  const flashing = await measuring.evaluate(MOVING);
-  walked += flashing.walked;
-  for (const one of flashing.moving) {
-    if (!one.forever || one.period >= FLASH) continue;
-    found.push(
-      `flash    ${"repeats".padEnd(18)} ${id}\n        ${one.where} — ${one.what} every ${String(one.period)}s, for ever`,
-    );
+    const flashing = await measuring.evaluate(MOVING);
+    walked += flashing.walked;
+    for (const one of flashing.moving) {
+      if (!one.forever || one.period >= FLASH) continue;
+      found.push(
+        `flash    ${"repeats".padEnd(18)} ${id}\n        ${one.where} — ${one.what} every ${String(one.period)}s, for ever`,
+      );
+    }
+
+    await measuring.emulateMedia({ reducedMotion: "reduce" });
+    const stilled = await measuring.evaluate(MOVING);
+    walked += stilled.walked;
+    for (const one of stilled.moving) {
+      if (one.period === 0) continue;
+      found.push(
+        `motion   ${"still moves".padEnd(18)} ${id}\n        ${one.where} — ${one.what} over ${String(one.period)}s`,
+      );
+    }
+    await measuring.emulateMedia({ reducedMotion: null });
+
+    await measuring.setViewportSize({ width: NARROW, height: 700 });
+    const sideways = await measuring.evaluate(() => ({
+      wants: document.documentElement.scrollWidth,
+      has: document.documentElement.clientWidth,
+    }));
+    if (sideways.wants > sideways.has) {
+      found.push(
+        `narrow   ${"scrolls sideways".padEnd(18)} ${id}\n        the page wants ${String(sideways.wants)}px in a ${String(sideways.has)}px window`,
+      );
+    }
+    await measuring.setViewportSize({ width: 1200, height: 700 });
   }
 
-  await measuring.emulateMedia({ reducedMotion: "reduce" });
-  const stilled = await measuring.evaluate(MOVING);
-  walked += stilled.walked;
-  for (const one of stilled.moving) {
-    if (one.period === 0) continue;
-    found.push(
-      `motion   ${"still moves".padEnd(18)} ${id}\n        ${one.where} — ${one.what} over ${String(one.period)}s`,
-    );
-  }
-  await measuring.emulateMedia({ reducedMotion: null });
-
-  await measuring.setViewportSize({ width: NARROW, height: 700 });
-  const sideways = await measuring.evaluate(() => ({
-    wants: document.documentElement.scrollWidth,
-    has: document.documentElement.clientWidth,
-  }));
-  if (sideways.wants > sideways.has) {
-    found.push(
-      `narrow   ${"scrolls sideways".padEnd(18)} ${id}\n        the page wants ${String(sideways.wants)}px in a ${String(sideways.has)}px window`,
-    );
-  }
-  await measuring.setViewportSize({ width: 1200, height: 700 });
+  await reading.close();
 }
 
-await reading.close();
+// The passes share nothing but the browser and the list of findings: each opens
+// its own context and page, so they run side by side rather than one after
+// another. Findings are sorted before they are printed, so the report reads the
+// same whichever pass finishes first.
+await Promise.all([...THEMES.map(sweepWithAxe), walkFocus(), readMotion()]);
+found.sort();
 
 await browser.close();
 server.close();
