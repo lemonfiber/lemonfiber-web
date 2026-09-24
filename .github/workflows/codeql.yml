@@ -19,6 +19,14 @@ on:
     - cron: "0 6 * * 2"
 permissions:
   contents: read
+# A push to a pull request makes the run for the commit before it moot, so
+# that run is cancelled rather than left to finish. A run on `main` or on the
+# schedule is grouped by its own run id, so it never waits on or replaces
+# another: each is the analysis of a commit that stays.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   analyze:
     runs-on: ubuntu-latest

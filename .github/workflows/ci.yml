@@ -7,6 +7,12 @@ on: [pull_request]
 permissions:
   contents: read
 
+# A push to a pull request makes the run for the commit before it moot, so
+# that run is cancelled rather than left to finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   # `pull-requests: write` is what lets the gate close a pull request whose
   # citation is missing or names an identifier that does not exist, rather than
