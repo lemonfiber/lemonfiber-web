@@ -18,15 +18,44 @@ jobs:
   gate:
     name: gate
     runs-on: ubuntu-latest
-    # The longest of 26 green runs before the sweep's passes ran side by side
-    # took 24.6 minutes (run 35770751392); the two since took 9.4 and 9.9.
-    # Without a bound, a browser that stops answering holds a runner for
-    # GitHub's default of six hours.
+    # A green run takes about ten minutes. Without a bound, a browser that stops
+    # answering holds a runner for GitHub's default of six hours.
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
+
+      # Whether the change reaches anything but formatting. Of what `npm run
+      # ci` checks, only Prettier reads Markdown, LICENSE and the files under
+      # `.github/` other than this one, so a change to those alone is checked
+      # for formatting and nothing else. Any other file runs the whole gate,
+      # and so does a base commit that cannot be read.
+      - name: What changed
+        id: scope
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BASE}" ] || ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            echo "No usable base commit, so the gate runs."
+            exit 0
+          fi
+          code=false
+          while IFS= read -r path; do
+            case "${path}" in
+            '' | *.md | LICENSE) ;;
+            .github/workflows/gate.yml) code=true ;;
+            .github/*) ;;
+            *) code=true ;;
+            esac
+          done <<< "$(git diff --name-only "${BASE}" HEAD)"
+          echo "code=${code}" >> "$GITHUB_OUTPUT"
+          if [ "${code}" = false ]; then
+            echo "Only files Prettier alone reads changed; the rest of the gate is skipped."
+          fi
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -36,16 +65,25 @@ jobs:
       - name: Install exactly what the lockfile says
         run: npm ci --ignore-scripts
 
+      - name: The changed files are formatted
+        if: steps.scope.outputs.code != 'true'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: git diff --name-only --diff-filter=ACMR -z "${BASE}" HEAD | xargs -0 -r ./node_modules/.bin/prettier --check --ignore-unknown
+
       # The client arrives as a commit rather than as a published build, and it
       # ships its build rather than its sources — so it builds when it is
       # installed, and the hardened install above stops it. This runs that one
       # build, by the commit the manifest pins, and no other package's.
       - name: Build the client this surface is drawn through
+        if: steps.scope.outputs.code == 'true'
         run: npm run client
 
       # The accessibility sweep drives the built Storybook in a real browser.
       - name: Install the browser the sweep drives
+        if: steps.scope.outputs.code == 'true'
         run: ./node_modules/.bin/playwright install --with-deps chromium
 
       - name: Run the gate
+        if: steps.scope.outputs.code == 'true'
         run: npm run ci
