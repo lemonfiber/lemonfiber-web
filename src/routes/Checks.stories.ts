@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Checks from "./Checks.svelte";
-import { allWell, diagnosis } from "./findings";
+import { allWell, attributed, diagnosis } from "./findings";
 
 const answered = { kind: "answered", secondsAgo: 6 } as const;
 const never = { kind: "never" } as const;
@@ -48,9 +48,19 @@ export const HealthCouldNotBeEstablished: Story = {
   args: {
     diagnosis: {
       ok: true,
-      value: { overall: "unknown", findings: diagnosis.findings.slice(4) },
+      value: { overall: "unknown", findings: diagnosis.findings.slice(4, 6) },
     },
   },
+};
+
+/**
+ * Checks from everywhere a check can come from. The stack's own row is left
+ * unmarked; every other row says under its title where it came from — a named
+ * plugin, the operator, or that nobody could say, with the stack's reason — and
+ * one line under the rows says what an unmarked row is.
+ */
+export const WhereEachCheckCameFrom: Story = {
+  args: { diagnosis: { ok: true, value: attributed } },
 };
 
 /**

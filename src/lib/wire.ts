@@ -50,6 +50,12 @@ export type Overall = Diagnosis["overall"];
 /** The family a check belongs to. */
 export type Category = Finding["category"];
 
+/**
+ * Where a check came from: this build, the operator, a named plugin, or nobody
+ * could say.
+ */
+export type Origin = Finding["origin"];
+
 /** One thing the operator can do about a problem. */
 export type Remedy = Extract<Verdict, { outcome: "unverified" }>["remedy"];
 

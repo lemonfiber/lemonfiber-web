@@ -1,8 +1,8 @@
-import { render, screen } from "@testing-library/svelte";
+import { render, screen, within } from "@testing-library/svelte";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import Checks from "./Checks.svelte";
-import { allWell, diagnosis } from "./findings";
+import { allWell, attributed, diagnosis } from "./findings";
 import type { Freshness } from "../lib/freshness";
 import { everyFixing, wordOfFixing } from "../lib/trouble";
 import { everyOverall, gradingOf, wordOfOutcome } from "../lib/verdict";
@@ -229,6 +229,113 @@ describe("where a finding stands with being fixed", () => {
   });
 });
 
+describe("where each check came from", () => {
+  /** The row one finding is drawn on, by the title over it. */
+  const rowOf = (title: string): HTMLElement => {
+    const row = screen.getByRole("heading", { name: title }).closest("article");
+    if (row === null) throw new Error(`no row is drawn for "${title}"`);
+    return row;
+  };
+
+  /** Every sentence that says where a check came from, on any row. */
+  const everyMark = (): string[] => [
+    m.finding_from_operator(),
+    m.finding_from_plugin({ named: "plex" }),
+    m.finding_from_unknown({
+      why: "The plugin that declared it is no longer installed.",
+    }),
+    m.finding_from_unrecognised(),
+  ];
+
+  // The stack's own row comes first, so a screen that only asked the first row
+  // whether anything was marked would draw neither the mark nor the note.
+  it("marks the check a plugin put there, on its own row", () => {
+    checks({ ok: true, value: attributed });
+
+    expect(
+      within(rowOf("Plex can read the library it serves from")).getByText(
+        m.finding_from_plugin({ named: "plex" }),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("marks the check the operator added", () => {
+    checks({ ok: true, value: attributed });
+
+    expect(
+      within(rowOf("The storage box on the home network answers")).getByText(
+        m.finding_from_operator(),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  // Not knowing is never read as the stack's own, and the gap reads as a reason
+  // rather than as a shrug.
+  it("marks a check nobody could place, with the reason the stack gave", () => {
+    checks({ ok: true, value: attributed });
+
+    expect(
+      within(rowOf("Komga has finished reading the comics folder")).getByText(
+        m.finding_from_unknown({
+          why: "The plugin that declared it is no longer installed.",
+        }),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("still marks a check nobody could place where the stack gave no reason", () => {
+    checks({ ok: true, value: attributed });
+
+    expect(
+      within(rowOf("Nothing in the queue has stopped moving")).getByText(
+        m.finding_from_unrecognised(),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  // The stack's own are nearly every row, and a word on each of them is a word
+  // nobody reads.
+  it("leaves the stack's own check unmarked", () => {
+    checks({ ok: true, value: attributed });
+    const own = rowOf("Docker is installed and its daemon is answering");
+
+    for (const mark of everyMark()) {
+      expect(within(own).queryByText(mark)).toBeNull();
+    }
+  });
+
+  it("says once, under the rows, what an unmarked check is", () => {
+    checks({ ok: true, value: attributed });
+    const said = panel().textContent;
+
+    expect(screen.getAllByText(m.findings_marked())).toHaveLength(1);
+    expect(said.indexOf(m.findings_marked())).toBeGreaterThan(
+      said.indexOf("Nothing in the queue has stopped moving"),
+    );
+  });
+
+  it("says it on a run where only a later row is marked", () => {
+    checks({ ok: true, value: diagnosis });
+
+    expect(screen.getByText(m.findings_marked())).toBeInTheDocument();
+    expect(
+      within(rowOf("Plex can read the library it serves from")).getByText(
+        m.finding_from_plugin({ named: "plex" }),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  // With nothing marked there is nothing for the note to explain.
+  it("says nothing of it where every check is the stack's own", () => {
+    checks({ ok: true, value: allWell });
+
+    expect(screen.queryByText(m.findings_marked())).toBeNull();
+    for (const mark of everyMark()) {
+      expect(screen.queryByText(mark)).toBeNull();
+    }
+  });
+});
+
 describe("a run with nothing in it", () => {
   it("says so in words rather than leaving the panel empty", () => {
     checks({ ok: true, value: { overall: "unknown", findings: [] } });
@@ -251,6 +358,7 @@ describe("a word this build has no entry for", () => {
           check: "queue.pressure",
           category: "queue",
           title: "The queue is being worked through",
+          origin: { origin: "bundled" },
           verdict: { outcome: "pass", note: null },
           ...over,
         },
@@ -274,6 +382,19 @@ describe("a word this build has no entry for", () => {
     checks(wider({ category: "hardware" }));
 
     expect(screen.getByText(m.category_unrecognised())).toBeInTheDocument();
+  });
+
+  // A lemonfiber older than this contract sends no origin, and a newer one can
+  // send one this build has no word for. Either is marked as nobody being able to
+  // say, and neither is read as the stack's own.
+  it.each([
+    ["sent no origin", { origin: undefined }],
+    ["sent one this page has no word for", { origin: { origin: "inherited" } }],
+  ])("marks a check whose server %s", (_, over) => {
+    checks(wider(over));
+
+    expect(screen.getByText(m.finding_from_unrecognised())).toBeInTheDocument();
+    expect(screen.getByText(m.findings_marked())).toBeInTheDocument();
   });
 
   it("says a grading it cannot place rather than grading nothing", () => {

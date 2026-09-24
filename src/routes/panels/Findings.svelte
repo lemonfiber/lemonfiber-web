@@ -10,6 +10,7 @@
   import { isSetAside, wordOfFixing } from "../../lib/trouble";
   import {
     accountOf,
+    markOfOrigin,
     toneOfOutcome,
     wordOfCategory,
     wordOfOutcome,
@@ -50,6 +51,8 @@
     readonly standing: string | undefined;
     /** What was checked. */
     readonly title: string;
+    /** Where the check came from, where it is not this build's own. */
+    readonly origin: string | undefined;
     /** What was seen, or what could not be. */
     readonly summary: string | undefined;
     /** What it means for the operator. */
@@ -94,6 +97,7 @@
       family: wordOfCategory(finding.category),
       standing: fixing === undefined ? undefined : wordOfFixing(fixing),
       title: finding.title,
+      origin: markOfOrigin(finding.origin),
       summary: account.summary,
       meaning: account.meaning,
       doings: account.remedies.map((remedy) => ({
@@ -109,6 +113,14 @@
       output: spoken(finding.said ?? undefined),
       detail: spoken(account.detail),
     };
+  }
+
+  /**
+   * Whether any row says where its check came from — which is when the note
+   * under the rows has something to explain.
+   */
+  function anyMarked(rows: readonly Shown[]): boolean {
+    return rows.some((one) => one.origin !== undefined);
   }
 
   /** A service's own words, or nothing where it wrote none worth showing. */
@@ -142,6 +154,12 @@
   the operator has already set aside are different work, and a row that named
   only the outcome left them all looking like the same work.
 
+  Where a check came from is said under its title wherever it is not this
+  build's own: from a named plugin, added by the operator, or — never read as
+  this build's own — that nobody could say, with the reason the stack gave. The
+  stack's own checks are nearly every row and stay unmarked, and a list with any
+  row marked says once, under the last of them, what an unmarked row is.
+
   A finding set aside keeps its place and loses its weight. It is not resolved,
   so hiding it would be a screen saying nothing is wrong when something is; it
   is answered, so leaving it shouting would put it back in front of the operator
@@ -164,6 +182,9 @@
             {/if}
           </p>
           <h3>{one.title}</h3>
+          {#if one.origin !== undefined}
+            <p class="origin">{one.origin}</p>
+          {/if}
           {#if one.summary !== undefined}
             <p class="prose">{one.summary}</p>
           {/if}
@@ -201,6 +222,9 @@
         </div>
       </article>
     {/each}
+    {#if anyMarked(shown)}
+      <p class="legend">{m.findings_marked()}</p>
+    {/if}
   {:else if shown !== undefined}
     <Value state="known" {absent} />
   {:else if problem !== undefined}
@@ -260,6 +284,22 @@
     margin: 0 0 var(--sp-1);
     font-size: var(--text-item);
     font-weight: 600;
+  }
+
+  .origin {
+    margin: 0 0 var(--sp-1);
+    font-size: var(--text-note);
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  /* Said once under the rows, on the panel's own ground and inside its padding,
+     so it reads as a note about the list rather than as one more row of it. */
+  .legend {
+    margin: 0;
+    padding: var(--sp-3) var(--panel-pad);
+    font-size: var(--text-note);
+    color: var(--faint);
   }
 
   .prose {
