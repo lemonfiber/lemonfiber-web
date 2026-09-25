@@ -461,7 +461,6 @@
   "needs_unrecognised": "Needs something this page has no word for.",
   "panel_rehearsal": "What starting would do",
   "rehearsal_choose": "Choose a form above to see what starting it would do, before anything starts.",
-  "rehearsal_one_at_a_time": "This shows one form at a time. Choose only one to see what starting it would do.",
   "rehearsal_lead": "This is a preview, and nothing has been started by it. Starting {form} would do this.",
   "rehearsal_would_start": "Would start",
   "rehearsal_nothing_starts": "No programs.",

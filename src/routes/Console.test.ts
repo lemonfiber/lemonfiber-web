@@ -43,12 +43,14 @@ const enveloped = <K extends Kind>(kind: K, data: ByKind[K]["data"]): string =>
 
 /**
  * What the forms read answers: every form where none is named, and what starting
- * it would come to where one is.
+ * the ones named would come to where some are.
  */
-const formsSaid = (url: string): string =>
-  url.includes("form=")
-    ? enveloped("preview", rehearsed)
+const formsSaid = (url: string): string => {
+  const named = new URL(url).searchParams.getAll("form");
+  return named.length > 0
+    ? enveloped("preview", { ...rehearsed, forms: named })
     : enveloped("forms", forms);
+};
 
 /** A transport that answers each reading with what that endpoint answers. */
 const answering: Sending = (url) =>
@@ -601,6 +603,12 @@ const rehearsalLead = (): string => {
   return m.rehearsal_lead({ form: form?.name ?? "" });
 };
 
+/** What the preview's first line says for that form and the core together. */
+const bothLead = (): string => {
+  const form = declared.find((one) => one.id === chosenForm);
+  return m.rehearsal_lead({ form: `${form?.name ?? ""}, Core` });
+};
+
 describe("what starting a form would do", () => {
   beforeEach(() => {
     globalThis.history.replaceState(undefined, "", "/");
@@ -625,7 +633,8 @@ describe("what starting a form would do", () => {
     expect(rehearsal()).toHaveTextContent("SABnzbd");
   });
 
-  it("asks nothing of several forms, and says it takes one", async () => {
+  // One answer for all of them, since a program two forms share starts once.
+  it("names every form chosen to one asking, in the order chosen", async () => {
     const urls: string[] = [];
     console_({
       sending: (url, init) => {
@@ -639,8 +648,8 @@ describe("what starting a form would do", () => {
     await within(rehearsal()).findByText(rehearsalLead());
     await choose("core");
 
-    expect(rehearsal()).toHaveTextContent(m.rehearsal_one_at_a_time());
-    expect(urls.filter((url) => url.includes("form="))).toHaveLength(1);
+    expect(await within(rehearsal()).findByText(bothLead())).toBeVisible();
+    expect(urls).toContain(`${here}/api/forms?form=${chosenForm}&form=core`);
   });
 
   // An answer about a choice the reader has moved on from would be read as the
@@ -652,7 +661,7 @@ describe("what starting a form would do", () => {
     });
     console_({
       sending: async (url, init) => {
-        if (url.includes("form=")) await held;
+        if (url.endsWith(`form=${chosenForm}`)) await held;
         return answering(url, init);
       },
     });
@@ -660,11 +669,12 @@ describe("what starting a form would do", () => {
 
     await choose(chosenForm);
     await choose("core");
+    await within(rehearsal()).findByText(bothLead());
     answer();
     await held;
 
     await waitFor(() => {
-      expect(rehearsal()).toHaveTextContent(m.rehearsal_one_at_a_time());
+      expect(rehearsal()).toHaveTextContent(bothLead());
     });
     expect(rehearsal()).not.toHaveTextContent(rehearsalLead());
   });

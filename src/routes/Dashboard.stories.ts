@@ -267,11 +267,25 @@ export const AFormChosen: Story = {
 };
 
 /**
- * Two forms taken up. What starting them would do is asked of one form at a
- * time, so the panel says so rather than answering for one of them.
+ * Two forms taken up. What starting them would do is one answer for both: a
+ * program they share is listed once.
  */
 export const TwoFormsChosen: Story = {
-  args: { controls: { ...controls, chosen: ["core", chosenForm] } },
+  args: {
+    controls: {
+      ...controls,
+      chosen: ["core", chosenForm],
+      preview: {
+        ok: true,
+        value: {
+          ...rehearsed,
+          forms: ["core", chosenForm],
+          services: ["gluetun", "prowlarr", ...rehearsed.services],
+        },
+      },
+      previewed: { kind: "answered", secondsAgo: 2 },
+    },
+  },
 };
 
 /**

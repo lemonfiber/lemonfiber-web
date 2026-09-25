@@ -19,7 +19,7 @@
     forms: Reading<Forms> | undefined;
     /** The forms the operator chose, by the id the listing gave them. */
     chosen: readonly string[];
-    /** What starting the one form chosen would come to, or why not. */
+    /** What starting the forms chosen would come to, or why not. */
     preview: Reading<Preview> | undefined;
     /** What each service is doing, which is where their names come from. */
     programs: Reading<Stack> | undefined;
@@ -55,9 +55,9 @@
 </script>
 
 <!--
-  What starting the form chosen would come to, said before anything starts.
+  What starting the forms chosen would come to, said before anything starts.
 
-  Drawn from what lemonfiber answers when the form is named to its forms read:
+  Drawn from what lemonfiber answers when they are named to its forms read:
   the services that would start, the services the configuration would leave out
   with what each needs and which forms asked for it, and the memory the stack
   estimates they need. The first line says nothing has started, so none of it is
@@ -69,14 +69,12 @@
   named rather than counted as nothing, and where none of them declares one
   there is no figure at all rather than a zero.
 
-  One form at a time. A choice of several is said to be one this panel does not
-  answer, rather than answered for one of them.
+  Several forms are one answer rather than one each. A program two of them share
+  starts once, so it is listed once and its memory is counted once.
 -->
 <Panel title={m.panel_rehearsal()} {freshness}>
   {#if chosen.length === 0}
     <Value state="unknown" absent={m.rehearsal_choose()} />
-  {:else if chosen.length > 1}
-    <Value state="unknown" absent={m.rehearsal_one_at_a_time()} />
   {:else if plan !== undefined}
     {@const figure = estimate(plan)}
     <p class="lead">{m.rehearsal_lead({ form: named(plan.forms) })}</p>

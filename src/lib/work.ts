@@ -349,9 +349,8 @@ export interface Controls {
   /** The forms the operator chose, by the id the listing gave them. */
   readonly chosen: readonly string[];
   /**
-   * What starting the one form chosen would come to, or why it could not be
-   * said. Nothing where one form is not what has been chosen, or while the
-   * answer is still coming.
+   * What starting the forms chosen would come to, or why it could not be said.
+   * Nothing where no form has been chosen, or while the answer is still coming.
    */
   readonly preview: Reading<Preview> | undefined;
   /** When the preview last answered. */
