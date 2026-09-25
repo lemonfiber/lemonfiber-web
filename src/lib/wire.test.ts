@@ -9,7 +9,7 @@ import {
   everyStall,
   everyStanding,
   figureOf,
-  namesOfForms,
+  namesOf,
   reasonOf,
   servicesOf,
   stateOfService,
@@ -310,28 +310,22 @@ describe("servicesOf", () => {
   });
 });
 
-describe("namesOfForms", () => {
+describe("namesOf", () => {
   const declared: readonly Form[] = [
     { id: "core", name: "Core", description: "The core.", composable: false },
     { id: "media", name: "Media", description: "The media.", composable: true },
   ];
 
   it("names each form as the stack does, in the order given", () => {
-    expect(namesOfForms(["media", "core"], declared)).toEqual([
-      "Media",
-      "Core",
-    ]);
+    expect(namesOf(["media", "core"], declared)).toEqual(["Media", "Core"]);
   });
 
   it("falls back to the id of a form the listing does not name", () => {
-    expect(namesOfForms(["core", "extras"], declared)).toEqual([
-      "Core",
-      "extras",
-    ]);
+    expect(namesOf(["core", "extras"], declared)).toEqual(["Core", "extras"]);
   });
 
   it("falls back to every id where there is no listing", () => {
-    expect(namesOfForms(["core"], undefined)).toEqual(["core"]);
+    expect(namesOf(["core"], undefined)).toEqual(["core"]);
   });
 });
 
