@@ -3,6 +3,7 @@ import Dashboard from "./Dashboard.svelte";
 import {
   adrift,
   chosenForm,
+  rehearsed,
   controls,
   finished,
   forgotten,
@@ -255,7 +256,22 @@ export const AskedForSomethingRefused: Story = {
  * line above them says as much in words.
  */
 export const AFormChosen: Story = {
-  args: { controls: { ...controls, chosen: [chosenForm] } },
+  args: {
+    controls: {
+      ...controls,
+      chosen: [chosenForm],
+      preview: { ok: true, value: rehearsed },
+      previewed: { kind: "answered", secondsAgo: 2 },
+    },
+  },
+};
+
+/**
+ * Two forms taken up. What starting them would do is asked of one form at a
+ * time, so the panel says so rather than answering for one of them.
+ */
+export const TwoFormsChosen: Story = {
+  args: { controls: { ...controls, chosen: ["core", chosenForm] } },
 };
 
 /**

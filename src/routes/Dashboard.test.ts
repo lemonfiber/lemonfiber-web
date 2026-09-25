@@ -22,6 +22,7 @@ import {
   finished,
   forgotten,
   notAnswering,
+  rehearsed,
   started,
   stillWaiting,
   stopped,
@@ -35,6 +36,7 @@ import {
   wordOfDoorStanding,
   wordOfFacing,
 } from "../lib/door";
+import { bytes } from "../lib/figures";
 import { stampFor, type Freshness } from "../lib/freshness";
 import {
   allowanceOf,
@@ -113,6 +115,7 @@ const everyPanel: readonly string[] = [
   m.panel_space(),
   m.panel_tunnel(),
   m.panel_forms(),
+  m.panel_rehearsal(),
   m.panel_running(),
   m.panel_attention(),
   m.panel_told(),
@@ -158,12 +161,13 @@ describe("every panel the screen draws", () => {
 });
 
 describe("before anything has answered", () => {
-  // Every panel but the controls, which are this page's own and are waiting on
-  // nothing.
+  // Every panel but two: the controls, which are this page's own and are
+  // waiting on nothing, and what starting would do, which is waiting on a form
+  // being chosen rather than on an answer.
   it("holds a place on every panel rather than showing empty figures", () => {
     board({ controls: { ...controls, forms: undefined } });
     expect(screen.getAllByText(m.waiting_answer())).toHaveLength(
-      everyPanel.length - 1,
+      everyPanel.length - 2,
     );
   });
 
@@ -668,6 +672,139 @@ describe("the programs", () => {
   it("says nothing of what was left out where nothing was", () => {
     board({ programs: { ok: true, value: { ...stack, filtered: [] } } });
     expect(panel()).not.toHaveTextContent(m.programs_left_out());
+  });
+});
+
+describe("what starting a form would do", () => {
+  const panel = (): HTMLElement =>
+    screen.getByRole("region", { name: m.panel_rehearsal() });
+
+  /** The screen with one form chosen, and what asking about it answered. */
+  const previewing = (
+    preview: Parameters<typeof Dashboard>[1]["controls"]["preview"],
+    over: Partial<Parameters<typeof Dashboard>[1]> = {},
+  ): void => {
+    board({
+      programs: read,
+      controls: {
+        ...controls,
+        chosen: [chosenForm],
+        preview,
+        previewed: answered,
+      },
+      ...over,
+    });
+  };
+
+  /** The same answer, with part of it replaced. */
+  const saying = (over: Partial<typeof rehearsed>) => ({
+    ok: true as const,
+    value: { ...rehearsed, ...over },
+  });
+
+  it("asks for a form to be chosen while none is", () => {
+    board();
+    expect(panel()).toHaveTextContent(m.rehearsal_choose());
+  });
+
+  it("says it answers for one form at a time", () => {
+    board({ controls: { ...controls, chosen: ["core", chosenForm] } });
+    expect(panel()).toHaveTextContent(m.rehearsal_one_at_a_time());
+  });
+
+  it("waits for the answer", () => {
+    previewing(undefined);
+    expect(within(panel()).getByText(m.waiting_answer())).toBeInTheDocument();
+  });
+
+  it("says in the source's own words why it could not be asked", () => {
+    previewing({
+      ok: false,
+      problem: { kind: "unreachable", message: "Nothing answered." },
+    });
+    expect(panel()).toHaveTextContent("Nothing answered.");
+  });
+
+  // Never phrased as having happened: the first thing read is that nothing has.
+  it("says first that nothing has started", () => {
+    previewing({ ok: true, value: rehearsed });
+    expect(panel()).toHaveTextContent(m.rehearsal_lead({ form: "Media" }));
+  });
+
+  it("names what would start, by the names the services go by", () => {
+    previewing({ ok: true, value: rehearsed });
+    const starting = within(panel()).getAllByRole("list")[0];
+    expect(starting).toHaveTextContent("Sonarr");
+    expect(starting).toHaveTextContent("Radarr");
+    expect(starting).toHaveTextContent("jellyfin");
+  });
+
+  it("says so where nothing would start", () => {
+    previewing(saying({ services: [] }));
+    expect(panel()).toHaveTextContent(m.rehearsal_nothing_starts());
+  });
+
+  it("names what would be left out, with what it needs and who asked", () => {
+    previewing({ ok: true, value: rehearsed });
+    expect(panel()).toHaveTextContent(m.rehearsal_would_leave_out());
+    expect(panel()).toHaveTextContent("SABnzbd");
+    expect(panel()).toHaveTextContent(m.needs_usenet());
+    expect(panel()).toHaveTextContent(m.programs_asked_by({ forms: "Media" }));
+  });
+
+  it("says nothing of leaving out where nothing would be", () => {
+    previewing(saying({ filtered: [] }));
+    expect(panel()).not.toHaveTextContent(m.rehearsal_would_leave_out());
+  });
+
+  // An estimate set as a bare figure reads as a measurement of something
+  // running, and nothing is.
+  it("gives the memory as the stack's estimate", () => {
+    previewing({ ok: true, value: rehearsed });
+    expect(panel()).toHaveTextContent(
+      m.rehearsal_estimate({ size: bytes(1536 * 1024 * 1024) }),
+    );
+  });
+
+  it("names the services the estimate leaves out", () => {
+    previewing({ ok: true, value: rehearsed });
+    expect(panel()).toHaveTextContent(m.rehearsal_unestimated());
+    const unestimated = within(panel()).getAllByRole("list").at(-1);
+    expect(unestimated).toHaveTextContent("jellyfin");
+  });
+
+  it("says nothing of them where every service declares one", () => {
+    previewing(saying({ footprint: { estimated_mib: 1536, unestimated: [] } }));
+    expect(panel()).not.toHaveTextContent(m.rehearsal_unestimated());
+  });
+
+  // A zero where nothing declared an estimate would read as needing nothing.
+  it("gives no figure where no service declares an estimate", () => {
+    previewing(
+      saying({
+        footprint: { estimated_mib: 0, unestimated: rehearsed.services },
+      }),
+    );
+    expect(panel()).toHaveTextContent(m.rehearsal_no_estimate());
+    expect(panel()).not.toHaveTextContent(bytes(0));
+  });
+
+  it("names forms and services by their ids where nothing has named them", () => {
+    previewing(
+      { ok: true, value: rehearsed },
+      {
+        programs: undefined,
+        controls: {
+          ...controls,
+          forms: undefined,
+          chosen: [chosenForm],
+          preview: { ok: true, value: rehearsed },
+          previewed: answered,
+        },
+      },
+    );
+    expect(panel()).toHaveTextContent(m.rehearsal_lead({ form: "media" }));
+    expect(panel()).toHaveTextContent("sonarr");
   });
 });
 

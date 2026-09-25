@@ -13,6 +13,7 @@ import type {
   Forms,
   Logged,
   Moment,
+  Preview,
   Service,
   Stack,
   Tunnel,
@@ -285,10 +286,34 @@ export const forms: Forms = { forms: [...declared] };
 /** The form a story takes up, by the id the listing gave it. */
 export const chosenForm = "media";
 
+/**
+ * What starting that form would come to. The stack is set up for torrents alone,
+ * so what downloads over usenet would be left out, and one of the programs that
+ * would start declares no estimate of the memory it needs.
+ */
+export const rehearsed: Preview = {
+  forms: [chosenForm],
+  profiles: ["media"],
+  services: ["sonarr", "radarr", "jellyfin"],
+  dropped: [{ profile: "usenet", needs: "usenet" }],
+  filtered: [
+    {
+      id: "sabnzbd",
+      name: "SABnzbd",
+      needs: "usenet",
+      profile: "usenet",
+      forms: [chosenForm],
+    },
+  ],
+  footprint: { estimated_mib: 1536, unestimated: ["jellyfin"] },
+};
+
 /** Nothing has been asked of the stack, and nothing is holding anything up. */
 export const controls: Controls = {
   forms: { ok: true, value: forms },
   chosen: [],
+  preview: undefined,
+  previewed: { kind: "never" },
   work: [],
   waiting: undefined,
   confirming: undefined,
