@@ -26,7 +26,8 @@
 import type { Reading } from "@lemonfiber/sdk-ts";
 import type { Arguments } from "../api/acting";
 import type { State } from "./state";
-import type { Forms } from "./wire";
+import type { Freshness } from "./freshness";
+import type { Forms, Preview } from "./wire";
 import * as m from "../paraglide/messages.js";
 
 /**
@@ -347,6 +348,14 @@ export interface Controls {
   readonly forms: Reading<Forms> | undefined;
   /** The forms the operator chose, by the id the listing gave them. */
   readonly chosen: readonly string[];
+  /**
+   * What starting the one form chosen would come to, or why it could not be
+   * said. Nothing where one form is not what has been chosen, or while the
+   * answer is still coming.
+   */
+  readonly preview: Reading<Preview> | undefined;
+  /** When the preview last answered. */
+  readonly previewed: Freshness;
   /** What this tab has asked for, newest first. */
   readonly work: readonly Work[];
   /** The newest thing a wait said, in lemonfiber's own words. */

@@ -32,6 +32,7 @@
     Household,
     Logged,
     Moment,
+    Preview,
     Stack,
   } from "../lib/wire";
   import {
@@ -70,6 +71,8 @@
   let programs = $state<Reading<Stack> | undefined>(undefined);
   let forms = $state<Reading<Forms> | undefined>(undefined);
   let chosen = $state<readonly string[]>([]);
+  let preview = $state<Reading<Preview> | undefined>(undefined);
+  let previewedAt = $state<number | undefined>(undefined);
   let diagnosis = $state<Reading<Diagnosis> | undefined>(undefined);
   let aboutDisk = $state<Reading<Diagnosis> | undefined>(undefined);
   let lines = $state<Reading<readonly Logged[]> | undefined>(undefined);
@@ -122,6 +125,9 @@
     readAt === undefined ? UNSTAMPED : answeredAt(readAt, now),
   );
   const live = $derived(dated(carriedAt, flow, now));
+  const previewed = $derived(
+    previewedAt === undefined ? UNSTAMPED : answeredAt(previewedAt, now),
+  );
 
   /**
    * Go somewhere the menu leads, where the browser was not asked for something
@@ -213,6 +219,29 @@
     readAt = Date.now();
 
     if (turnedAway(whole, each, declared)) onrefused();
+  }
+
+  /**
+   * Ask what starting the one form chosen would come to, before anything starts.
+   *
+   * Asked whenever what is chosen changes, so the answer is on the screen before
+   * the control that starts it is pressed. The client package carries one value
+   * for each parameter, so one form can be named to the read and a choice of
+   * several is not asked about: an answer for one of them would be read as the
+   * answer for all of them. An answer that arrives after the choice moved on is
+   * about a choice nobody is looking at, and is dropped.
+   */
+  async function rehearse(forms: readonly string[]): Promise<void> {
+    preview = undefined;
+    previewedAt = undefined;
+    const [form] = forms;
+    if (form === undefined || forms.length > 1) return;
+
+    const answer = await asked(reaching, "forms", "preview", { form });
+    if (chosen.length !== 1 || chosen[0] !== form) return;
+    preview = answer;
+    previewedAt = Date.now();
+    if (turnedAway(answer)) onrefused();
   }
 
   /**
@@ -378,6 +407,8 @@
   const controls = $derived<Controls>({
     forms,
     chosen,
+    preview,
+    previewed,
     work,
     waiting: waitingSaid,
     confirming,
@@ -390,6 +421,7 @@
       chosen = chosen.includes(form)
         ? chosen.filter((one) => one !== form)
         : [...chosen, form];
+      void rehearse(chosen);
     },
     onpress: (doing: Doing) => {
       void press(doing);

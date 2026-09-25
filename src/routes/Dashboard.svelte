@@ -7,6 +7,7 @@
   import Forms from "./panels/Forms.svelte";
   import Household from "./panels/Household.svelte";
   import Programs from "./panels/Programs.svelte";
+  import Rehearsal from "./panels/Rehearsal.svelte";
   import Running from "./panels/Running.svelte";
   import Space from "./panels/Space.svelte";
   import Standing from "./panels/Standing.svelte";
@@ -89,7 +90,8 @@
   The two panels that act sit under the two that grade, so what is on offer is
   read after what it is for. The forms come first of the two: what the controls
   reach is chosen there, and a control read before the thing it acts on is a
-  control read without its subject.
+  control read without its subject. Between them stands what starting the form
+  chosen would come to, so it is read before the control that starts it.
 
   What the operator has already been told stands under what needs them now. It
   is the one channel that reaches them without anything having been set up, so
@@ -141,6 +143,14 @@
     chosen={controls.chosen}
     onchoose={controls.onchoose}
     freshness={read}
+  />
+
+  <Rehearsal
+    forms={controls.forms}
+    chosen={controls.chosen}
+    preview={controls.preview}
+    {programs}
+    freshness={controls.previewed}
   />
 
   <Running {...controls} freshness={live} />

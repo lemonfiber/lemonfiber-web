@@ -15,6 +15,7 @@ import {
   forms,
   job,
   moment,
+  rehearsed,
   scrollback,
   stack,
   worst,
@@ -40,6 +41,15 @@ const elsewhere = ["http:", "", "example.test"].join("/");
 const enveloped = <K extends Kind>(kind: K, data: ByKind[K]["data"]): string =>
   JSON.stringify({ api_version: API_VERSION, kind, data });
 
+/**
+ * What the forms read answers: every form where none is named, and what starting
+ * it would come to where one is.
+ */
+const formsSaid = (url: string): string =>
+  url.includes("form=")
+    ? enveloped("preview", rehearsed)
+    : enveloped("forms", forms);
+
 /** A transport that answers each reading with what that endpoint answers. */
 const answering: Sending = (url) =>
   Promise.resolve({
@@ -48,7 +58,7 @@ const answering: Sending = (url) =>
     text: () =>
       Promise.resolve(
         url.includes("/api/forms")
-          ? enveloped("forms", forms)
+          ? formsSaid(url)
           : enveloped("status", stack),
       ),
   });
@@ -581,6 +591,112 @@ describe("the forms the stack declares", () => {
   });
 });
 
+/** The panel saying what starting the form chosen would do. */
+const rehearsal = (): HTMLElement =>
+  screen.getByRole("region", { name: m.panel_rehearsal() });
+
+/** What the preview's first line says for the form a story takes up. */
+const rehearsalLead = (): string => {
+  const form = declared.find((one) => one.id === chosenForm);
+  return m.rehearsal_lead({ form: form?.name ?? "" });
+};
+
+describe("what starting a form would do", () => {
+  beforeEach(() => {
+    globalThis.history.replaceState(undefined, "", "/");
+  });
+
+  // Said before the control that starts it is pressed, which is the only
+  // moment saying it is any use.
+  it("asks what starting the form chosen would come to, and says it", async () => {
+    const urls: string[] = [];
+    console_({
+      sending: (url, init) => {
+        urls.push(url);
+        return answering(url, init);
+      },
+    });
+    await screen.findByText(declared[0]?.description ?? "");
+
+    await choose(chosenForm);
+
+    expect(await within(rehearsal()).findByText(rehearsalLead())).toBeVisible();
+    expect(urls).toContain(`${here}/api/forms?form=${chosenForm}`);
+    expect(rehearsal()).toHaveTextContent("SABnzbd");
+  });
+
+  it("asks nothing of several forms, and says it takes one", async () => {
+    const urls: string[] = [];
+    console_({
+      sending: (url, init) => {
+        urls.push(url);
+        return answering(url, init);
+      },
+    });
+    await screen.findByText(declared[0]?.description ?? "");
+
+    await choose(chosenForm);
+    await within(rehearsal()).findByText(rehearsalLead());
+    await choose("core");
+
+    expect(rehearsal()).toHaveTextContent(m.rehearsal_one_at_a_time());
+    expect(urls.filter((url) => url.includes("form="))).toHaveLength(1);
+  });
+
+  // An answer about a choice the reader has moved on from would be read as the
+  // answer about the one they are looking at.
+  it("drops an answer that arrives after the choice moved on", async () => {
+    let answer!: () => void;
+    const held = new Promise<void>((resolve) => {
+      answer = resolve;
+    });
+    console_({
+      sending: async (url, init) => {
+        if (url.includes("form=")) await held;
+        return answering(url, init);
+      },
+    });
+    await screen.findByText(declared[0]?.description ?? "");
+
+    await choose(chosenForm);
+    await choose("core");
+    answer();
+    await held;
+
+    await waitFor(() => {
+      expect(rehearsal()).toHaveTextContent(m.rehearsal_one_at_a_time());
+    });
+    expect(rehearsal()).not.toHaveTextContent(rehearsalLead());
+  });
+
+  it("goes back to asking for a choice once the form is put down", async () => {
+    console_();
+    await screen.findByText(declared[0]?.description ?? "");
+
+    await choose(chosenForm);
+    await within(rehearsal()).findByText(rehearsalLead());
+    await choose(chosenForm);
+
+    expect(rehearsal()).toHaveTextContent(m.rehearsal_choose());
+  });
+
+  it("passes on being turned away while asking", async () => {
+    const refused = vi.fn();
+    console_({
+      sending: (url, init) =>
+        url.includes("form=") ? refusing(url, init) : answering(url, init),
+      onrefused: refused,
+    });
+    await screen.findByText(declared[0]?.description ?? "");
+
+    await choose(chosenForm);
+
+    await waitFor(() => {
+      expect(refused).toHaveBeenCalled();
+    });
+  });
+});
+
 describe("asking lemonfiber to do something", () => {
   beforeEach(() => {
     globalThis.history.replaceState(undefined, "", "/");
@@ -956,7 +1072,7 @@ const readings: Sending = (url) => {
       text: () => Promise.resolve(body),
     });
 
-  if (url.includes("/api/forms")) return said(enveloped("forms", forms));
+  if (url.includes("/api/forms")) return said(formsSaid(url));
   if (url.includes("/api/checks")) return said(enveloped("doctor", diagnosis));
   if (url.includes("/api/storage"))
     return said(enveloped("doctor", diskChecks));

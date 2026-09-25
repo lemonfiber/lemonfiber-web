@@ -29,6 +29,12 @@ export type Forms = ByKind["forms"]["data"];
 /** One form the stack declares, in the manifest's own words. */
 export type Form = Forms["forms"][number];
 
+/**
+ * What starting the named forms would come to, as naming them to the forms read
+ * answers: what would start, what would be left out, and the stack's estimate.
+ */
+export type Preview = ByKind["preview"]["data"];
+
 /** One moment of the whole stack, as the stream delivers it. */
 export type Moment = ByKind["dashboard"]["data"];
 
@@ -508,16 +514,23 @@ export function servicesOf(stack: Stack): readonly Service[] {
   );
 }
 
+/** Anything the wire names by an id and calls by a name. */
+interface Named {
+  readonly id: string;
+  readonly name: string;
+}
+
 /**
- * What the stack calls each form named here, in the order they were named.
+ * What each thing named here by its id is called, in the order they were named.
  *
- * The names are the stack's own, from the listing of its forms. Where that
- * listing has not answered, or does not name one of them, the form's id is the
- * one name there is for it.
+ * The names are the ones the stack gave, from the listing that holds them: the
+ * forms for a form, the reading of the services for a service. Where that
+ * listing has not answered, or does not name one of them, the id is the one name
+ * there is for it.
  */
-export function namesOfForms(
+export function namesOf(
   ids: readonly string[],
-  declared: readonly Form[] | undefined,
+  listed: readonly Named[] | undefined,
 ): readonly string[] {
-  return ids.map((id) => declared?.find((form) => form.id === id)?.name ?? id);
+  return ids.map((id) => listed?.find((one) => one.id === id)?.name ?? id);
 }

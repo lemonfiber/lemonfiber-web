@@ -8,7 +8,7 @@
   import type { Freshness } from "../../lib/freshness";
   import type { Column, Row } from "../../lib/table";
   import {
-    namesOfForms,
+    namesOf,
     servicesOf,
     stateOfService,
     wordOfNeed,
@@ -43,9 +43,7 @@
   );
   const declared = $derived(forms?.ok === true ? forms.value.forms : undefined);
   const running = $derived(
-    reading === undefined
-      ? undefined
-      : namesOfForms(reading.active_forms, declared),
+    reading === undefined ? undefined : namesOf(reading.active_forms, declared),
   );
   const left = $derived(reading?.filtered ?? []);
   const problem = $derived(
@@ -56,7 +54,7 @@
 
   /** The names of the forms named here, as one run of words. */
   function named(ids: readonly string[]): string {
-    return namesOfForms(ids, declared).join(", ");
+    return namesOf(ids, declared).join(", ");
   }
 </script>
 
