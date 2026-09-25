@@ -49,6 +49,7 @@ export const worstService: Service = {
   state: "stopped",
   criticality: "important",
   profile: "core",
+  forms: ["core"],
   depends_on: [],
   exit: 1,
 };
@@ -63,6 +64,7 @@ export const services: readonly Service[] = [
     state: "unhealthy",
     criticality: "core",
     profile: "core",
+    forms: ["core", "media"],
     depends_on: ["gluetun"],
   },
   {
@@ -72,6 +74,7 @@ export const services: readonly Service[] = [
     state: "starting",
     criticality: "core",
     profile: "core",
+    forms: ["core", "media"],
     depends_on: ["gluetun"],
   },
   {
@@ -82,6 +85,7 @@ export const services: readonly Service[] = [
     state: "healthy",
     criticality: "critical",
     profile: "core",
+    forms: ["core"],
     depends_on: [],
   },
   {
@@ -91,6 +95,9 @@ export const services: readonly Service[] = [
     state: "host-managed",
     criticality: "optional",
     profile: "extras",
+    // Nothing that holds it is running, which is not the same as a form
+    // missing it.
+    forms: [],
     depends_on: [],
   },
 ];
@@ -98,8 +105,20 @@ export const services: readonly Service[] = [
 /** What the whole stack amounts to. */
 export const stack: Stack = {
   condition: "degraded",
+  active_forms: ["core", "media"],
   forms: [],
   services: [...services],
+  // The stack is set up for torrents alone, so what downloads over usenet is
+  // left out of both forms that asked for it.
+  filtered: [
+    {
+      id: "sabnzbd",
+      name: "SABnzbd",
+      needs: "usenet",
+      profile: "usenet",
+      forms: ["core", "media"],
+    },
+  ],
   undeclared: [],
   // A service that starts, stops and reports its state like any other, and
   // that lemonfiber can do none of the work needing to know what it is for.

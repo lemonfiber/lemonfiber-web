@@ -153,7 +153,7 @@
 
   <Household household={moment?.household} freshness={live} />
 
-  <Programs {programs} freshness={read} />
+  <Programs {programs} forms={controls.forms} freshness={read} />
 
   <div class="pair">
     <Coming transfers={moment?.transfers} freshness={live} />

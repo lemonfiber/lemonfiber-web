@@ -459,6 +459,7 @@ describe("the programs", () => {
               describes: "Does the one job this fixture is about",
               criticality: "core",
               profile: "core",
+              forms: ["core"],
               depends_on: [],
             },
           ],
@@ -510,7 +511,9 @@ describe("the programs", () => {
         ok: true,
         value: {
           condition: stack.condition,
+          active_forms: stack.active_forms,
           forms: stack.forms,
+          filtered: stack.filtered,
           services: stack.services,
           undeclared: stack.undeclared,
           disturbs: stack.disturbs,
@@ -518,6 +521,153 @@ describe("the programs", () => {
       },
     });
     expect(panel()).not.toHaveTextContent(m.programs_less());
+  });
+
+  /** The row the table draws for one service, found by its name. */
+  const row = (name: string): HTMLElement =>
+    within(panel())
+      .getAllByRole("row")
+      .find((one) => within(one).queryByText(name) !== null) ??
+    expect.fail(`no row names ${name}`);
+
+  /** Where the panel lists what the forms left out, found by its heading. */
+  const leftOut = (): HTMLElement =>
+    screen.getByText(m.programs_left_out()).parentElement ??
+    expect.fail("the heading stands on its own");
+
+  it("names the forms running, in the stack's own words", () => {
+    board({ programs: read, read: answered });
+
+    expect(panel()).toHaveTextContent(m.programs_forms_running());
+    const running = within(panel()).getAllByRole("list")[0];
+    expect(running).toHaveTextContent("Core");
+    expect(running).toHaveTextContent("Media");
+    expect(panel()).not.toHaveTextContent(m.programs_forms_none());
+  });
+
+  it("says so where no form is running", () => {
+    board({
+      programs: { ok: true, value: { ...stack, active_forms: [] } },
+    });
+    expect(panel()).toHaveTextContent(m.programs_forms_none());
+  });
+
+  it("says nothing of forms until the reading has answered", () => {
+    board({
+      programs: {
+        ok: false,
+        problem: { kind: "unreachable", message: "Nothing answered." },
+      },
+    });
+    expect(panel()).not.toHaveTextContent(m.programs_forms_running());
+    expect(panel()).not.toHaveTextContent(m.programs_left_out());
+  });
+
+  // A service two forms share is there for both, so one row names both rather
+  // than the service being drawn twice.
+  it("names every form a service runs for, on its one row", () => {
+    board({ programs: read, read: answered });
+
+    expect(screen.getAllByText("Sonarr")).toHaveLength(1);
+    expect(row("Sonarr")).toHaveTextContent("Core, Media");
+    expect(row("Prowlarr")).toHaveTextContent("Core");
+    expect(row("Prowlarr")).not.toHaveTextContent("Media");
+  });
+
+  it("says a service no running form holds runs for none", () => {
+    board({ programs: read, read: answered });
+    expect(row("Plex")).toHaveTextContent(m.programs_no_form());
+  });
+
+  // The names are the stack's, from its listing of forms; with no listing, the
+  // id is the only name the page has, and a blank would say no form at all.
+  it("names a form by its id where the listing has not answered", () => {
+    board({
+      programs: read,
+      controls: { ...controls, forms: undefined },
+    });
+    expect(row("Sonarr")).toHaveTextContent("core, media");
+    expect(within(panel()).getAllByRole("list")[0]).toHaveTextContent("media");
+  });
+
+  it("lists what the forms left out, with what each needs and who asked", () => {
+    board({ programs: read, read: answered });
+
+    const listed = leftOut();
+    expect(listed).toHaveTextContent("SABnzbd");
+    expect(listed).toHaveTextContent(m.needs_usenet());
+    expect(listed).toHaveTextContent(
+      m.programs_asked_by({ forms: "Core, Media" }),
+    );
+  });
+
+  // Left out on purpose is the operator's setting being honoured. A row among
+  // the services would draw it as one that did not start.
+  it("keeps what was left out apart from the services that are down", () => {
+    board({ programs: read, read: answered });
+    const rows = within(panel()).getAllByRole("row");
+    expect(rows.some((one) => one.textContent.includes("SABnzbd"))).toBe(false);
+  });
+
+  // A lemonfiber can list it among the services as well, as not there. It is
+  // still drawn once, as left out, and not as a service that failed.
+  it("draws a left-out service listed as not there only as left out", () => {
+    board({
+      programs: {
+        ok: true,
+        value: {
+          ...stack,
+          services: [
+            {
+              id: "sabnzbd",
+              name: "SABnzbd",
+              describes: "Downloads over usenet",
+              state: "absent",
+              criticality: "important",
+              profile: "usenet",
+              forms: [],
+              depends_on: [],
+            },
+          ],
+        },
+      },
+    });
+
+    expect(screen.getAllByText("SABnzbd")).toHaveLength(1);
+    expect(leftOut()).toHaveTextContent("SABnzbd");
+    expect(panel()).not.toHaveTextContent(wordFor("stopped"));
+    expect(panel()).toHaveTextContent(m.programs_none());
+  });
+
+  it("keeps one that was left out and is running anyway", () => {
+    board({
+      programs: {
+        ok: true,
+        value: {
+          ...stack,
+          services: [
+            {
+              id: "sabnzbd",
+              name: "SABnzbd",
+              describes: "Downloads over usenet",
+              state: "running",
+              criticality: "important",
+              profile: "usenet",
+              forms: [],
+              depends_on: [],
+            },
+          ],
+        },
+      },
+    });
+
+    expect(row("SABnzbd")).toHaveTextContent(wordFor("known"));
+    expect(leftOut()).toHaveTextContent("SABnzbd");
+  });
+
+  it("says nothing of what was left out where nothing was", () => {
+    board({ programs: { ok: true, value: { ...stack, filtered: [] } } });
+    expect(panel()).not.toHaveTextContent(m.programs_left_out());
   });
 });
 

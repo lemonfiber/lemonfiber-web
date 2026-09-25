@@ -448,5 +448,15 @@
   "told_resolved": "Over",
   "told_unrecognised": "A turn this page has no word for",
   "told_speaks_for": "The checks this is about",
-  "programs_less": "These run like any other, and lemonfiber can do less with them"
+  "programs_less": "These run like any other, and lemonfiber can do less with them",
+  "head_forms": "Forms it runs for",
+  "programs_forms_running": "Forms running",
+  "programs_forms_none": "No form is running.",
+  "programs_no_form": "No form",
+  "programs_left_out": "Left out on purpose",
+  "programs_left_out_prose": "Your settings leave these out, which is not the same as being down. Each one runs once what it needs is set up.",
+  "programs_asked_by": "Asked for by {forms}",
+  "needs_usenet": "Needs a usenet provider, and none is set up.",
+  "needs_torrent": "Needs a torrent provider, and none is set up.",
+  "needs_unrecognised": "Needs something this page has no word for."
 }

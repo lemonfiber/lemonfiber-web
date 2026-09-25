@@ -95,6 +95,15 @@ export type Alert = Moment["alerts"][number];
 /** A service lemonfiber runs and can do less with, and why. */
 export type Unsupported = NonNullable<Stack["unsupported"]>[number];
 
+/**
+ * A service the forms asked for and the configuration left out, with what it
+ * would need and which forms asked for it.
+ */
+export type Filtered = Stack["filtered"][number];
+
+/** What a service left out on purpose would need to run. */
+export type Need = Filtered["needs"];
+
 /** The disk, or the reason it could not be read. */
 export type Disk = Moment["storage"];
 
@@ -222,6 +231,9 @@ export const everyCondition: readonly Stack["condition"][] = [
   "partial",
   "active",
 ];
+
+/** Every provider a service left out can be waiting on. */
+export const everyNeed: readonly Need[] = ["usenet", "torrent"];
 
 /** Every way something in the pipeline can be stuck. */
 export const everyStall: readonly Stall["stall"][] = [
@@ -459,4 +471,53 @@ export function wordOfLink(link: Space["hardlink"]): string {
     default:
       return m.link_unrecognised();
   }
+}
+
+/**
+ * What a service left out on purpose would need, as a sentence.
+ *
+ * Said as the configuration being honoured rather than as a fault: the stack
+ * was set up without one of the two ways of downloading, and every service that
+ * downloads that way is left out because of it.
+ */
+export function wordOfNeed(need: Need): string {
+  switch (need) {
+    case "usenet":
+      return m.needs_usenet();
+    case "torrent":
+      return m.needs_torrent();
+    default:
+      return m.needs_unrecognised();
+  }
+}
+
+/**
+ * The services a listing draws as services, leaving out the ones it reports as
+ * left out on purpose.
+ *
+ * A lemonfiber can list a service its configuration left out among the services
+ * as well, as one that is not there. Drawn there, it would read as a service
+ * that failed to start when it is the configuration being honoured, so a service
+ * that is both named as left out and not there is drawn only as left out. One
+ * that is left out and running anyway is still running, and stays.
+ */
+export function servicesOf(stack: Stack): readonly Service[] {
+  const out = new Set(stack.filtered.map((one) => one.id));
+  return stack.services.filter(
+    (service) => service.state !== "absent" || !out.has(service.id),
+  );
+}
+
+/**
+ * What the stack calls each form named here, in the order they were named.
+ *
+ * The names are the stack's own, from the listing of its forms. Where that
+ * listing has not answered, or does not name one of them, the form's id is the
+ * one name there is for it.
+ */
+export function namesOfForms(
+  ids: readonly string[],
+  declared: readonly Form[] | undefined,
+): readonly string[] {
+  return ids.map((id) => declared?.find((form) => form.id === id)?.name ?? id);
 }
