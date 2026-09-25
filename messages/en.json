@@ -436,6 +436,7 @@
   "finding_detail": "The raw detail",
   "finding_from_operator": "A check you added",
   "finding_from_plugin": "A check from the {named} plugin",
+  "finding_from_orphaned": "A check left by the {named} plugin, which is no longer installed",
   "finding_from_unknown": "Nobody could say where this check came from: {why}",
   "finding_from_unrecognised": "Nobody could say where this check came from",
   "findings_marked": "A check marked with where it came from is not one of the stack's own. Every other check is.",

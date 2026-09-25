@@ -259,6 +259,22 @@ describe("where a check came from", () => {
     );
   });
 
+  it("names the plugin whose check is in force over another", () => {
+    expect(
+      markOfOrigin({
+        origin: "overridden",
+        named: "plex",
+        replaced: { from: { origin: "bundled" }, withheld: false },
+      }),
+    ).toBe(m.finding_from_plugin({ named: "plex" }));
+  });
+
+  it("says a check was left by a plugin that is no longer installed", () => {
+    expect(markOfOrigin({ origin: "orphaned", named: "plex" })).toBe(
+      m.finding_from_orphaned({ named: "plex" }),
+    );
+  });
+
   it("says the operator added one", () => {
     expect(markOfOrigin({ origin: "operator" })).toBe(
       m.finding_from_operator(),
