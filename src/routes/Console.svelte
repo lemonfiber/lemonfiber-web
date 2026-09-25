@@ -222,23 +222,22 @@
   }
 
   /**
-   * Ask what starting the one form chosen would come to, before anything starts.
+   * Ask what starting the forms chosen would come to, before anything starts.
    *
    * Asked whenever what is chosen changes, so the answer is on the screen before
-   * the control that starts it is pressed. The client package carries one value
-   * for each parameter, so one form can be named to the read and a choice of
-   * several is not asked about: an answer for one of them would be read as the
-   * answer for all of them. An answer that arrives after the choice moved on is
-   * about a choice nobody is looking at, and is dropped.
+   * the control that starts them is pressed. Every chosen form is named to the
+   * read, which answers for all of them together: a program two of them share
+   * starts once and is counted once. An answer that arrives after the choice
+   * moved on is about a choice nobody is looking at, and is dropped.
    */
   async function rehearse(forms: readonly string[]): Promise<void> {
     preview = undefined;
     previewedAt = undefined;
-    const [form] = forms;
-    if (form === undefined || forms.length > 1) return;
+    if (forms.length === 0) return;
 
-    const answer = await asked(reaching, "forms", "preview", { form });
-    if (chosen.length !== 1 || chosen[0] !== form) return;
+    const asking = [...forms];
+    const answer = await asked(reaching, "forms", "preview", { form: asking });
+    if (chosen.join("\n") !== asking.join("\n")) return;
     preview = answer;
     previewedAt = Date.now();
     if (turnedAway(answer)) onrefused();

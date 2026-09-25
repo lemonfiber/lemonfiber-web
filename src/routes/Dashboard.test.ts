@@ -707,9 +707,20 @@ describe("what starting a form would do", () => {
     expect(panel()).toHaveTextContent(m.rehearsal_choose());
   });
 
-  it("says it answers for one form at a time", () => {
-    board({ controls: { ...controls, chosen: ["core", chosenForm] } });
-    expect(panel()).toHaveTextContent(m.rehearsal_one_at_a_time());
+  // Several forms are one answer, and its first line names every one of them.
+  it("answers for every form chosen at once", () => {
+    board({
+      programs: read,
+      controls: {
+        ...controls,
+        chosen: ["core", chosenForm],
+        preview: saying({ forms: ["core", chosenForm] }),
+        previewed: answered,
+      },
+    });
+    expect(panel()).toHaveTextContent(
+      m.rehearsal_lead({ form: "Core, Media" }),
+    );
   });
 
   it("waits for the answer", () => {
