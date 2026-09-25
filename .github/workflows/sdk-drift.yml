@@ -167,6 +167,25 @@ jobs:
             exit 1
           fi
 
+          # npm builds the client from its own tree when it installs it, so
+          # which files can change what lands in `node_modules` is broad —
+          # its sources, its build and package settings, its lockfile. Two
+          # kinds cannot: its workflows under `.github/`, and its `*.test.ts`
+          # files, which the build's single entry never imports. A move that
+          # touched only those changed nothing this surface is drawn through,
+          # so it is not drift; it would otherwise turn every pull request here
+          # red over the client's own CI. Anything else counts.
+          built=$(git -C sdk-ts.git diff --name-only "${pin}" main | grep -vE '^\.github/|\.test\.ts$' || true)
+
+          if [ -z "$built" ]; then
+            say '## The pinned client is current'
+            say ''
+            say "The console is drawn through sdk-ts \`${pin}\`. Main is at \`${head}\`,"
+            say 'and every file changed since is a workflow or a test, neither of which'
+            say 'the installed client is built from.'
+            exit 0
+          fi
+
           say '## The pinned client is behind'
           say ''
           say 'sdk-ts has moved on since this surface last took it.'
