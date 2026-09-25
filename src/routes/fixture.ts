@@ -392,4 +392,5 @@ export const explained: Word = {
     "Lets one file appear in two places while taking up the space once — so importing is instant and costs no extra disk.",
   deep: "Both names point at the same data. Deleting one leaves the other working. This is why the download folder and the library should sit on one volume: across two, the file has to be copied instead, which takes time and twice the room.",
   also_called: [],
+  forms: ["hardlinked"],
 };

@@ -282,7 +282,10 @@ export function markOfOrigin(origin: Origin | undefined): string | undefined {
     case "operator":
       return m.finding_from_operator();
     case "plugin":
+    case "overridden":
       return m.finding_from_plugin({ named: origin.named });
+    case "orphaned":
+      return m.finding_from_orphaned({ named: origin.named });
     case "unknown": {
       const why = origin.why.trim();
       return why === ""
