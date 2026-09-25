@@ -37,6 +37,8 @@ const ran: ByKind["lifecycle"]["data"] = {
   command: ["compose", "up", "-d"],
   plan: {
     dropped: [],
+    filtered: [],
+    footprint: { estimated_mib: 64, unestimated: [] },
     forms: ["core"],
     profiles: ["core"],
     services: ["gluetun"],

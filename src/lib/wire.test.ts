@@ -4,21 +4,27 @@ import { everyState, everyTone } from "./state";
 import {
   everyCondition,
   everyLink,
+  everyNeed,
   everyServiceState,
   everyStall,
   everyStanding,
   figureOf,
+  namesOfForms,
   reasonOf,
+  servicesOf,
   stateOfService,
   stateOfStall,
   stateOfStanding,
   toneOfStanding,
   wordOfCondition,
   wordOfLink,
+  wordOfNeed,
   wordOfStall,
   wordOfStanding,
   type Health,
+  type Form,
   type Measured,
+  type Need,
   type Service,
   type Space,
   type Stack,
@@ -38,6 +44,7 @@ const unnamedStanding = "wedged" as unknown as Health["standing"];
 const unnamedCondition = "draining" as unknown as Stack["condition"];
 const unnamedStall = "throttled" as unknown as Stall["stall"];
 const unnamedLink = "reflinking" as unknown as Space["hardlink"];
+const unnamedNeed = "carrier-pigeon" as unknown as Need;
 const unnamedReading = {
   reading: "guessed",
   value: 1024,
@@ -240,6 +247,94 @@ describe("wordOfLink", () => {
   });
 });
 
+describe("wordOfNeed", () => {
+  it.each(everyNeed)("says what a service needing %s is waiting on", (need) => {
+    expect(wordOfNeed(need)).not.toBe(m.needs_unrecognised());
+  });
+
+  it("gives each provider its own sentence", () => {
+    expect(new Set(everyNeed.map(wordOfNeed)).size).toBe(everyNeed.length);
+  });
+});
+
+describe("servicesOf", () => {
+  /** One service, in whatever state and under whatever id this test needs. */
+  const one = (id: string, state: Service["state"]): Service => ({
+    id,
+    name: id,
+    describes: "Does the one job this fixture is about",
+    state,
+    criticality: "important",
+    profile: "usenet",
+    forms: [],
+    depends_on: [],
+  });
+
+  /** A reading naming these services, with one of them left out. */
+  const reading = (services: Service[]): Stack => ({
+    condition: "partial",
+    active_forms: ["core"],
+    forms: [],
+    services,
+    filtered: [
+      {
+        id: "sabnzbd",
+        name: "SABnzbd",
+        needs: "usenet",
+        profile: "usenet",
+        forms: ["core"],
+      },
+    ],
+    undeclared: [],
+    disturbs: {
+      starting: { bound: "bounded", seconds: 1 },
+      stopping: { bound: "bounded", seconds: 1 },
+      stopping_after_downloads: { bound: "open-ended", until: "downloads" },
+      restarting: { bound: "bounded", seconds: 1 },
+      switching: { bound: "bounded", seconds: 1 },
+    },
+  });
+
+  it("leaves out a service listed as not there that was left out", () => {
+    expect(servicesOf(reading([one("sabnzbd", "absent")]))).toEqual([]);
+  });
+
+  it("keeps one that was left out and is there anyway", () => {
+    const running = one("sabnzbd", "running");
+    expect(servicesOf(reading([running]))).toEqual([running]);
+  });
+
+  it("keeps one not there that nothing left out", () => {
+    const missing = one("sonarr", "absent");
+    expect(servicesOf(reading([missing]))).toEqual([missing]);
+  });
+});
+
+describe("namesOfForms", () => {
+  const declared: readonly Form[] = [
+    { id: "core", name: "Core", description: "The core.", composable: false },
+    { id: "media", name: "Media", description: "The media.", composable: true },
+  ];
+
+  it("names each form as the stack does, in the order given", () => {
+    expect(namesOfForms(["media", "core"], declared)).toEqual([
+      "Media",
+      "Core",
+    ]);
+  });
+
+  it("falls back to the id of a form the listing does not name", () => {
+    expect(namesOfForms(["core", "extras"], declared)).toEqual([
+      "Core",
+      "extras",
+    ]);
+  });
+
+  it("falls back to every id where there is no listing", () => {
+    expect(namesOfForms(["core"], undefined)).toEqual(["core"]);
+  });
+});
+
 // The wire version is one number and the vocabulary under it grows, so a
 // running binary can answer with a word this build's contract does not name.
 // Falling off the end of a switch hands back `undefined`, which reaches a screen
@@ -279,6 +374,10 @@ describe("a word this build has no entry for", () => {
 
   it("gives an import it does not know a phrase rather than a blank", () => {
     expect(wordOfLink(unnamedLink)).toBe(m.link_unrecognised());
+  });
+
+  it("gives a provider it does not know a sentence rather than a blank", () => {
+    expect(wordOfNeed(unnamedNeed)).toBe(m.needs_unrecognised());
   });
 
   // A figure whose reading is a word this build cannot place is not a figure it
