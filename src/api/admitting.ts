@@ -109,6 +109,7 @@ export async function admitting(
   try {
     const answer = await arriving.sending(`${where.base}${SESSION}`, {
       method: "POST",
+      redirect: "error",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",

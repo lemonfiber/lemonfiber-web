@@ -17,7 +17,11 @@ describe("the transport", () => {
     const asked = vi.fn(() => Promise.resolve(answer));
     vi.stubGlobal("fetch", asked);
 
-    const init = { method: "GET", headers: { Accept: "application/json" } };
+    const init = {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      redirect: "error" as const,
+    };
     const got = await sending(where, init);
 
     expect(got).toBe(answer);
@@ -32,6 +36,7 @@ describe("the transport", () => {
     const init = {
       headers: { Accept: "text/event-stream" },
       signal: new AbortController().signal,
+      redirect: "error" as const,
     };
     const got = await fetching(where, init);
 
