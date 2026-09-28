@@ -66,6 +66,12 @@ export interface Arguments {
   readonly logs?: number;
   /** Whether media filenames are shown rather than replaced. */
   readonly filenames?: boolean;
+  /** The setting to change, by its name. */
+  readonly key?: string;
+  /** The value to give it. */
+  readonly value?: string;
+  /** Whether anything still coming down is let finish first. */
+  readonly wait?: boolean;
 }
 
 /**

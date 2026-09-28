@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 64 kinds of answer, and this console reads 21 of them.
-Another surface can make 44 requests of the stack, and this console offers 16 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 41 kinds and 27
+The client carries 64 kinds of answer, and this console reads 22 of them.
+Another surface can make 44 requests of the stack, and this console offers 17 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 40 kinds and 26
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -56,6 +56,7 @@ answers with a kind the contract did not have before.
 | `archives`  | the disk: the backups this machine keeps                                                             |
 | `backup`    | the disk: where a backup was written, and what it covers, under its record                           |
 | `bundle`    | the checks: what a support bundle would hold, in full, or where it was written                       |
+| `config`    | the settings: every setting, where each value came from, and what changing one came to               |
 | `dashboard` | the overview, from the stream                                                                        |
 | `doctor`    | the checks, and the checks about the disk                                                            |
 | `forms`     | the forms the controls act on                                                                        |
@@ -92,7 +93,6 @@ answers with a kind the contract did not have before.
 | `catalogue`    | F2      | Service catalogue: what each service is for                                                              |
 | `certificate`  | N1      | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |
 | `clients`      | G6      | Client apps: which app to watch on                                                                       |
-| `config`       | A4      | Reconfiguration: every setting, or one                                                                   |
 | `credentials`  | A7      | Credential management: every credential, with no values                                                  |
 | `front-door`   | G5      | The front door, asked for on its own                                                                     |
 | `glossary`     | G2      | Plain language: every word there is to ask about                                                         |
@@ -151,6 +151,7 @@ here could read them.
 | `support`         | the checks: every file a bundle would hold, read in full, then the bundle written on the terms it was read under  |
 | `quality-reapply` | the settings, where the config was edited by hand, after a question saying the edits are lost                     |
 | `quality-upgrade` | the settings: the cost first, then the library fetched again on a yes under it                                    |
+| `config-set`      | the settings: made at once where it costs nothing, otherwise the review first and the change on a yes under it    |
 
 Four of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
@@ -172,7 +173,6 @@ because no action takes a rehearsal over the web API.
 
 | Request                 | Feature | What it is                                                                                               |
 | ----------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
-| `config-set`            | A4      | Reconfiguration: change one setting, shown before it is agreed                                           |
 | `quality-set`           | D2      | Quality presets: choose one; the reading names no presets to choose from                                 |
 | `migrate-adopt`         | A5      | Migration: take over a setup already here                                                                |
 | `migrate-beside`        | A5      | Migration: stand beside it                                                                               |

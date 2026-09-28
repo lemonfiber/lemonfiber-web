@@ -57,8 +57,14 @@ export type Upkeep = "backup" | "restore" | "support";
  */
 export type Tuning = "quality-reapply" | "quality-upgrade";
 
+/**
+ * Something the settings panel can ask for, named as the endpoint names it.
+ * What it takes and how it is asked about is in `./configuring`.
+ */
+export type Configuring = "config-set";
+
 /** Anything a record can be of. */
-export type Requested = Doing | Mending | Upkeep | Tuning;
+export type Requested = Doing | Mending | Upkeep | Tuning | Configuring;
 
 /**
  * Every action there is, in the order the controls show them.
@@ -236,6 +242,8 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_reapply_title();
     case "quality-upgrade":
       return m.doing_upgrade_title();
+    case "config-set":
+      return m.doing_config_title();
     case "up":
       return scoped ? m.doing_up_chosen_title() : m.doing_up_title();
     case "down":

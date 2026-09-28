@@ -23,6 +23,7 @@
  */
 /// <reference types="vite/client" />
 import type { Kind } from "@lemonfiber/sdk-ts";
+import { everyConfiguring } from "./lib/configuring";
 import { everyMending } from "./lib/mending";
 import { everyTuning } from "./lib/tuning";
 import { everyUpkeep } from "./lib/upkeep";
@@ -162,6 +163,11 @@ const WALKED: readonly {
     named: "everyTuning",
     by: ["src/routes/panels/Quality.svelte"],
   },
+  {
+    list: everyConfiguring,
+    named: "everyConfiguring",
+    by: ["src/routes/panels/Configuration.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -182,6 +188,7 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "support",
   "quality-reapply",
   "quality-upgrade",
+  "config-set",
 ];
 
 /**
@@ -194,7 +201,6 @@ const ELSEWHERE_REQUESTS: Partial<Record<Request, string>> = {
 
 /** Requests nobody has offered here yet, each with the feature it belongs to. */
 const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
-  "config-set": "A4",
   "quality-set": "D2",
   "migrate-adopt": "A5",
   "migrate-beside": "A5",
@@ -229,6 +235,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "archives",
   "backup",
   "bundle",
+  "config",
   "dashboard",
   "doctor",
   "forms",
@@ -277,7 +284,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   catalogue: "F2",
   certificate: "N1",
   clients: "G6",
-  config: "A4",
   credentials: "A7",
   "front-door": "G5",
   glossary: "G2",

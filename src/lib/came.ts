@@ -12,7 +12,8 @@
  * how each turned out. The checks answer with a run of them; a repair with what
  * it would do, or what it did; putting a repair back with what went back and
  * what did not. A backup, a restore and a support bundle are read in `./kept`,
- * and the quality choice and fetching the library again in `./tuned`.
+ * the quality choice and fetching the library again in `./tuned`, and a
+ * setting changed in `./configured`.
  * Anything else arrives as an outcome nobody here reads, which is said rather
  * than drawn as nothing.
  *
@@ -29,6 +30,7 @@ import {
   type Restored,
 } from "./kept";
 import { qualityLines, upgradeLines, type Tuned, type Upgraded } from "./tuned";
+import { configLines, type Configured } from "./configured";
 import { gradingOf } from "./verdict";
 import * as m from "../paraglide/messages.js";
 
@@ -74,6 +76,7 @@ export type Came =
   | { readonly kind: "bundle"; readonly report: Bundled }
   | { readonly kind: "quality"; readonly report: Tuned }
   | { readonly kind: "upgrade"; readonly report: Upgraded }
+  | { readonly kind: "config"; readonly report: Configured }
   | { readonly kind: "unread" };
 
 /** A service still doing what the action asked of it. */
@@ -411,6 +414,8 @@ export function linesOf(came: Came): readonly string[] {
       return qualityLines(came.report);
     case "upgrade":
       return upgradeLines(came.report);
+    case "config":
+      return configLines(came.report);
     case "unread":
       return [m.came_unread()];
   }

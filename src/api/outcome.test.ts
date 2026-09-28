@@ -1,6 +1,7 @@
 import { API_VERSION, type ByKind, type Kind } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import { backed, described, listing } from "./archived";
+import { staged } from "./configs";
 import { outcomeOf } from "./outcome";
 import { costed, reapplied } from "./qualities";
 import { ran } from "../routes/fixture";
@@ -85,6 +86,13 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("upgrade", costed))).toStrictEqual({
       kind: "upgrade",
       report: costed,
+    });
+  });
+
+  it("reads what changing a setting came to", () => {
+    expect(outcomeOf(sealed("config", staged))).toStrictEqual({
+      kind: "config",
+      report: staged,
     });
   });
 
