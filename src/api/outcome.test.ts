@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { backed, described, listing } from "./archived";
 import { staged } from "./configs";
 import { offered } from "./invitations";
+import { material } from "./pairings";
 import { household } from "../routes/house";
 import { outcomeOf } from "./outcome";
 import { costed, reapplied } from "./qualities";
@@ -106,6 +107,13 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("household", household))).toStrictEqual({
       kind: "household",
       report: household,
+    });
+  });
+
+  it("reads pairing material", () => {
+    expect(outcomeOf(sealed("pairing", material))).toStrictEqual({
+      kind: "pairing",
+      report: material,
     });
   });
 

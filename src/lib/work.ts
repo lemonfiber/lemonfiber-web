@@ -74,9 +74,15 @@ export type Tending =
   | "household-approve"
   | "household-decline";
 
+/**
+ * Something the pairing panel can ask for, named as the endpoint names it.
+ * What it takes and how it is asked about is in `./pairing`.
+ */
+export type Pairing = "companion-pair";
+
 /** Anything a record can be of. */
 export type Requested =
-  Doing | Mending | Upkeep | Tuning | Configuring | Tending;
+  Doing | Mending | Upkeep | Tuning | Configuring | Tending | Pairing;
 
 /**
  * Every action there is, in the order the controls show them.
@@ -264,6 +270,8 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_config_title();
     case "invite":
       return m.doing_invite_title();
+    case "companion-pair":
+      return m.doing_pair_title();
     case "reissue":
       return m.doing_reissue_title();
     case "household-allow":

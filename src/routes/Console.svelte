@@ -31,6 +31,7 @@
   import type { Configured } from "../lib/configured";
   import { changedTheSettings, configuring } from "../lib/configuring";
   import type { Tuned } from "../lib/tuned";
+  import { pairing } from "../lib/pairing";
   import { changedTheHousehold, tending } from "../lib/tending";
   import { changedTheQuality, tuning } from "../lib/tuning";
   import { changedTheBackups, upkeep } from "../lib/upkeep";
@@ -389,6 +390,7 @@
   const tuneAsks = new Asked(desk, tuning);
   const changeAsks = new Asked(desk, configuring);
   const tendAsks = new Asked(desk, tending);
+  const pairAsks = new Asked(desk, pairing);
 
   const mender = $derived<Mender>({
     ...mendAsks.asker,
@@ -417,6 +419,7 @@
   const tuner = $derived(tuneAsks.asker);
   const configurer = $derived(changeAsks.asker);
   const tender = $derived(tendAsks.asker);
+  const pairer = $derived(pairAsks.asker);
 
   const controls = $derived<Controls>({
     forms,
@@ -519,6 +522,7 @@
       freshness={stamped}
       {tuner}
       {configurer}
+      {pairer}
     />
   {/if}
 </Shell>

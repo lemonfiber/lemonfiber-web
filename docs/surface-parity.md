@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 64 kinds of answer, and this console reads 23 of them.
-Another surface can make 44 requests of the stack, and this console offers 22 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 39 kinds and 21
+The client carries 64 kinds of answer, and this console reads 24 of them.
+Another surface can make 44 requests of the stack, and this console offers 23 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 38 kinds and 20
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -50,31 +50,32 @@ answers with a kind the contract did not have before.
 
 ## Kinds read here
 
-| Kind         | Where it is drawn                                                                                    |
-| ------------ | ---------------------------------------------------------------------------------------------------- |
-| `admission`  | the door a password opens                                                                            |
-| `archives`   | the disk: the backups this machine keeps                                                             |
-| `backup`     | the disk: where a backup was written, and what it covers, under its record                           |
-| `bundle`     | the checks: what a support bundle would hold, in full, or where it was written                       |
-| `config`     | the settings: every setting, where each value came from, and what changing one came to               |
-| `dashboard`  | the overview, from the stream                                                                        |
-| `doctor`     | the checks, and the checks about the disk                                                            |
-| `forms`      | the forms the controls act on                                                                        |
-| `household`  | the requests, and what running the household left it as                                              |
-| `invitation` | the requests: what offering somebody an account, or a new password, would make or made               |
-| `job`        | each record of work handed to the runtime                                                            |
-| `lifecycle`  | what a start, stop, switch, restart or fetch came to, under its record                               |
-| `log`        | the logs                                                                                             |
-| `preview`    | what starting the forms chosen would come to                                                         |
-| `quality`    | the settings: the quality new media is fetched at, and what putting the recorded preset back came to |
-| `repair`     | the checks: what can be put right, chosen from, and what putting it right came to                    |
-| `restore`    | the disk: what an archive holds and what putting it back would overwrite, or what it put back        |
-| `seed`       | what wiring the programs, or keeping edits made by hand, came to, under its record                   |
-| `start`      | what a start is still waiting for, from the stream                                                   |
-| `status`     | how the stack stands, and each program in it                                                         |
-| `undo`       | the checks: what putting back the last repair came to                                                |
-| `upgrade`    | the settings: what fetching the library again would cost, and what it started                        |
-| `error`      | every refusal, read by the client and handed over as a sentence                                      |
+| Kind         | Where it is drawn                                                                                                                                                            |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `admission`  | the door a password opens                                                                                                                                                    |
+| `archives`   | the disk: the backups this machine keeps                                                                                                                                     |
+| `backup`     | the disk: where a backup was written, and what it covers, under its record                                                                                                   |
+| `bundle`     | the checks: what a support bundle would hold, in full, or where it was written                                                                                               |
+| `config`     | the settings: every setting, where each value came from, and what changing one came to                                                                                       |
+| `dashboard`  | the overview, from the stream                                                                                                                                                |
+| `doctor`     | the checks, and the checks about the disk                                                                                                                                    |
+| `forms`      | the forms the controls act on                                                                                                                                                |
+| `household`  | the requests, and what running the household left it as                                                                                                                      |
+| `invitation` | the requests: what offering somebody an account, or a new password, would make or made                                                                                       |
+| `job`        | each record of work handed to the runtime                                                                                                                                    |
+| `lifecycle`  | what a start, stop, switch, restart or fetch came to, under its record                                                                                                       |
+| `log`        | the logs                                                                                                                                                                     |
+| `pairing`    | the settings: the line a phone's code carries, the short form of the certificate's fingerprint to check on the phone, and what would make a paired phone refuse this machine |
+| `preview`    | what starting the forms chosen would come to                                                                                                                                 |
+| `quality`    | the settings: the quality new media is fetched at, and what putting the recorded preset back came to                                                                         |
+| `repair`     | the checks: what can be put right, chosen from, and what putting it right came to                                                                                            |
+| `restore`    | the disk: what an archive holds and what putting it back would overwrite, or what it put back                                                                                |
+| `seed`       | what wiring the programs, or keeping edits made by hand, came to, under its record                                                                                           |
+| `start`      | what a start is still waiting for, from the stream                                                                                                                           |
+| `status`     | how the stack stands, and each program in it                                                                                                                                 |
+| `undo`       | the checks: what putting back the last repair came to                                                                                                                        |
+| `upgrade`    | the settings: what fetching the library again would cost, and what it started                                                                                                |
+| `error`      | every refusal, read by the client and handed over as a sentence                                                                                                              |
 
 ## Kinds served by no endpoint
 
@@ -104,7 +105,6 @@ answers with a kind the contract did not have before.
 | `migration`    | A5      | Migration: what is already on this machine                                                               |
 | `music`        | D2      | Quality presets: the music format                                                                        |
 | `outbound`     | G8      | Privacy: everything that leaves this machine                                                             |
-| `pairing`      | N1      | Companion app: pairing material for a phone, and the short form of its fingerprint to check              |
 | `plugins`      | F6      | Plugin lifecycle; lemonfiber serves no endpoint for it                                                   |
 | `provenance`   | F2      | Service catalogue: where each service comes from                                                         |
 | `removal`      | D6      | Household identity: somebody taken out of the household                                                  |
@@ -133,32 +133,33 @@ here could read them.
 
 ## Requests offered here
 
-| Request             | Where                                                                                                                    |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `up`                | the overview, against the forms chosen or all                                                                            |
-| `down`              | the overview, against the forms chosen or all                                                                            |
-| `switch`            | the overview, against the forms chosen                                                                                   |
-| `restart`           | the overview, against the forms chosen                                                                                   |
-| `pull`              | the overview, against the forms chosen                                                                                   |
-| `seed`              | the overview, for the whole stack                                                                                        |
-| `adopt`             | the overview, for the whole stack                                                                                        |
-| `repair`            | the checks: the offer first, then the repairs chosen from it, named by the offer they were read in                       |
-| `diagnose`          | the checks, after a question saying the tunnel goes away for a moment                                                    |
-| `accept`            | the checks, one warning at a time, after a question                                                                      |
-| `undo`              | the checks: the last repair, after a question                                                                            |
-| `backup`            | the disk, for the whole stack, after a question saying it writes settings and no media while the stack is stopped        |
-| `restore`           | the disk: the listing first, then the archive put back, named by the listing it was read in                              |
-| `support`           | the checks: every file a bundle would hold, read in full, then the bundle written on the terms it was read under         |
-| `quality-reapply`   | the settings, where the config was edited by hand, after a question saying the edits are lost                            |
-| `quality-upgrade`   | the settings: the cost first, then the library fetched again on a yes under it                                           |
-| `config-set`        | the settings: made at once where it costs nothing, otherwise the review first and the change on a yes under it           |
-| `invite`            | the requests: what the offer would make first, then the account offered on a yes under it, on the terms it was read on   |
-| `reissue`           | the requests, under each person, after a question saying they cannot sign in until they set a new password               |
-| `household-allow`   | the requests: for the whole house, and under each person, a policy and a limit over a period                             |
-| `household-approve` | the requests, under each person, for each request waiting on the operator                                                |
-| `household-decline` | the requests, under each person, for each request waiting on the operator, with the reason the person who asked is given |
+| Request             | Where                                                                                                                      |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `up`                | the overview, against the forms chosen or all                                                                              |
+| `down`              | the overview, against the forms chosen or all                                                                              |
+| `switch`            | the overview, against the forms chosen                                                                                     |
+| `restart`           | the overview, against the forms chosen                                                                                     |
+| `pull`              | the overview, against the forms chosen                                                                                     |
+| `seed`              | the overview, for the whole stack                                                                                          |
+| `adopt`             | the overview, for the whole stack                                                                                          |
+| `repair`            | the checks: the offer first, then the repairs chosen from it, named by the offer they were read in                         |
+| `diagnose`          | the checks, after a question saying the tunnel goes away for a moment                                                      |
+| `accept`            | the checks, one warning at a time, after a question                                                                        |
+| `undo`              | the checks: the last repair, after a question                                                                              |
+| `backup`            | the disk, for the whole stack, after a question saying it writes settings and no media while the stack is stopped          |
+| `restore`           | the disk: the listing first, then the archive put back, named by the listing it was read in                                |
+| `support`           | the checks: every file a bundle would hold, read in full, then the bundle written on the terms it was read under           |
+| `quality-reapply`   | the settings, where the config was edited by hand, after a question saying the edits are lost                              |
+| `quality-upgrade`   | the settings: the cost first, then the library fetched again on a yes under it                                             |
+| `config-set`        | the settings: made at once where it costs nothing, otherwise the review first and the change on a yes under it             |
+| `invite`            | the requests: what the offer would make first, then the account offered on a yes under it, on the terms it was read on     |
+| `reissue`           | the requests, under each person, after a question saying they cannot sign in until they set a new password                 |
+| `household-allow`   | the requests: for the whole house, and under each person, a policy and a limit over a period                               |
+| `household-approve` | the requests, under each person, for each request waiting on the operator                                                  |
+| `household-decline` | the requests, under each person, for each request waiting on the operator, with the reason the person who asked is given   |
+| `companion-pair`    | the settings: fresh pairing material for the companion app, made at once, since it carries no credential and admits nobody |
 
-Five of these are offered in part. `backup` takes the whole stack; lemonfiber
+Six of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
 yet. `support` writes the bundle where lemonfiber keeps its own files, and the
 newest one written is handed to the browser to be saved; showing a setting as
@@ -170,7 +171,8 @@ because no action takes a rehearsal over the web API.
 `invite` names no libraries, because no reading this console takes lists them;
 an account it makes opens every library, and one offered again keeps the
 libraries it had. It shows the address an offer is claimed at and no QR code
-of it yet (`D6-R4`).
+of it yet (`D6-R4`). `companion-pair` shows the line a phone's code carries and
+no code a camera reads yet (`N1-R6`).
 
 ## Requests unsuited to this surface
 
@@ -195,7 +197,6 @@ of it yet (`D6-R4`).
 | `bandwidth`             | D10     | Bandwidth: declare how the line is shared                                                                      |
 | `update`                | E1      | Stack updates: move onto this build's pins                                                                     |
 | `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes |
-| `companion-pair`        | N1      | Companion app: make pairing material for a phone                                                               |
 | `watch`                 | C5      | Storage: guard the data location while forms run                                                               |
 | `hosting-install`       | B10     | Hosting: keep a command running                                                                                |
 | `hosting-remove`        | B10     | Hosting: stop keeping it                                                                                       |
