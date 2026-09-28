@@ -201,9 +201,11 @@ function shippedBy(clone, head) {
     typeof manifest.bin === "string"
       ? [manifest.bin]
       : Object.values(manifest.bin ?? {});
-  const named = [manifest.main, ...bins]
-    .filter((path) => typeof path === "string")
-    .map(bare);
+  const named = new Set(
+    [manifest.main, ...bins]
+      .filter((path) => typeof path === "string")
+      .map(bare),
+  );
   const patterns = manifest.files.filter((f) => typeof f === "string");
   const included = patterns
     .filter((f) => !f.startsWith("!"))
@@ -216,7 +218,7 @@ function shippedBy(clone, head) {
 
   return (path) =>
     ALWAYS.test(path) ||
-    named.includes(path) ||
+    named.has(path) ||
     (included.some((matches) => matches(path)) &&
       !excluded.some((matches) => matches(path)));
 }
