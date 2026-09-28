@@ -64,6 +64,7 @@ export const household: Household = {
     {
       name: "Ada",
       claimed: true,
+      standing: "active",
       last_seen: "2026-08-25T21:14:07Z",
       access: {
         administrator: true,
@@ -92,6 +93,7 @@ export const household: Household = {
     {
       name: "Kit",
       claimed: true,
+      standing: "active",
       last_seen: "2026-08-24T19:02:41Z",
       access: {
         administrator: false,
@@ -134,6 +136,7 @@ export const household: Household = {
     {
       name: "Nour",
       claimed: false,
+      standing: "invited",
       last_seen: null,
       access: {
         administrator: false,

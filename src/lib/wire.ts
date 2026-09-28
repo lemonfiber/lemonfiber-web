@@ -167,6 +167,9 @@ export type Person = House["members"][number];
 /** One thing a person in the house asked for. */
 export type Asked = Person["requests"][number];
 
+/** Where one person's account stands: invited, run out, able to sign in, or switched off. */
+export type Membership = Person["standing"];
+
 /** What one person may watch. */
 export type Access = Person["access"];
 
