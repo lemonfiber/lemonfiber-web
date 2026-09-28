@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Checks from "./Checks.svelte";
 import { allWell, attributed, diagnosis } from "./findings";
+import { mender, offered, putBack } from "./mended";
 
 const answered = { kind: "answered", secondsAgo: 6 } as const;
 const never = { kind: "never" } as const;
@@ -92,4 +93,31 @@ export const NothingAnswered: Story = {
     diagnosis: notAnswering,
     freshness: { kind: "silent", secondsAgo: 240 },
   },
+};
+
+/**
+ * What can be put right, read before anything is agreed to: what each repair
+ * would do, what else it changes, and whether it can be put back. One is
+ * chosen, and the yes names the offer it was read in.
+ */
+export const WhatCanBePutRight: Story = {
+  args: {
+    mender: { ...mender, work: [offered], picked: ["services.health"] },
+  },
+};
+
+/**
+ * The checks that take the tunnel away, asked about before they run. The
+ * other controls are silenced while the question stands.
+ */
+export const AskedBeforeItDisturbs: Story = {
+  args: { mender: { ...mender, asked: { doing: "diagnose" } } },
+};
+
+/**
+ * Putting the last repair back, and what it came to: what went back, and what
+ * could not, in the words given.
+ */
+export const WhatPuttingBackCameTo: Story = {
+  args: { mender: { ...mender, work: [putBack] } },
 };

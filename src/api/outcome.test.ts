@@ -2,6 +2,8 @@ import { API_VERSION, type ByKind, type Kind } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import { outcomeOf } from "./outcome";
 import { ran } from "../routes/fixture";
+import { allWell } from "../routes/findings";
+import { offer, undone } from "../routes/mended";
 
 /** One envelope, as a finished job is redeemed for it. */
 const sealed = <K extends Kind>(kind: K, data: ByKind[K]["data"]) => ({
@@ -28,6 +30,27 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("seed", wired))).toStrictEqual({
       kind: "seed",
       report: wired,
+    });
+  });
+
+  it("reads a run of the checks", () => {
+    expect(outcomeOf(sealed("doctor", allWell))).toStrictEqual({
+      kind: "doctor",
+      report: allWell,
+    });
+  });
+
+  it("reads what could be put right, or what putting it right came to", () => {
+    expect(outcomeOf(sealed("repair", offer))).toStrictEqual({
+      kind: "repair",
+      report: offer,
+    });
+  });
+
+  it("reads what putting the last repair back came to", () => {
+    expect(outcomeOf(sealed("undo", undone))).toStrictEqual({
+      kind: "undo",
+      report: undone,
     });
   });
 

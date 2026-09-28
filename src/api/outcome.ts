@@ -18,5 +18,12 @@ export function outcomeOf(envelope: Envelope<unknown>): Came {
     return { kind: "lifecycle", report: envelope.data };
   }
   if (isKind(envelope, "seed")) return { kind: "seed", report: envelope.data };
+  if (isKind(envelope, "doctor")) {
+    return { kind: "doctor", report: envelope.data };
+  }
+  if (isKind(envelope, "repair")) {
+    return { kind: "repair", report: envelope.data };
+  }
+  if (isKind(envelope, "undo")) return { kind: "undo", report: envelope.data };
   return { kind: "unread" };
 }
