@@ -13,7 +13,7 @@ const password = ["a", "chosen", "password"].join("-");
 const answering = (came: Arrived): Admitting =>
   vi.fn(() => Promise.resolve(came));
 
-const admitted: Arrived = { at: "admitted", token: session };
+const admitted: Arrived = { at: "admitted", token: session, member: undefined };
 
 const doorway = (onsignin: Admitting = answering(admitted)) => {
   const opened = vi.fn();
@@ -71,12 +71,24 @@ describe("handing over a password", () => {
     expect(asked).toHaveBeenCalledWith({ name: "Ada", password });
   });
 
+  // Who signed in is lemonfiber's answer, and it is handed on with the session
+  // so what is drawn next follows from it rather than from anything chosen here.
+  it("hands on the household member the session is for, where it is a member's", async () => {
+    const opened = doorway(
+      answering({ at: "admitted", token: session, member: "b41c9e" }),
+    );
+
+    await signIn(password, "Kit");
+
+    expect(opened).toHaveBeenCalledWith(session, "b41c9e");
+  });
+
   it("hands the session on to whoever keeps it", async () => {
     const opened = doorway();
 
     await signIn(password);
 
-    expect(opened).toHaveBeenCalledWith(session);
+    expect(opened).toHaveBeenCalledWith(session, undefined);
   });
 
   // A password is hidden as it is typed, which is the difference between a
@@ -97,7 +109,7 @@ describe("handing over a password", () => {
       `${password}{Enter}`,
     );
 
-    expect(opened).toHaveBeenCalledWith(session);
+    expect(opened).toHaveBeenCalledWith(session, undefined);
   });
 
   it("asks for nothing until there is a password to send", async () => {
@@ -136,7 +148,7 @@ describe("handing over a password", () => {
 
     admit(admitted);
     await vi.waitFor(() => {
-      expect(opened).toHaveBeenCalledWith(session);
+      expect(opened).toHaveBeenCalledWith(session, undefined);
     });
   });
 
@@ -185,7 +197,7 @@ describe("handing over a password", () => {
       screen.getByRole("button", { name: m.wayin_signin() }),
     );
 
-    expect(opened).toHaveBeenCalledWith(session);
+    expect(opened).toHaveBeenCalledWith(session, undefined);
     expect(screen.queryByRole("status")).toBeNull();
   });
 
@@ -269,5 +281,32 @@ describe("arriving because a run turned the console away", () => {
     doorway();
 
     expect(screen.queryByRole("alert")).toBeNull();
+  });
+});
+
+describe("arriving because lemonfiber turned a household member away", () => {
+  const said = "This request carried no token or session this run admits.";
+
+  // A member removed from the household is told they have been signed out, in
+  // the words lemonfiber turned them away with, rather than the operator's
+  // account of a key.
+  it("says they have been signed out, in lemonfiber's words", () => {
+    render(Unlock, { onopen: vi.fn(), refused: true, said });
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      m.unlock_signed_out_lead(),
+    );
+    expect(screen.getByText(said)).toBeInTheDocument();
+    expect(screen.queryByText(m.unlock_refused_prose())).toBeNull();
+  });
+
+  // The page they were reading is gone, and the reader is stood at the top of
+  // the one that replaced it.
+  it("stands the reader at the top of the door", () => {
+    render(Unlock, { onopen: vi.fn(), refused: true, said });
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: m.unlock_title() }),
+    ).toHaveFocus();
   });
 });

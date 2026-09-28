@@ -22,6 +22,7 @@ import {
   type Snippet,
 } from "svelte";
 import Action from "../src/components/Action.svelte";
+import Asked from "../src/routes/Asked.svelte";
 import Checks from "../src/routes/Checks.svelte";
 import Dashboard from "../src/routes/Dashboard.svelte";
 import DeadNote from "../src/components/DeadNote.svelte";
@@ -31,6 +32,7 @@ import Logs from "../src/routes/Logs.svelte";
 import Meter from "../src/components/Meter.svelte";
 import Requests from "../src/routes/Requests.svelte";
 import SchematicNode from "../src/components/Node.svelte";
+import Shelf from "../src/routes/Shelf.svelte";
 import StateTag from "../src/components/StateTag.svelte";
 import Storage from "../src/routes/Storage.svelte";
 import Switch from "../src/components/Switch.svelte";
@@ -99,6 +101,26 @@ export function logging(props: ComponentProps<typeof Logs>): Snippet {
 export function requesting(props: ComponentProps<typeof Requests>): Snippet {
   return holding((node) => {
     const made = mount(Requests, { target: node, props });
+    return () => {
+      void unmount(made);
+    };
+  });
+}
+
+/** What a household member asked for, inside the chrome that holds it. */
+export function asking(props: ComponentProps<typeof Asked>): Snippet {
+  return holding((node) => {
+    const made = mount(Asked, { target: node, props });
+    return () => {
+      void unmount(made);
+    };
+  });
+}
+
+/** What a household member can watch, inside the chrome that holds it. */
+export function shelving(props: ComponentProps<typeof Shelf>): Snippet {
+  return holding((node) => {
+    const made = mount(Shelf, { target: node, props });
     return () => {
       void unmount(made);
     };

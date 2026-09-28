@@ -2,17 +2,17 @@
  * One request to the running lemonfiber, made the one way a request is made.
  *
  * The two writes this surface makes — asking for an action, and asking what
- * became of one — differ in their method and in what they make of the reply,
- * and in nothing else. The address is checked the same way, the key travels in
- * the same header, and a request that never arrives is the same non-answer. So
- * that much is here, and a third write added later carries the key and refuses
- * a foreign address by having been written rather than by whoever wrote it
- * having remembered to.
+ * became of one — and the reads a household member makes differ in their method
+ * and in what they make of the reply, and in nothing else. The address is
+ * checked the same way, the key travels in the same header, and a request that
+ * never arrives is the same non-answer. So that much is here, and a request
+ * added later carries the key and refuses a foreign address by having been
+ * written rather than by whoever wrote it having remembered to.
  *
- * The reads do not come through here. They go through the client package, whose
- * business is the envelope and the wire version; these two are read for their
- * status before they are read for anything else, which is the one thing the
- * client's own reader has a single answer for.
+ * The console's reads do not come through here. They go through the client
+ * package, whose business is the envelope and the wire version; these are read
+ * for their status before they are read for anything else, which is the one
+ * thing the client's own reader has a single answer for.
  */
 import {
   address,

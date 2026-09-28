@@ -86,6 +86,35 @@ export function iconOf(place: Place): IconName {
 }
 
 /**
+ * What a menu leads to: its places in order, and the address, name and drawing
+ * of each.
+ *
+ * The console and a household member are given different menus in the same
+ * chrome, so the chrome is handed one rather than knowing either.
+ */
+export interface Menu<P extends string> {
+  /** Every place it leads to, in the order it shows them. */
+  readonly places: readonly P[];
+  /** What the menu is called, so it is reachable on its own. */
+  named(): string;
+  /** The address a place is at. */
+  pathOf(place: P): string;
+  /** What a place is called. */
+  nameOf(place: P): string;
+  /** The drawing that stands for a place. */
+  iconOf(place: P): IconName;
+}
+
+/** The operator's console, as its menu sets it out. */
+export const consoleMenu: Menu<Place> = {
+  named: () => m.nav_console(),
+  places: everyPlace,
+  pathOf,
+  nameOf,
+  iconOf,
+};
+
+/**
  * Whether a click on a link is one the page should answer itself.
  *
  * A modified click, or one from any button but the first, is asking the browser

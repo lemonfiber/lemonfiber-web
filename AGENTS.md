@@ -13,8 +13,10 @@ binary serves. It talks to lemonfiber through `@lemonfiber/sdk-ts` and reaches
 nothing else — no direct `fetch`, no external origin. `README.md` says what it is
 and how to run it; the spec page for this repo is `30-repos/lemonfiber-web.md`.
 
-There are two surfaces in the design: the operator's console and the household
-view. Both are built from the same components in `src/components`.
+There are two surfaces: the operator's console and the household view. Which one
+a page draws follows from who signed in — lemonfiber's answer at the door names a
+household member or nobody — and never from the address or a setting. Both are
+built from the same components in `src/components`.
 
 **What the console offers is measured, not remembered.** `src/offered.test.ts`
 classifies every kind the client carries and every request another surface can
@@ -127,9 +129,10 @@ scripts/          the gate's own tooling: structural guards, the accessibility
 `src/lib` never imports from `src/components` or `src/routes` — the words must not
 depend on their presentation. dependency-cruiser enforces it.
 
-A screen never fetches. `src/routes/Console.svelte` asks and follows; every screen
-and panel below it is handed what it draws, which is what lets the same screen be
-drawn from a fixture in a story and swept by `npm run a11y`.
+A screen never fetches. `src/routes/Console.svelte` and `src/routes/Member.svelte`
+ask and follow; every screen and panel below them is handed what it draws, which is
+what lets the same screen be drawn from a fixture in a story and swept by
+`npm run a11y`.
 
 ## Running several agents at once
 

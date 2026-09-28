@@ -69,8 +69,18 @@ export interface Offered {
 
 /** What became of one attempt at the door. */
 export type Arrived =
-  /** Let in, and this is what every request after this one carries. */
-  | { readonly at: "admitted"; readonly token: string }
+  /**
+   * Let in, and this is what every request after this one carries.
+   *
+   * The member is the household member the session is for, and absent for the
+   * operator. It is lemonfiber's answer to who signed in, and what the page then
+   * draws follows from it.
+   */
+  | {
+      readonly at: "admitted";
+      readonly token: string;
+      readonly member: string | undefined;
+    }
   /** No account here answers to that pair. */
   | { readonly at: "not-recognised" }
   /** Not let in, and why, in lemonfiber's words. */
@@ -122,5 +132,6 @@ export async function admitting(
     return { at: "declined", said: malformed().message };
   }
 
-  return { at: "admitted", token: read.value.data.token };
+  const { token, member } = read.value.data;
+  return { at: "admitted", token, member: member ?? undefined };
 }

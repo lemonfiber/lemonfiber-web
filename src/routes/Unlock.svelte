@@ -6,8 +6,11 @@
   import * as m from "../paraglide/messages.js";
 
   interface Props {
-    /** What being handed a key or a session asks for. */
-    onopen: (token: string) => void;
+    /**
+     * What being handed a key or a session asks for, with the household member
+     * the session is for where lemonfiber said it is a member's.
+     */
+    onopen: (token: string, member?: string) => void;
     /**
      * How a credential is handed over. Left out where nothing answers it, which
      * is a page that can still be opened by the key and not by a password.
@@ -18,9 +21,14 @@
      * being the first thing a tab was shown.
      */
     refused?: boolean | undefined;
+    /**
+     * What lemonfiber said when it turned a household member's session away,
+     * where it said something. The member is told that, in its words.
+     */
+    said?: string | undefined;
   }
 
-  let { onopen, onsignin, refused = false }: Props = $props();
+  let { onopen, onsignin, refused = false, said }: Props = $props();
 
   let name = $state("");
   let password = $state("");
@@ -69,7 +77,7 @@
 
     switch (came.at) {
       case "admitted":
-        onopen(came.token);
+        onopen(came.token, came.member);
         return;
       case "not-recognised":
         unrecognised = true;
@@ -95,7 +103,8 @@
 
   Where this screen replaced a console the run turned away, it says so where a
   reader who cannot see the screen change is told, and takes the focus the
-  swapped-out screen dropped.
+  swapped-out screen dropped. Where it replaced a household member's surface, it
+  says they have been signed out and what lemonfiber said about it.
 
   Both are forms, so either is completed by the enter key, and each is named by
   the heading above it — two unnamed forms on one screen are two of the same
@@ -105,11 +114,15 @@
   <h1 tabindex="-1" use:landing>{m.unlock_title()}</h1>
   {#if refused}
     <div class="why">
-      <Banner
-        tone="alarm"
-        lead={m.unlock_refused_lead()}
-        prose={m.unlock_refused_prose()}
-      />
+      {#if said === undefined}
+        <Banner
+          tone="alarm"
+          lead={m.unlock_refused_lead()}
+          prose={m.unlock_refused_prose()}
+        />
+      {:else}
+        <Banner tone="alarm" lead={m.unlock_signed_out_lead()} prose={said} />
+      {/if}
     </div>
   {/if}
   <p class="prose">{m.unlock_prose()}</p>

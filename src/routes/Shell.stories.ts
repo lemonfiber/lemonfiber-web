@@ -10,14 +10,18 @@ import {
 } from "./fixture";
 import { diagnosis, diskChecks } from "./findings";
 import { household } from "./house";
+import { kit, kitsShelf, yours } from "./mine";
 import {
+  asking,
   checking,
   logging,
   requesting,
   screening,
+  shelving,
   storing,
 } from "../../.storybook/snippets";
-import { everyPlace } from "../lib/route";
+import { memberMenu } from "../lib/rooms";
+import { consoleMenu, everyPlace } from "../lib/route";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
 
@@ -57,7 +61,7 @@ const meta = {
   title: "Surfaces/Shell",
   component: Shell,
   argTypes: { place: { control: "select", options: everyPlace } },
-  args: { place: "overview", children: overview },
+  args: { place: "overview", menu: consoleMenu, children: overview },
 } satisfies Meta<typeof Shell>;
 
 export default meta;
@@ -131,6 +135,41 @@ export const WithSomethingAsked: Story = {
         work: [started],
         waiting: stillWaiting,
       },
+    }),
+  },
+};
+
+/**
+ * What a household member signed in to: their own menu in the same chrome, and
+ * what they asked for with what asking does before it. Nothing of the console's
+ * is reachable from it, and it still has to reach 320 pixels without going
+ * sideways, which is the phone the member is most likely holding.
+ */
+export const AMembersRequests: Story = {
+  args: {
+    place: "asked",
+    menu: memberMenu,
+    children: asking({
+      household: yours,
+      freshness: answered,
+      quiet: false,
+    }),
+  },
+};
+
+/**
+ * What the household holds that the member signed in can watch, in their
+ * chrome, beside what they are held to.
+ */
+export const AMembersShelf: Story = {
+  args: {
+    place: "held",
+    menu: memberMenu,
+    children: shelving({
+      access: { at: "answered", value: [kit.access] },
+      watched: answered,
+      shelf: { at: "answered", value: kitsShelf },
+      freshness: answered,
     }),
   },
 };

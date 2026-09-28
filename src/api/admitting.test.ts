@@ -35,7 +35,45 @@ describe("handing over a credential at the door", () => {
       password,
     });
 
-    expect(got).toEqual({ at: "admitted", token: session });
+    expect(got).toEqual({ at: "admitted", token: session, member: undefined });
+  });
+
+  // Who signed in is lemonfiber's answer: a member's session names the member,
+  // and the operator's names nobody, which is what says it is the operator's.
+  it("carries the household member the session is for", async () => {
+    const got = await admitting(
+      arriving(
+        answering(
+          200,
+          enveloped("admission", {
+            member: "b41c9e",
+            token: session,
+            until: "2026-09-19T21:00:00Z",
+          }),
+        ),
+      ),
+      { name: "Kit", password },
+    );
+
+    expect(got).toEqual({ at: "admitted", token: session, member: "b41c9e" });
+  });
+
+  it("reads a member named as nobody as the operator", async () => {
+    const got = await admitting(
+      arriving(
+        answering(
+          200,
+          enveloped("admission", {
+            member: null,
+            token: session,
+            until: "2026-09-19T21:00:00Z",
+          }),
+        ),
+      ),
+      { password },
+    );
+
+    expect(got).toEqual({ at: "admitted", token: session, member: undefined });
   });
 
   // One form, both kinds of person. The operator's password is lemonfiber's

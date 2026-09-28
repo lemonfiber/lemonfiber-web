@@ -12,7 +12,7 @@ const meta = {
   component: Unlock,
   args: {
     onopen: () => undefined,
-    onsignin: answering({ at: "admitted", token: session }),
+    onsignin: answering({ at: "admitted", token: session, member: undefined }),
   },
 } satisfies Meta<typeof Unlock>;
 
@@ -62,4 +62,17 @@ export const AnsweredTooOften: Story = {
  */
 export const AfterTheRunTurnedTheConsoleAway: Story = {
   args: { refused: true },
+};
+
+/**
+ * The same screen, arrived at because lemonfiber stopped taking a household
+ * member's session — the member was removed, or the media server could not be
+ * asked about them. They are told they have been signed out, in lemonfiber's
+ * own words, and nothing they were reading is left on the screen.
+ */
+export const AfterAMemberWasSignedOut: Story = {
+  args: {
+    refused: true,
+    said: "This request carried no token or session this run admits.",
+  },
 };
