@@ -8,7 +8,7 @@
   import type { Freshness } from "../lib/freshness";
   import type { Mender } from "../lib/mending";
   import type { Tone } from "../lib/state";
-  import type { Keeper } from "../lib/upkeep";
+  import type { Keeper, Saver } from "../lib/upkeep";
   import { gradingOf, toneOfOverall, type Grading } from "../lib/verdict";
   import type { Diagnosis, Overall } from "../lib/wire";
   import * as m from "../paraglide/messages.js";
@@ -28,9 +28,11 @@
      * nothing answers it.
      */
     keeper?: Keeper | undefined;
+    /** What handing a written bundle to the browser asks for. */
+    saver?: Saver | undefined;
   }
 
-  let { diagnosis, freshness, mender, keeper }: Props = $props();
+  let { diagnosis, freshness, mender, keeper, saver }: Props = $props();
 
   /** The run's own grading, and how loudly it is drawn. */
   const graded = $derived(
@@ -75,6 +77,6 @@
   {/if}
 
   {#if keeper !== undefined}
-    <Support {keeper} {freshness} />
+    <Support {keeper} {freshness} {saver} />
   {/if}
 </Board>

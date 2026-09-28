@@ -176,6 +176,28 @@ export function standingBundle(work: readonly Work[]): Described | undefined {
   };
 }
 
+/**
+ * Where the newest bundle asked for was written, where it was written at all.
+ *
+ * Only the newest counts, because its record is the one on the screen, and
+ * the one a reader pressing save means.
+ */
+export function writtenBundle(work: readonly Work[]): string | undefined {
+  const newest = work.find((one) => one.doing === "support");
+  if (newest?.at !== "done" || newest.came.kind !== "bundle") return undefined;
+  return newest.came.report.path ?? undefined;
+}
+
+/** Handing a written bundle to the browser, to be saved. */
+export interface Saver {
+  /** Whether the bundle is being asked for, which silences the control. */
+  readonly busy: boolean;
+  /** Why the last one asked for was not handed over, where it was not. */
+  readonly said: string | undefined;
+  /** What saving the bundle written to this path asks for. */
+  readonly onsave: (path: string) => void;
+}
+
 /** How many log lines a bundle takes from each service unless told otherwise. */
 export const LOG_LINES = 200;
 

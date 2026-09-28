@@ -3,9 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import Checks from "./Checks.svelte";
 import { allWell } from "./findings";
-import { described, keeper, readBundle } from "./keeping";
+import { described, destination, keeper, readBundle, written } from "./keeping";
 import type { Freshness } from "../lib/freshness";
-import { LOG_LINES, type Keeper } from "../lib/upkeep";
+import { LOG_LINES, type Keeper, type Saver } from "../lib/upkeep";
+import type { Work } from "../lib/work";
 import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 6 };
@@ -149,5 +150,56 @@ describe("a bundle described, before it is written", () => {
     await press(m.action_hide_record());
 
     expect(ondrop).toHaveBeenCalledWith(readBundle.id);
+  });
+});
+
+describe("saving a bundle that was written", () => {
+  const wrote: Work = {
+    ...readBundle,
+    id: "24",
+    given: { write: true, logs: 500, filenames: true },
+    at: "done",
+    job: undefined,
+    came: { kind: "bundle", report: written },
+  };
+
+  /** The checks screen, with a saver for what was written. */
+  function saving(over: Partial<Saver> = {}, work = [wrote]): void {
+    render(Checks, {
+      diagnosis: { ok: true, value: allWell },
+      freshness: answered,
+      keeper: { ...keeper, work },
+      saver: { busy: false, said: undefined, onsave: vi.fn(), ...over },
+    });
+  }
+
+  it("hands the newest bundle written to the browser, by where it was written", async () => {
+    const onsave = vi.fn();
+    saving({ onsave });
+
+    await press(m.action_support_save());
+
+    expect(onsave).toHaveBeenCalledWith(destination);
+  });
+
+  it("offers nothing to save where only a description stands", () => {
+    saving({}, [readBundle]);
+    expect(
+      screen.queryByRole("button", { name: m.action_support_save() }),
+    ).toBeNull();
+  });
+
+  it("says why it could not be saved, in lemonfiber's words", () => {
+    saving({ said: "No bundle is kept under that name." });
+    expect(
+      within(panel()).getByText("No bundle is kept under that name."),
+    ).toBeInTheDocument();
+  });
+
+  it("is silenced while the bundle is being asked for", () => {
+    saving({ busy: true });
+    expect(
+      screen.getByRole("button", { name: m.action_support_save() }),
+    ).toHaveAttribute("aria-disabled", "true");
   });
 });

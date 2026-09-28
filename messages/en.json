@@ -737,5 +737,6 @@
   "config_review_title": "Changing {key}",
   "config_review_prose": "Nothing has changed yet. What the change does is listed below, and saying yes makes it.",
   "config_wait": "Let what is still coming down finish first",
-  "action_config_yes": "Yes, change {key}"
+  "action_config_yes": "Yes, change {key}",
+  "action_support_save": "Save the bundle to this device"
 }

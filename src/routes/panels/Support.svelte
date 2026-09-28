@@ -4,13 +4,16 @@
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
   import Switch from "../../components/Switch.svelte";
+  import Value from "../../components/Value.svelte";
   import { linesOf } from "../../lib/came";
   import type { Freshness } from "../../lib/freshness";
   import {
     LOG_LINES,
     linesTyped,
     standingBundle,
+    writtenBundle,
     type Keeper,
+    type Saver,
   } from "../../lib/upkeep";
   import { readingOf, titleOfDoing } from "../../lib/work";
   import * as m from "../../paraglide/messages.js";
@@ -20,9 +23,14 @@
     keeper: Keeper;
     /** When this panel's source last answered. */
     freshness: Freshness;
+    /**
+     * What handing a written bundle to the browser asks for. Left out where
+     * nothing answers it, which leaves the bundle on the machine.
+     */
+    saver?: Saver | undefined;
   }
 
-  let { keeper, freshness }: Props = $props();
+  let { keeper, freshness, saver }: Props = $props();
 
   const bundleId = $props.id();
 
@@ -48,6 +56,7 @@
 
   const work = $derived(keeper.work.filter((one) => one.doing === "support"));
   const standing = $derived(standingBundle(work));
+  const written = $derived(writtenBundle(work));
   const logs = $derived(linesTyped(typed));
   const parted = $derived(standing !== undefined || work.length > 0);
 </script>
@@ -62,7 +71,9 @@
   it reach nothing until a description is asked for on them.
 
   The bundle is written where lemonfiber keeps its own files, and the record
-  says where. Nothing is handed to the browser.
+  says where. The newest one written can then be handed to the browser whole,
+  to be saved wherever the reader keeps what they send somebody; where it could
+  not be, the reason is said under the control, in lemonfiber's words.
 -->
 <Panel title={m.panel_support()} {freshness} flush>
   <div class="scope">
@@ -101,6 +112,22 @@
       }}
     />
   </div>
+
+  {#if saver !== undefined && written !== undefined}
+    <div class="save">
+      <Action
+        label={m.action_support_save()}
+        weight="firm"
+        off={saver.busy}
+        onclick={() => {
+          saver.onsave(written);
+        }}
+      />
+      {#if saver.said !== undefined}
+        <Value state="unknown" absent={saver.said} />
+      {/if}
+    </div>
+  {/if}
 
   <div
     class="asked"
@@ -198,6 +225,13 @@
     grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--sp-4);
     align-items: center;
+  }
+
+  .save {
+    display: grid;
+    gap: var(--sp-2);
+    justify-items: start;
+    padding: 0 var(--panel-pad) var(--sp-3);
   }
 
   .controls {
