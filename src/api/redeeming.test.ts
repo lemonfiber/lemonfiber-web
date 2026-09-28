@@ -116,7 +116,10 @@ describe("where the work got to", () => {
       job,
     );
 
-    expect(came).toStrictEqual({ at: "finished" });
+    expect(came).toStrictEqual({
+      at: "finished",
+      came: { kind: "lifecycle", report: ran },
+    });
   });
 
   // What went wrong is lemonfiber's own account of it, and the envelope is

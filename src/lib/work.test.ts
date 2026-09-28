@@ -157,7 +157,7 @@ describe("how a record of what was asked for reads", () => {
       case "under-way":
         return { ...asked, at, job };
       case "done":
-        return { ...asked, at, job: undefined };
+        return { ...asked, at, job: undefined, came: { kind: "unread" } };
       case "stopped":
         return { ...asked, at, said };
       case "forgotten":
@@ -193,6 +193,7 @@ describe("how a record of what was asked for reads", () => {
       scoped: false,
       at: "done",
       job,
+      came: { kind: "unread" },
     });
 
     expect(read.state).toBe("known");

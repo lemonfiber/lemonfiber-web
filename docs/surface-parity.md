@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 62 kinds of answer, and this console reads 11 of them.
+The client carries 62 kinds of answer, and this console reads 13 of them.
 Another surface can make 42 requests of the stack, and this console offers 7 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 49 kinds and 34
+them. 2 kinds and 1 request are offered elsewhere by rule, and 47 kinds and 34
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -50,19 +50,21 @@ answers with a kind the contract did not have before.
 
 ## Kinds read here
 
-| Kind        | Where it is drawn                                               |
-| ----------- | --------------------------------------------------------------- |
-| `admission` | the door a password opens                                       |
-| `dashboard` | the overview, from the stream                                   |
-| `doctor`    | the checks, and the checks about the disk                       |
-| `forms`     | the forms the controls act on                                   |
-| `household` | the requests                                                    |
-| `job`       | each record of work handed to the runtime                       |
-| `log`       | the logs                                                        |
-| `preview`   | what starting the forms chosen would come to                    |
-| `start`     | what a start is still waiting for, from the stream              |
-| `status`    | how the stack stands, and each program in it                    |
-| `error`     | every refusal, read by the client and handed over as a sentence |
+| Kind        | Where it is drawn                                                                  |
+| ----------- | ---------------------------------------------------------------------------------- |
+| `admission` | the door a password opens                                                          |
+| `dashboard` | the overview, from the stream                                                      |
+| `doctor`    | the checks, and the checks about the disk                                          |
+| `forms`     | the forms the controls act on                                                      |
+| `household` | the requests                                                                       |
+| `job`       | each record of work handed to the runtime                                          |
+| `lifecycle` | what a start, stop, switch, restart or fetch came to, under its record             |
+| `log`       | the logs                                                                           |
+| `preview`   | what starting the forms chosen would come to                                       |
+| `seed`      | what wiring the programs, or keeping edits made by hand, came to, under its record |
+| `start`     | what a start is still waiting for, from the stream                                 |
+| `status`    | how the stack stands, and each program in it                                       |
+| `error`     | every refusal, read by the client and handed over as a sentence                    |
 
 ## Kinds served by no endpoint
 
@@ -93,7 +95,6 @@ answers with a kind the contract did not have before.
 | `hosting`      | B10     | Hosting: what keeps running when no terminal is open                                  |
 | `import`       | A5      | Migration: copying an operator's records across                                       |
 | `invitation`   | D6      | Household identity: an account offered to somebody                                    |
-| `lifecycle`    | B2      | Lifecycle: what a start, stop, switch, restart or fetch came to                       |
 | `migration`    | A5      | Migration: what is already on this machine                                            |
 | `music`        | D2      | Quality presets: the music format                                                     |
 | `outbound`     | G8      | Privacy: everything that leaves this machine                                          |
@@ -105,7 +106,6 @@ answers with a kind the contract did not have before.
 | `replacement`  | A5      | Migration: standing in place of a setup already here                                  |
 | `reset`        | C9      | Drift: what a full reset would revert                                                 |
 | `restore`      | E3      | Backup & restore: what a restore would overwrite, or put back                         |
-| `seed`         | D1      | Auto-wiring: what seeding wired                                                       |
 | `self-update`  | E2      | Self-update: where this copy stands                                                   |
 | `space`        | D5      | Disk space: where the room went                                                       |
 | `step`         | D3      | First content: one step of a walkthrough, from the stream                             |

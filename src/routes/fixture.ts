@@ -7,6 +7,7 @@
  * a panel.
  */
 import { frontDoor, house } from "./house";
+import type { Lifecycle } from "../lib/came";
 import type {
   Alert,
   Form,
@@ -337,6 +338,47 @@ export const started: Work = {
   job,
 };
 
+/** What a start came to: one service up, one still starting, a port held. */
+export const ran: Lifecycle = {
+  action: "up",
+  command: ["docker", "compose", "--profile", "core", "up", "-d"],
+  plan: {
+    dropped: [],
+    filtered: [],
+    footprint: { estimated_mib: 64, unestimated: [] },
+    forms: ["core"],
+    profiles: ["core"],
+    services: ["gluetun", "sonarr"],
+  },
+  rehearsed: false,
+  services: [
+    {
+      criticality: "critical",
+      depends_on: [],
+      describes: "Hides your downloading from your provider",
+      forms: ["core"],
+      id: "gluetun",
+      name: "gluetun",
+      profile: "core",
+      state: "healthy",
+    },
+    {
+      criticality: "core",
+      depends_on: ["gluetun"],
+      describes: "Finds and fetches series",
+      forms: ["core"],
+      id: "sonarr",
+      name: "sonarr",
+      profile: "core",
+      state: "starting",
+    },
+  ],
+  port_conflicts: [{ port: 8989, held_by: "media", wanted_by: "sonarr" }],
+  stack_edits: [],
+  status: 0,
+  condition: "partial",
+};
+
 /** Work whose name was redeemed, and which had finished. */
 export const finished: Work = {
   id: "2",
@@ -344,6 +386,7 @@ export const finished: Work = {
   scoped: false,
   at: "done",
   job,
+  came: { kind: "lifecycle", report: ran },
 };
 
 /** What lemonfiber said about work that ran and stopped. */

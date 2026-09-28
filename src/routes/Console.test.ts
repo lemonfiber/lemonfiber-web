@@ -864,6 +864,52 @@ describe("what became of the work", () => {
     expect(screen.queryByText(m.eyebrow_taken_on())).toBeNull();
   });
 
+  // The envelope a finished job is redeemed for is the outcome, and a record
+  // saying only "finished" sends the operator looking for what it already said.
+  it("says what it came to, in what lemonfiber reported", async () => {
+    console_({ sending: acting(accepted, undefined, [rendered]) });
+
+    await press(wordOfDoing("up", false));
+
+    const came = await screen.findByRole("list", { name: m.came_heading() });
+    expect(
+      within(came).getByText(m.came_condition_active()),
+    ).toBeInTheDocument();
+    expect(
+      within(came).getByText(m.came_command({ command: "compose up -d" })),
+    ).toBeInTheDocument();
+  });
+
+  it("says what wiring came to, connection by connection", async () => {
+    console_({
+      sending: acting(accepted, undefined, [
+        {
+          status: 200,
+          body: enveloped("seed", {
+            assessment: "assessed",
+            rehearsed: false,
+            wirings: [
+              {
+                connection: "SABnzbd into Sonarr",
+                severity: { severity: "informational" },
+                state: { state: "wired" },
+              },
+            ],
+          }),
+        },
+      ]),
+    });
+
+    await press(wordOfDoing("seed", false));
+
+    const came = await screen.findByRole("list", { name: m.came_heading() });
+    expect(
+      within(came).getByText(
+        m.came_wiring_wired({ connections: "SABnzbd into Sonarr" }),
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("says what stopped it, in the words the failure rendered", async () => {
     console_({ sending: acting(accepted, undefined, [failed]) });
 
@@ -1031,6 +1077,11 @@ describe("when lemonfiber will not do what was asked", () => {
     await press(wordOfDoing("up", false));
 
     expect(await screen.findByText(m.work_done())).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("list", { name: m.came_heading() })).getByText(
+        m.came_unread(),
+      ),
+    ).toBeInTheDocument();
   });
 });
 

@@ -48,6 +48,26 @@ describe("Item", () => {
     ).toBeInTheDocument();
   });
 
+  it("lists what more there is to say, one fact a line, under its name", () => {
+    render(Item, {
+      ...stuck,
+      lines: {
+        named: "What it came to",
+        said: ["Started: radarr.", "Stopped: lidarr."],
+      },
+    });
+
+    const list = screen.getByRole("list", { name: "What it came to" });
+    expect(
+      [...list.querySelectorAll("li")].map((line) => line.textContent),
+    ).toStrictEqual(["Started: radarr.", "Stopped: lidarr."]);
+  });
+
+  it("lists nothing where there is nothing more to say", () => {
+    render(Item, stuck);
+    expect(screen.queryByRole("list")).toBeNull();
+  });
+
   it("offers nothing where there is nothing to press", () => {
     const { container } = render(Item, stuck);
     expect(container.querySelector(".acts")).toBeNull();

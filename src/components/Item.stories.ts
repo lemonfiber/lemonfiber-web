@@ -96,3 +96,27 @@ export const PartWay: Story = {
     prose: m.check_scan_prose({ done: "9", total: "11" }),
   },
 };
+
+/**
+ * Finished, with what it came to under the prose: one fact a line, in the
+ * order lemonfiber reported them.
+ */
+export const WhatItCameTo: Story = {
+  args: {
+    state: "known",
+    eyebrow: m.eyebrow_finished(),
+    title: m.doing_switch_title(),
+    prose: m.work_finished({ job: "9f2c41ab7d0e5c63" }),
+    lines: {
+      named: m.came_heading(),
+      said: [
+        m.came_condition_active(),
+        m.came_started({ names: "radarr" }),
+        m.came_stopped({ names: "lidarr" }),
+        m.came_command({
+          command: "docker compose --profile films up -d --remove-orphans",
+        }),
+      ],
+    },
+  },
+};

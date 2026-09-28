@@ -349,7 +349,14 @@
       case "started":
         return { id, doing, scoped, at: "under-way", job: came.job };
       case "settled":
-        return { id, doing, scoped, at: "done", job: undefined };
+        return {
+          id,
+          doing,
+          scoped,
+          at: "done",
+          job: undefined,
+          came: came.came,
+        };
       case "declined":
         return { id, doing, scoped, at: "declined", said: came.said };
     }
@@ -393,7 +400,7 @@
     const { id, doing, scoped } = one;
     switch (came.at) {
       case "finished":
-        return { id, doing, scoped, at: "done", job };
+        return { id, doing, scoped, at: "done", job, came: came.came };
       case "stopped":
         return { id, doing, scoped, at: "stopped", said: came.said };
       case "forgotten":
