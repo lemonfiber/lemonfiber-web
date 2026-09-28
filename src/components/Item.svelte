@@ -13,11 +13,17 @@
     title: string;
     /** The rest of it: what it means, and what lemonfiber can do about it. */
     prose: string;
+    /**
+     * What it came to, one fact a line, and the name the list is read out
+     * under. Omitted where there is nothing more to say.
+     */
+    lines?:
+      { readonly named: string; readonly said: readonly string[] } | undefined;
     /** Buttons. Omitted where there is nothing to press. */
     actions?: Snippet | undefined;
   }
 
-  let { state, eyebrow, title, prose, actions }: Props = $props();
+  let { state, eyebrow, title, prose, lines, actions }: Props = $props();
 
   const tone = $derived(toneFor(state));
 </script>
@@ -25,6 +31,7 @@
 <!--
   A row that wants the operator. The port carries the severity, the eyebrow
   carries the state in this row's own words, and the prose carries the rest.
+  Where there is more to say, one fact a line, it is a list under the prose.
 
   The port's icon is decorative here: the eyebrow beside it already says what
   it means, and announcing both would say it twice.
@@ -44,6 +51,13 @@
     </p>
     <h3>{title}</h3>
     <p class="prose">{prose}</p>
+    {#if lines !== undefined}
+      <ul class="lines" aria-label={lines.named}>
+        {#each lines.said as line, at (at)}
+          <li>{line}</li>
+        {/each}
+      </ul>
+    {/if}
   </div>
   {#if actions !== undefined}
     <div class="acts">{@render actions()}</div>
@@ -105,6 +119,17 @@
     font-size: var(--text-prose);
     color: var(--muted);
     max-width: 76ch;
+  }
+
+  .lines {
+    display: grid;
+    gap: var(--sp-1);
+    margin: var(--sp-2) 0 0;
+    padding: 0 0 0 var(--sp-4);
+    font-size: var(--text-prose);
+    color: var(--muted);
+    max-width: 76ch;
+    overflow-wrap: anywhere;
   }
 
   /* Stacked, so the prose keeps its measure rather than being squeezed by a

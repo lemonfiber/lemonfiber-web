@@ -1300,7 +1300,14 @@ describe("when lemonfiber would not do it", () => {
       controls: {
         ...controls,
         work: [
-          { id: "3", doing: "up", scoped: false, at: "done", job: undefined },
+          {
+            id: "3",
+            doing: "up",
+            scoped: false,
+            at: "done",
+            job: undefined,
+            came: { kind: "unread" },
+          },
         ],
       },
     });
@@ -1315,6 +1322,24 @@ describe("what became of work whose name was redeemed", () => {
 
     expect(screen.getByText(m.eyebrow_finished())).toBeInTheDocument();
     expect(screen.queryByText(m.eyebrow_taken_on())).toBeNull();
+  });
+
+  it("lists what it came to under the record", () => {
+    board({ controls: { ...controls, work: [finished] } });
+
+    const came = screen.getByRole("list", { name: m.came_heading() });
+    expect(
+      within(came).getByText(m.came_condition_partial()),
+    ).toBeInTheDocument();
+    expect(
+      within(came).getByText(m.came_still_starting({ names: "sonarr" })),
+    ).toBeInTheDocument();
+  });
+
+  it("lists nothing under a record of work that has not finished", () => {
+    board({ controls: { ...controls, work: [started, stopped] } });
+
+    expect(screen.queryByRole("list", { name: m.came_heading() })).toBeNull();
   });
 
   // What went wrong is lemonfiber's own account of it, and a record that only

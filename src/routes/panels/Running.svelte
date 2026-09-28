@@ -2,6 +2,7 @@
   import Action from "../../components/Action.svelte";
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
+  import { linesOf } from "../../lib/came";
   import type { Freshness } from "../../lib/freshness";
   import {
     askable,
@@ -196,6 +197,9 @@
         eyebrow={read.eyebrow}
         title={titleOfDoing(one.doing, one.scoped)}
         prose={read.prose}
+        lines={one.at === "done"
+          ? { named: m.came_heading(), said: linesOf(one.came) }
+          : undefined}
         actions={dropping}
       />
     {/each}

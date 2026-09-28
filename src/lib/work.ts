@@ -26,6 +26,7 @@
  */
 import type { Reading } from "@lemonfiber/sdk-ts";
 import type { Arguments } from "../api/acting";
+import type { Came } from "./came";
 import type { State } from "./state";
 import type { Freshness } from "./freshness";
 import type { Forms, Preview } from "./wire";
@@ -244,6 +245,8 @@ export type Work =
       readonly at: "done";
       /** The name it was redeemed under, where one was ever given. */
       readonly job: string | undefined;
+      /** What lemonfiber reported it came to. */
+      readonly came: Came;
     })
   | (Asked & {
       readonly at: "stopped";

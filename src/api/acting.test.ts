@@ -128,7 +128,7 @@ describe("when the work had finished before the reply", () => {
       nothing,
     );
 
-    expect(came).toStrictEqual({ at: "settled" });
+    expect(came).toStrictEqual({ at: "settled", came: { kind: "unread" } });
   });
 });
 
