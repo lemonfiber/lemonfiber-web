@@ -12,7 +12,6 @@
 import type { Arguments } from "../api/acting";
 import { sameDoing, type Asker, type Family } from "./asker";
 import type { Came } from "./came";
-import { linesTyped } from "./upkeep";
 import type { Requested, Sharing } from "./work";
 
 /** Every request the line panel makes. */
@@ -88,7 +87,7 @@ export function declarationTyped(
 }
 
 /** A number of minutes as typed, or nothing where it is not a whole one. */
-export const minutesTyped = linesTyped;
+export { linesTyped as minutesTyped } from "./upkeep";
 
 /** What to send for one asking. */
 export function givenForDeclare(declare: Declare): Arguments {
