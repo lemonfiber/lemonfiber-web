@@ -1,48 +1,48 @@
-# The pinned client is a copy, and a copy goes stale in silence.
+# A pinned copy goes stale in silence, so every pin is compared on every pull
+# request.
 #
-# This surface reaches lemonfiber through `@lemonfiber/sdk-ts` and through
-# nothing else, and it takes that package as an exact git revision rather than
-# as a published version. Nothing in the gate looks at that revision: `npm ci`
-# installs what the lockfile says and `npm run client` builds what the manifest
-# names, and both are content with a revision from any point in the past.
+# This surface takes two lemonfiber repositories as exact git revisions rather
+# than as published versions: `@lemonfiber/sdk-ts`, the client it reaches
+# lemonfiber through, and `@lemonfiber/brand`, the tokens every colour, size and
+# step here is drawn from. Nothing else in the gate looks at either revision:
+# `npm ci` installs what the manifest names and `npm run client` builds it, and
+# both are content with a revision from any point in the past.
 #
-# That is not theoretical. The pin once sat at a commit from before four of the
-# client's own bugs were fixed, so all four were live here: a stale key read as
-# "lemonfiber is not answering", the event stream never handed over an arrival,
-# a refusal's own sentence was discarded, and the vendored contract predated a
-# kind. One of them was found again here, by hand, hours after it had been fixed
-# upstream.
+# `scripts/pins.mjs` finds every dependency in `package.json` that points at a
+# lemonfiber repository, compares its revision with that repository's default
+# branch, and names the commits in between. A count would be the wrong thing to
+# report: most commits there change nothing this surface installs, and "behind
+# by eleven" reads as an emergency where the list reads as a decision. For the
+# same reason, a move that touched only files npm does not install from is not
+# drift. Which files those are is read from the dependency's own manifest: a
+# package npm builds at install, as it builds the client, counts everything but
+# its workflows and its tests; one installed as it stands, as brand is, counts
+# what its `files` lists and what npm always packs.
 #
-# So this compares what the manifest pins against what that repository's main
-# is, and names the commits in between. A count would be the wrong thing to
-# report: most commits on the client change nothing this surface reaches, and
-# "behind by eleven" reads as an emergency where the list reads as a decision.
+# The same script holds the lockfile to the manifest, which `npm ci` does not do
+# for a git dependency. With `@lemonfiber/brand` pinned in `package.json` at one
+# commit and resolved in `package-lock.json` at another, `npm ci
+# --ignore-scripts` (npm 11.13.0) installs the manifest's commit, leaves the
+# lockfile naming the other, and exits 0 — whichever of the two moved, and
+# whether or not the lockfile's own copy of the declaration moved with it.
 #
-# `Q-R68` requires that comparison to run on pull requests, fail them, and be a
-# required status check. It does, on all three.
+# The job is named `sdk-drift` because that is the context the default branch's
+# protection requires; a job under any other name would leave the required check
+# waiting on a report that never comes. It checks every pin, the client's among
+# them.
 #
-# It was deferred once, with a date and a reason: the pin had fallen 21 kinds
-# behind, `HouseholdMemberRequest.id` had become required, and the dashboard
-# snapshot had gained a front-door panel and a household panel that the contract
-# itself says belong on the screen. Filling those was a product decision rather
-# than a regenerate, so no author of an unrelated pull request could have cleared
-# this gate, and gating on it would have been a freeze rather than a gate.
-#
-# Those panels are drawn and the pin is current, so the condition is met and the
-# gate is on. What that costs an author now is a two-file bump, which is what it
-# was always meant to cost.
-#
-# Every run still says which verdict it reached in its own summary, because a red
-# X that needs this file read to interpret is the thing that let the last drift
-# sit for days.
+# Every run writes the verdict for each pin to its own summary, and each failure
+# names the package and the command that brings it current in the annotation on
+# the check, so a red X is read on the run page rather than in this file.
 name: sdk-drift
 on:
   pull_request:
   workflow_dispatch:
   schedule:
-    # Weekly, as the contract drift check runs. The client's main is also where
-    # `sdk-moved` fires from on every push, so this is the floor rather than the
-    # first notice — what it catches is a push that went untold.
+    # Weekly, as the contract drift check runs. The client's main also fires
+    # `sdk-moved` on every push, so for the client this is the floor rather than
+    # the first notice — what it catches is a push that went untold. For brand,
+    # which tells nobody, this and the pull requests are the notice.
     - cron: "40 7 * * 1"
 
 permissions:
@@ -64,152 +64,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Compare the pinned client with the one its repository serves
-        env:
-          SDK: https://github.com/lemonfiber/sdk-ts.git
-        run: |
-          set -euo pipefail
+      # The script needs no package installed, only the Node this repository
+      # names.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
 
-          # What the run page shows above the log. The verdict is written there
-          # as well as printed, so what this check found and what it is for are
-          # read together — the reader who has to be told this is the deferred
-          # gate is the one who did not go looking for the workflow file.
-          say() {
-            printf '%s\n' "$1"
-            printf '%s\n' "$1" >>"${GITHUB_STEP_SUMMARY:-/dev/null}"
-          }
-
-          # The revision the manifest pins is the one `npm run client` builds,
-          # so it is the client this surface is actually drawn through.
-          if ! pin=$(python3 - 2>unreadable.txt <<'PY'
-          import json
-          import pathlib
-          import re
-          import sys
-
-          NAME = "@lemonfiber/sdk-ts"
-
-          manifest = json.loads(pathlib.Path("package.json").read_text())
-          spec = manifest.get("dependencies", {}).get(NAME)
-
-          if spec is None:
-              sys.exit(f"{NAME} is not a dependency of this package")
-
-          revision = spec.partition("#")[2]
-
-          if not re.fullmatch("[0-9a-f]{40}", revision):
-              sys.exit(f"{NAME} is not pinned to an exact revision: {spec}")
-
-          print(revision)
-          PY
-          ); then
-            say '## The pinned client could not be read'
-            say ''
-            say 'This did not get as far as comparing anything, so it is not news about'
-            say 'sdk-ts either: the manifest does not name the client the way this'
-            say 'expects, and what this surface is drawn through is unknown rather than'
-            say "behind. Whoever last edited the \`@lemonfiber/sdk-ts\` entry in"
-            say "\`package.json\` is who can fix it — it takes \`github:lemonfiber/sdk-ts#\`"
-            say 'followed by a full 40-character commit hash.'
-            say ''
-            say "\`\`\`"
-            say "$(cat unreadable.txt)"
-            say "\`\`\`"
-            echo '::error::the pinned client could not be read from package.json — the @lemonfiber/sdk-ts entry must be github:lemonfiber/sdk-ts# followed by a full 40-character commit hash'
-            exit 1
-          fi
-
-          # Bare and blob-less: this reads the history and none of the files,
-          # because a list of commits is the whole of what is being asked for.
-          git clone --bare --filter=blob:none --quiet "$SDK" sdk-ts.git
-
-          head=$(git -C sdk-ts.git rev-parse main)
-
-          if ! git -C sdk-ts.git cat-file -e "${pin}^{commit}" 2>/dev/null; then
-            say '## The pinned revision is not a commit in sdk-ts'
-            say ''
-            say 'This is not the lag it usually finds, and it is not news about sdk-ts:'
-            say 'the manifest names a revision that repository has no commit for, so'
-            say 'what this surface is drawn through is not something anyone else can'
-            say 'fetch.'
-            say ''
-            say "- pinned in \`package.json\`: \`${pin}\`"
-            say "- sdk-ts main: \`${head}\`"
-            say ''
-            say 'To fix it: point the dependency at a revision sdk-ts holds — `'"${head}"'`'
-            say "is what main is — and run \`npm install\` so the lockfile moves with it."
-            echo "::error::the pinned revision is not a commit in sdk-ts — point @lemonfiber/sdk-ts at github:lemonfiber/sdk-ts#${head} in package.json and run npm install"
-            exit 1
-          fi
-
-          if [ "$pin" = "$head" ]; then
-            say '## The pinned client is current'
-            say ''
-            say "The console is drawn through sdk-ts \`${pin}\`, which is what main is."
-            say ''
-            say "This is a required check on every pull request (\`Q-R68\`), so the"
-            say "console cannot fall behind the client without somebody being told."
-            exit 0
-          fi
-
-          behind=$(git -C sdk-ts.git log --oneline "${pin}..main")
-
-          # Ahead of main, or on a history main no longer has. Either way the
-          # pin is not a point on the line this compares against, and reporting
-          # it as current would be a different wrong answer.
-          if [ -z "$behind" ]; then
-            say '## The pinned revision is not on sdk-ts main'
-            say ''
-            say 'This is not the lag it usually finds: the pin is a commit sdk-ts holds,'
-            say 'but not one main reaches, so it sits ahead of main or on a history main'
-            say 'no longer carries. There is no list of commits to take, because the pin'
-            say 'is not a point on the line this compares against.'
-            say ''
-            say "- pinned in \`package.json\`: \`${pin}\`"
-            say "- sdk-ts main: \`${head}\`"
-            say ''
-            say "To fix it: point the dependency at \`${head}\` in \`package.json\` and"
-            say "run \`npm install\` so the lockfile moves with it."
-            echo "::error::the pinned revision is not on sdk-ts main — point @lemonfiber/sdk-ts at github:lemonfiber/sdk-ts#${head} in package.json and run npm install"
-            exit 1
-          fi
-
-          # npm builds the client from its own tree when it installs it, so
-          # which files can change what lands in `node_modules` is broad —
-          # its sources, its build and package settings, its lockfile. Two
-          # kinds cannot: its workflows under `.github/`, and its `*.test.ts`
-          # files, which the build's single entry never imports. A move that
-          # touched only those changed nothing this surface is drawn through,
-          # so it is not drift; it would otherwise turn every pull request here
-          # red over the client's own CI. Anything else counts.
-          built=$(git -C sdk-ts.git diff --name-only "${pin}" main | grep -vE '^\.github/|\.test\.ts$' || true)
-
-          if [ -z "$built" ]; then
-            say '## The pinned client is current'
-            say ''
-            say "The console is drawn through sdk-ts \`${pin}\`. Main is at \`${head}\`,"
-            say 'and every file changed since is a workflow or a test, neither of which'
-            say 'the installed client is built from.'
-            exit 0
-          fi
-
-          say '## The pinned client is behind'
-          say ''
-          say 'sdk-ts has moved on since this surface last took it.'
-          say ''
-          say "- pinned in \`package.json\`: \`${pin}\`"
-          say "- sdk-ts main: \`${head}\`"
-          say ''
-          say 'The console has not taken these:'
-          say ''
-          say "\`\`\`"
-          say "$behind"
-          say "\`\`\`"
-          say ''
-          say "To catch up: point the dependency at \`${head}\` in \`package.json\`, then"
-          say "run \`npm install\` so the lockfile moves with it, and \`npm run client\` to"
-          say "rebuild against it. If \`npm run types\` goes red on that, the client has"
-          say "changed a shape this surface draws, and taking it is a change here rather"
-          say "than a bump — say so in the pull request instead of forcing it green."
-          echo "::error::the pinned client is behind sdk-ts main — point @lemonfiber/sdk-ts at github:lemonfiber/sdk-ts#${head} in package.json, run npm install, then npm run client"
-          exit 1
+      - name: Compare every pin with its repository and with the lockfile
+        run: node scripts/pins.mjs

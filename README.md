@@ -109,8 +109,9 @@ fail there. `just ready` is those two, and `just ci` depends on it.
 
 What the command leaves out is named in the [`justfile`](justfile) beside `just
 ci`: the four commit rules, which `.githooks/commit-msg` refuses before the push;
-`sdk-drift`, which compares this surface against the SDK's published contract; and
-the forge-side jobs.
+`sdk-drift`, which compares every revision this surface pins in another lemonfiber
+repository with that repository's default branch and with the lockfile; and the
+forge-side jobs.
 
 The individual steps are the `scripts` in [`package.json`](package.json), and each
 runs on its own while you work — `npm test` for the fast loop, `npm run storybook`
