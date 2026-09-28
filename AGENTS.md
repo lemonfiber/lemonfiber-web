@@ -16,6 +16,13 @@ and how to run it; the spec page for this repo is `30-repos/lemonfiber-web.md`.
 There are two surfaces in the design: the operator's console and the household
 view. Both are built from the same components in `src/components`.
 
+**What the console offers is measured, not remembered.** `src/offered.test.ts`
+classifies every kind the client carries and every request another surface can
+make as offered here, offered elsewhere by a named requirement, or not offered
+yet with its feature, and `docs/surface-parity.md` states what those lists come
+to. A screen that reads a new kind or offers a new request moves it to offered
+in both, in the same change; the suite fails until they agree.
+
 ## The load-bearing rules
 
 **Everything visual comes from a token.** `src/app.css` is the only file that may
@@ -110,6 +117,7 @@ src/app.css       brand tokens mapped to this interface's names, the element
                   reset, and the one `.said` utility every component would
                   otherwise restate
 messages/en.json  every word a person reads
+docs/             what the console offers, and what it does not yet
 scripts/          the gate's own tooling: structural guards, the accessibility
                   sweep, the compiler warnings the build refuses, the built
                   app's wire-version declaration

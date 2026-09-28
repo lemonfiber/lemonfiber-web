@@ -60,6 +60,11 @@ things hidden:
 Both are built from one component library and one set of tokens, so they cannot
 drift apart visually. What differs is which of them a given person is served.
 
+Neither offers everything yet. The console offers a handful of the requests the
+command line can make and reads a handful of the answers the client carries;
+[`docs/surface-parity.md`](docs/surface-parity.md) counts both, and names every
+request and answer not offered yet with the feature it belongs to.
+
 ## Running it
 
 ```console
