@@ -26,7 +26,9 @@
  * would be this page's guess reported as lemonfiber's word.
  */
 import { parse, refusalIn } from "@lemonfiber/sdk-ts";
+import type { Came } from "../lib/came";
 import type { Reaching } from "./asking";
+import { outcomeOf } from "./outcome";
 import { reached, succeeded } from "./reached";
 
 /** Where a name is redeemed. */
@@ -46,7 +48,7 @@ export type Redeemed =
   /** Still going. Nothing more is known until it is not. */
   | { readonly at: "running" }
   /** Finished, and lemonfiber rendered what it came to. */
-  | { readonly at: "finished" }
+  | { readonly at: "finished"; readonly came: Came }
   /** Stopped, in the words of whatever stopped it. */
   | { readonly at: "stopped"; readonly said: string }
   /** No work in this run goes by that name. */
@@ -90,5 +92,7 @@ export async function redeeming(
 
   const read = parse<unknown>(said);
   if (!read.ok) return { at: "adrift", said: read.problem.message };
-  return status === STILL_GOING ? { at: "running" } : { at: "finished" };
+  return status === STILL_GOING
+    ? { at: "running" }
+    : { at: "finished", came: outcomeOf(read.value) };
 }

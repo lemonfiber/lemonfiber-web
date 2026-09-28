@@ -24,7 +24,9 @@
  * so nothing above renders a bare status.
  */
 import { isKind, malformed, parse, refusalIn } from "@lemonfiber/sdk-ts";
+import type { Came } from "../lib/came";
 import type { Reaching } from "./asking";
+import { outcomeOf } from "./outcome";
 import { reached, succeeded } from "./reached";
 
 /** Where an action is asked for. */
@@ -44,6 +46,16 @@ const ACCEPTED = 202;
 export interface Arguments {
   /** The forms to act on. Empty means the whole stack. */
   readonly forms?: readonly string[];
+  /** Whether the checks that disturb a running stack are included. */
+  readonly disruptive?: boolean;
+  /** Whether what the action costs was agreed to. */
+  readonly confirm?: boolean;
+  /** The offer the agreement was read in, as it named itself. */
+  readonly offer?: string;
+  /** The repairs agreed to, as that offer names them. */
+  readonly agreed?: readonly string[];
+  /** The check a warning is being answered for. */
+  readonly check?: string;
 }
 
 /**
@@ -53,7 +65,7 @@ export type Acted =
   /** Handed to the runtime under this name, and still going. */
   | { readonly at: "started"; readonly job: string }
   /** Finished while the request was still open. */
-  | { readonly at: "settled" }
+  | { readonly at: "settled"; readonly came: Came }
   /** Not carried out, and why, in lemonfiber's words where it wrote any. */
   | { readonly at: "declined"; readonly said: string }
   /** The key this page is using is not the one this run is expecting. */
@@ -83,7 +95,8 @@ export async function acting(
 
   const read = parse<unknown>(said);
   if (!read.ok) return { at: "declined", said: read.problem.message };
-  if (status !== ACCEPTED) return { at: "settled" };
+  if (status !== ACCEPTED)
+    return { at: "settled", came: outcomeOf(read.value) };
 
   return isKind(read.value, "job")
     ? { at: "started", job: read.value.data.job }

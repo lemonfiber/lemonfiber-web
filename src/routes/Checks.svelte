@@ -2,8 +2,10 @@
   import Banner from "../components/Banner.svelte";
   import Board from "./Board.svelte";
   import Findings from "./panels/Findings.svelte";
+  import Mend from "./panels/Mend.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
+  import type { Mender } from "../lib/mending";
   import type { Tone } from "../lib/state";
   import { gradingOf, toneOfOverall, type Grading } from "../lib/verdict";
   import type { Diagnosis, Overall } from "../lib/wire";
@@ -14,9 +16,14 @@
     diagnosis: Reading<Diagnosis> | undefined;
     /** When this screen's source last answered. */
     freshness: Freshness;
+    /**
+     * What can be asked about what the checks found. Left out where nothing
+     * answers it, which draws the findings alone.
+     */
+    mender?: Mender | undefined;
   }
 
-  let { diagnosis, freshness }: Props = $props();
+  let { diagnosis, freshness, mender }: Props = $props();
 
   /** The run's own grading, and how loudly it is drawn. */
   const graded = $derived(
@@ -39,6 +46,9 @@
 
   A run nobody has answered yet has no grading, so there is no banner — an empty
   one would be a claim about a run that has not happened.
+
+  What can be done about the findings stands under them, so what is on offer is
+  read after what it is for.
 -->
 <Board>
   {#if graded !== undefined}
@@ -51,4 +61,8 @@
     title={m.panel_findings()}
     absent={m.checks_none()}
   />
+
+  {#if mender !== undefined}
+    <Mend {mender} {diagnosis} {freshness} />
+  {/if}
 </Board>

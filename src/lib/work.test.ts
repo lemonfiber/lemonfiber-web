@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { everyMending } from "./mending";
 import {
   askable,
   askingOf,
@@ -41,6 +42,14 @@ describe("what the console can ask for", () => {
       everyDoing.map((doing) => titleOfDoing(doing, false)),
     );
     expect(titles.size).toBe(everyDoing.length);
+  });
+
+  it("heads a record of what the checks screen asked for apart from the rest", () => {
+    const requested = [...everyDoing, ...everyMending];
+    const titles = new Set(
+      requested.map((doing) => titleOfDoing(doing, false)),
+    );
+    expect(titles.size).toBe(requested.length);
   });
 
   // The whole stack and a chosen few are different requests, and a control
@@ -157,7 +166,7 @@ describe("how a record of what was asked for reads", () => {
       case "under-way":
         return { ...asked, at, job };
       case "done":
-        return { ...asked, at, job: undefined };
+        return { ...asked, at, job: undefined, came: { kind: "unread" } };
       case "stopped":
         return { ...asked, at, said };
       case "forgotten":
@@ -193,6 +202,7 @@ describe("how a record of what was asked for reads", () => {
       scoped: false,
       at: "done",
       job,
+      came: { kind: "unread" },
     });
 
     expect(read.state).toBe("known");

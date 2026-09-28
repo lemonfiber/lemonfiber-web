@@ -7,7 +7,7 @@
   import Shell from "./Shell.svelte";
   import Storage from "./Storage.svelte";
   import type { Kind, Reading } from "@lemonfiber/sdk-ts";
-  import { acting, type Acted } from "../api/acting";
+  import { acting, type Arguments } from "../api/acting";
   import {
     asked,
     carrying,
@@ -21,9 +21,17 @@
     pausing as waiting,
     redeeming,
     type Pausing,
-    type Redeemed,
   } from "../api/redeeming";
   import type { Flow } from "../lib/flow";
+  import {
+    changedTheChecks,
+    givenForMend,
+    isMending,
+    questionOfMend,
+    sameMend,
+    type Mend,
+    type Mender,
+  } from "../lib/mending";
   import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
   import { ours, pathOf, placeAt, type Place } from "../lib/route";
   import type {
@@ -38,8 +46,11 @@
   import {
     costly,
     givenFor,
+    recordAfter,
+    recordOf,
     type Controls,
     type Doing,
+    type Requested,
     type Work,
   } from "../lib/work";
 
@@ -86,6 +97,8 @@
   let work = $state<readonly Work[]>([]);
   let waitingSaid = $state<string | undefined>(undefined);
   let confirming = $state<Doing | undefined>(undefined);
+  let mendAsked = $state<Mend | undefined>(undefined);
+  let picked = $state<readonly string[]>([]);
   let busy = $state(false);
   let listening = $state(false);
 
@@ -318,11 +331,32 @@
       confirming = doing;
       return;
     }
-
-    const scoped = chosen.length > 0;
     confirming = undefined;
+    await send(doing, chosen.length > 0, givenFor(doing, chosen));
+  }
+
+  /**
+   * Ask for something on the checks screen, having asked about it first where
+   * nothing comes back to read before agreeing.
+   */
+  async function mend(asking: Mend): Promise<void> {
+    if (questionOfMend(asking) !== undefined && !sameMend(mendAsked, asking)) {
+      mendAsked = asking;
+      return;
+    }
+    mendAsked = undefined;
+    if (asking.doing === "repair") picked = [];
+    await send(asking.doing, false, givenForMend(asking));
+  }
+
+  /** Send one request, keep a record of it, and follow what it was named. */
+  async function send(
+    doing: Requested,
+    scoped: boolean,
+    given: Arguments,
+  ): Promise<void> {
     busy = true;
-    const came = await acting(reaching, doing, givenFor(doing, chosen));
+    const came = await acting(reaching, doing, given);
     busy = false;
 
     if (came.at === "turned-away") {
@@ -332,27 +366,10 @@
 
     counted += 1;
     const id = String(counted);
-    work = [recorded(id, doing, scoped, came), ...work];
+    const record = recordOf(id, doing, scoped, came);
+    work = [record, ...work];
     if (came.at === "started") void follow(id, came.job);
-  }
-
-  /**
-   * What was asked for and what came back, as one record.
-   */
-  function recorded(
-    id: string,
-    doing: Doing,
-    scoped: boolean,
-    came: Exclude<Acted, { at: "turned-away" }>,
-  ): Work {
-    switch (came.at) {
-      case "started":
-        return { id, doing, scoped, at: "under-way", job: came.job };
-      case "settled":
-        return { id, doing, scoped, at: "done", job: undefined };
-      case "declined":
-        return { id, doing, scoped, at: "declined", said: came.said };
-    }
+    else settled(record);
   }
 
   /**
@@ -374,7 +391,27 @@
       onrefused();
       return;
     }
-    work = work.map((one) => (one.id === id ? became(one, job, came) : one));
+    const after = came;
+    work = work.map((one) =>
+      one.id === id ? recordAfter(one, job, after) : one,
+    );
+    work.filter((one) => one.id === id).forEach(settled);
+  }
+
+  /**
+   * What a record that came to an end changes on the screen.
+   *
+   * A run of the checks is the reading the checks screen draws, so one that
+   * came back replaces it. A repair carried out or put back changes what the
+   * checks would find, so the checks are asked again.
+   */
+  function settled(record: Work): void {
+    if (record.at !== "done") return;
+    if (record.came.kind === "doctor") {
+      diagnosis = noted("checks", { ok: true, value: record.came.report });
+    } else if (changedTheChecks(record.came)) {
+      void askFor("checks");
+    }
   }
 
   /** Whether the record a name was followed for is still on the screen. */
@@ -382,33 +419,33 @@
     return work.some((one) => one.id === id);
   }
 
-  /**
-   * One record, as what became of the work it named leaves it.
-   */
-  function became(
-    one: Work,
-    job: string,
-    came: Exclude<Redeemed, { at: "running" | "turned-away" }>,
-  ): Work {
-    const { id, doing, scoped } = one;
-    switch (came.at) {
-      case "finished":
-        return { id, doing, scoped, at: "done", job };
-      case "stopped":
-        return { id, doing, scoped, at: "stopped", said: came.said };
-      case "forgotten":
-        return { id, doing, scoped, at: "forgotten", job };
-      case "adrift":
-        return { id, doing, scoped, at: "adrift", job, said: came.said };
-    }
-  }
+  const mender = $derived<Mender>({
+    work: work.filter((one) => isMending(one.doing)),
+    asked: mendAsked,
+    picked,
+    busy,
+    onask: (asking: Mend) => {
+      void mend(asking);
+    },
+    onpick: (check: string) => {
+      picked = picked.includes(check)
+        ? picked.filter((one) => one !== check)
+        : [...picked, check];
+    },
+    onleave: () => {
+      mendAsked = undefined;
+    },
+    ondrop: (id: string) => {
+      work = work.filter((one) => one.id !== id);
+    },
+  });
 
   const controls = $derived<Controls>({
     forms,
     chosen,
     preview,
     previewed,
-    work,
+    work: work.filter((one) => !isMending(one.doing)),
     waiting: waitingSaid,
     confirming,
     busy,
@@ -483,7 +520,7 @@
       onretry={listening ? undefined : reopen}
     />
   {:else if place === "checks"}
-    <Checks {diagnosis} freshness={stamped} />
+    <Checks {diagnosis} freshness={stamped} {mender} />
   {:else if place === "storage"}
     <Storage
       disk={moment?.storage}

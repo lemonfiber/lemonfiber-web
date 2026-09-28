@@ -25,7 +25,9 @@
  * carries from lemonfiber are lemonfiber's own and are passed through unchanged.
  */
 import type { Reading } from "@lemonfiber/sdk-ts";
-import type { Arguments } from "../api/acting";
+import type { Acted, Arguments } from "../api/acting";
+import type { Redeemed } from "../api/redeeming";
+import type { Came } from "./came";
 import type { State } from "./state";
 import type { Freshness } from "./freshness";
 import type { Forms, Preview } from "./wire";
@@ -36,6 +38,15 @@ import * as m from "../paraglide/messages.js";
  */
 export type Doing =
   "up" | "down" | "switch" | "restart" | "pull" | "seed" | "adopt";
+
+/**
+ * Something the checks screen can ask for, named as the endpoint names it.
+ * What each takes and how it is asked about is in `./mending`.
+ */
+export type Mending = "repair" | "diagnose" | "accept" | "undo";
+
+/** Anything a record can be of. */
+export type Requested = Doing | Mending;
 
 /**
  * Every action there is, in the order the controls show them.
@@ -193,8 +204,16 @@ export function wordOfDoing(doing: Doing, scoped: boolean): string {
 /**
  * What a record of it is headed by: what was asked for, as it is happening.
  */
-export function titleOfDoing(doing: Doing, scoped: boolean): string {
+export function titleOfDoing(doing: Requested, scoped: boolean): string {
   switch (doing) {
+    case "repair":
+      return m.doing_repair_title();
+    case "diagnose":
+      return m.doing_diagnose_title();
+    case "accept":
+      return m.doing_accept_title();
+    case "undo":
+      return m.doing_undo_title();
     case "up":
       return scoped ? m.doing_up_chosen_title() : m.doing_up_title();
     case "down":
@@ -217,7 +236,7 @@ interface Asked {
   /** What names this record, so a reader can put one of several away. */
   readonly id: string;
   /** What was asked for. */
-  readonly doing: Doing;
+  readonly doing: Requested;
   /** Whether it named forms, which is what the record is headed by. */
   readonly scoped: boolean;
 }
@@ -244,6 +263,8 @@ export type Work =
       readonly at: "done";
       /** The name it was redeemed under, where one was ever given. */
       readonly job: string | undefined;
+      /** What lemonfiber reported it came to. */
+      readonly came: Came;
     })
   | (Asked & {
       readonly at: "stopped";
@@ -262,6 +283,53 @@ export type Work =
       /** Why not, in lemonfiber's own words. */
       readonly said: string;
     });
+
+/**
+ * What was asked for and what came back, as one record.
+ */
+export function recordOf(
+  id: string,
+  doing: Requested,
+  scoped: boolean,
+  came: Exclude<Acted, { at: "turned-away" }>,
+): Work {
+  switch (came.at) {
+    case "started":
+      return { id, doing, scoped, at: "under-way", job: came.job };
+    case "settled":
+      return {
+        id,
+        doing,
+        scoped,
+        at: "done",
+        job: undefined,
+        came: came.came,
+      };
+    case "declined":
+      return { id, doing, scoped, at: "declined", said: came.said };
+  }
+}
+
+/**
+ * One record, as what became of the work it named leaves it.
+ */
+export function recordAfter(
+  one: Work,
+  job: string,
+  came: Exclude<Redeemed, { at: "running" | "turned-away" }>,
+): Work {
+  const { id, doing, scoped } = one;
+  switch (came.at) {
+    case "finished":
+      return { id, doing, scoped, at: "done", job, came: came.came };
+    case "stopped":
+      return { id, doing, scoped, at: "stopped", said: came.said };
+    case "forgotten":
+      return { id, doing, scoped, at: "forgotten", job };
+    case "adrift":
+      return { id, doing, scoped, at: "adrift", job, said: came.said };
+  }
+}
 
 /** Every way a record can read, in the order they are worth walking. */
 export const everyStanding: readonly Work["at"][] = [
