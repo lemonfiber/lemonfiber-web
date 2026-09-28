@@ -174,6 +174,20 @@ export function saidOfPolicy(policy: Policy | null | undefined): string {
   }
 }
 
+/** What a policy is called where it is one choice among the others. */
+export function labelOfPolicy(policy: Policy): string {
+  switch (policy) {
+    case "trusted":
+      return m.policy_label_trusted();
+    case "within-a-limit":
+      return m.policy_label_within_a_limit();
+    case "everything-waits":
+      return m.policy_label_everything_waits();
+    default:
+      return m.policy_label_other();
+  }
+}
+
 /**
  * Whether what the house asked for was read at all.
  *

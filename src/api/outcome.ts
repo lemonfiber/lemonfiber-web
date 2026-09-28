@@ -43,5 +43,11 @@ export function outcomeOf(envelope: Envelope<unknown>): Came {
   if (isKind(envelope, "config")) {
     return { kind: "config", report: envelope.data };
   }
+  if (isKind(envelope, "invitation")) {
+    return { kind: "invitation", report: envelope.data };
+  }
+  if (isKind(envelope, "household")) {
+    return { kind: "household", report: envelope.data };
+  }
   return { kind: "unread" };
 }

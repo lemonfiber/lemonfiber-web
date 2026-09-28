@@ -11,6 +11,7 @@ import {
   kindOfRequest,
   nameOfRequest,
   saidOfAccess,
+  labelOfPolicy,
   saidOfPolicy,
   shownOf,
   standingOf,
@@ -165,6 +166,13 @@ const someone = (over: Partial<Person> = {}): Person => ({
 });
 
 describe("what happens to what the house asks for", () => {
+  it("names each policy apart where one is chosen from the others", () => {
+    expect(new Set(everyPolicy.map(labelOfPolicy)).size).toBe(
+      everyPolicy.length,
+    );
+    expect(labelOfPolicy("sometimes" as Policy)).toBe(m.policy_label_other());
+  });
+
   it.each(everyPolicy)("has a sentence for %s", (policy) => {
     expect(saidOfPolicy(policy)).not.toBe("");
   });

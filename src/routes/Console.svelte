@@ -22,7 +22,6 @@
   import type { Flow } from "../lib/flow";
   import {
     changedTheChecks,
-    isMending,
     mending,
     type Mend,
     type Mender,
@@ -30,14 +29,11 @@
   import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
   import type { Archives } from "../lib/kept";
   import type { Configured } from "../lib/configured";
-  import {
-    changedTheSettings,
-    configuring,
-    isConfiguring,
-  } from "../lib/configuring";
+  import { changedTheSettings, configuring } from "../lib/configuring";
   import type { Tuned } from "../lib/tuned";
-  import { changedTheQuality, isTuning, tuning } from "../lib/tuning";
-  import { changedTheBackups, isUpkeep, upkeep } from "../lib/upkeep";
+  import { changedTheHousehold, tending } from "../lib/tending";
+  import { changedTheQuality, tuning } from "../lib/tuning";
+  import { changedTheBackups, upkeep } from "../lib/upkeep";
   import { consoleMenu, ours, pathOf, placeAt, type Place } from "../lib/route";
   import type {
     Diagnosis,
@@ -51,6 +47,7 @@
   import {
     costly,
     givenFor,
+    isDoing,
     type Controls,
     type Doing,
     type Work,
@@ -355,8 +352,9 @@
    * A run of the checks is the reading the checks screen draws, so one that
    * came back replaces it. A repair carried out or put back changes what the
    * checks would find, so the checks are asked again. A backup written
-   * changes which backups there are, and the quality choice put back or a
-   * setting changed changes the settings screen, so each is read again.
+   * changes which backups there are, the quality choice put back or a setting
+   * changed changes the settings screen, and an account offered or a request
+   * ruled on changes the household, so each is read again.
    */
   function settled(record: Work): void {
     if (record.at !== "done") return;
@@ -371,6 +369,8 @@
       changedTheSettings(record.came)
     ) {
       void askFor("settings");
+    } else if (changedTheHousehold(record.came)) {
+      void askFor("requests");
     }
   }
 
@@ -388,6 +388,7 @@
   const keepAsks = new Asked(desk, upkeep);
   const tuneAsks = new Asked(desk, tuning);
   const changeAsks = new Asked(desk, configuring);
+  const tendAsks = new Asked(desk, tending);
 
   const mender = $derived<Mender>({
     ...mendAsks.asker,
@@ -415,19 +416,14 @@
   const saver = $derived(saving.saver);
   const tuner = $derived(tuneAsks.asker);
   const configurer = $derived(changeAsks.asker);
+  const tender = $derived(tendAsks.asker);
 
   const controls = $derived<Controls>({
     forms,
     chosen,
     preview,
     previewed,
-    work: desk.of(
-      (doing) =>
-        !isMending(doing) &&
-        !isUpkeep(doing) &&
-        !isTuning(doing) &&
-        !isConfiguring(doing),
-    ),
+    work: desk.of(isDoing),
     waiting: waitingSaid,
     confirming,
     busy: desk.busy,
@@ -515,7 +511,7 @@
   {:else if place === "logs"}
     <Logs scrollback={lines} freshness={stamped} />
   {:else if place === "requests"}
-    <Requests {household} freshness={stamped} />
+    <Requests {household} freshness={stamped} {tender} />
   {:else}
     <Settings
       {quality}
