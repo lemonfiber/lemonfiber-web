@@ -32,6 +32,9 @@
   import { changedTheSettings, configuring } from "../lib/configuring";
   import type { Tuned } from "../lib/tuned";
   import { pairing } from "../lib/pairing";
+  import type { Shared } from "../lib/shared";
+  import { changedTheLine, sharing } from "../lib/sharing";
+  import { updating } from "../lib/updating";
   import { changedTheHousehold, tending } from "../lib/tending";
   import { changedTheQuality, tuning } from "../lib/tuning";
   import { changedTheBackups, upkeep } from "../lib/upkeep";
@@ -90,6 +93,7 @@
   let household = $state<Reading<Household> | undefined>(undefined);
   let quality = $state<Reading<Tuned> | undefined>(undefined);
   let config = $state<Reading<Configured> | undefined>(undefined);
+  let line = $state<Reading<Shared> | undefined>(undefined);
   let stampedAt = $state<number | undefined>(undefined);
   let moment = $state<Moment | undefined>(undefined);
   let flow = $state<Flow>("opening");
@@ -197,12 +201,14 @@
         );
         return;
       case "settings": {
-        const [choice, held] = await Promise.all([
+        const [choice, held, shared] = await Promise.all([
           asked(reaching, "quality", "quality"),
           asked(reaching, "config", "config"),
+          asked(reaching, "bandwidth", "bandwidth"),
         ]);
         quality = noted(where, choice);
         config = noted(where, held);
+        line = noted(where, shared);
         return;
       }
     }
@@ -353,8 +359,9 @@
    * A run of the checks is the reading the checks screen draws, so one that
    * came back replaces it. A repair carried out or put back changes what the
    * checks would find, so the checks are asked again. A backup written
-   * changes which backups there are, the quality choice put back or a setting
-   * changed changes the settings screen, and an account offered or a request
+   * changes which backups there are, the quality choice put back, a setting
+   * changed or the line declared changes the settings screen, and an account
+   * offered or a request
    * ruled on changes the household, so each is read again.
    */
   function settled(record: Work): void {
@@ -367,7 +374,8 @@
       void askFor("storage");
     } else if (
       changedTheQuality(record.came) ||
-      changedTheSettings(record.came)
+      changedTheSettings(record.came) ||
+      changedTheLine(record.came)
     ) {
       void askFor("settings");
     } else if (changedTheHousehold(record.came)) {
@@ -391,6 +399,8 @@
   const changeAsks = new Asked(desk, configuring);
   const tendAsks = new Asked(desk, tending);
   const pairAsks = new Asked(desk, pairing);
+  const shareAsks = new Asked(desk, sharing);
+  const updateAsks = new Asked(desk, updating);
 
   const mender = $derived<Mender>({
     ...mendAsks.asker,
@@ -420,6 +430,8 @@
   const configurer = $derived(changeAsks.asker);
   const tender = $derived(tendAsks.asker);
   const pairer = $derived(pairAsks.asker);
+  const sharer = $derived(shareAsks.asker);
+  const updater = $derived(updateAsks.asker);
 
   const controls = $derived<Controls>({
     forms,
@@ -519,10 +531,13 @@
     <Settings
       {quality}
       settings={config}
+      {line}
       freshness={stamped}
       {tuner}
       {configurer}
       {pairer}
+      {sharer}
+      {updater}
     />
   {/if}
 </Shell>

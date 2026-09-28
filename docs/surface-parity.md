@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 64 kinds of answer, and this console reads 24 of them.
-Another surface can make 44 requests of the stack, and this console offers 23 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 38 kinds and 20
+The client carries 64 kinds of answer, and this console reads 26 of them.
+Another surface can make 44 requests of the stack, and this console offers 25 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 36 kinds and 18
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -55,6 +55,7 @@ answers with a kind the contract did not have before.
 | `admission`  | the door a password opens                                                                                                                                                    |
 | `archives`   | the disk: the backups this machine keeps                                                                                                                                     |
 | `backup`     | the disk: where a backup was written, and what it covers, under its record                                                                                                   |
+| `bandwidth`  | the settings: where the line stands, what that means, each limit, and what each download client is doing about it                                                            |
 | `bundle`     | the checks: what a support bundle would hold, in full, or where it was written                                                                                               |
 | `config`     | the settings: every setting, where each value came from, and what changing one came to                                                                                       |
 | `dashboard`  | the overview, from the stream                                                                                                                                                |
@@ -74,6 +75,7 @@ answers with a kind the contract did not have before.
 | `start`      | what a start is still waiting for, from the stream                                                                                                                           |
 | `status`     | how the stack stands, and each program in it                                                                                                                                 |
 | `undo`       | the checks: what putting back the last repair came to                                                                                                                        |
+| `update`     | the settings: every step moving onto this build's pins would take, and how each service ended once it moved                                                                  |
 | `upgrade`    | the settings: what fetching the library again would cost, and what it started                                                                                                |
 | `error`      | every refusal, read by the client and handed over as a sentence                                                                                                              |
 
@@ -90,7 +92,6 @@ answers with a kind the contract did not have before.
 | -------------- | ------- | -------------------------------------------------------------------------------------------------------- |
 | `adoption`     | A5      | Migration: what taking over a setup already here came to                                                 |
 | `alerts`       | B5      | Notifications: what the operator is told about                                                           |
-| `bandwidth`    | D10     | Bandwidth: how the line is shared                                                                        |
 | `beside`       | A5      | Migration: standing beside a setup already here                                                          |
 | `catalogue`    | F2      | Service catalogue: what each service is for                                                              |
 | `certificate`  | N1      | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |
@@ -119,7 +120,6 @@ answers with a kind the contract did not have before.
 | `substitution` | F4      | Capabilities: which service fills one; lemonfiber serves no endpoint                                     |
 | `trace`        | D9      | Pipeline trace: where one item is                                                                        |
 | `uninstall`    | A6      | Uninstall: what a removal would come to                                                                  |
-| `update`       | E1      | Stack updates: what moving onto this build's pins would change                                           |
 | `version`      | E2      | Self-update: the versions in play                                                                        |
 | `walkthrough`  | D3      | First content: how far a walk got                                                                        |
 | `watch`        | C5      | Storage: how a guard over the data location ended                                                        |
@@ -158,8 +158,10 @@ here could read them.
 | `household-approve` | the requests, under each person, for each request waiting on the operator                                                  |
 | `household-decline` | the requests, under each person, for each request waiting on the operator, with the reason the person who asked is given   |
 | `companion-pair`    | the settings: fresh pairing material for the companion app, made at once, since it carries no credential and admits nobody |
+| `bandwidth`         | the settings: the limits typed, as they were typed, made at once; or the limits lifted for the minutes typed               |
+| `update`            | the settings: every step first, then the move on a yes under it, letting downloads finish first where asked                |
 
-Six of these are offered in part. `backup` takes the whole stack; lemonfiber
+Seven of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
 yet. `support` writes the bundle where lemonfiber keeps its own files, and the
 newest one written is handed to the browser to be saved; showing a setting as
@@ -172,7 +174,8 @@ because no action takes a rehearsal over the web API.
 an account it makes opens every library, and one offered again keeps the
 libraries it had. It shows the address an offer is claimed at and no QR code
 of it yet (`D6-R4`). `companion-pair` shows the line a phone's code carries and
-no code a camera reads yet (`N1-R6`).
+no code a camera reads yet (`N1-R6`). `update` moves the whole stack; lemonfiber
+also moves one service, and this console has no control for that yet.
 
 ## Requests unsuited to this surface
 
@@ -194,8 +197,6 @@ no code a camera reads yet (`N1-R6`).
 | `uninstall`             | A6      | Uninstall: one of four removals                                                                                |
 | `space`                 | D5      | Disk space: take what costs nothing                                                                            |
 | `stop-seeding`          | D5      | Disk space: let one completed download go                                                                      |
-| `bandwidth`             | D10     | Bandwidth: declare how the line is shared                                                                      |
-| `update`                | E1      | Stack updates: move onto this build's pins                                                                     |
 | `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes |
 | `watch`                 | C5      | Storage: guard the data location while forms run                                                               |
 | `hosting-install`       | B10     | Hosting: keep a command running                                                                                |

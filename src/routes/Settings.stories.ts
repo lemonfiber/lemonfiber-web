@@ -3,6 +3,7 @@ import Settings from "./Settings.svelte";
 import { configurer, everySetting, stagedChange } from "./configured";
 import { inForce, putQualityBack, readCost, tuner } from "./tuned";
 import { made, pairer } from "./paired";
+import { planRecord, shared, sharer, updater } from "./lined";
 
 const answered = { kind: "answered", secondsAgo: 6 } as const;
 
@@ -72,4 +73,16 @@ export const WhatAChangeWouldCost: Story = {
  */
 export const PairingAPhone: Story = {
   args: { pairer: { ...pairer, work: [made] } },
+};
+
+/**
+ * How the line is shared, with limits to declare, and the steps updating
+ * would take, read and waiting for a yes.
+ */
+export const TheLineAndTheVersions: Story = {
+  args: {
+    line: { ok: true, value: shared },
+    sharer,
+    updater: { ...updater, work: [planRecord] },
+  },
 };

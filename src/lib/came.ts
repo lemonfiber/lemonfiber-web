@@ -14,7 +14,9 @@
  * what did not. A backup, a restore and a support bundle are read in `./kept`,
  * the quality choice and fetching the library again in `./tuned`, a
  * setting changed in `./configured`, an account offered or the household as
- * an act on it left it in `./invited`, and pairing material in `./paired`.
+ * an act on it left it in `./invited`, pairing material in `./paired`, how the
+ * line is shared in `./shared`, and moving onto this build's pins in
+ * `./updated`.
  * Anything else arrives as an outcome nobody here reads, which is said rather
  * than drawn as nothing.
  *
@@ -33,6 +35,8 @@ import {
 import { qualityLines, upgradeLines, type Tuned, type Upgraded } from "./tuned";
 import { configLines, type Configured } from "./configured";
 import { pairingLines, type Paired } from "./paired";
+import { lineLines, type Shared } from "./shared";
+import { updateLines, type Updated } from "./updated";
 import {
   householdLines,
   invitationLines,
@@ -88,6 +92,8 @@ export type Came =
   | { readonly kind: "invitation"; readonly report: Invited }
   | { readonly kind: "household"; readonly report: Housed }
   | { readonly kind: "pairing"; readonly report: Paired }
+  | { readonly kind: "bandwidth"; readonly report: Shared }
+  | { readonly kind: "update"; readonly report: Updated }
   | { readonly kind: "unread" };
 
 /** A service still doing what the action asked of it. */
@@ -433,6 +439,10 @@ export function linesOf(came: Came): readonly string[] {
       return householdLines(came.report);
     case "pairing":
       return pairingLines(came.report);
+    case "bandwidth":
+      return lineLines(came.report);
+    case "update":
+      return updateLines(came.report);
     case "unread":
       return [m.came_unread()];
   }

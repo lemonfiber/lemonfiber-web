@@ -52,5 +52,11 @@ export function outcomeOf(envelope: Envelope<unknown>): Came {
   if (isKind(envelope, "pairing")) {
     return { kind: "pairing", report: envelope.data };
   }
+  if (isKind(envelope, "bandwidth")) {
+    return { kind: "bandwidth", report: envelope.data };
+  }
+  if (isKind(envelope, "update")) {
+    return { kind: "update", report: envelope.data };
+  }
   return { kind: "unread" };
 }
