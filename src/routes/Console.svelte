@@ -28,6 +28,12 @@
   } from "../lib/mending";
   import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
   import type { Archives } from "../lib/kept";
+  import type { Configured } from "../lib/configured";
+  import {
+    changedTheSettings,
+    configuring,
+    isConfiguring,
+  } from "../lib/configuring";
   import type { Tuned } from "../lib/tuned";
   import { changedTheQuality, isTuning, tuning } from "../lib/tuning";
   import { changedTheBackups, isUpkeep, upkeep } from "../lib/upkeep";
@@ -84,6 +90,7 @@
   let lines = $state<Reading<readonly Logged[]> | undefined>(undefined);
   let household = $state<Reading<Household> | undefined>(undefined);
   let quality = $state<Reading<Tuned> | undefined>(undefined);
+  let config = $state<Reading<Configured> | undefined>(undefined);
   let stampedAt = $state<number | undefined>(undefined);
   let moment = $state<Moment | undefined>(undefined);
   let flow = $state<Flow>("opening");
@@ -190,9 +197,15 @@
           await asked(reaching, "requests", "household"),
         );
         return;
-      case "settings":
-        quality = noted(where, await asked(reaching, "quality", "quality"));
+      case "settings": {
+        const [choice, held] = await Promise.all([
+          asked(reaching, "quality", "quality"),
+          asked(reaching, "config", "config"),
+        ]);
+        quality = noted(where, choice);
+        config = noted(where, held);
         return;
+      }
     }
   }
 
@@ -341,8 +354,8 @@
    * A run of the checks is the reading the checks screen draws, so one that
    * came back replaces it. A repair carried out or put back changes what the
    * checks would find, so the checks are asked again. A backup written
-   * changes which backups there are, and the quality choice put back changes
-   * the choice in force, so each is read again.
+   * changes which backups there are, and the quality choice put back or a
+   * setting changed changes the settings screen, so each is read again.
    */
   function settled(record: Work): void {
     if (record.at !== "done") return;
@@ -352,7 +365,10 @@
       void askFor("checks");
     } else if (changedTheBackups(record.came)) {
       void askFor("storage");
-    } else if (changedTheQuality(record.came)) {
+    } else if (
+      changedTheQuality(record.came) ||
+      changedTheSettings(record.came)
+    ) {
       void askFor("settings");
     }
   }
@@ -367,18 +383,19 @@
     here: () => here,
     settled,
   });
-  const mended = new Asked(desk, mending);
-  const kept = new Asked(desk, upkeep);
-  const tuned = new Asked(desk, tuning);
+  const mendAsks = new Asked(desk, mending);
+  const keepAsks = new Asked(desk, upkeep);
+  const tuneAsks = new Asked(desk, tuning);
+  const changeAsks = new Asked(desk, configuring);
 
   const mender = $derived<Mender>({
-    ...mended.asker,
+    ...mendAsks.asker,
     picked,
     onask: (asking: Mend) => {
       // Asking for the offer again replaces the one the repairs were chosen
       // from, so what was chosen from it goes with it.
       if (asking.doing === "repair") picked = [];
-      void mended.ask(asking);
+      void mendAsks.ask(asking);
     },
     onpick: (check: string) => {
       picked = picked.includes(check)
@@ -387,8 +404,9 @@
     },
   });
 
-  const keeper = $derived(kept.asker);
-  const tuner = $derived(tuned.asker);
+  const keeper = $derived(keepAsks.asker);
+  const tuner = $derived(tuneAsks.asker);
+  const configurer = $derived(changeAsks.asker);
 
   const controls = $derived<Controls>({
     forms,
@@ -396,7 +414,11 @@
     preview,
     previewed,
     work: desk.of(
-      (doing) => !isMending(doing) && !isUpkeep(doing) && !isTuning(doing),
+      (doing) =>
+        !isMending(doing) &&
+        !isUpkeep(doing) &&
+        !isTuning(doing) &&
+        !isConfiguring(doing),
     ),
     waiting: waitingSaid,
     confirming,
@@ -487,6 +509,12 @@
   {:else if place === "requests"}
     <Requests {household} freshness={stamped} />
   {:else}
-    <Settings {quality} freshness={stamped} {tuner} />
+    <Settings
+      {quality}
+      settings={config}
+      freshness={stamped}
+      {tuner}
+      {configurer}
+    />
   {/if}
 </Shell>

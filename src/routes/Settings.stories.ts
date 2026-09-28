@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Settings from "./Settings.svelte";
+import { configurer, everySetting, stagedChange } from "./configured";
 import { inForce, putQualityBack, readCost, tuner } from "./tuned";
 
 const answered = { kind: "answered", secondsAgo: 6 } as const;
@@ -17,8 +18,10 @@ const meta = {
   component: Settings,
   args: {
     quality: { ok: true, value: inForce },
+    settings: { ok: true, value: everySetting },
     freshness: answered,
     tuner,
+    configurer,
   },
 } satisfies Meta<typeof Settings>;
 
@@ -51,4 +54,13 @@ export const WhatFetchingAgainWouldCost: Story = {
 /** The reading did not answer, and says so in lemonfiber's words. */
 export const NothingAnswered: Story = {
   args: { quality: notAnswering },
+};
+
+/**
+ * Every setting, with a change that costs something staged under them: the
+ * value in force against the one proposed, what it interrupts, what it does to
+ * each library, and whether what is coming down is let finish first.
+ */
+export const WhatAChangeWouldCost: Story = {
+  args: { configurer: { ...configurer, work: [stagedChange] } },
 };
