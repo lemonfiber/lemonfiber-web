@@ -1,5 +1,6 @@
 import { API_VERSION, type ByKind, type Kind } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
+import { backed, described, listing } from "./archived";
 import { outcomeOf } from "./outcome";
 import { ran } from "../routes/fixture";
 import { allWell } from "../routes/findings";
@@ -51,6 +52,27 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("undo", undone))).toStrictEqual({
       kind: "undo",
       report: undone,
+    });
+  });
+
+  it("reads where a backup was written", () => {
+    expect(outcomeOf(sealed("backup", backed))).toStrictEqual({
+      kind: "backup",
+      report: backed,
+    });
+  });
+
+  it("reads what an archive holds, or what putting it back came to", () => {
+    expect(outcomeOf(sealed("restore", listing))).toStrictEqual({
+      kind: "restore",
+      report: listing,
+    });
+  });
+
+  it("reads what a support bundle holds", () => {
+    expect(outcomeOf(sealed("bundle", described))).toStrictEqual({
+      kind: "bundle",
+      report: described,
     });
   });
 

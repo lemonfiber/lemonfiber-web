@@ -25,5 +25,14 @@ export function outcomeOf(envelope: Envelope<unknown>): Came {
     return { kind: "repair", report: envelope.data };
   }
   if (isKind(envelope, "undo")) return { kind: "undo", report: envelope.data };
+  if (isKind(envelope, "backup")) {
+    return { kind: "backup", report: envelope.data };
+  }
+  if (isKind(envelope, "restore")) {
+    return { kind: "restore", report: envelope.data };
+  }
+  if (isKind(envelope, "bundle")) {
+    return { kind: "bundle", report: envelope.data };
+  }
   return { kind: "unread" };
 }

@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 62 kinds of answer, and this console reads 15 of them.
-Another surface can make 42 requests of the stack, and this console offers 11 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 45 kinds and 30
+The client carries 62 kinds of answer, and this console reads 19 of them.
+Another surface can make 42 requests of the stack, and this console offers 14 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 41 kinds and 27
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -50,23 +50,27 @@ answers with a kind the contract did not have before.
 
 ## Kinds read here
 
-| Kind        | Where it is drawn                                                                  |
-| ----------- | ---------------------------------------------------------------------------------- |
-| `admission` | the door a password opens                                                          |
-| `dashboard` | the overview, from the stream                                                      |
-| `doctor`    | the checks, and the checks about the disk                                          |
-| `forms`     | the forms the controls act on                                                      |
-| `household` | the requests                                                                       |
-| `job`       | each record of work handed to the runtime                                          |
-| `lifecycle` | what a start, stop, switch, restart or fetch came to, under its record             |
-| `log`       | the logs                                                                           |
-| `preview`   | what starting the forms chosen would come to                                       |
-| `repair`    | the checks: what can be put right, chosen from, and what putting it right came to  |
-| `seed`      | what wiring the programs, or keeping edits made by hand, came to, under its record |
-| `start`     | what a start is still waiting for, from the stream                                 |
-| `status`    | how the stack stands, and each program in it                                       |
-| `undo`      | the checks: what putting back the last repair came to                              |
-| `error`     | every refusal, read by the client and handed over as a sentence                    |
+| Kind        | Where it is drawn                                                                             |
+| ----------- | --------------------------------------------------------------------------------------------- |
+| `admission` | the door a password opens                                                                     |
+| `archives`  | the disk: the backups this machine keeps                                                      |
+| `backup`    | the disk: where a backup was written, and what it covers, under its record                    |
+| `bundle`    | the checks: what a support bundle would hold, in full, or where it was written                |
+| `dashboard` | the overview, from the stream                                                                 |
+| `doctor`    | the checks, and the checks about the disk                                                     |
+| `forms`     | the forms the controls act on                                                                 |
+| `household` | the requests                                                                                  |
+| `job`       | each record of work handed to the runtime                                                     |
+| `lifecycle` | what a start, stop, switch, restart or fetch came to, under its record                        |
+| `log`       | the logs                                                                                      |
+| `preview`   | what starting the forms chosen would come to                                                  |
+| `repair`    | the checks: what can be put right, chosen from, and what putting it right came to             |
+| `restore`   | the disk: what an archive holds and what putting it back would overwrite, or what it put back |
+| `seed`      | what wiring the programs, or keeping edits made by hand, came to, under its record            |
+| `start`     | what a start is still waiting for, from the stream                                            |
+| `status`    | how the stack stands, and each program in it                                                  |
+| `undo`      | the checks: what putting back the last repair came to                                         |
+| `error`     | every refusal, read by the client and handed over as a sentence                               |
 
 ## Kinds served by no endpoint
 
@@ -81,11 +85,8 @@ answers with a kind the contract did not have before.
 | -------------- | ------- | ------------------------------------------------------------------------------------- |
 | `adoption`     | A5      | Migration: what taking over a setup already here came to                              |
 | `alerts`       | B5      | Notifications: what the operator is told about                                        |
-| `archives`     | E3      | Backup & restore: the archives this machine keeps                                     |
-| `backup`       | E3      | Backup & restore: where a backup was written, and what it covers                      |
 | `bandwidth`    | D10     | Bandwidth: how the line is shared                                                     |
 | `beside`       | A5      | Migration: standing beside a setup already here                                       |
-| `bundle`       | C4      | Support bundle: what one would hold, or where it went                                 |
 | `catalogue`    | F2      | Service catalogue: what each service is for                                           |
 | `clients`      | G6      | Client apps: which app to watch on                                                    |
 | `config`       | A4      | Reconfiguration: every setting, or one                                                |
@@ -106,7 +107,6 @@ answers with a kind the contract did not have before.
 | `removal`      | D6      | Household identity: somebody taken out of the household                               |
 | `replacement`  | A5      | Migration: standing in place of a setup already here                                  |
 | `reset`        | C9      | Drift: what a full reset would revert                                                 |
-| `restore`      | E3      | Backup & restore: what a restore would overwrite, or put back                         |
 | `self-update`  | E2      | Self-update: where this copy stands                                                   |
 | `space`        | D5      | Disk space: where the room went                                                       |
 | `step`         | D3      | First content: one step of a walkthrough, from the stream                             |
@@ -131,19 +131,28 @@ them.
 
 ## Requests offered here
 
-| Request    | Where                                                                                              |
-| ---------- | -------------------------------------------------------------------------------------------------- |
-| `up`       | the overview, against the forms chosen or all                                                      |
-| `down`     | the overview, against the forms chosen or all                                                      |
-| `switch`   | the overview, against the forms chosen                                                             |
-| `restart`  | the overview, against the forms chosen                                                             |
-| `pull`     | the overview, against the forms chosen                                                             |
-| `seed`     | the overview, for the whole stack                                                                  |
-| `adopt`    | the overview, for the whole stack                                                                  |
-| `repair`   | the checks: the offer first, then the repairs chosen from it, named by the offer they were read in |
-| `diagnose` | the checks, after a question saying the tunnel goes away for a moment                              |
-| `accept`   | the checks, one warning at a time, after a question                                                |
-| `undo`     | the checks: the last repair, after a question                                                      |
+| Request    | Where                                                                                                             |
+| ---------- | ----------------------------------------------------------------------------------------------------------------- |
+| `up`       | the overview, against the forms chosen or all                                                                     |
+| `down`     | the overview, against the forms chosen or all                                                                     |
+| `switch`   | the overview, against the forms chosen                                                                            |
+| `restart`  | the overview, against the forms chosen                                                                            |
+| `pull`     | the overview, against the forms chosen                                                                            |
+| `seed`     | the overview, for the whole stack                                                                                 |
+| `adopt`    | the overview, for the whole stack                                                                                 |
+| `repair`   | the checks: the offer first, then the repairs chosen from it, named by the offer they were read in                |
+| `diagnose` | the checks, after a question saying the tunnel goes away for a moment                                             |
+| `accept`   | the checks, one warning at a time, after a question                                                               |
+| `undo`     | the checks: the last repair, after a question                                                                     |
+| `backup`   | the disk, for the whole stack, after a question saying it writes settings and no media while the stack is stopped |
+| `restore`  | the disk: the listing first, then the archive put back, named by the listing it was read in                       |
+| `support`  | the checks: every file a bundle would hold, read in full, then the bundle written on the terms it was read under  |
+
+Two of these are offered in part. `backup` takes the whole stack; lemonfiber
+also takes a backup of one service, and this console has no control for that
+yet. `support` writes the bundle where lemonfiber keeps its own files and says
+where; the client reads every reply as text, so the file itself is not handed
+to the browser, and showing a setting as it is (`reveal`) has no control yet.
 
 ## Requests unsuited to this surface
 
@@ -170,15 +179,12 @@ them.
 | `stop-seeding`      | D5      | Disk space: let one completed download go                      |
 | `bandwidth`         | D10     | Bandwidth: declare how the line is shared                      |
 | `update`            | E1      | Stack updates: move onto this build's pins                     |
-| `backup`            | E3      | Backup & restore: take a backup                                |
 | `invite`            | D6      | Household identity: offer somebody an account                  |
 | `remove`            | D6      | Household identity: take somebody out                          |
 | `reissue`           | D6      | Household identity: let somebody set a new password            |
 | `household-allow`   | D7      | Approval & quotas: what the household may ask for              |
 | `household-approve` | D7      | Approval & quotas: approve a request                           |
 | `household-decline` | D7      | Approval & quotas: decline a request                           |
-| `support`           | C4      | Support bundle: say what one would hold, and write it          |
-| `restore`           | E3      | Backup & restore: put an archive back                          |
 | `watch`             | C5      | Storage: guard the data location while forms run               |
 | `hosting-install`   | B10     | Hosting: keep a command running                                |
 | `hosting-remove`    | B10     | Hosting: stop keeping it                                       |

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Checks from "./Checks.svelte";
 import { allWell, attributed, diagnosis } from "./findings";
+import { keeper, readBundle } from "./keeping";
 import { mender, offered, putBack } from "./mended";
 
 const answered = { kind: "answered", secondsAgo: 6 } as const;
@@ -120,4 +121,13 @@ export const AskedBeforeItDisturbs: Story = {
  */
 export const WhatPuttingBackCameTo: Story = {
   args: { mender: { ...mender, work: [putBack] } },
+};
+
+/**
+ * What a support bundle would hold, read before it is written: every file in
+ * full, where it would go and how large it would be, and what could not be
+ * gathered.
+ */
+export const WhatABundleWouldHold: Story = {
+  args: { keeper: { ...keeper, work: [readBundle] } },
 };

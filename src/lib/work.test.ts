@@ -161,7 +161,7 @@ describe("what is being asked, where something waits on an answer", () => {
 
 describe("how a record of what was asked for reads", () => {
   const of = (at: Work["at"], doing: Doing = "up"): Work => {
-    const asked = { id: "1", doing, scoped: false };
+    const asked = { id: "1", doing, scoped: false, given: {} };
     switch (at) {
       case "under-way":
         return { ...asked, at, job };
@@ -200,6 +200,7 @@ describe("how a record of what was asked for reads", () => {
       id: "1",
       doing: "up",
       scoped: false,
+      given: {},
       at: "done",
       job,
       came: { kind: "unread" },

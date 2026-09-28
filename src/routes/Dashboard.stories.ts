@@ -242,6 +242,7 @@ export const AskedForSomethingRefused: Story = {
           id: "2",
           doing: "down",
           scoped: false,
+          given: {},
           at: "declined",
           said: wouldNot,
         },

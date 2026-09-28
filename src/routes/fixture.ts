@@ -334,6 +334,7 @@ export const started: Work = {
   id: "1",
   doing: "up",
   scoped: false,
+  given: {},
   at: "under-way",
   job,
 };
@@ -384,6 +385,7 @@ export const finished: Work = {
   id: "2",
   doing: "up",
   scoped: false,
+  given: {},
   at: "done",
   job,
   came: { kind: "lifecycle", report: ran },
@@ -398,6 +400,7 @@ export const stopped: Work = {
   id: "3",
   doing: "up",
   scoped: false,
+  given: {},
   at: "stopped",
   said: wentWrong,
 };
@@ -407,6 +410,7 @@ export const forgotten: Work = {
   id: "4",
   doing: "restart",
   scoped: true,
+  given: {},
   at: "forgotten",
   job,
 };
@@ -420,6 +424,7 @@ export const adrift: Work = {
   id: "5",
   doing: "pull",
   scoped: true,
+  given: {},
   at: "adrift",
   job,
   said: notAnswering,

@@ -149,9 +149,13 @@ async function sweepWithAxe(theme) {
  * One pass, in one palette. A trap is structural, and a colour neither makes
  * nor unmakes one. Forced colours are left out of the ring: the user agent
  * draws its own there and overrides the stylesheet's.
+ *
+ * A disclosure's summary is a place to land like any control: `Tab` stops on
+ * it, and `Enter` opens what it holds.
  */
 const FOCUSABLE = [
   "a[href]",
+  "details > summary:first-of-type",
   "button:not([disabled])",
   "input:not([disabled])",
   "select:not([disabled])",

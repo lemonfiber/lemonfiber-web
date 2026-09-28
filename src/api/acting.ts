@@ -56,6 +56,16 @@ export interface Arguments {
   readonly agreed?: readonly string[];
   /** The check a warning is being answered for. */
   readonly check?: string;
+  /** The backup to restore from, by the name it was written under. */
+  readonly archive?: string;
+  /** Whether re-pointing to this machine's data location was accepted. */
+  readonly repoint?: boolean;
+  /** Whether to write the bundle, rather than say what one would hold. */
+  readonly write?: boolean;
+  /** How many log lines to take from each service. */
+  readonly logs?: number;
+  /** Whether media filenames are shown rather than replaced. */
+  readonly filenames?: boolean;
 }
 
 /**

@@ -3,10 +3,12 @@
   import Board from "./Board.svelte";
   import Findings from "./panels/Findings.svelte";
   import Mend from "./panels/Mend.svelte";
+  import Support from "./panels/Support.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
   import type { Mender } from "../lib/mending";
   import type { Tone } from "../lib/state";
+  import type { Keeper } from "../lib/upkeep";
   import { gradingOf, toneOfOverall, type Grading } from "../lib/verdict";
   import type { Diagnosis, Overall } from "../lib/wire";
   import * as m from "../paraglide/messages.js";
@@ -21,9 +23,14 @@
      * answers it, which draws the findings alone.
      */
     mender?: Mender | undefined;
+    /**
+     * What can be asked for somebody helping with this machine. Left out where
+     * nothing answers it.
+     */
+    keeper?: Keeper | undefined;
   }
 
-  let { diagnosis, freshness, mender }: Props = $props();
+  let { diagnosis, freshness, mender, keeper }: Props = $props();
 
   /** The run's own grading, and how loudly it is drawn. */
   const graded = $derived(
@@ -48,7 +55,8 @@
   one would be a claim about a run that has not happened.
 
   What can be done about the findings stands under them, so what is on offer is
-  read after what it is for.
+  read after what it is for. Gathering what somebody helping would need comes
+  last, being what is left when nothing here puts it right.
 -->
 <Board>
   {#if graded !== undefined}
@@ -64,5 +72,9 @@
 
   {#if mender !== undefined}
     <Mend {mender} {diagnosis} {freshness} />
+  {/if}
+
+  {#if keeper !== undefined}
+    <Support {keeper} {freshness} />
   {/if}
 </Board>

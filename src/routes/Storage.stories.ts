@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Storage from "./Storage.svelte";
 import { moment, unavailable } from "./fixture";
 import { diskChecks } from "./findings";
+import { keeper, kept, readListing, tookBackup } from "./keeping";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
 const never = { kind: "never" } as const;
@@ -69,5 +70,32 @@ export const OnlyTheChecksAreSilent: Story = {
   args: {
     diagnosis: notAnswering,
     read: { kind: "silent", secondsAgo: 180 },
+  },
+};
+
+/**
+ * The backups kept on this machine, with a listing standing: what the archive
+ * holds, that it was taken against another data location, and the one choice
+ * the yes carries.
+ */
+export const WhatPuttingABackupBackWouldDo: Story = {
+  args: {
+    keeping: {
+      keeper: { ...keeper, work: [readListing] },
+      archives: { ok: true, value: kept },
+    },
+  },
+};
+
+/**
+ * Taking a backup, asked about before the yes, with the last one's record
+ * under it.
+ */
+export const AskedBeforeABackup: Story = {
+  args: {
+    keeping: {
+      keeper: { ...keeper, asked: { doing: "backup" }, work: [tookBackup] },
+      archives: { ok: true, value: kept },
+    },
   },
 };
