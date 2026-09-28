@@ -25,8 +25,10 @@
 import type { Kind } from "@lemonfiber/sdk-ts";
 import { everyConfiguring } from "./lib/configuring";
 import { everyFinding } from "./lib/finding";
+import { everyHosting } from "./lib/hosting";
 import { everyMending } from "./lib/mending";
 import { everyPairing } from "./lib/pairing";
+import { everyRemoving } from "./lib/removing";
 import { everySharing } from "./lib/sharing";
 import { everyUpdating } from "./lib/updating";
 import { everyTending } from "./lib/tending";
@@ -198,6 +200,16 @@ const WALKED: readonly {
     named: "everyFinding",
     by: ["src/routes/panels/Walk.svelte", "src/routes/panels/Trace.svelte"],
   },
+  {
+    list: everyHosting,
+    named: "everyHosting",
+    by: ["src/routes/panels/Hosting.svelte"],
+  },
+  {
+    list: everyRemoving,
+    named: "everyRemoving",
+    by: ["src/routes/panels/Removal.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -230,6 +242,10 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "watch",
   "walkthrough",
   "search",
+  "hosting-install",
+  "hosting-remove",
+  "forget",
+  "uninstall",
 ];
 
 /**
@@ -248,13 +264,9 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "migrate-replace": "A5",
   "migrate-import": "A5",
   reset: "C9",
-  forget: "A6",
-  uninstall: "A6",
   space: "D5",
   "stop-seeding": "D5",
   remove: "D6",
-  "hosting-install": "B10",
-  "hosting-remove": "B10",
   setup: "A2",
   "companion-certificate": "N1",
 };
@@ -270,6 +282,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "dashboard",
   "doctor",
   "forms",
+  "hosting",
   "household",
   "invitation",
   "job",
@@ -283,8 +296,10 @@ const OFFERED_KINDS: readonly Kind[] = [
   "seed",
   "start",
   "status",
+  "stored",
   "trace",
   "undo",
+  "uninstall",
   "update",
   "upgrade",
   "walkthrough",
@@ -325,7 +340,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   glossary: "G2",
   held: "D8",
   history: "E4",
-  hosting: "B10",
   import: "A5",
   migration: "A5",
   music: "D2",
@@ -339,10 +353,8 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   space: "D5",
   step: "D3",
   "stop-seeding": "D5",
-  stored: "A6",
   stuck: "C7",
   substitution: "F4",
-  uninstall: "A6",
   version: "E2",
   wiring: "D1",
   wizard: "A2",

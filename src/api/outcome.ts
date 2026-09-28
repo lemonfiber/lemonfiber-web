@@ -38,6 +38,9 @@ function ofTheStack(envelope: Envelope<unknown>): Came | undefined {
   if (isKind(envelope, "watch")) {
     return { kind: "watch", report: envelope.data };
   }
+  if (isKind(envelope, "hosting")) {
+    return { kind: "hosting", report: envelope.data };
+  }
   return undefined;
 }
 
@@ -69,6 +72,12 @@ function ofWhatIsKept(envelope: Envelope<unknown>): Came | undefined {
   }
   if (isKind(envelope, "bundle")) {
     return { kind: "bundle", report: envelope.data };
+  }
+  if (isKind(envelope, "stored")) {
+    return { kind: "stored", report: envelope.data };
+  }
+  if (isKind(envelope, "uninstall")) {
+    return { kind: "uninstall", report: envelope.data };
   }
   return undefined;
 }

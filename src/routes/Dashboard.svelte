@@ -5,6 +5,7 @@
   import Coming from "./panels/Coming.svelte";
   import Door from "./panels/Door.svelte";
   import Forms from "./panels/Forms.svelte";
+  import Hosting from "./panels/Hosting.svelte";
   import Household from "./panels/Household.svelte";
   import Programs from "./panels/Programs.svelte";
   import Rehearsal from "./panels/Rehearsal.svelte";
@@ -24,6 +25,8 @@
     type Flow,
   } from "../lib/flow";
   import type { Freshness } from "../lib/freshness";
+  import type { Hoster } from "../lib/hosting";
+  import type { Hosted } from "../lib/removed";
   import type { Moment, Stack } from "../lib/wire";
   import type { Controls } from "../lib/work";
   import * as m from "../paraglide/messages.js";
@@ -44,14 +47,33 @@
     /** What can be asked of the stack, and what has come of asking. */
     controls: Controls;
     /**
+     * What this machine keeps running, and what can be asked about it. Left
+     * out where nothing answers it, which draws the screen without it.
+     */
+    hosting?:
+      | {
+          readonly hoster: Hoster;
+          readonly hosted: Reading<Hosted> | undefined;
+        }
+      | undefined;
+    /**
      * What asking for the live connection again does. Omitted while something
      * is still opening it, which is a connection with nothing to press.
      */
     onretry?: (() => void) | undefined;
   }
 
-  let { stack, programs, moment, flow, read, live, controls, onretry }: Props =
-    $props();
+  let {
+    stack,
+    programs,
+    moment,
+    flow,
+    read,
+    live,
+    controls,
+    hosting,
+    onretry,
+  }: Props = $props();
 
   const said = $derived(saidOfFlow(flow));
   const graded = $derived(moment === undefined ? read : live);
@@ -91,7 +113,9 @@
   read after what it is for. The forms come first of the two: what the controls
   reach is chosen there, and a control read before the thing it acts on is a
   control read without its subject. Between them stands what starting the form
-  chosen would come to, so it is read before the control that starts it.
+  chosen would come to, so it is read before the control that starts it. What
+  this machine keeps running when no terminal is open follows them, because
+  the guard among those is started against the same choice.
 
   What the operator has already been told stands under what needs them now. It
   is the one channel that reaches them without anything having been set up, so
@@ -154,6 +178,15 @@
   />
 
   <Running {...controls} freshness={live} />
+
+  {#if hosting !== undefined}
+    <Hosting
+      hosted={hosting.hosted}
+      chosen={controls.chosen}
+      hoster={hosting.hoster}
+      freshness={read}
+    />
+  {/if}
 
   <Attention stuck={moment?.stuck} freshness={live} />
 

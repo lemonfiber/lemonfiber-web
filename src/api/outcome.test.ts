@@ -6,6 +6,7 @@ import { offered } from "./invitations";
 import { guarded, traced, walked } from "./found";
 import { declared, plan } from "./lines";
 import { material } from "./pairings";
+import { hosted, stored, surveyed } from "./removals";
 import { household } from "../routes/house";
 import { outcomeOf } from "./outcome";
 import { costed, reapplied } from "./qualities";
@@ -142,6 +143,21 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("watch", guarded))).toStrictEqual({
       kind: "watch",
       report: guarded,
+    });
+  });
+
+  it("reads what the machine keeps running, what lemonfiber keeps, and a removal", () => {
+    expect(outcomeOf(sealed("hosting", hosted))).toStrictEqual({
+      kind: "hosting",
+      report: hosted,
+    });
+    expect(outcomeOf(sealed("stored", stored))).toStrictEqual({
+      kind: "stored",
+      report: stored,
+    });
+    expect(outcomeOf(sealed("uninstall", surveyed))).toStrictEqual({
+      kind: "uninstall",
+      report: surveyed,
     });
   });
 

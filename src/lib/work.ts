@@ -48,6 +48,8 @@ export type {
   Sharing,
   Updating,
   Finding,
+  Hosting,
+  Removing,
   Requested,
 } from "./requested";
 
@@ -259,6 +261,14 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_walk_title();
     case "search":
       return m.doing_search_title();
+    case "hosting-install":
+      return m.doing_host_title();
+    case "hosting-remove":
+      return m.doing_unhost_title();
+    case "forget":
+      return m.doing_forget_title();
+    case "uninstall":
+      return m.doing_uninstall_title();
     case "seed":
       return m.doing_seed_title();
     case "adopt":

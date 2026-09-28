@@ -3,6 +3,7 @@ import Storage from "./Storage.svelte";
 import { moment, unavailable } from "./fixture";
 import { diskChecks } from "./findings";
 import { keeper, kept, readListing, tookBackup } from "./keeping";
+import { remover, storedRecord, surveyRecord } from "./removals";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
 const never = { kind: "never" } as const;
@@ -98,4 +99,21 @@ export const AskedBeforeABackup: Story = {
       archives: { ok: true, value: kept },
     },
   },
+};
+
+/**
+ * Taking lemonfiber off, with a removal listed and not yet agreed to: every
+ * line it reaches, what is still coming down, what it cannot remove and how
+ * to do that by hand, and the yes that names the listing.
+ */
+export const WhatARemovalWouldTake: Story = {
+  args: { remover: { ...remover, work: [surveyRecord] } },
+};
+
+/**
+ * Everything lemonfiber keeps, listed with nothing removed, and the yes that
+ * forgets it standing over the listing.
+ */
+export const WhatForgettingWouldTake: Story = {
+  args: { remover: { ...remover, work: [storedRecord] } },
 };

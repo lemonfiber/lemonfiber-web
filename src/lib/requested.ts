@@ -89,6 +89,18 @@ export type Updating = "update";
  */
 export type Finding = "walkthrough" | "search";
 
+/**
+ * Something the hosting panel can ask for, named as the endpoint names it.
+ * What each takes and how it is asked about is in `./hosting`.
+ */
+export type Hosting = "hosting-install" | "hosting-remove";
+
+/**
+ * Something the removal panel can ask for, named as the endpoint names it.
+ * What each takes and how it is asked about is in `./removing`.
+ */
+export type Removing = "forget" | "uninstall";
+
 /** Anything a record can be of. */
 export type Requested =
   | Doing
@@ -100,4 +112,6 @@ export type Requested =
   | Pairing
   | Sharing
   | Updating
-  | Finding;
+  | Finding
+  | Hosting
+  | Removing;

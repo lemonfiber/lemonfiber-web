@@ -21,25 +21,24 @@
   import { Saving } from "./saving.svelte";
   import { Tracing } from "./tracing.svelte";
   import type { Flow } from "../lib/flow";
-  import {
-    changedTheChecks,
-    mending,
-    type Mend,
-    type Mender,
-  } from "../lib/mending";
+  import { mending, type Mend, type Mender } from "../lib/mending";
   import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
   import type { Archives } from "../lib/kept";
   import type { Configured } from "../lib/configured";
-  import { changedTheSettings, configuring } from "../lib/configuring";
+  import { configuring } from "../lib/configuring";
   import type { Tuned } from "../lib/tuned";
   import { finding } from "../lib/finding";
   import { pairing } from "../lib/pairing";
   import type { Shared } from "../lib/shared";
-  import { changedTheLine, sharing } from "../lib/sharing";
+  import { sharing } from "../lib/sharing";
   import { updating } from "../lib/updating";
-  import { changedTheHousehold, tending } from "../lib/tending";
-  import { changedTheQuality, tuning } from "../lib/tuning";
-  import { changedTheBackups, upkeep } from "../lib/upkeep";
+  import { tending } from "../lib/tending";
+  import { tuning } from "../lib/tuning";
+  import { upkeep } from "../lib/upkeep";
+  import { hosting } from "../lib/hosting";
+  import type { Hosted } from "../lib/removed";
+  import { removing } from "../lib/removing";
+  import { placeChangedBy } from "../lib/rereading";
   import { consoleMenu, ours, pathOf, placeAt, type Place } from "../lib/route";
   import type {
     Diagnosis,
@@ -86,6 +85,7 @@
   let stack = $state<Reading<Stack> | undefined>(undefined);
   let programs = $state<Reading<Stack> | undefined>(undefined);
   let forms = $state<Reading<Forms> | undefined>(undefined);
+  let hosted = $state<Reading<Hosted> | undefined>(undefined);
   let chosen = $state<readonly string[]>([]);
   let preview = $state<Reading<Preview> | undefined>(undefined);
   let previewedAt = $state<number | undefined>(undefined);
@@ -234,24 +234,27 @@
   /**
    * Ask every reading at once.
    *
-   * Three endpoints, asked together: the whole stack's condition, each service
-   * in it, and the forms the stack declares. The forms are what the controls
-   * act on and are not something this page can hold in advance, so they are
-   * asked for with the rest rather than when a control is first pressed.
+   * Four endpoints, asked together: the whole stack's condition, each service
+   * in it, the forms the stack declares, and what this machine keeps running.
+   * The forms are what the controls act on and are not something this page
+   * can hold in advance, so they are asked for with the rest rather than when
+   * a control is first pressed.
    */
   async function ask(): Promise<void> {
-    const [whole, each, declared] = await Promise.all([
+    const [whole, each, declared, kept] = await Promise.all([
       asked(reaching, "status", "status"),
       asked(reaching, "services", "status"),
       asked(reaching, "forms", "forms"),
+      asked(reaching, "hosting", "hosting"),
     ]);
 
     stack = whole;
     programs = each;
     forms = declared;
+    hosted = kept;
     readAt = Date.now();
 
-    if (turnedAway(whole, each, declared)) onrefused();
+    if (turnedAway(whole, each, declared, kept)) onrefused();
   }
 
   /**
@@ -359,33 +362,19 @@
    * What a record that came to an end changes on the screen.
    *
    * A run of the checks is the reading the checks screen draws, so one that
-   * came back replaces it. A repair carried out or put back changes what the
-   * checks would find, so the checks are asked again. A backup written
-   * changes which backups there are, the quality choice put back, a setting
-   * changed or the line declared changes the settings screen, and an account
-   * offered or a request
-   * ruled on changes the household, so each is read again.
+   * came back replaces it. Anything else that changed a screen's reading has
+   * that screen read again.
    */
   function settled(record: Work): void {
     if (record.at !== "done") return;
     if (record.came.kind === "doctor") {
       diagnosis = noted("checks", { ok: true, value: record.came.report });
-    } else if (changedTheChecks(record.came)) {
-      void askFor("checks");
-    } else if (changedTheBackups(record.came)) {
-      void askFor("storage");
-    } else if (
-      changedTheQuality(record.came) ||
-      changedTheSettings(record.came) ||
-      changedTheLine(record.came)
-    ) {
-      void askFor("settings");
-    } else if (changedTheHousehold(record.came)) {
-      void askFor("requests");
+      return;
     }
+    const changed = placeChangedBy(record.came);
+    if (changed !== undefined) void askFor(changed);
   }
 
-  /** Everything this tab has asked for, and the one way to ask. */
   /** Where every asking goes, and what a refused key asks for. */
   const handing = {
     reaching: () => reaching,
@@ -408,6 +397,8 @@
   const shareAsks = new Asked(desk, sharing);
   const updateAsks = new Asked(desk, updating);
   const findAsks = new Asked(desk, finding);
+  const hostAsks = new Asked(desk, hosting);
+  const removeAsks = new Asked(desk, removing);
 
   const mender = $derived<Mender>({
     ...mendAsks.asker,
@@ -511,6 +502,7 @@
       {read}
       {live}
       {controls}
+      hosting={{ hoster: hostAsks.asker, hosted }}
       onretry={listening ? undefined : reopen}
     />
   {:else if place === "checks"}
@@ -522,6 +514,7 @@
       diagnosis={aboutDisk}
       read={stamped}
       keeping={{ keeper, archives }}
+      remover={removeAsks.asker}
     />
   {:else if place === "logs"}
     <Logs scrollback={lines} freshness={stamped} />
