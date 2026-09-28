@@ -1,23 +1,30 @@
-<script lang="ts">
+<script lang="ts" generics="P extends string">
   import type { Snippet } from "svelte";
   import MenuItem from "../components/MenuItem.svelte";
-  import { everyPlace, iconOf, nameOf, pathOf, type Place } from "../lib/route";
   import * as m from "../paraglide/messages.js";
+  import type { Menu } from "../lib/route";
 
   interface Props {
-    /** The place being read. */
-    place: Place;
+    /**
+     * The place being read, where it is one the menu leads to. An address that
+     * is none of them marks none.
+     */
+    place: P | undefined;
+    /** Where the menu leads, which follows from who signed in. */
+    menu: Menu<P>;
     /** What pressing a place asks for. Left out where nothing answers it. */
-    ongo?: ((place: Place, event: MouseEvent) => void) | undefined;
+    ongo?: ((place: P, event: MouseEvent) => void) | undefined;
     /** The screen the menu leads to. */
     children: Snippet;
   }
 
-  let { place, ongo, children }: Props = $props();
+  let { place, menu, ongo, children }: Props = $props();
 </script>
 
 <!--
-  The chrome every screen sits in: the wordmark, the menu, and the screen.
+  The chrome every screen sits in: the wordmark, the menu, and the screen. The
+  console and a household member are handed different menus, and the chrome is
+  the same for both.
 
   The menu is a list of links to addresses, so a screen can be typed in, opened
   in a second tab and left behind by the back button. The page answers the plain
@@ -29,14 +36,14 @@
     <p class="mark">{m.product_name()}</p>
   </header>
 
-  <nav class="menu" aria-label={m.nav_console()}>
+  <nav class="menu" aria-label={menu.named()}>
     <ul>
-      {#each everyPlace as one (one)}
+      {#each menu.places as one (one)}
         <li>
           <MenuItem
-            href={pathOf(one)}
-            icon={iconOf(one)}
-            label={nameOf(one)}
+            href={menu.pathOf(one)}
+            icon={menu.iconOf(one)}
+            label={menu.nameOf(one)}
             current={one === place}
             onclick={(event: MouseEvent) => {
               ongo?.(one, event);

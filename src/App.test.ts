@@ -3,8 +3,11 @@ import userEvent from "@testing-library/user-event";
 import { API_VERSION, type Fetching, type Sending } from "@lemonfiber/sdk-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App.svelte";
-import { remember, remembered } from "./api/token";
+import { memberOf, remember, remembered } from "./api/token";
 import { stack, worstService } from "./routes/fixture";
+import { kitsId, kitsShelf, yours } from "./routes/mine";
+import { nameOfRoom } from "./lib/rooms";
+import { nameOf } from "./lib/route";
 import * as m from "./paraglide/messages.js";
 
 const key = ["a", "run", "key"].join("-");
@@ -172,5 +175,132 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: m.unlock_title() }),
     ).not.toHaveFocus();
+  });
+});
+
+/** What lemonfiber says to a session that no longer stands. */
+const nobody = "This request carried no token or session this run admits.";
+
+/**
+ * A run that admits a household member, answers their own reads, and refuses
+ * everything else as not theirs — until they are removed, after which it
+ * refuses them outright.
+ */
+function aMembersRun(state: { removed: boolean }): Sending {
+  return vi.fn((url: string) => {
+    const path = new URL(url).pathname;
+    const answer = (status: number, body: string) =>
+      Promise.resolve({
+        ok: status >= 200 && status < 300,
+        status,
+        text: () => Promise.resolve(body),
+      });
+    if (path === "/api/session")
+      return answer(
+        200,
+        enveloped("admission", {
+          member: kitsId,
+          token: session,
+          until: "2026-09-19T21:00:00Z",
+        }),
+      );
+    if (state.removed) return answer(403, nobody);
+    if (path === "/api/requests")
+      return answer(200, enveloped("household", yours));
+    if (path === "/api/held") return answer(200, enveloped("held", kitsShelf));
+    return answer(403, "This is not something this account may ask for.");
+  });
+}
+
+describe("what is drawn follows who signed in", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    globalThis.history.replaceState(undefined, "", "/");
+  });
+
+  const signIn = async (name?: string): Promise<void> => {
+    if (name !== undefined)
+      await userEvent.type(screen.getByLabelText(m.wayin_name_label()), name);
+    await userEvent.type(
+      screen.getByLabelText(m.wayin_password_label()),
+      password,
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: m.wayin_signin() }),
+    );
+  };
+
+  // One form, and what it opens is the account lemonfiber said signed in.
+  it("opens a household member's own surface at the same form the operator uses", async () => {
+    app(aMembersRun({ removed: false }));
+
+    await signIn("Kit");
+
+    expect(await screen.findByText("Andor")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: new RegExp(nameOfRoom("held")) }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: new RegExp(nameOf("logs")) }),
+    ).toBeNull();
+    expect(memberOf(sessionStorage)).toBe(kitsId);
+  });
+
+  // Not the address: a member who signed in at the console's address for the
+  // logs is still a member, and is shown lemonfiber's refusal of that read.
+  it("opens a member's own surface whatever address they signed in at", async () => {
+    globalThis.history.replaceState(undefined, "", "/logs");
+    app(aMembersRun({ removed: false }));
+
+    await signIn("Kit");
+
+    expect(await screen.findByText(m.member_away_lead())).toBeInTheDocument();
+    expect(
+      screen.queryByRole("region", { name: m.panel_scrollback() }),
+    ).toBeNull();
+  });
+
+  it("opens the console where lemonfiber said the operator signed in", async () => {
+    app(admitting);
+
+    await signIn();
+
+    expect(await screen.findByText(worstService.name)).toBeInTheDocument();
+    expect(memberOf(sessionStorage)).toBeUndefined();
+  });
+
+  it("opens a member's own surface again after a reload", async () => {
+    remember(sessionStorage, session, kitsId);
+    app(aMembersRun({ removed: false }));
+
+    expect(await screen.findByText("Andor")).toBeInTheDocument();
+  });
+
+  // Removed from the household while signed in: the next call is refused, and
+  // the surface returns to signed out rather than rendering what it had.
+  it("signs out a member lemonfiber stops taking, and keeps nothing it drew", async () => {
+    const state = { removed: false };
+    app(aMembersRun(state));
+    await signIn("Kit");
+    await screen.findByText("Andor");
+
+    state.removed = true;
+    await userEvent.click(
+      screen.getByRole("link", { name: new RegExp(nameOfRoom("held")) }),
+    );
+
+    const heading = await screen.findByRole("heading", {
+      level: 1,
+      name: m.unlock_title(),
+    });
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      m.unlock_signed_out_lead(),
+    );
+    expect(screen.getByText(nobody)).toBeInTheDocument();
+    expect(screen.queryByText("Andor")).toBeNull();
+    expect(screen.queryByText("Arrival")).toBeNull();
+    expect(heading).toHaveFocus();
+    expect(remembered(sessionStorage)).toBeUndefined();
+    expect(memberOf(sessionStorage)).toBeUndefined();
   });
 });

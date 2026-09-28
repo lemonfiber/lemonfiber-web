@@ -37,7 +37,7 @@
     type Keep,
     type Keeper,
   } from "../lib/upkeep";
-  import { ours, pathOf, placeAt, type Place } from "../lib/route";
+  import { consoleMenu, ours, pathOf, placeAt, type Place } from "../lib/route";
   import type {
     Diagnosis,
     Forms,
@@ -509,7 +509,7 @@
   stream, which is where it is measured, and the checks about it and the backups
   kept on it come off readings asked for together.
 -->
-<Shell {place} ongo={go}>
+<Shell {place} menu={consoleMenu} ongo={go}>
   {#if place === "overview"}
     <Dashboard
       {stack}

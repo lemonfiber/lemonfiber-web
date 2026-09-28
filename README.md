@@ -21,7 +21,7 @@
 ---
 
 > **Status: early.** The component library is built, and the operator's console
-> is being assembled from it. This repo is milestone **M7** on the
+> and the household view are assembled from it. This repo is milestone **M7** on the
 > [roadmap](https://github.com/lemonfiber/spec/blob/main/00-overview/roadmap.md).
 > Full account in the spec:
 > [`30-repos/lemonfiber-web.md`](https://github.com/lemonfiber/spec/blob/main/30-repos/lemonfiber-web.md).
@@ -41,7 +41,8 @@ one it does not serve.
 is the only place this application may get data from, and it reaches nothing else.
 The operator's console asks it for what it draws, asks it to act on the forms
 the stack declares, and redeems the name work outliving a request comes back
-with; the household view is not built yet.
+with. The household view asks it for what the member signed in asked for and
+what the household holds that they can watch, and nothing else.
 
 That constraint is the point rather than a limitation. `G1-R2` says no surface may
 implement behaviour independently, and an application whose only capability is to
@@ -54,11 +55,16 @@ things hidden:
 
 - **The console** — an operator's view. State, checks, logs, services, setup,
   household administration.
-- **The household view** — what everyone else gets. Asking for something, seeing
-  whether it is ready, and nothing else.
+- **The household view** — what everyone else gets. What they asked for and where
+  each request stands, whether asking needs approval and how much allowance is
+  left, what they can watch, and what the household holds that they can.
 
 Both are built from one component library and one set of tokens, so they cannot
-drift apart visually. What differs is which of them a given person is served.
+drift apart visually. What differs is which of them a given person is served, and
+that is decided by who signed in: one form takes the operator's password and a
+household member's, and lemonfiber's answer names the member or nobody. Neither
+the address nor a setting chooses, and neither view holds a permission —
+lemonfiber refuses whatever a session may not have, whichever view sent it.
 
 Neither offers everything yet. The console offers a handful of the requests the
 command line can make and reads a handful of the answers the client carries;

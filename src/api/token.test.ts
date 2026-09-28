@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { forget, remember, remembered } from "./token";
+import { forget, memberOf, remember, remembered } from "./token";
 
 /** Built rather than written, so no scanner reads it as a real one. */
 const key = ["a", "run", "key"].join("-");
@@ -38,5 +38,37 @@ describe("the key this page was given", () => {
   it("keeps it out of the address", () => {
     remember(sessionStorage, key);
     expect(globalThis.location.href).not.toContain(key);
+  });
+});
+
+describe("whose session this tab holds", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
+  it("names nobody until a member's session is kept", () => {
+    remember(sessionStorage, key);
+    expect(memberOf(sessionStorage)).toBeUndefined();
+  });
+
+  it("keeps the member a session is for beside it", () => {
+    remember(sessionStorage, key, "b41c9e");
+    expect(remembered(sessionStorage)).toBe(key);
+    expect(memberOf(sessionStorage)).toBe("b41c9e");
+  });
+
+  // A key kept after a member's session is the operator's, and the member the
+  // old one was for is not left beside it to say otherwise.
+  it("names nobody once a key that is nobody's is kept in its place", () => {
+    remember(sessionStorage, key, "b41c9e");
+    remember(sessionStorage, key);
+    expect(memberOf(sessionStorage)).toBeUndefined();
+  });
+
+  it("forgets whose it was along with the session", () => {
+    remember(sessionStorage, key, "b41c9e");
+    forget(sessionStorage);
+    expect(memberOf(sessionStorage)).toBeUndefined();
+    expect(sessionStorage).toHaveLength(0);
   });
 });
