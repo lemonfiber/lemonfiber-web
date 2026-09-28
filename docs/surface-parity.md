@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 62 kinds of answer, and this console reads 21 of them.
-Another surface can make 42 requests of the stack, and this console offers 16 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 39 kinds and 25
+The client carries 64 kinds of answer, and this console reads 21 of them.
+Another surface can make 44 requests of the stack, and this console offers 16 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 41 kinds and 27
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -44,8 +44,8 @@ on this page stating a figure or a row those lists do not come to.
 
 The kinds are read off the client. The requests are not in the client, which
 asks for an action by whatever name it is handed, so the suite lists them as
-lemonfiber's action table names them, with the setup walk and serving this
-surface beside them. A request lemonfiber adds is caught there only where it
+lemonfiber's action table names them, with the setup walk, serving this
+surface and replacing the certificate a paired phone pins beside them. A request lemonfiber adds is caught there only where it
 answers with a kind the contract did not have before.
 
 ## Kinds read here
@@ -83,51 +83,53 @@ answers with a kind the contract did not have before.
 
 ## Kinds not read yet
 
-| Kind           | Feature | What it is                                                                            |
-| -------------- | ------- | ------------------------------------------------------------------------------------- |
-| `adoption`     | A5      | Migration: what taking over a setup already here came to                              |
-| `alerts`       | B5      | Notifications: what the operator is told about                                        |
-| `bandwidth`    | D10     | Bandwidth: how the line is shared                                                     |
-| `beside`       | A5      | Migration: standing beside a setup already here                                       |
-| `catalogue`    | F2      | Service catalogue: what each service is for                                           |
-| `clients`      | G6      | Client apps: which app to watch on                                                    |
-| `config`       | A4      | Reconfiguration: every setting, or one                                                |
-| `credentials`  | A7      | Credential management: every credential, with no values                               |
-| `front-door`   | G5      | The front door, asked for on its own                                                  |
-| `glossary`     | G2      | Plain language: every word there is to ask about                                      |
-| `held`         | D8      | Parental controls: what one member can watch                                          |
-| `history`      | E4      | Rollback: everything lemonfiber changed                                               |
-| `hosting`      | B10     | Hosting: what keeps running when no terminal is open                                  |
-| `import`       | A5      | Migration: copying an operator's records across                                       |
-| `invitation`   | D6      | Household identity: an account offered to somebody                                    |
-| `migration`    | A5      | Migration: what is already on this machine                                            |
-| `music`        | D2      | Quality presets: the music format                                                     |
-| `outbound`     | G8      | Privacy: everything that leaves this machine                                          |
-| `plugins`      | F6      | Plugin lifecycle; lemonfiber serves no endpoint for it                                |
-| `provenance`   | F2      | Service catalogue: where each service comes from                                      |
-| `removal`      | D6      | Household identity: somebody taken out of the household                               |
-| `replacement`  | A5      | Migration: standing in place of a setup already here                                  |
-| `reset`        | C9      | Drift: what a full reset would revert                                                 |
-| `self-update`  | E2      | Self-update: where this copy stands                                                   |
-| `space`        | D5      | Disk space: where the room went                                                       |
-| `step`         | D3      | First content: one step of a walkthrough, from the stream                             |
-| `stop-seeding` | D5      | Disk space: letting one completed download go                                         |
-| `stored`       | A6      | Uninstall: everything lemonfiber keeps on this machine                                |
-| `stuck`        | C7      | Queue health, asked for on its own                                                    |
-| `substitution` | F4      | Capabilities: which service fills one; lemonfiber serves no endpoint                  |
-| `trace`        | D9      | Pipeline trace: where one item is                                                     |
-| `uninstall`    | A6      | Uninstall: what a removal would come to                                               |
-| `update`       | E1      | Stack updates: what moving onto this build's pins would change                        |
-| `version`      | E2      | Self-update: the versions in play                                                     |
-| `walkthrough`  | D3      | First content: how far a walk got                                                     |
-| `watch`        | C5      | Storage: how a guard over the data location ended                                     |
-| `wiring`       | D1      | Auto-wiring: what is wired to what; lemonfiber serves no endpoint                     |
-| `wizard`       | A2      | Setup: where setup stands                                                             |
-| `word`         | G2      | Plain language: what one word means; `Term` asks for it, and no screen draws a `Term` |
+| Kind           | Feature | What it is                                                                                               |
+| -------------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| `adoption`     | A5      | Migration: what taking over a setup already here came to                                                 |
+| `alerts`       | B5      | Notifications: what the operator is told about                                                           |
+| `bandwidth`    | D10     | Bandwidth: how the line is shared                                                                        |
+| `beside`       | A5      | Migration: standing beside a setup already here                                                          |
+| `catalogue`    | F2      | Service catalogue: what each service is for                                                              |
+| `certificate`  | N1      | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |
+| `clients`      | G6      | Client apps: which app to watch on                                                                       |
+| `config`       | A4      | Reconfiguration: every setting, or one                                                                   |
+| `credentials`  | A7      | Credential management: every credential, with no values                                                  |
+| `front-door`   | G5      | The front door, asked for on its own                                                                     |
+| `glossary`     | G2      | Plain language: every word there is to ask about                                                         |
+| `held`         | D8      | Parental controls: what one member can watch                                                             |
+| `history`      | E4      | Rollback: everything lemonfiber changed                                                                  |
+| `hosting`      | B10     | Hosting: what keeps running when no terminal is open                                                     |
+| `import`       | A5      | Migration: copying an operator's records across                                                          |
+| `invitation`   | D6      | Household identity: an account offered to somebody                                                       |
+| `migration`    | A5      | Migration: what is already on this machine                                                               |
+| `music`        | D2      | Quality presets: the music format                                                                        |
+| `outbound`     | G8      | Privacy: everything that leaves this machine                                                             |
+| `pairing`      | N1      | Companion app: pairing material for a phone, and the short form of its fingerprint to check              |
+| `plugins`      | F6      | Plugin lifecycle; lemonfiber serves no endpoint for it                                                   |
+| `provenance`   | F2      | Service catalogue: where each service comes from                                                         |
+| `removal`      | D6      | Household identity: somebody taken out of the household                                                  |
+| `replacement`  | A5      | Migration: standing in place of a setup already here                                                     |
+| `reset`        | C9      | Drift: what a full reset would revert                                                                    |
+| `self-update`  | E2      | Self-update: where this copy stands                                                                      |
+| `space`        | D5      | Disk space: where the room went                                                                          |
+| `step`         | D3      | First content: one step of a walkthrough, from the stream                                                |
+| `stop-seeding` | D5      | Disk space: letting one completed download go                                                            |
+| `stored`       | A6      | Uninstall: everything lemonfiber keeps on this machine                                                   |
+| `stuck`        | C7      | Queue health, asked for on its own                                                                       |
+| `substitution` | F4      | Capabilities: which service fills one; lemonfiber serves no endpoint                                     |
+| `trace`        | D9      | Pipeline trace: where one item is                                                                        |
+| `uninstall`    | A6      | Uninstall: what a removal would come to                                                                  |
+| `update`       | E1      | Stack updates: what moving onto this build's pins would change                                           |
+| `version`      | E2      | Self-update: the versions in play                                                                        |
+| `walkthrough`  | D3      | First content: how far a walk got                                                                        |
+| `watch`        | C5      | Storage: how a guard over the data location ended                                                        |
+| `wiring`       | D1      | Auto-wiring: what is wired to what; lemonfiber serves no endpoint                                        |
+| `wizard`       | A2      | Setup: where setup stands                                                                                |
+| `word`         | G2      | Plain language: what one word means; `Term` asks for it, and no screen draws a `Term`                    |
 
-Three of these wait on lemonfiber rather than on this surface: no endpoint
-answers with `plugins`, `substitution` or `wiring`, so nothing here could read
-them.
+Four of these wait on lemonfiber rather than on this surface: no endpoint
+answers with `certificate`, `plugins`, `substitution` or `wiring`, so nothing
+here could read them.
 
 ## Requests offered here
 
@@ -168,30 +170,32 @@ because no action takes a rehearsal over the web API.
 
 ## Requests not offered yet
 
-| Request             | Feature | What it is                                                               |
-| ------------------- | ------- | ------------------------------------------------------------------------ |
-| `config-set`        | A4      | Reconfiguration: change one setting, shown before it is agreed           |
-| `quality-set`       | D2      | Quality presets: choose one; the reading names no presets to choose from |
-| `migrate-adopt`     | A5      | Migration: take over a setup already here                                |
-| `migrate-beside`    | A5      | Migration: stand beside it                                               |
-| `migrate-replace`   | A5      | Migration: stand in its place                                            |
-| `migrate-import`    | A5      | Migration: copy its records across                                       |
-| `reset`             | C9      | Drift: revert every edit to lemonfiber's own state                       |
-| `forget`            | A6      | Uninstall: remove everything lemonfiber keeps                            |
-| `uninstall`         | A6      | Uninstall: one of four removals                                          |
-| `space`             | D5      | Disk space: take what costs nothing                                      |
-| `stop-seeding`      | D5      | Disk space: let one completed download go                                |
-| `bandwidth`         | D10     | Bandwidth: declare how the line is shared                                |
-| `update`            | E1      | Stack updates: move onto this build's pins                               |
-| `invite`            | D6      | Household identity: offer somebody an account                            |
-| `remove`            | D6      | Household identity: take somebody out                                    |
-| `reissue`           | D6      | Household identity: let somebody set a new password                      |
-| `household-allow`   | D7      | Approval & quotas: what the household may ask for                        |
-| `household-approve` | D7      | Approval & quotas: approve a request                                     |
-| `household-decline` | D7      | Approval & quotas: decline a request                                     |
-| `watch`             | C5      | Storage: guard the data location while forms run                         |
-| `hosting-install`   | B10     | Hosting: keep a command running                                          |
-| `hosting-remove`    | B10     | Hosting: stop keeping it                                                 |
-| `walkthrough`       | D3      | First content: add one thing, end to end                                 |
-| `search`            | D9      | Pipeline trace: follow one item with a live search                       |
-| `setup`             | A2      | Setup wizard, walked in a browser                                        |
+| Request                 | Feature | What it is                                                                                               |
+| ----------------------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| `config-set`            | A4      | Reconfiguration: change one setting, shown before it is agreed                                           |
+| `quality-set`           | D2      | Quality presets: choose one; the reading names no presets to choose from                                 |
+| `migrate-adopt`         | A5      | Migration: take over a setup already here                                                                |
+| `migrate-beside`        | A5      | Migration: stand beside it                                                                               |
+| `migrate-replace`       | A5      | Migration: stand in its place                                                                            |
+| `migrate-import`        | A5      | Migration: copy its records across                                                                       |
+| `reset`                 | C9      | Drift: revert every edit to lemonfiber's own state                                                       |
+| `forget`                | A6      | Uninstall: remove everything lemonfiber keeps                                                            |
+| `uninstall`             | A6      | Uninstall: one of four removals                                                                          |
+| `space`                 | D5      | Disk space: take what costs nothing                                                                      |
+| `stop-seeding`          | D5      | Disk space: let one completed download go                                                                |
+| `bandwidth`             | D10     | Bandwidth: declare how the line is shared                                                                |
+| `update`                | E1      | Stack updates: move onto this build's pins                                                               |
+| `invite`                | D6      | Household identity: offer somebody an account                                                            |
+| `remove`                | D6      | Household identity: take somebody out                                                                    |
+| `reissue`               | D6      | Household identity: let somebody set a new password                                                      |
+| `companion-pair`        | N1      | Companion app: make pairing material for a phone                                                         |
+| `household-allow`       | D7      | Approval & quotas: what the household may ask for                                                        |
+| `household-approve`     | D7      | Approval & quotas: approve a request                                                                     |
+| `household-decline`     | D7      | Approval & quotas: decline a request                                                                     |
+| `watch`                 | C5      | Storage: guard the data location while forms run                                                         |
+| `hosting-install`       | B10     | Hosting: keep a command running                                                                          |
+| `hosting-remove`        | B10     | Hosting: stop keeping it                                                                                 |
+| `walkthrough`           | D3      | First content: add one thing, end to end                                                                 |
+| `search`                | D9      | Pipeline trace: follow one item with a live search                                                       |
+| `setup`                 | A2      | Setup wizard, walked in a browser                                                                        |
+| `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only |

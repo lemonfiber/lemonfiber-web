@@ -65,13 +65,16 @@ type Feature =
   | "G2"
   | "G5"
   | "G6"
-  | "G8";
+  | "G8"
+  | "N1";
 
 /**
  * Every request another surface can make of the stack.
  *
  * The core's actions in the order its table lists them, then the setup walk its
- * own endpoints serve, then serving this surface, which the command line does.
+ * own endpoints serve, then serving this surface, which the command line does,
+ * then replacing the certificate a paired phone pins, which only the command
+ * line offers.
  */
 const EVERY_REQUEST = [
   "up",
@@ -100,6 +103,7 @@ const EVERY_REQUEST = [
   "invite",
   "remove",
   "reissue",
+  "companion-pair",
   "household-allow",
   "household-approve",
   "household-decline",
@@ -116,6 +120,7 @@ const EVERY_REQUEST = [
   "search",
   "setup",
   "ui",
+  "companion-certificate",
 ] as const;
 
 /** One request another surface can make. */
@@ -205,6 +210,7 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   invite: "D6",
   remove: "D6",
   reissue: "D6",
+  "companion-pair": "N1",
   "household-allow": "D7",
   "household-approve": "D7",
   "household-decline": "D7",
@@ -214,6 +220,7 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   walkthrough: "D3",
   search: "D9",
   setup: "A2",
+  "companion-certificate": "N1",
 };
 
 /** Kinds something the page imports reads. */
@@ -268,6 +275,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   bandwidth: "D10",
   beside: "A5",
   catalogue: "F2",
+  certificate: "N1",
   clients: "G6",
   config: "A4",
   credentials: "A7",
@@ -281,6 +289,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   migration: "A5",
   music: "D2",
   outbound: "G8",
+  pairing: "N1",
   plugins: "F6",
   provenance: "F2",
   removal: "D6",
