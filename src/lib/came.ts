@@ -13,8 +13,8 @@
  * it would do, or what it did; putting a repair back with what went back and
  * what did not. A backup, a restore and a support bundle are read in `./kept`,
  * the quality choice and fetching the library again in `./tuned`, a
- * setting changed in `./configured`, and an account offered or the household
- * as an act on it left it in `./invited`.
+ * setting changed in `./configured`, an account offered or the household as
+ * an act on it left it in `./invited`, and pairing material in `./paired`.
  * Anything else arrives as an outcome nobody here reads, which is said rather
  * than drawn as nothing.
  *
@@ -32,6 +32,7 @@ import {
 } from "./kept";
 import { qualityLines, upgradeLines, type Tuned, type Upgraded } from "./tuned";
 import { configLines, type Configured } from "./configured";
+import { pairingLines, type Paired } from "./paired";
 import {
   householdLines,
   invitationLines,
@@ -86,6 +87,7 @@ export type Came =
   | { readonly kind: "config"; readonly report: Configured }
   | { readonly kind: "invitation"; readonly report: Invited }
   | { readonly kind: "household"; readonly report: Housed }
+  | { readonly kind: "pairing"; readonly report: Paired }
   | { readonly kind: "unread" };
 
 /** A service still doing what the action asked of it. */
@@ -429,6 +431,8 @@ export function linesOf(came: Came): readonly string[] {
       return invitationLines(came.report);
     case "household":
       return householdLines(came.report);
+    case "pairing":
+      return pairingLines(came.report);
     case "unread":
       return [m.came_unread()];
   }

@@ -1,11 +1,13 @@
 <script lang="ts">
   import Board from "./Board.svelte";
   import Configuration from "./panels/Configuration.svelte";
+  import Pairing from "./panels/Pairing.svelte";
   import Quality from "./panels/Quality.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Configured } from "../lib/configured";
   import type { Configurer } from "../lib/configuring";
   import type { Freshness } from "../lib/freshness";
+  import type { Pairer } from "../lib/pairing";
   import type { Tuned } from "../lib/tuned";
   import type { Tuner } from "../lib/tuning";
 
@@ -23,14 +25,18 @@
     tuner?: Tuner | undefined;
     /** What can be asked about the settings. Left out where nothing answers it. */
     configurer?: Configurer | undefined;
+    /** What pairing a phone asks for. Left out where nothing answers it. */
+    pairer?: Pairer | undefined;
   }
 
-  let { quality, settings, freshness, tuner, configurer }: Props = $props();
+  let { quality, settings, freshness, tuner, configurer, pairer }: Props =
+    $props();
 </script>
 
 <!--
   How the stack is set up, and what can be changed about it from here: the
-  quality new media is fetched at, and every setting lemonfiber keeps.
+  quality new media is fetched at, every setting lemonfiber keeps, and pairing
+  the companion app.
 
   Both readings are asked for together on the way in, and stamped together.
 -->
@@ -38,4 +44,8 @@
   <Quality {quality} {freshness} {tuner} />
 
   <Configuration {settings} {freshness} {configurer} />
+
+  {#if pairer !== undefined}
+    <Pairing {pairer} {freshness} />
+  {/if}
 </Board>

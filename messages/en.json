@@ -794,5 +794,15 @@
   "action_limits_member": "Say what {name} may ask for",
   "limits_hint": "Give both numbers, or neither.",
   "limits_unread": "Both have to be whole numbers above nothing, or both left empty.",
-  "came_invite_unheld": "The request service could not be held to the same limit yet, so what they ask for is not narrowed there."
+  "came_invite_unheld": "The request service could not be held to the same limit yet, so what they ask for is not narrowed there.",
+  "doing_pair_title": "Making pairing material for a phone",
+  "panel_pairing": "Pairing a phone",
+  "pairing_prose": "Make fresh material for the companion app: a line the phone reads or you type, naming where it reaches this machine and the certificate it will be shown. It carries no password, and the phone still signs in with yours. lemonfiber makes it only while the web interface is served encrypted on your network.",
+  "action_pair": "Make pairing material",
+  "pairing_asked": "What pairing a phone came to",
+  "pairing_title": "Pairing material",
+  "pairing_written": "Type this on the phone, or paste it:",
+  "pairing_compare": "Before the phone trusts this machine, check it shows:",
+  "came_pairing_address": "The phone reaches this machine at {address}.",
+  "came_pairing_until": "It stops being good at {until}."
 }

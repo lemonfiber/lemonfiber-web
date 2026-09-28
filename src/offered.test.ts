@@ -25,6 +25,7 @@
 import type { Kind } from "@lemonfiber/sdk-ts";
 import { everyConfiguring } from "./lib/configuring";
 import { everyMending } from "./lib/mending";
+import { everyPairing } from "./lib/pairing";
 import { everyTending } from "./lib/tending";
 import { everyTuning } from "./lib/tuning";
 import { everyUpkeep } from "./lib/upkeep";
@@ -174,6 +175,11 @@ const WALKED: readonly {
     named: "everyTending",
     by: ["src/routes/panels/Tending.svelte", "src/routes/panels/Tended.svelte"],
   },
+  {
+    list: everyPairing,
+    named: "everyPairing",
+    by: ["src/routes/panels/Pairing.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -200,6 +206,7 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "household-allow",
   "household-approve",
   "household-decline",
+  "companion-pair",
 ];
 
 /**
@@ -225,7 +232,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   bandwidth: "D10",
   update: "E1",
   remove: "D6",
-  "companion-pair": "N1",
   watch: "C5",
   "hosting-install": "B10",
   "hosting-remove": "B10",
@@ -250,6 +256,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "job",
   "lifecycle",
   "log",
+  "pairing",
   "preview",
   "quality",
   "repair",
@@ -301,7 +308,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   migration: "A5",
   music: "D2",
   outbound: "G8",
-  pairing: "N1",
   plugins: "F6",
   provenance: "F2",
   removal: "D6",

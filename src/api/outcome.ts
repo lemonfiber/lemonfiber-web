@@ -49,5 +49,8 @@ export function outcomeOf(envelope: Envelope<unknown>): Came {
   if (isKind(envelope, "household")) {
     return { kind: "household", report: envelope.data };
   }
+  if (isKind(envelope, "pairing")) {
+    return { kind: "pairing", report: envelope.data };
+  }
   return { kind: "unread" };
 }

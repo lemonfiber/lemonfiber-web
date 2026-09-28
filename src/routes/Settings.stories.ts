@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Settings from "./Settings.svelte";
 import { configurer, everySetting, stagedChange } from "./configured";
 import { inForce, putQualityBack, readCost, tuner } from "./tuned";
+import { made, pairer } from "./paired";
 
 const answered = { kind: "answered", secondsAgo: 6 } as const;
 
@@ -63,4 +64,12 @@ export const NothingAnswered: Story = {
  */
 export const WhatAChangeWouldCost: Story = {
   args: { configurer: { ...configurer, work: [stagedChange] } },
+};
+
+/**
+ * Fresh pairing material for the companion app: the line to type, and the
+ * short form of the certificate's fingerprint to check on the phone.
+ */
+export const PairingAPhone: Story = {
+  args: { pairer: { ...pairer, work: [made] } },
 };
