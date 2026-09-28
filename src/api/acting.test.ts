@@ -117,14 +117,14 @@ describe("when the work had finished before the reply", () => {
       asking({
         sending: saying(
           200,
-          enveloped("quality", {
-            choices: [],
-            customised: false,
-            disposition: "reapplied",
+          enveloped("reset", {
+            confirmed: false,
+            reverted: [],
+            reverted_connections: [],
           }),
         ),
       }),
-      "quality-reapply",
+      "reset",
       nothing,
     );
 

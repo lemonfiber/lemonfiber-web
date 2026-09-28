@@ -34,5 +34,11 @@ export function outcomeOf(envelope: Envelope<unknown>): Came {
   if (isKind(envelope, "bundle")) {
     return { kind: "bundle", report: envelope.data };
   }
+  if (isKind(envelope, "quality")) {
+    return { kind: "quality", report: envelope.data };
+  }
+  if (isKind(envelope, "upgrade")) {
+    return { kind: "upgrade", report: envelope.data };
+  }
   return { kind: "unread" };
 }

@@ -4,6 +4,7 @@
   import Dashboard from "./Dashboard.svelte";
   import Logs from "./Logs.svelte";
   import Requests from "./Requests.svelte";
+  import Settings from "./Settings.svelte";
   import Shell from "./Shell.svelte";
   import Storage from "./Storage.svelte";
   import type { Kind, Reading } from "@lemonfiber/sdk-ts";
@@ -16,27 +17,20 @@
     type Reaching,
   } from "../api/asking";
   import { pausing as waiting, type Pausing } from "../api/redeeming";
-  import { errands } from "./errands";
+  import { Asked, Desk } from "./desk.svelte";
   import type { Flow } from "../lib/flow";
   import {
     changedTheChecks,
-    givenForMend,
     isMending,
-    questionOfMend,
-    sameMend,
+    mending,
     type Mend,
     type Mender,
   } from "../lib/mending";
   import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
   import type { Archives } from "../lib/kept";
-  import {
-    changedTheBackups,
-    givenForKeep,
-    isUpkeep,
-    questionOfKeep,
-    type Keep,
-    type Keeper,
-  } from "../lib/upkeep";
+  import type { Tuned } from "../lib/tuned";
+  import { changedTheQuality, isTuning, tuning } from "../lib/tuning";
+  import { changedTheBackups, isUpkeep, upkeep } from "../lib/upkeep";
   import { consoleMenu, ours, pathOf, placeAt, type Place } from "../lib/route";
   import type {
     Diagnosis,
@@ -89,20 +83,17 @@
   let aboutDisk = $state<Reading<Diagnosis> | undefined>(undefined);
   let lines = $state<Reading<readonly Logged[]> | undefined>(undefined);
   let household = $state<Reading<Household> | undefined>(undefined);
+  let quality = $state<Reading<Tuned> | undefined>(undefined);
   let stampedAt = $state<number | undefined>(undefined);
   let moment = $state<Moment | undefined>(undefined);
   let flow = $state<Flow>("opening");
   let readAt = $state<number | undefined>(undefined);
   let carriedAt = $state<number | undefined>(undefined);
   let now = $state(Date.now());
-  let work = $state<readonly Work[]>([]);
   let waitingSaid = $state<string | undefined>(undefined);
   let confirming = $state<Doing | undefined>(undefined);
-  let mendAsked = $state<Mend | undefined>(undefined);
-  let keepAsked = $state<Keep | undefined>(undefined);
   let archives = $state<Reading<Archives> | undefined>(undefined);
   let picked = $state<readonly string[]>([]);
-  let busy = $state(false);
   let listening = $state(false);
 
   /** What ends the listening there is, for as long as there is one. */
@@ -198,6 +189,9 @@
           where,
           await asked(reaching, "requests", "household"),
         );
+        return;
+      case "settings":
+        quality = noted(where, await asked(reaching, "quality", "quality"));
         return;
     }
   }
@@ -338,34 +332,7 @@
       return;
     }
     confirming = undefined;
-    await send(doing, chosen.length > 0, givenFor(doing, chosen));
-  }
-
-  /**
-   * Ask for something on the checks screen, having asked about it first where
-   * nothing comes back to read before agreeing.
-   */
-  async function mend(asking: Mend): Promise<void> {
-    if (questionOfMend(asking) !== undefined && !sameMend(mendAsked, asking)) {
-      mendAsked = asking;
-      return;
-    }
-    mendAsked = undefined;
-    if (asking.doing === "repair") picked = [];
-    await send(asking.doing, false, givenForMend(asking));
-  }
-
-  /**
-   * Ask for a backup, a restore or a bundle, having asked about it first where
-   * nothing comes back to read before agreeing.
-   */
-  async function keep(asking: Keep): Promise<void> {
-    if (questionOfKeep(asking) !== undefined && keepAsked === undefined) {
-      keepAsked = asking;
-      return;
-    }
-    keepAsked = undefined;
-    await send(asking.doing, false, givenForKeep(asking));
+    await desk.send(doing, chosen.length > 0, givenFor(doing, chosen));
   }
 
   /**
@@ -373,8 +340,9 @@
    *
    * A run of the checks is the reading the checks screen draws, so one that
    * came back replaces it. A repair carried out or put back changes what the
-   * checks would find, so the checks are asked again, and a backup written
-   * changes which backups there are, so they are.
+   * checks would find, so the checks are asked again. A backup written
+   * changes which backups there are, and the quality choice put back changes
+   * the choice in force, so each is read again.
    */
   function settled(record: Work): void {
     if (record.at !== "done") return;
@@ -384,72 +352,55 @@
       void askFor("checks");
     } else if (changedTheBackups(record.came)) {
       void askFor("storage");
+    } else if (changedTheQuality(record.came)) {
+      void askFor("settings");
     }
   }
 
-  /** Send one request, keep a record of it, and follow what it was named. */
-  const send = errands({
+  /** Everything this tab has asked for, and the one way to ask. */
+  const desk = new Desk({
     reaching: () => reaching,
     pausing: () => pausing,
     onrefused: () => {
       onrefused();
     },
     here: () => here,
-    records: () => work,
-    keep: (records) => {
-      work = records;
-    },
-    busy: (sending) => {
-      busy = sending;
-    },
     settled,
   });
+  const mended = new Asked(desk, mending);
+  const kept = new Asked(desk, upkeep);
+  const tuned = new Asked(desk, tuning);
 
   const mender = $derived<Mender>({
-    work: work.filter((one) => isMending(one.doing)),
-    asked: mendAsked,
+    ...mended.asker,
     picked,
-    busy,
     onask: (asking: Mend) => {
-      void mend(asking);
+      // Asking for the offer again replaces the one the repairs were chosen
+      // from, so what was chosen from it goes with it.
+      if (asking.doing === "repair") picked = [];
+      void mended.ask(asking);
     },
     onpick: (check: string) => {
       picked = picked.includes(check)
         ? picked.filter((one) => one !== check)
         : [...picked, check];
     },
-    onleave: () => {
-      mendAsked = undefined;
-    },
-    ondrop: (id: string) => {
-      work = work.filter((one) => one.id !== id);
-    },
   });
 
-  const keeper = $derived<Keeper>({
-    work: work.filter((one) => isUpkeep(one.doing)),
-    asked: keepAsked,
-    busy,
-    onask: (asking: Keep) => {
-      void keep(asking);
-    },
-    onleave: () => {
-      keepAsked = undefined;
-    },
-    ondrop: (id: string) => {
-      work = work.filter((one) => one.id !== id);
-    },
-  });
+  const keeper = $derived(kept.asker);
+  const tuner = $derived(tuned.asker);
 
   const controls = $derived<Controls>({
     forms,
     chosen,
     preview,
     previewed,
-    work: work.filter((one) => !isMending(one.doing) && !isUpkeep(one.doing)),
+    work: desk.of(
+      (doing) => !isMending(doing) && !isUpkeep(doing) && !isTuning(doing),
+    ),
     waiting: waitingSaid,
     confirming,
-    busy,
+    busy: desk.busy,
     onchoose: (form: string) => {
       // A question names what it is about, and what it is about is what has
       // been chosen. Changing that leaves a question standing over a different
@@ -467,7 +418,7 @@
       confirming = undefined;
     },
     ondrop: (id: string) => {
-      work = work.filter((one) => one.id !== id);
+      desk.drop(id);
     },
     onhush: () => {
       waitingSaid = undefined;
@@ -533,7 +484,9 @@
     />
   {:else if place === "logs"}
     <Logs scrollback={lines} freshness={stamped} />
-  {:else}
+  {:else if place === "requests"}
     <Requests {household} freshness={stamped} />
+  {:else}
+    <Settings {quality} freshness={stamped} {tuner} />
   {/if}
 </Shell>

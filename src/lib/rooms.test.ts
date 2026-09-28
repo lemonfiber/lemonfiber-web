@@ -94,6 +94,7 @@ describe("the read an address away is drawn from", () => {
     ["checks", "/api/checks"],
     ["storage", "/api/storage"],
     ["logs", "/api/logs"],
+    ["settings", "/api/quality"],
   ] satisfies [Away, string][])(
     "asks for %s where the console does",
     (away, read) => {

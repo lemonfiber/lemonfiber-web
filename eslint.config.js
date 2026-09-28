@@ -57,6 +57,16 @@ export default tseslint.config(
     },
   },
 
+  // A module holding runes is read by the Svelte parser, which hands its
+  // TypeScript on to the TypeScript one.
+  {
+    files: ["**/*.svelte.ts"],
+    languageOptions: {
+      parser: svelteParser,
+      parserOptions: { parser: tseslint.parser, projectService: true },
+    },
+  },
+
   {
     files: ["**/*.test.ts", "e2e/**/*.ts"],
     rules: { "@typescript-eslint/no-unsafe-assignment": "off" },

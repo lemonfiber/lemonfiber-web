@@ -17,6 +17,7 @@
  * bundle is its own and is passed through unchanged.
  */
 import type { Arguments } from "../api/acting";
+import { sameDoing, type Asker, type Family } from "./asker";
 import type { Came } from "./came";
 import type { Relocation } from "./kept";
 import type { Question, Requested, Upkeep, Work } from "./work";
@@ -191,21 +192,16 @@ export function linesTyped(typed: string): number | undefined {
   return count > 0 && Number.isSafeInteger(count) ? count : undefined;
 }
 
+/** How the backups and support panels' requests are asked for. */
+export const upkeep: Family<Keep> = {
+  owns: isUpkeep,
+  question: questionOfKeep,
+  given: givenForKeep,
+  same: sameDoing,
+};
+
 /**
  * Everything the backups and support panels are given to act with, and what
  * pressing their controls asks for.
  */
-export interface Keeper {
-  /** What the two panels have asked for, newest first. */
-  readonly work: readonly Work[];
-  /** The asking awaiting a yes, where one is. */
-  readonly asked: Keep | undefined;
-  /** Whether a request is still in flight, which silences the controls. */
-  readonly busy: boolean;
-  /** What pressing a control asks for. */
-  readonly onask: (asking: Keep) => void;
-  /** What answering no asks for. */
-  readonly onleave: () => void;
-  /** What putting a record away asks for. */
-  readonly ondrop: (id: string) => void;
-}
+export type Keeper = Asker<Keep>;

@@ -18,7 +18,8 @@ import * as m from "../paraglide/messages.js";
  * running kept together: the whole stack and each service in it are one screen,
  * not two.
  */
-export type Place = "overview" | "checks" | "storage" | "logs" | "requests";
+export type Place =
+  "overview" | "checks" | "storage" | "logs" | "requests" | "settings";
 
 /**
  * Every place there is, in the order the menu shows them.
@@ -32,6 +33,7 @@ export const everyPlace: readonly Place[] = [
   "storage",
   "logs",
   "requests",
+  "settings",
 ];
 
 /**
@@ -64,6 +66,8 @@ export function nameOf(place: Place): string {
       return m.nav_logs();
     case "requests":
       return m.nav_requests();
+    case "settings":
+      return m.nav_settings();
   }
 }
 
@@ -82,6 +86,8 @@ export function iconOf(place: Place): IconName {
       return "logs";
     case "requests":
       return "requests";
+    case "settings":
+      return "settings";
   }
 }
 
