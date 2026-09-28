@@ -64,6 +64,7 @@ export async function reached(
   try {
     const answer = await reaching.sending(`${where.base}${path}`, {
       method: carrying.method,
+      redirect: "error",
       headers,
       ...(carrying.body !== undefined && { body: carrying.body }),
     });

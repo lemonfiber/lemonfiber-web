@@ -173,6 +173,7 @@ async function said(reaching: Reaching, url: string): Promise<Reading<string>> {
   try {
     const answer = await reaching.sending(url, {
       method: "GET",
+      redirect: "error",
       headers: { [TOKEN_HEADER]: reaching.token, Accept: "application/json" },
     });
     const body = await answer.text();
