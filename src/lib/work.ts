@@ -2,7 +2,8 @@
  * What the console can ask lemonfiber to do, and how the asking reads.
  *
  * An action is named the way the command line names it, so a control here is a
- * command a person could have typed. Seven of the twelve are offered. Five are
+ * command a person could have typed. Seven are offered here, and
+ * `docs/surface-parity.md` names every other one lemonfiber offers. Five are
  * about the forms the stack declares and are asked for against the ones the
  * operator chose; two are about the whole stack and take no argument at all.
  *
@@ -11,9 +12,9 @@
  * takes which is stated here as a list, because the alternative is knowing it by
  * having read the one function that builds a body.
  *
- * The operator's agreement is never sent. The three actions whose command
- * carries one are not among the seven, and an agreement given to an action that
- * takes none is an agreement about a request that was never made.
+ * The operator's agreement is never sent. None of the seven takes one, and an
+ * agreement given to an action that takes none is an agreement about a request
+ * that was never made.
  *
  * Some of what is asked for finishes before the reply is written, and some is
  * handed to the runtime and outlives the request. The second kind is answered
