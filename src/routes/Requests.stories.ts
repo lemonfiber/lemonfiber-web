@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Requests from "./Requests.svelte";
 import { household, unasked, unread } from "./house";
+import { letThrough, madeOffer, readOffer, tender } from "./tended";
 
 const answered = { kind: "answered", secondsAgo: 8 } as const;
 const never = { kind: "never" } as const;
@@ -90,4 +91,34 @@ export const NothingAnswered: Story = {
  */
 export const NobodysRequestsWereRead: Story = {
   args: { household: { ok: true, value: unasked } },
+};
+
+/**
+ * The household run from the console: offering somebody an account and saying
+ * what the house may ask for first, then under each person what waits on the
+ * operator and what can be done for their account.
+ */
+export const RunningTheHousehold: Story = {
+  args: { tender },
+};
+
+/**
+ * An offer read and nothing made. The yes under it is the same offer, on the
+ * terms that were read.
+ */
+export const AnOfferRead: Story = {
+  args: { tender: { ...tender, work: [readOffer] } },
+};
+
+/** What offering an account and letting a request through came to. */
+export const WhatRunningItCameTo: Story = {
+  args: { tender: { ...tender, work: [letThrough, madeOffer] } },
+};
+
+/**
+ * Taking a password off has nothing to read first, so what it does is asked
+ * before anything is sent.
+ */
+export const BeforeANewPassword: Story = {
+  args: { tender: { ...tender, asked: { doing: "reissue", name: "Kit" } } },
 };

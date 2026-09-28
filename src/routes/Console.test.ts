@@ -1253,7 +1253,12 @@ describe("what each place is drawn from", () => {
 
     await goTo("requests");
 
-    expect(screen.getByText(m.fresh_never())).toBeInTheDocument();
+    expect(screen.getAllByText(m.fresh_never()).length).toBeGreaterThan(0);
+    expect(
+      screen.queryByText(
+        m.fresh_answered({ span: m.span_seconds({ count: 0 }) }),
+      ),
+    ).toBeNull();
   });
 
   // `noted` is called by whichever request resolved, not by whichever screen is

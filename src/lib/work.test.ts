@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { everyMending } from "./mending";
+import { everyTending } from "./tending";
 import {
   askable,
   askingOf,
@@ -7,6 +8,7 @@ import {
   everyDoing,
   everyStanding,
   givenFor,
+  isDoing,
   namesItsForms,
   questionOf,
   readingOf,
@@ -44,8 +46,14 @@ describe("what the console can ask for", () => {
     expect(titles.size).toBe(everyDoing.length);
   });
 
-  it("heads a record of what the checks screen asked for apart from the rest", () => {
-    const requested = [...everyDoing, ...everyMending];
+  it("tells what the overview asked for from what the other screens did", () => {
+    expect(everyDoing.every(isDoing)).toBe(true);
+    expect(isDoing("repair")).toBe(false);
+    expect(isDoing("invite")).toBe(false);
+  });
+
+  it("heads a record of what the other screens asked for apart from the rest", () => {
+    const requested = [...everyDoing, ...everyMending, ...everyTending];
     const titles = new Set(
       requested.map((doing) => titleOfDoing(doing, false)),
     );

@@ -2,6 +2,8 @@ import { API_VERSION, type ByKind, type Kind } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import { backed, described, listing } from "./archived";
 import { staged } from "./configs";
+import { offered } from "./invitations";
+import { household } from "../routes/house";
 import { outcomeOf } from "./outcome";
 import { costed, reapplied } from "./qualities";
 import { ran } from "../routes/fixture";
@@ -93,6 +95,17 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("config", staged))).toStrictEqual({
       kind: "config",
       report: staged,
+    });
+  });
+
+  it("reads what offering an account, or ruling on the household, came to", () => {
+    expect(outcomeOf(sealed("invitation", offered))).toStrictEqual({
+      kind: "invitation",
+      report: offered,
+    });
+    expect(outcomeOf(sealed("household", household))).toStrictEqual({
+      kind: "household",
+      report: household,
     });
   });
 

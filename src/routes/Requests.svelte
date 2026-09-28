@@ -4,6 +4,8 @@
   import Panel from "../components/Panel.svelte";
   import Skeleton from "../components/Skeleton.svelte";
   import Value from "../components/Value.svelte";
+  import Tended from "./panels/Tended.svelte";
+  import Tending from "./panels/Tending.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
   import {
@@ -13,6 +15,7 @@
     standingOf,
   } from "../lib/household";
   import type { Column, Row } from "../lib/table";
+  import type { Tender } from "../lib/tending";
   import type { Household, Member } from "../lib/wire";
   import * as m from "../paraglide/messages.js";
 
@@ -21,9 +24,14 @@
     household: Reading<Household> | undefined;
     /** When this screen's source last answered. */
     freshness: Freshness;
+    /**
+     * What running the household asks for. Left out where nothing answers it,
+     * which leaves the screen a reading.
+     */
+    tender?: Tender | undefined;
   }
 
-  let { household, freshness }: Props = $props();
+  let { household, freshness, tender }: Props = $props();
 
   const columns: readonly Column[] = [
     { head: m.head_asked_for() },
@@ -82,21 +90,40 @@
   here, and one table with a column of names would say it once a row rather than
   once for the lot of them.
 
+  Where the console can act on the household, running it comes first: offering
+  somebody an account and saying what the house may ask for. Under each person
+  are the controls for what waits on the operator and for their own account.
+
   What could not be read stands apart from what was. A record the request service
   would not give up is not one more request; it is the reason the list under it
   may be shorter than the truth.
 -->
 <Board>
+  {#if tender !== undefined}
+    <Tending {tender} policy={report?.policy} {freshness} />
+  {/if}
+
   {#if members !== undefined && nothing === undefined}
     {#each members as member (member.name)}
       {@const asked = member.requests.length > 0}
-      <Panel title={member.name} {freshness} flush={asked}>
+      <Panel
+        title={member.name}
+        {freshness}
+        flush={asked || tender !== undefined}
+      >
         {#if asked}
           <DataTable label={member.name} {columns} rows={rows(member)} />
-        {:else if read}
-          <Value state="known" absent={m.requests_member_none()} />
         {:else}
-          <Value state="unknown" absent={m.requests_member_unread()} />
+          <div class:none={tender !== undefined}>
+            {#if read}
+              <Value state="known" absent={m.requests_member_none()} />
+            {:else}
+              <Value state="unknown" absent={m.requests_member_unread()} />
+            {/if}
+          </div>
+        {/if}
+        {#if tender !== undefined}
+          <Tended {member} {tender} />
         {/if}
       </Panel>
     {/each}
@@ -126,6 +153,12 @@
 </Board>
 
 <style>
+  /* A panel drawn flush for the controls under it still sets its one line in
+     from the edge, as an unflushed panel would. */
+  .none {
+    padding: var(--sp-4) var(--panel-pad);
+  }
+
   .unread {
     display: grid;
     gap: var(--sp-2);

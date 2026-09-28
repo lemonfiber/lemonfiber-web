@@ -25,6 +25,7 @@
 import type { Kind } from "@lemonfiber/sdk-ts";
 import { everyConfiguring } from "./lib/configuring";
 import { everyMending } from "./lib/mending";
+import { everyTending } from "./lib/tending";
 import { everyTuning } from "./lib/tuning";
 import { everyUpkeep } from "./lib/upkeep";
 import { everyDoing } from "./lib/work";
@@ -168,6 +169,11 @@ const WALKED: readonly {
     named: "everyConfiguring",
     by: ["src/routes/panels/Configuration.svelte"],
   },
+  {
+    list: everyTending,
+    named: "everyTending",
+    by: ["src/routes/panels/Tending.svelte", "src/routes/panels/Tended.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -189,6 +195,11 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "quality-reapply",
   "quality-upgrade",
   "config-set",
+  "invite",
+  "reissue",
+  "household-allow",
+  "household-approve",
+  "household-decline",
 ];
 
 /**
@@ -213,13 +224,8 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "stop-seeding": "D5",
   bandwidth: "D10",
   update: "E1",
-  invite: "D6",
   remove: "D6",
-  reissue: "D6",
   "companion-pair": "N1",
-  "household-allow": "D7",
-  "household-approve": "D7",
-  "household-decline": "D7",
   watch: "C5",
   "hosting-install": "B10",
   "hosting-remove": "B10",
@@ -240,6 +246,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "doctor",
   "forms",
   "household",
+  "invitation",
   "job",
   "lifecycle",
   "log",
@@ -291,7 +298,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   history: "E4",
   hosting: "B10",
   import: "A5",
-  invitation: "D6",
   migration: "A5",
   music: "D2",
   outbound: "G8",

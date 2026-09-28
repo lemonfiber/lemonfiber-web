@@ -63,8 +63,20 @@ export type Tuning = "quality-reapply" | "quality-upgrade";
  */
 export type Configuring = "config-set";
 
+/**
+ * Something the household panels can ask for, named as the endpoint names it.
+ * What each takes and how it is asked about is in `./tending`.
+ */
+export type Tending =
+  | "invite"
+  | "reissue"
+  | "household-allow"
+  | "household-approve"
+  | "household-decline";
+
 /** Anything a record can be of. */
-export type Requested = Doing | Mending | Upkeep | Tuning | Configuring;
+export type Requested =
+  Doing | Mending | Upkeep | Tuning | Configuring | Tending;
 
 /**
  * Every action there is, in the order the controls show them.
@@ -81,6 +93,12 @@ export const everyDoing: readonly Doing[] = [
   "seed",
   "adopt",
 ];
+
+/** Whether a record is of something the overview asked for. */
+export function isDoing(doing: Requested): doing is Doing {
+  const overview: readonly Requested[] = everyDoing;
+  return overview.includes(doing);
+}
 
 /**
  * The actions whose command carries the forms it was given.
@@ -244,6 +262,16 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_upgrade_title();
     case "config-set":
       return m.doing_config_title();
+    case "invite":
+      return m.doing_invite_title();
+    case "reissue":
+      return m.doing_reissue_title();
+    case "household-allow":
+      return m.doing_allow_title();
+    case "household-approve":
+      return m.doing_approve_title();
+    case "household-decline":
+      return m.doing_decline_title();
     case "up":
       return scoped ? m.doing_up_chosen_title() : m.doing_up_title();
     case "down":

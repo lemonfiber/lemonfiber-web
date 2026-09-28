@@ -72,6 +72,22 @@ export interface Arguments {
   readonly value?: string;
   /** Whether anything still coming down is let finish first. */
   readonly wait?: boolean;
+  /** The person acted on, by the name they sign in as. */
+  readonly name?: string;
+  /** The highest age rating an account may watch. */
+  readonly age_limit?: number;
+  /** Whether what has no rating is held back (`block`) or let through (`allow`). */
+  readonly unrated?: "block" | "allow";
+  /** What happens to what is asked for. */
+  readonly policy?: string;
+  /** How many requests a period allows. */
+  readonly requests?: number;
+  /** How many days a period lasts. */
+  readonly days?: number;
+  /** The request ruled on, by its number. */
+  readonly request?: number;
+  /** Why a request is turned down, for the person who asked. */
+  readonly reason?: string;
 }
 
 /**
