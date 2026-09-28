@@ -50,6 +50,10 @@ interface Asked {
   readonly posted: { readonly at: string; readonly body: string }[];
   /** How many times the backups were read. */
   listed: number;
+  /** Each file asked for, by the address it was asked at. */
+  readonly taken: string[];
+  /** Whether a file asked for is turned away for the key. */
+  turnedAway?: boolean;
 }
 
 /**
@@ -86,6 +90,16 @@ function stack(
       redeemed += 1;
       return said(next ?? started);
     }
+    if (at.startsWith("/api/bundle/")) {
+      asked.taken.push(at);
+      if (asked.turnedAway) return said({ status: 401, body: "" });
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        text: () => Promise.resolve(""),
+        blob: () => Promise.resolve(new Blob(["gzipped"])),
+      });
+    }
     if (at.startsWith("/api/backups")) {
       asked.listed += 1;
       return said({ status: 200, body: enveloped("archives", kept) });
@@ -97,11 +111,15 @@ function stack(
   };
 }
 
-const opened = (at: string, sending: Sending): void => {
+const opened = (
+  at: string,
+  sending: Sending,
+  onrefused: () => void = vi.fn(),
+): void => {
   globalThis.history.replaceState(undefined, "", at);
   render(Console, {
     reaching: { at: here, token: key, sending, fetching: silent },
-    onrefused: vi.fn(),
+    onrefused,
     pausing: () => Promise.resolve(),
   });
 };
@@ -115,7 +133,7 @@ const backups = (): HTMLElement =>
 const support = (): HTMLElement =>
   screen.getByRole("status", { name: m.support_asked() });
 
-const fresh = (): Asked => ({ posted: [], listed: 0 });
+const fresh = (): Asked => ({ posted: [], listed: 0, taken: [] });
 
 describe("taking a backup from the disk screen", () => {
   it("lists the backups kept, read on the way in", async () => {
@@ -337,6 +355,62 @@ describe("gathering a support bundle from the checks screen", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.queryByText(m.support_bundle_title())).toBeNull();
+  });
+
+  it("hands the bundle written to the browser, by the name it was written under", async () => {
+    URL.createObjectURL = vi.fn(() => "blob:bundle");
+    URL.revokeObjectURL = vi.fn();
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => undefined);
+    const sent = fresh();
+    opened(
+      "/checks",
+      stack(
+        { support: [read200, started] },
+        [{ status: 200, body: enveloped("bundle", written) }],
+        sent,
+      ),
+    );
+    await screen.findByText(m.action_support_describe());
+    await press(m.action_support_describe());
+    await within(support()).findByText(m.support_bundle_title());
+    await press(m.action_support_write());
+    await screen.findByText(m.action_support_save());
+
+    await press(m.action_support_save());
+
+    await waitFor(() => {
+      expect(click).toHaveBeenCalledOnce();
+    });
+    expect(sent.taken).toStrictEqual(["/api/bundle/bundle.tar.gz"]);
+    click.mockRestore();
+  });
+
+  it("passes a key turned away while saving on, as every refusal of it is", async () => {
+    const onrefused = vi.fn();
+    const sent = { ...fresh(), turnedAway: true };
+    opened(
+      "/checks",
+      stack(
+        { support: [read200, started] },
+        [{ status: 200, body: enveloped("bundle", written) }],
+        sent,
+      ),
+      onrefused,
+    );
+    await screen.findByText(m.action_support_describe());
+    await press(m.action_support_describe());
+    await within(support()).findByText(m.support_bundle_title());
+    await press(m.action_support_write());
+    await screen.findByText(m.action_support_save());
+
+    await press(m.action_support_save());
+
+    await waitFor(() => {
+      expect(onrefused).toHaveBeenCalledOnce();
+    });
+    expect(sent.taken).toStrictEqual(["/api/bundle/bundle.tar.gz"]);
   });
 });
 

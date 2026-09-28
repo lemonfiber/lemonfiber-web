@@ -155,9 +155,9 @@ here could read them.
 
 Four of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
-yet. `support` writes the bundle where lemonfiber keeps its own files and says
-where; the client reads every reply as text, so the file itself is not handed
-to the browser, and showing a setting as it is (`reveal`) has no control yet.
+yet. `support` writes the bundle where lemonfiber keeps its own files, and the
+newest one written is handed to the browser to be saved; showing a setting as
+it is (`reveal`) has no control yet.
 `quality-upgrade` states what an hour of each kind of media takes at the preset
 in force, and no total, because the `upgrade` reading carries none.
 `quality-reapply` lists the lines it replaced once it has, and not before,

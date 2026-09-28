@@ -9,6 +9,7 @@ import {
   questionOfKeep,
   standingBundle,
   standingListing,
+  writtenBundle,
 } from "./upkeep";
 import type { Work } from "./work";
 import {
@@ -245,6 +246,37 @@ describe("the bundle description standing on the screen", () => {
     const unread = answered("5", "support", given, { kind: "unread" });
     expect(standingBundle([])).toBeUndefined();
     expect(standingBundle([unread])).toBeUndefined();
+  });
+});
+
+describe("the bundle there is to save", () => {
+  it("is where the newest bundle was written", () => {
+    const wrote = answered(
+      "2",
+      "support",
+      { write: true },
+      {
+        kind: "bundle",
+        report: written,
+      },
+    );
+    expect(writtenBundle([wrote])).toBe(written.path);
+  });
+
+  it("is nothing where the newest only described one, or none was asked for", () => {
+    const read = answered(
+      "3",
+      "support",
+      { write: false },
+      {
+        kind: "bundle",
+        report: described,
+      },
+    );
+    const unread = answered("4", "support", {}, { kind: "unread" });
+    expect(writtenBundle([read])).toBeUndefined();
+    expect(writtenBundle([unread])).toBeUndefined();
+    expect(writtenBundle([])).toBeUndefined();
   });
 });
 

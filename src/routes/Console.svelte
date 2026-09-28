@@ -18,6 +18,7 @@
   } from "../api/asking";
   import { pausing as waiting, type Pausing } from "../api/redeeming";
   import { Asked, Desk } from "./desk.svelte";
+  import { Saving } from "./saving.svelte";
   import type { Flow } from "../lib/flow";
   import {
     changedTheChecks,
@@ -405,6 +406,13 @@
   });
 
   const keeper = $derived(keepAsks.asker);
+  const saving = new Saving({
+    reaching: () => reaching,
+    onrefused: () => {
+      onrefused();
+    },
+  });
+  const saver = $derived(saving.saver);
   const tuner = $derived(tuneAsks.asker);
   const configurer = $derived(changeAsks.asker);
 
@@ -495,7 +503,7 @@
       onretry={listening ? undefined : reopen}
     />
   {:else if place === "checks"}
-    <Checks {diagnosis} freshness={stamped} {mender} {keeper} />
+    <Checks {diagnosis} freshness={stamped} {mender} {keeper} {saver} />
   {:else if place === "storage"}
     <Storage
       disk={moment?.storage}
