@@ -3,6 +3,7 @@ import {
   allowanceOf,
   askingWasRead,
   everyAllowed,
+  everyMembership,
   everyPolicy,
   everyRequestState,
   everyRestriction,
@@ -24,6 +25,7 @@ import {
 import type {
   Access,
   Allowed,
+  Membership,
   Person,
   Policy,
   RequestState,
@@ -134,6 +136,7 @@ const unnamedPolicy = "asks-a-parent" as unknown as Policy;
 const unnamedAllowed = "over-quota" as unknown as Allowed;
 const unnamedRestriction = "hour-limited" as unknown as Restriction;
 const unnamedUnrated = "asks-first" as unknown as Unrated;
+const unnamedMembership = "archived" as unknown as Membership;
 
 /** What one account may watch, with whatever this test changes about it. */
 const mayWatch = (over: Partial<Access> = {}): Access => ({
@@ -152,6 +155,7 @@ const mayWatch = (over: Partial<Access> = {}): Access => ({
 const someone = (over: Partial<Person> = {}): Person => ({
   name: "Ada",
   claimed: true,
+  standing: "active",
   last_seen: "2026-08-25T21:14:07Z",
   access: mayWatch(),
   asking: null,
@@ -242,19 +246,49 @@ describe("what becomes of content nothing has rated", () => {
 });
 
 describe("the word beside one person's name", () => {
+  // Every standing but an ordinary active account is said, and each apart.
+  it("says each standing differently, and nothing for an ordinary active one", () => {
+    const said = everyMembership.map((standing) =>
+      tagOfPerson(someone({ standing })),
+    );
+
+    expect(said).toEqual([
+      m.person_not_taken_up(),
+      m.person_ran_out(),
+      undefined,
+      m.person_switched_off(),
+    ]);
+  });
+
   // An account that cannot be signed in to exercises nothing, so what has
   // become of it outranks what it could do.
-  it("says an account is switched off before it says anything else", () => {
+  it("says an account is switched off, even one that administers", () => {
     expect(
       tagOfPerson(
-        someone({ access: mayWatch({ disabled: true, administrator: true }) }),
+        someone({
+          standing: "suspended",
+          access: mayWatch({ administrator: true }),
+        }),
       ),
     ).toBe(m.person_switched_off());
   });
 
+  // A lockout leaves every other field as it was, so only the standing says it.
+  it("says an account is switched off where nothing else about it does", () => {
+    expect(tagOfPerson(someone({ standing: "suspended" }))).toBe(
+      m.person_switched_off(),
+    );
+  });
+
   it("says an invitation nobody took up is one", () => {
-    expect(tagOfPerson(someone({ claimed: false }))).toBe(
+    expect(tagOfPerson(someone({ standing: "invited", claimed: false }))).toBe(
       m.person_not_taken_up(),
+    );
+  });
+
+  it("says an invitation that ran out did, rather than that it is still open", () => {
+    expect(tagOfPerson(someone({ standing: "expired", claimed: false }))).toBe(
+      m.person_ran_out(),
     );
   });
 
@@ -266,6 +300,15 @@ describe("the word beside one person's name", () => {
 
   it("says nothing about an ordinary account", () => {
     expect(tagOfPerson(someone())).toBeUndefined();
+  });
+
+  it("says so where the server named a standing this build does not know", () => {
+    expect(tagOfPerson(someone({ standing: unnamedMembership }))).toBe(
+      m.person_unrecognised(),
+    );
+    expect(
+      everyMembership.map((standing) => tagOfPerson(someone({ standing }))),
+    ).not.toContain(m.person_unrecognised());
   });
 });
 

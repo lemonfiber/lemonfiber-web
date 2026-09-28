@@ -12,6 +12,7 @@
 import type {
   Allowed,
   Asked,
+  Membership,
   Person,
   Policy,
   Request,
@@ -118,6 +119,14 @@ export const everyAllowed: readonly Allowed[] = [
   "within-quota",
   "near-quota",
   "quota-exhausted",
+];
+
+/** Every place an account can stand, in the order the contract declares them. */
+export const everyMembership: readonly Membership[] = [
+  "invited",
+  "expired",
+  "active",
+  "suspended",
 ];
 
 /** Everything one person can be held to, in one word. */
@@ -235,15 +244,26 @@ export function wordOfUnrated(unrated: Unrated): string {
  * What is said beside one person's name, or nothing where there is nothing to
  * say.
  *
- * An account nobody has set a password on is an invitation still open rather
- * than somebody who is here, and one that is switched off is held and unable
- * to sign in. Both outrank administering the media server, which is a standing
- * an account that cannot be used does not exercise.
+ * Read from where the account stands rather than put together from the
+ * fields beside it. An account the media server switched off after too many
+ * wrong passwords reads, on every other field, like one that works, and an
+ * invitation that ran out reads like one still open. Anything but an account
+ * that can sign in outranks administering the media server, which is a
+ * standing an account that cannot be used does not exercise.
  */
 export function tagOfPerson(person: Person): string | undefined {
-  if (person.access.disabled) return m.person_switched_off();
-  if (!person.claimed) return m.person_not_taken_up();
-  return person.access.administrator ? m.person_administers() : undefined;
+  switch (person.standing) {
+    case "invited":
+      return m.person_not_taken_up();
+    case "expired":
+      return m.person_ran_out();
+    case "suspended":
+      return m.person_switched_off();
+    case "active":
+      return person.access.administrator ? m.person_administers() : undefined;
+    default:
+      return m.person_unrecognised();
+  }
 }
 
 /**
