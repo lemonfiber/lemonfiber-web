@@ -20,7 +20,8 @@ export type Taken =
 
 /** The name a file was written under: the last part of its path. */
 export function nameIn(path: string): string {
-  return path.slice(path.search(/[^\\/]*$/u));
+  const last = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+  return path.slice(last + 1);
 }
 
 /**
