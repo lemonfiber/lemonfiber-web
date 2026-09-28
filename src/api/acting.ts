@@ -102,6 +102,12 @@ export interface Arguments {
   readonly exceeded?: string;
   /** How many minutes to lift the limits for. */
   readonly unrestricted_for?: number;
+  /** The one thing to walk through, as a person would name it. */
+  readonly item?: string;
+  /** The item to follow, as a person would name it. */
+  readonly term?: string;
+  /** The season to narrow a search to. */
+  readonly season?: number;
 }
 
 /**

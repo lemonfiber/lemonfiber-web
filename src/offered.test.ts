@@ -24,6 +24,7 @@
 /// <reference types="vite/client" />
 import type { Kind } from "@lemonfiber/sdk-ts";
 import { everyConfiguring } from "./lib/configuring";
+import { everyFinding } from "./lib/finding";
 import { everyMending } from "./lib/mending";
 import { everyPairing } from "./lib/pairing";
 import { everySharing } from "./lib/sharing";
@@ -192,6 +193,11 @@ const WALKED: readonly {
     named: "everyUpdating",
     by: ["src/routes/panels/Updates.svelte"],
   },
+  {
+    list: everyFinding,
+    named: "everyFinding",
+    by: ["src/routes/panels/Walk.svelte", "src/routes/panels/Trace.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -221,6 +227,9 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "companion-pair",
   "bandwidth",
   "update",
+  "watch",
+  "walkthrough",
+  "search",
 ];
 
 /**
@@ -244,11 +253,8 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   space: "D5",
   "stop-seeding": "D5",
   remove: "D6",
-  watch: "C5",
   "hosting-install": "B10",
   "hosting-remove": "B10",
-  walkthrough: "D3",
-  search: "D9",
   setup: "A2",
   "companion-certificate": "N1",
 };
@@ -277,9 +283,12 @@ const OFFERED_KINDS: readonly Kind[] = [
   "seed",
   "start",
   "status",
+  "trace",
   "undo",
   "update",
   "upgrade",
+  "walkthrough",
+  "watch",
 ];
 
 /**
@@ -333,11 +342,8 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   stored: "A6",
   stuck: "C7",
   substitution: "F4",
-  trace: "D9",
   uninstall: "A6",
   version: "E2",
-  walkthrough: "D3",
-  watch: "C5",
   wiring: "D1",
   wizard: "A2",
   word: "G2",

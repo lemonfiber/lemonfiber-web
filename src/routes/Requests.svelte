@@ -6,6 +6,9 @@
   import Value from "../components/Value.svelte";
   import Tended from "./panels/Tended.svelte";
   import Tending from "./panels/Tending.svelte";
+  import Trace from "./panels/Trace.svelte";
+  import Walk from "./panels/Walk.svelte";
+  import type { Tracer } from "./tracing.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
   import {
@@ -15,6 +18,7 @@
     standingOf,
   } from "../lib/household";
   import type { Column, Row } from "../lib/table";
+  import type { Finder } from "../lib/finding";
   import type { Tender } from "../lib/tending";
   import type { Household, Member } from "../lib/wire";
   import * as m from "../paraglide/messages.js";
@@ -29,9 +33,16 @@
      * which leaves the screen a reading.
      */
     tender?: Tender | undefined;
+    /**
+     * What walking one thing through and searching for one item ask for.
+     * Left out where nothing answers it.
+     */
+    finder?: Finder | undefined;
+    /** Where one item is, and how to look one up. */
+    tracer?: Tracer | undefined;
   }
 
-  let { household, freshness, tender }: Props = $props();
+  let { household, freshness, tender, finder, tracer }: Props = $props();
 
   const columns: readonly Column[] = [
     { head: m.head_asked_for() },
@@ -94,6 +105,8 @@
   somebody an account and saying what the house may ask for. Under each person
   are the controls for what waits on the operator and for their own account.
 
+  Under them, adding one thing end to end, and finding where one thing is.
+
   What could not be read stands apart from what was. A record the request service
   would not give up is not one more request; it is the reason the list under it
   may be shorter than the truth.
@@ -139,6 +152,13 @@
     <Panel title={m.nav_requests()} {freshness}>
       <Skeleton width="16rem" label={m.waiting_answer()} />
     </Panel>
+  {/if}
+
+  {#if finder !== undefined}
+    <Walk {finder} {freshness} />
+    {#if tracer !== undefined}
+      <Trace {tracer} {finder} {freshness} />
+    {/if}
   {/if}
 
   {#if unread.length > 0}
