@@ -1019,5 +1019,22 @@
   "forget_kept": "Kept: {what}, at {at}. {why}",
   "forget_kept_secret": "Kept, holding a credential: {what}, at {at}. {why}",
   "forget_beside": "Beside it, and not lemonfiber's: {what}. {why}",
-  "remove_media_prose": "This removal deletes your media. Everything it takes comes to {size}."
+  "remove_media_prose": "This removal deletes your media. Everything it takes comes to {size}.",
+  "candidate_never_imported": "never put in the library",
+  "candidate_left_alone": "left alone, as you said",
+  "candidate_seeding": "still being shared, having sent {ratio} times what it received",
+  "candidate_unrecognised": "somewhere this page has no word for",
+  "candidate_size": "It takes up {size}.",
+  "letting_offered": "What letting {name} go would cost, with nothing let go yet:",
+  "letting_gone": "The download client let {name} go, which gives back {size}.",
+  "doing_let_go_title": "Letting one download go",
+  "panel_letting": "Completed downloads",
+  "letting_prose": "Every completed download the disk accounting names, what it takes up and where it stands. What letting one that is still being shared go would cost is said first, and nothing goes until you say yes under it.",
+  "letting_said": "Completed downloads",
+  "letting_none": "No completed download is on the disk.",
+  "action_let_go_cost": "What letting {name} go would cost",
+  "let_go_plan_title": "Letting {name} go",
+  "let_go_plan_prose": "Nothing has been let go. Saying yes asks the download client to let go of what the record below names, and only that: if it changed since, lemonfiber refuses.",
+  "action_let_go_yes": "Yes, let it go",
+  "letting_asked": "What letting go came to"
 }

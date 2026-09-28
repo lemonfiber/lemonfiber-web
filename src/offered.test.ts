@@ -29,6 +29,7 @@ import { everyHosting } from "./lib/hosting";
 import { everyMending } from "./lib/mending";
 import { everyPairing } from "./lib/pairing";
 import { everyRemoving } from "./lib/removing";
+import { everySeeding } from "./lib/seeding";
 import { everySharing } from "./lib/sharing";
 import { everyUpdating } from "./lib/updating";
 import { everyTending } from "./lib/tending";
@@ -210,6 +211,11 @@ const WALKED: readonly {
     named: "everyRemoving",
     by: ["src/routes/panels/Removal.svelte"],
   },
+  {
+    list: everySeeding,
+    named: "everySeeding",
+    by: ["src/routes/panels/Letting.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -246,6 +252,7 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "hosting-remove",
   "forget",
   "uninstall",
+  "stop-seeding",
 ];
 
 /**
@@ -265,7 +272,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "migrate-import": "A5",
   reset: "C9",
   space: "D5",
-  "stop-seeding": "D5",
   remove: "D6",
   setup: "A2",
   "companion-certificate": "N1",
@@ -294,8 +300,10 @@ const OFFERED_KINDS: readonly Kind[] = [
   "repair",
   "restore",
   "seed",
+  "space",
   "start",
   "status",
+  "stop-seeding",
   "stored",
   "trace",
   "undo",
@@ -350,9 +358,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   replacement: "A5",
   reset: "C9",
   "self-update": "E2",
-  space: "D5",
   step: "D3",
-  "stop-seeding": "D5",
   stuck: "C7",
   substitution: "F4",
   version: "E2",

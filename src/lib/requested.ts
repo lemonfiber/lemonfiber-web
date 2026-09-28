@@ -101,6 +101,12 @@ export type Hosting = "hosting-install" | "hosting-remove";
  */
 export type Removing = "forget" | "uninstall";
 
+/**
+ * Something the letting panel can ask for, named as the endpoint names it.
+ * What it takes and how it is asked about is in `./seeding`.
+ */
+export type Seeding = "stop-seeding";
+
 /** Anything a record can be of. */
 export type Requested =
   | Doing
@@ -114,4 +120,5 @@ export type Requested =
   | Updating
   | Finding
   | Hosting
-  | Removing;
+  | Removing
+  | Seeding;

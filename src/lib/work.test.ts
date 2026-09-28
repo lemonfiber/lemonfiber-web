@@ -3,6 +3,7 @@ import { everyMending } from "./mending";
 import { everyFinding } from "./finding";
 import { everyHosting } from "./hosting";
 import { everyRemoving } from "./removing";
+import { everySeeding } from "./seeding";
 import { everyPairing } from "./pairing";
 import { everySharing } from "./sharing";
 import { everyUpdating } from "./updating";
@@ -69,6 +70,7 @@ describe("what the console can ask for", () => {
       ...everyFinding,
       ...everyHosting,
       ...everyRemoving,
+      ...everySeeding,
     ];
     const titles = new Set(
       requested.map((doing) => titleOfDoing(doing, false)),
