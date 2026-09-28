@@ -24,6 +24,7 @@
 /// <reference types="vite/client" />
 import type { Kind } from "@lemonfiber/sdk-ts";
 import { everyMending } from "./lib/mending";
+import { everyTuning } from "./lib/tuning";
 import { everyUpkeep } from "./lib/upkeep";
 import { everyDoing } from "./lib/work";
 import declared from "../node_modules/@lemonfiber/sdk-ts/dist/index.d.mts?raw";
@@ -151,6 +152,11 @@ const WALKED: readonly {
       "src/routes/panels/Support.svelte",
     ],
   },
+  {
+    list: everyTuning,
+    named: "everyTuning",
+    by: ["src/routes/panels/Quality.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -169,6 +175,8 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "backup",
   "restore",
   "support",
+  "quality-reapply",
+  "quality-upgrade",
 ];
 
 /**
@@ -183,8 +191,6 @@ const ELSEWHERE_REQUESTS: Partial<Record<Request, string>> = {
 const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "config-set": "A4",
   "quality-set": "D2",
-  "quality-reapply": "D2",
-  "quality-upgrade": "D2",
   "migrate-adopt": "A5",
   "migrate-beside": "A5",
   "migrate-replace": "A5",
@@ -224,12 +230,14 @@ const OFFERED_KINDS: readonly Kind[] = [
   "lifecycle",
   "log",
   "preview",
+  "quality",
   "repair",
   "restore",
   "seed",
   "start",
   "status",
   "undo",
+  "upgrade",
 ];
 
 /**
@@ -275,7 +283,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   outbound: "G8",
   plugins: "F6",
   provenance: "F2",
-  quality: "D2",
   removal: "D6",
   replacement: "A5",
   reset: "C9",
@@ -289,7 +296,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   trace: "D9",
   uninstall: "A6",
   update: "E1",
-  upgrade: "D2",
   version: "E2",
   walkthrough: "D3",
   watch: "C5",

@@ -17,6 +17,7 @@
  * own and is passed through unchanged.
  */
 import type { Arguments } from "../api/acting";
+import type { Asker, Family } from "./asker";
 import type { Came, Offered } from "./came";
 import type { Mending, Question, Requested, Work } from "./work";
 import * as m from "../paraglide/messages.js";
@@ -158,25 +159,21 @@ export function standingOffer(work: readonly Work[]): Standing | undefined {
   };
 }
 
+/** How the checks screen's requests are asked for. */
+export const mending: Family<Mend> = {
+  owns: isMending,
+  question: questionOfMend,
+  given: givenForMend,
+  same: sameMend,
+};
+
 /**
  * Everything the checks screen is given to act with, and what pressing its
  * controls asks for.
  */
-export interface Mender {
-  /** What the checks screen has asked for, newest first. */
-  readonly work: readonly Work[];
-  /** The asking awaiting a yes, where one is. */
-  readonly asked: Mend | undefined;
+export interface Mender extends Asker<Mend> {
   /** The repairs chosen from the standing offer, by the check each answers. */
   readonly picked: readonly string[];
-  /** Whether a request is still in flight, which silences the controls. */
-  readonly busy: boolean;
-  /** What pressing a control asks for. */
-  readonly onask: (asking: Mend) => void;
   /** What choosing a repair, or putting it back down, asks for. */
   readonly onpick: (check: string) => void;
-  /** What answering no asks for. */
-  readonly onleave: () => void;
-  /** What putting a record away asks for. */
-  readonly ondrop: (id: string) => void;
 }

@@ -132,6 +132,12 @@
     overflow-wrap: anywhere;
   }
 
+  /* A line lemonfiber wrote across several, such as the lines of a file it
+     replaced, keeps its breaks. */
+  .lines li {
+    white-space: pre-line;
+  }
+
   /* Stacked, so the prose keeps its measure rather than being squeezed by a
      row of buttons beside it. */
   .acts {

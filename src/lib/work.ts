@@ -51,8 +51,14 @@ export type Mending = "repair" | "diagnose" | "accept" | "undo";
  */
 export type Upkeep = "backup" | "restore" | "support";
 
+/**
+ * Something the quality panel can ask for, named as the endpoint names it.
+ * What each takes and how it is asked about is in `./tuning`.
+ */
+export type Tuning = "quality-reapply" | "quality-upgrade";
+
 /** Anything a record can be of. */
-export type Requested = Doing | Mending | Upkeep;
+export type Requested = Doing | Mending | Upkeep | Tuning;
 
 /**
  * Every action there is, in the order the controls show them.
@@ -226,6 +232,10 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_restore_title();
     case "support":
       return m.doing_support_title();
+    case "quality-reapply":
+      return m.doing_reapply_title();
+    case "quality-upgrade":
+      return m.doing_upgrade_title();
     case "up":
       return scoped ? m.doing_up_chosen_title() : m.doing_up_title();
     case "down":

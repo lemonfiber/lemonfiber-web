@@ -2,6 +2,7 @@ import { API_VERSION, type ByKind, type Kind } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import { backed, described, listing } from "./archived";
 import { outcomeOf } from "./outcome";
+import { costed, reapplied } from "./qualities";
 import { ran } from "../routes/fixture";
 import { allWell } from "../routes/findings";
 import { offer, undone } from "../routes/mended";
@@ -76,15 +77,26 @@ describe("what an envelope says a piece of work came to", () => {
     });
   });
 
+  it("reads the quality choice, and what fetching the library again costs", () => {
+    expect(outcomeOf(sealed("quality", reapplied))).toStrictEqual({
+      kind: "quality",
+      report: reapplied,
+    });
+    expect(outcomeOf(sealed("upgrade", costed))).toStrictEqual({
+      kind: "upgrade",
+      report: costed,
+    });
+  });
+
   // A payload read under the wrong kind is fields with changed meanings, so
   // an envelope nothing here reads is kept as unread rather than guessed at.
   it("keeps an outcome nothing here reads as unread", () => {
     expect(
       outcomeOf(
-        sealed("quality", {
-          choices: [],
-          customised: false,
-          disposition: "reapplied",
+        sealed("reset", {
+          confirmed: false,
+          reverted: [],
+          reverted_connections: [],
         }),
       ),
     ).toStrictEqual({ kind: "unread" });

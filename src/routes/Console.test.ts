@@ -1066,10 +1066,10 @@ describe("when lemonfiber will not do what was asked", () => {
     console_({
       sending: acting({
         status: 200,
-        body: enveloped("quality", {
-          choices: [],
-          customised: false,
-          disposition: "reapplied",
+        body: enveloped("reset", {
+          confirmed: false,
+          reverted: [],
+          reverted_connections: [],
         }),
       }),
     });

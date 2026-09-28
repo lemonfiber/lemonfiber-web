@@ -90,5 +90,7 @@ export function readOf(away: Away): string {
       return "/api/storage";
     case "logs":
       return "/api/logs";
+    case "settings":
+      return "/api/quality";
   }
 }
