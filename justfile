@@ -38,8 +38,10 @@ ready:
 #
 #   commitlint, dco, attribution,   `.githooks/commit-msg` refuses all four
 #   the citation gate               before the push, and `hooks` turns it on
-#   sdk-drift                       compares this surface against the SDK's
-#                                   published contract; needs the forge
+#   sdk-drift                       compares every lemonfiber revision this
+#                                   surface pins with that repository's
+#                                   default branch and with the lockfile;
+#                                   `node scripts/pins.mjs`, over the network
 #   hygiene                         actionlint, typos, links, markdown, the
 #                                   invite check and shared-files — the last
 #                                   needs a spec checkout
