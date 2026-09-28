@@ -19,13 +19,12 @@ on:
     - cron: "0 6 * * 2"
 permissions:
   contents: read
-# A push to a pull request makes the run for the commit before it moot, so
-# that run is cancelled rather than left to finish. A run on `main` or on the
-# schedule is grouped by its own run id, so it never waits on or replaces
-# another: each is the analysis of a commit that stays.
+# A pull request pushed again cancels the run on its old head, which nobody
+# will read and which holds runners the org shares (Q-R75). Every other event
+# is grouped by its own run, so it is never cancelled and never cancels.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   analyze:
