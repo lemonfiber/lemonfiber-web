@@ -17,7 +17,7 @@ import * as m from "../paraglide/messages.js";
 /** Pairing material, and what the operator is told beside it. */
 export type Paired = ByKind["pairing"]["data"];
 
-/** The letters the short form is written in, which leave out the look-alikes. */
+/** The letters the short form is written in, which leave out letters easily taken for others. */
 const ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
 
 /**
