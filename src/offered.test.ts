@@ -24,6 +24,7 @@
 /// <reference types="vite/client" />
 import type { Kind } from "@lemonfiber/sdk-ts";
 import { everyMending } from "./lib/mending";
+import { everyUpkeep } from "./lib/upkeep";
 import { everyDoing } from "./lib/work";
 import declared from "../node_modules/@lemonfiber/sdk-ts/dist/index.d.mts?raw";
 import written from "../docs/surface-parity.md?raw";
@@ -130,17 +131,25 @@ type Request = (typeof EVERY_REQUEST)[number];
 const WALKED: readonly {
   readonly list: readonly Request[];
   readonly named: string;
-  readonly by: string;
+  readonly by: readonly string[];
 }[] = [
   {
     list: everyDoing,
     named: "everyDoing",
-    by: "src/routes/panels/Running.svelte",
+    by: ["src/routes/panels/Running.svelte"],
   },
   {
     list: everyMending,
     named: "everyMending",
-    by: "src/routes/panels/Mend.svelte",
+    by: ["src/routes/panels/Mend.svelte"],
+  },
+  {
+    list: everyUpkeep,
+    named: "everyUpkeep",
+    by: [
+      "src/routes/panels/Backups.svelte",
+      "src/routes/panels/Support.svelte",
+    ],
   },
 ];
 
@@ -157,6 +166,9 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "diagnose",
   "accept",
   "undo",
+  "backup",
+  "restore",
+  "support",
 ];
 
 /**
@@ -184,15 +196,12 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "stop-seeding": "D5",
   bandwidth: "D10",
   update: "E1",
-  backup: "E3",
   invite: "D6",
   remove: "D6",
   reissue: "D6",
   "household-allow": "D7",
   "household-approve": "D7",
   "household-decline": "D7",
-  support: "C4",
-  restore: "E3",
   watch: "C5",
   "hosting-install": "B10",
   "hosting-remove": "B10",
@@ -204,6 +213,9 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
 /** Kinds something the page imports reads. */
 const OFFERED_KINDS: readonly Kind[] = [
   "admission",
+  "archives",
+  "backup",
+  "bundle",
   "dashboard",
   "doctor",
   "forms",
@@ -213,6 +225,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "log",
   "preview",
   "repair",
+  "restore",
   "seed",
   "start",
   "status",
@@ -244,11 +257,8 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   adoption: "A5",
   alerts: "B5",
-  archives: "E3",
-  backup: "E3",
   bandwidth: "D10",
   beside: "A5",
-  bundle: "C4",
   catalogue: "F2",
   clients: "G6",
   config: "A4",
@@ -269,7 +279,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   removal: "D6",
   replacement: "A5",
   reset: "C9",
-  restore: "E3",
   "self-update": "E2",
   space: "D5",
   step: "D3",
@@ -514,11 +523,14 @@ describe("every request another surface can make", () => {
   it("is walked by a screen the console draws", () => {
     const drawn = reachedFrom("src/routes/Console.svelte");
     for (const { list, named: listed, by } of WALKED) {
-      expect(drawn).toContain(by);
-      const source = read(by);
-      const walks = new RegExp(`\\b${listed}\\b`).test(source);
+      for (const screen of by) expect(drawn).toContain(screen);
+      const sources = by.map(read);
+      const walks = sources.some((source) =>
+        new RegExp(`\\b${listed}\\b`).test(source),
+      );
       for (const request of list) {
-        expect(walks || source.includes(`"${request}"`), request).toBe(true);
+        const named = sources.some((source) => source.includes(`"${request}"`));
+        expect(walks || named, request).toBe(true);
       }
     }
   });

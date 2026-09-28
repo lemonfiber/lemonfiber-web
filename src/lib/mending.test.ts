@@ -21,6 +21,7 @@ const offered: Work = {
   id: "11",
   doing: "repair",
   scoped: false,
+  given: {},
   at: "done",
   job: "5c63e1ab7d0e9f24",
   came: { kind: "repair", report: offer },

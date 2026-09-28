@@ -7,7 +7,6 @@
   import Shell from "./Shell.svelte";
   import Storage from "./Storage.svelte";
   import type { Kind, Reading } from "@lemonfiber/sdk-ts";
-  import { acting, type Arguments } from "../api/acting";
   import {
     asked,
     carrying,
@@ -16,12 +15,8 @@
     watching,
     type Reaching,
   } from "../api/asking";
-  import {
-    BETWEEN_ASKS,
-    pausing as waiting,
-    redeeming,
-    type Pausing,
-  } from "../api/redeeming";
+  import { pausing as waiting, type Pausing } from "../api/redeeming";
+  import { errands } from "./errands";
   import type { Flow } from "../lib/flow";
   import {
     changedTheChecks,
@@ -33,6 +28,15 @@
     type Mender,
   } from "../lib/mending";
   import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
+  import type { Archives } from "../lib/kept";
+  import {
+    changedTheBackups,
+    givenForKeep,
+    isUpkeep,
+    questionOfKeep,
+    type Keep,
+    type Keeper,
+  } from "../lib/upkeep";
   import { ours, pathOf, placeAt, type Place } from "../lib/route";
   import type {
     Diagnosis,
@@ -46,11 +50,8 @@
   import {
     costly,
     givenFor,
-    recordAfter,
-    recordOf,
     type Controls,
     type Doing,
-    type Requested,
     type Work,
   } from "../lib/work";
 
@@ -98,15 +99,14 @@
   let waitingSaid = $state<string | undefined>(undefined);
   let confirming = $state<Doing | undefined>(undefined);
   let mendAsked = $state<Mend | undefined>(undefined);
+  let keepAsked = $state<Keep | undefined>(undefined);
+  let archives = $state<Reading<Archives> | undefined>(undefined);
   let picked = $state<readonly string[]>([]);
   let busy = $state(false);
   let listening = $state(false);
 
   /** What ends the listening there is, for as long as there is one. */
   let gate = new AbortController();
-
-  /** How many things this tab has asked for, which is what names each record. */
-  let counted = 0;
 
   /** Whether this screen is still being looked at. */
   let here = true;
@@ -181,9 +181,15 @@
       case "checks":
         diagnosis = noted(where, await asked(reaching, "checks", "doctor"));
         return;
-      case "storage":
-        aboutDisk = noted(where, await asked(reaching, "storage", "doctor"));
+      case "storage": {
+        const [disk, kept] = await Promise.all([
+          asked(reaching, "storage", "doctor"),
+          asked(reaching, "backups", "archives"),
+        ]);
+        aboutDisk = noted(where, disk);
+        archives = noted(where, kept);
         return;
+      }
       case "logs":
         lines = noted(where, await scrollback(reaching));
         return;
@@ -349,53 +355,17 @@
     await send(asking.doing, false, givenForMend(asking));
   }
 
-  /** Send one request, keep a record of it, and follow what it was named. */
-  async function send(
-    doing: Requested,
-    scoped: boolean,
-    given: Arguments,
-  ): Promise<void> {
-    busy = true;
-    const came = await acting(reaching, doing, given);
-    busy = false;
-
-    if (came.at === "turned-away") {
-      onrefused();
-      return;
-    }
-
-    counted += 1;
-    const id = String(counted);
-    const record = recordOf(id, doing, scoped, came);
-    work = [record, ...work];
-    if (came.at === "started") void follow(id, came.job);
-    else settled(record);
-  }
-
   /**
-   * Keep asking what became of one name until there is something to say.
-   *
-   * The asking stops when the record it belongs to is put away, and when the
-   * screen is. Neither is a reason to keep a request going, and a page nobody
-   * is looking at must not be one of the reasons lemonfiber is asked anything.
+   * Ask for a backup, a restore or a bundle, having asked about it first where
+   * nothing comes back to read before agreeing.
    */
-  async function follow(id: string, job: string): Promise<void> {
-    let came = await redeeming(reaching, job);
-    while (came.at === "running") {
-      await pausing(BETWEEN_ASKS);
-      if (!here || !kept(id)) return;
-      came = await redeeming(reaching, job);
-    }
-
-    if (came.at === "turned-away") {
-      onrefused();
+  async function keep(asking: Keep): Promise<void> {
+    if (questionOfKeep(asking) !== undefined && keepAsked === undefined) {
+      keepAsked = asking;
       return;
     }
-    const after = came;
-    work = work.map((one) =>
-      one.id === id ? recordAfter(one, job, after) : one,
-    );
-    work.filter((one) => one.id === id).forEach(settled);
+    keepAsked = undefined;
+    await send(asking.doing, false, givenForKeep(asking));
   }
 
   /**
@@ -403,7 +373,8 @@
    *
    * A run of the checks is the reading the checks screen draws, so one that
    * came back replaces it. A repair carried out or put back changes what the
-   * checks would find, so the checks are asked again.
+   * checks would find, so the checks are asked again, and a backup written
+   * changes which backups there are, so they are.
    */
   function settled(record: Work): void {
     if (record.at !== "done") return;
@@ -411,13 +382,28 @@
       diagnosis = noted("checks", { ok: true, value: record.came.report });
     } else if (changedTheChecks(record.came)) {
       void askFor("checks");
+    } else if (changedTheBackups(record.came)) {
+      void askFor("storage");
     }
   }
 
-  /** Whether the record a name was followed for is still on the screen. */
-  function kept(id: string): boolean {
-    return work.some((one) => one.id === id);
-  }
+  /** Send one request, keep a record of it, and follow what it was named. */
+  const send = errands({
+    reaching: () => reaching,
+    pausing: () => pausing,
+    onrefused: () => {
+      onrefused();
+    },
+    here: () => here,
+    records: () => work,
+    keep: (records) => {
+      work = records;
+    },
+    busy: (sending) => {
+      busy = sending;
+    },
+    settled,
+  });
 
   const mender = $derived<Mender>({
     work: work.filter((one) => isMending(one.doing)),
@@ -440,12 +426,27 @@
     },
   });
 
+  const keeper = $derived<Keeper>({
+    work: work.filter((one) => isUpkeep(one.doing)),
+    asked: keepAsked,
+    busy,
+    onask: (asking: Keep) => {
+      void keep(asking);
+    },
+    onleave: () => {
+      keepAsked = undefined;
+    },
+    ondrop: (id: string) => {
+      work = work.filter((one) => one.id !== id);
+    },
+  });
+
   const controls = $derived<Controls>({
     forms,
     chosen,
     preview,
     previewed,
-    work: work.filter((one) => !isMending(one.doing)),
+    work: work.filter((one) => !isMending(one.doing) && !isUpkeep(one.doing)),
     waiting: waitingSaid,
     confirming,
     busy,
@@ -504,8 +505,9 @@
   fixture in a story and swept for the things a browser can only be asked about
   once a whole page is assembled.
 
-  The disk is the one screen with two sources: the volume comes off the stream,
-  which is where it is measured, and the checks about it come off a reading.
+  The disk is the one screen with more than one source: the volume comes off the
+  stream, which is where it is measured, and the checks about it and the backups
+  kept on it come off readings asked for together.
 -->
 <Shell {place} ongo={go}>
   {#if place === "overview"}
@@ -520,13 +522,14 @@
       onretry={listening ? undefined : reopen}
     />
   {:else if place === "checks"}
-    <Checks {diagnosis} freshness={stamped} {mender} />
+    <Checks {diagnosis} freshness={stamped} {mender} {keeper} />
   {:else if place === "storage"}
     <Storage
       disk={moment?.storage}
       {live}
       diagnosis={aboutDisk}
       read={stamped}
+      keeping={{ keeper, archives }}
     />
   {:else if place === "logs"}
     <Logs scrollback={lines} freshness={stamped} />

@@ -266,6 +266,7 @@ describe("what came of asking", () => {
       id: "21",
       doing: "repair",
       scoped: false,
+      given: {},
       at: "declined",
       said,
     };
@@ -280,6 +281,7 @@ describe("what came of asking", () => {
       id: "22",
       doing: "diagnose",
       scoped: false,
+      given: {},
       at: "adrift",
       job: "5c63",
       said: "lemonfiber is not answering.",

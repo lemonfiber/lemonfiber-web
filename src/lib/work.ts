@@ -45,8 +45,14 @@ export type Doing =
  */
 export type Mending = "repair" | "diagnose" | "accept" | "undo";
 
+/**
+ * Something the backups and support panels can ask for, named as the endpoint
+ * names it. What each takes and how it is asked about is in `./upkeep`.
+ */
+export type Upkeep = "backup" | "restore" | "support";
+
 /** Anything a record can be of. */
-export type Requested = Doing | Mending;
+export type Requested = Doing | Mending | Upkeep;
 
 /**
  * Every action there is, in the order the controls show them.
@@ -214,6 +220,12 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_accept_title();
     case "undo":
       return m.doing_undo_title();
+    case "backup":
+      return m.doing_backup_title();
+    case "restore":
+      return m.doing_restore_title();
+    case "support":
+      return m.doing_support_title();
     case "up":
       return scoped ? m.doing_up_chosen_title() : m.doing_up_title();
     case "down":
@@ -239,6 +251,11 @@ interface Asked {
   readonly doing: Requested;
   /** Whether it named forms, which is what the record is headed by. */
   readonly scoped: boolean;
+  /**
+   * What was sent with it. A yes given under what came back sends the same
+   * again, so it is agreeing to the request that was answered.
+   */
+  readonly given: Arguments;
 }
 
 /**
@@ -291,22 +308,17 @@ export function recordOf(
   id: string,
   doing: Requested,
   scoped: boolean,
+  given: Arguments,
   came: Exclude<Acted, { at: "turned-away" }>,
 ): Work {
+  const asked = { id, doing, scoped, given };
   switch (came.at) {
     case "started":
-      return { id, doing, scoped, at: "under-way", job: came.job };
+      return { ...asked, at: "under-way", job: came.job };
     case "settled":
-      return {
-        id,
-        doing,
-        scoped,
-        at: "done",
-        job: undefined,
-        came: came.came,
-      };
+      return { ...asked, at: "done", job: undefined, came: came.came };
     case "declined":
-      return { id, doing, scoped, at: "declined", said: came.said };
+      return { ...asked, at: "declined", said: came.said };
   }
 }
 
@@ -318,16 +330,17 @@ export function recordAfter(
   job: string,
   came: Exclude<Redeemed, { at: "running" | "turned-away" }>,
 ): Work {
-  const { id, doing, scoped } = one;
+  const { id, doing, scoped, given } = one;
+  const asked = { id, doing, scoped, given };
   switch (came.at) {
     case "finished":
-      return { id, doing, scoped, at: "done", job, came: came.came };
+      return { ...asked, at: "done", job, came: came.came };
     case "stopped":
-      return { id, doing, scoped, at: "stopped", said: came.said };
+      return { ...asked, at: "stopped", said: came.said };
     case "forgotten":
-      return { id, doing, scoped, at: "forgotten", job };
+      return { ...asked, at: "forgotten", job };
     case "adrift":
-      return { id, doing, scoped, at: "adrift", job, said: came.said };
+      return { ...asked, at: "adrift", job, said: came.said };
   }
 }
 

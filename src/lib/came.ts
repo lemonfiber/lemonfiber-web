@@ -11,13 +11,22 @@
  * keeping the operator's own edits, answer with every connection attempted and
  * how each turned out. The checks answer with a run of them; a repair with what
  * it would do, or what it did; putting a repair back with what went back and
- * what did not. Anything else arrives as an outcome nobody here reads, which is
- * said rather than drawn as nothing.
+ * what did not. A backup, a restore and a support bundle are read in `./kept`.
+ * Anything else arrives as an outcome nobody here reads, which is said rather
+ * than drawn as nothing.
  *
  * The sentences lemonfiber writes into a report are its own and are passed
  * through unchanged. The words around them live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import {
+  backupLines,
+  bundleLines,
+  restoreLines,
+  type Backed,
+  type Bundled,
+  type Restored,
+} from "./kept";
 import { gradingOf } from "./verdict";
 import * as m from "../paraglide/messages.js";
 
@@ -58,6 +67,9 @@ export type Came =
   | { readonly kind: "doctor"; readonly report: Checked }
   | { readonly kind: "repair"; readonly report: Repaired }
   | { readonly kind: "undo"; readonly report: Undone }
+  | { readonly kind: "backup"; readonly report: Backed }
+  | { readonly kind: "restore"; readonly report: Restored }
+  | { readonly kind: "bundle"; readonly report: Bundled }
   | { readonly kind: "unread" };
 
 /** A service still doing what the action asked of it. */
@@ -385,6 +397,12 @@ export function linesOf(came: Came): readonly string[] {
       return repairLines(came.report);
     case "undo":
       return undoLines(came.report);
+    case "backup":
+      return backupLines(came.report);
+    case "restore":
+      return restoreLines(came.report);
+    case "bundle":
+      return bundleLines(came.report);
     case "unread":
       return [m.came_unread()];
   }
