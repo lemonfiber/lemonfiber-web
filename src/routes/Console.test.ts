@@ -1247,7 +1247,7 @@ describe("what each place is drawn from", () => {
   it("drops the stamp on the way into a place", async () => {
     console_({ sending: unanswered });
     await goTo("checks");
-    await screen.findByText(
+    await screen.findAllByText(
       m.fresh_answered({ span: m.span_seconds({ count: 0 }) }),
     );
 
@@ -1270,7 +1270,7 @@ describe("what each place is drawn from", () => {
       expect(screen.getByText(m.waiting_answer())).toBeInTheDocument();
     });
 
-    expect(screen.getByText(m.fresh_never())).toBeInTheDocument();
+    expect(screen.getAllByText(m.fresh_never()).length).toBeGreaterThan(0);
     expect(
       screen.queryByText(
         m.fresh_answered({ span: m.span_seconds({ count: 0 }) }),

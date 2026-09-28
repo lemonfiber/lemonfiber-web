@@ -23,6 +23,7 @@
  */
 /// <reference types="vite/client" />
 import type { Kind } from "@lemonfiber/sdk-ts";
+import { everyMending } from "./lib/mending";
 import { everyDoing } from "./lib/work";
 import declared from "../node_modules/@lemonfiber/sdk-ts/dist/index.d.mts?raw";
 import written from "../docs/surface-parity.md?raw";
@@ -123,7 +124,8 @@ type Request = (typeof EVERY_REQUEST)[number];
  *
  * A request is offered by being on one of these, drawn as a control on the
  * screen named. The list is imported rather than restated, so what is claimed
- * is what the screen is handed.
+ * is what the screen is handed, and the screen either walks the list by name
+ * or names each request in it.
  */
 const WALKED: readonly {
   readonly list: readonly Request[];
@@ -134,6 +136,11 @@ const WALKED: readonly {
     list: everyDoing,
     named: "everyDoing",
     by: "src/routes/panels/Running.svelte",
+  },
+  {
+    list: everyMending,
+    named: "everyMending",
+    by: "src/routes/panels/Mend.svelte",
   },
 ];
 
@@ -146,6 +153,10 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "pull",
   "seed",
   "adopt",
+  "repair",
+  "diagnose",
+  "accept",
+  "undo",
 ];
 
 /**
@@ -186,10 +197,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "hosting-install": "B10",
   "hosting-remove": "B10",
   walkthrough: "D3",
-  diagnose: "C1",
-  repair: "C3",
-  undo: "E4",
-  accept: "C1",
   search: "D9",
   setup: "A2",
 };
@@ -205,9 +212,11 @@ const OFFERED_KINDS: readonly Kind[] = [
   "lifecycle",
   "log",
   "preview",
+  "repair",
   "seed",
   "start",
   "status",
+  "undo",
 ];
 
 /**
@@ -258,7 +267,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   provenance: "F2",
   quality: "D2",
   removal: "D6",
-  repair: "C3",
   replacement: "A5",
   reset: "C9",
   restore: "E3",
@@ -270,7 +278,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   stuck: "C7",
   substitution: "F4",
   trace: "D9",
-  undo: "E4",
   uninstall: "A6",
   update: "E1",
   upgrade: "D2",
@@ -506,9 +513,13 @@ describe("every request another surface can make", () => {
 
   it("is walked by a screen the console draws", () => {
     const drawn = reachedFrom("src/routes/Console.svelte");
-    for (const { named: list, by } of WALKED) {
+    for (const { list, named: listed, by } of WALKED) {
       expect(drawn).toContain(by);
-      expect(read(by)).toMatch(new RegExp(`\\b${list}\\b`));
+      const source = read(by);
+      const walks = new RegExp(`\\b${listed}\\b`).test(source);
+      for (const request of list) {
+        expect(walks || source.includes(`"${request}"`), request).toBe(true);
+      }
     }
   });
 });

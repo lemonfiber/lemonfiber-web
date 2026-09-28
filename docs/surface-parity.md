@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 62 kinds of answer, and this console reads 13 of them.
-Another surface can make 42 requests of the stack, and this console offers 7 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 47 kinds and 34
+The client carries 62 kinds of answer, and this console reads 15 of them.
+Another surface can make 42 requests of the stack, and this console offers 11 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 45 kinds and 30
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -61,9 +61,11 @@ answers with a kind the contract did not have before.
 | `lifecycle` | what a start, stop, switch, restart or fetch came to, under its record             |
 | `log`       | the logs                                                                           |
 | `preview`   | what starting the forms chosen would come to                                       |
+| `repair`    | the checks: what can be put right, chosen from, and what putting it right came to  |
 | `seed`      | what wiring the programs, or keeping edits made by hand, came to, under its record |
 | `start`     | what a start is still waiting for, from the stream                                 |
 | `status`    | how the stack stands, and each program in it                                       |
+| `undo`      | the checks: what putting back the last repair came to                              |
 | `error`     | every refusal, read by the client and handed over as a sentence                    |
 
 ## Kinds served by no endpoint
@@ -102,7 +104,6 @@ answers with a kind the contract did not have before.
 | `provenance`   | F2      | Service catalogue: where each service comes from                                      |
 | `quality`      | D2      | Quality presets: the choice in force                                                  |
 | `removal`      | D6      | Household identity: somebody taken out of the household                               |
-| `repair`       | C3      | Auto-remediation: what could be put right                                             |
 | `replacement`  | A5      | Migration: standing in place of a setup already here                                  |
 | `reset`        | C9      | Drift: what a full reset would revert                                                 |
 | `restore`      | E3      | Backup & restore: what a restore would overwrite, or put back                         |
@@ -114,7 +115,6 @@ answers with a kind the contract did not have before.
 | `stuck`        | C7      | Queue health, asked for on its own                                                    |
 | `substitution` | F4      | Capabilities: which service fills one; lemonfiber serves no endpoint                  |
 | `trace`        | D9      | Pipeline trace: where one item is                                                     |
-| `undo`         | E4      | Rollback: what putting a run back came to                                             |
 | `uninstall`    | A6      | Uninstall: what a removal would come to                                               |
 | `update`       | E1      | Stack updates: what moving onto this build's pins would change                        |
 | `upgrade`      | D2      | Quality presets: what fetching the library again would cost                           |
@@ -131,15 +131,19 @@ them.
 
 ## Requests offered here
 
-| Request   | Where                                         |
-| --------- | --------------------------------------------- |
-| `up`      | the overview, against the forms chosen or all |
-| `down`    | the overview, against the forms chosen or all |
-| `switch`  | the overview, against the forms chosen        |
-| `restart` | the overview, against the forms chosen        |
-| `pull`    | the overview, against the forms chosen        |
-| `seed`    | the overview, for the whole stack             |
-| `adopt`   | the overview, for the whole stack             |
+| Request    | Where                                                                                              |
+| ---------- | -------------------------------------------------------------------------------------------------- |
+| `up`       | the overview, against the forms chosen or all                                                      |
+| `down`     | the overview, against the forms chosen or all                                                      |
+| `switch`   | the overview, against the forms chosen                                                             |
+| `restart`  | the overview, against the forms chosen                                                             |
+| `pull`     | the overview, against the forms chosen                                                             |
+| `seed`     | the overview, for the whole stack                                                                  |
+| `adopt`    | the overview, for the whole stack                                                                  |
+| `repair`   | the checks: the offer first, then the repairs chosen from it, named by the offer they were read in |
+| `diagnose` | the checks, after a question saying the tunnel goes away for a moment                              |
+| `accept`   | the checks, one warning at a time, after a question                                                |
+| `undo`     | the checks: the last repair, after a question                                                      |
 
 ## Requests unsuited to this surface
 
@@ -179,9 +183,5 @@ them.
 | `hosting-install`   | B10     | Hosting: keep a command running                                |
 | `hosting-remove`    | B10     | Hosting: stop keeping it                                       |
 | `walkthrough`       | D3      | First content: add one thing, end to end                       |
-| `diagnose`          | C1      | Diagnostics: the checks that disturb a running system          |
-| `repair`            | C3      | Auto-remediation: put right what a diagnosis found             |
-| `undo`              | E4      | Rollback: put back one run of changes                          |
-| `accept`            | C1      | Diagnostics: accept a warning about a deliberate choice        |
 | `search`            | D9      | Pipeline trace: follow one item with a live search             |
 | `setup`             | A2      | Setup wizard, walked in a browser                              |

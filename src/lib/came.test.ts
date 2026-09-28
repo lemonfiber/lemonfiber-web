@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { linesOf, type Lifecycle, type Seeded } from "./came";
+import {
+  linesOf,
+  type Checked,
+  type Lifecycle,
+  type Repaired,
+  type Seeded,
+  type Undone,
+} from "./came";
+import { gradingOf } from "./verdict";
+import { carried, offer, undone } from "../api/reports";
 import * as m from "../paraglide/messages.js";
+
+/** A run of the checks in which nothing was found. */
+const allWell: Checked = { overall: "healthy", findings: [] };
 
 /** A start that did what it was asked and nothing else worth saying. */
 const plain: Lifecycle = {
@@ -306,5 +318,188 @@ describe("what wiring the programs to each other came to", () => {
 describe("an outcome nothing here reads", () => {
   it("says so, rather than reading as though the work came to nothing", () => {
     expect(linesOf({ kind: "unread" })).toStrictEqual([m.came_unread()]);
+  });
+});
+
+describe("what a run of the checks came to", () => {
+  it("says the run's own grading, and where its findings are", () => {
+    expect(linesOf({ kind: "doctor", report: allWell })).toStrictEqual([
+      gradingOf("healthy").lead,
+      m.came_checks_shown(),
+    ]);
+  });
+});
+
+/** What a repair came to, with every list empty unless said otherwise. */
+const repaired = (over: Partial<Repaired>): readonly string[] =>
+  linesOf({
+    kind: "repair",
+    report: {
+      acted: true,
+      agreement: "offer-1",
+      beyond: [],
+      mended: [],
+      offered: [],
+      ...over,
+    },
+  });
+
+/** One repair carried out, turned out as given. */
+const mendedAs = (
+  outcome: Repaired["mended"][number]["outcome"],
+): Repaired["mended"][number] => ({
+  outcome,
+  repair: {
+    check: "services.health",
+    does: "Restart prowlarr.",
+    effects: [],
+    reversible: false,
+  },
+});
+
+describe("what could be put right, or what putting it right came to", () => {
+  // The offer is what is read before agreeing, so each repair in it is said
+  // with what it would do.
+  it("says each repair an offer holds, and what it would do", () => {
+    expect(linesOf({ kind: "repair", report: offer })).toStrictEqual(
+      offer.offered.map((one) =>
+        m.came_repair_offered({ check: one.check, does: one.does }),
+      ),
+    );
+  });
+
+  it("says nothing of an offer once the repairs were carried out", () => {
+    expect(repaired({ acted: true, offered: offer.offered })).toStrictEqual([
+      m.came_repair_nothing(),
+    ]);
+  });
+
+  it.each([
+    [{ outcome: "fixed" }, m.came_repair_fixed({ check: "services.health" })],
+    [
+      { outcome: "fix_failed" },
+      m.came_repair_fix_failed({ check: "services.health" }),
+    ],
+    [
+      { outcome: "stopped", leaving: "prowlarr is stopped." },
+      m.came_repair_stopped({
+        check: "services.health",
+        leaving: "prowlarr is stopped.",
+      }),
+    ],
+    [
+      { outcome: "declined" },
+      m.came_repair_declined({ check: "services.health" }),
+    ],
+    [
+      { outcome: "would_overwrite" },
+      m.came_repair_would_overwrite({ check: "services.health" }),
+    ],
+    [
+      { outcome: "unmanaged" },
+      m.came_repair_unmanaged({ check: "services.health" }),
+    ],
+  ] as const)(
+    "says what a repair that came out %j came to",
+    (outcome, words) => {
+      expect(repaired({ mended: [mendedAs(outcome)] })).toStrictEqual([words]);
+    },
+  );
+
+  // A running lemonfiber can be wider than the contract this build knows.
+  it("says so of a repair that turned out in a way it has no words for", () => {
+    const wider = {
+      outcome: "pondered",
+    } as unknown as Repaired["mended"][number]["outcome"];
+
+    expect(repaired({ mended: [mendedAs(wider)] })).toStrictEqual([
+      m.came_repair_unknown({ check: "services.health" }),
+    ]);
+  });
+
+  it("says what has been tried too often, with what is left to do", () => {
+    expect(carried.beyond).toHaveLength(1);
+    expect(linesOf({ kind: "repair", report: carried })).toContain(
+      m.came_repair_beyond({
+        check: "network.tunnel",
+        action: "Check the provider's account is still active.",
+      }),
+    );
+  });
+
+  it("says there was nothing to put right, rather than nothing at all", () => {
+    expect(repaired({ acted: false })).toStrictEqual([m.came_repair_nothing()]);
+  });
+});
+
+/** What putting back came to, with every list empty unless said otherwise. */
+const putBackAs = (over: Partial<Undone>): readonly string[] =>
+  linesOf({
+    kind: "undo",
+    report: { rehearsed: false, reversed: [], left: [], ...over },
+  });
+
+describe("what putting the last repair back came to", () => {
+  it("says what went back and what did not, in the words given", () => {
+    expect(linesOf({ kind: "undo", report: undone })).toStrictEqual([
+      m.came_undo_reversed({ target: "sonarr", does: m.came_undo_restore() }),
+      m.came_undo_left({
+        target: "radarr",
+        because: "Radarr is not answering, so nothing could be put back there.",
+      }),
+    ]);
+  });
+
+  it("says a rehearsal changed nothing", () => {
+    expect(putBackAs({ rehearsed: true })).toStrictEqual([m.came_rehearsed()]);
+  });
+
+  it("says what went back and still left something behind", () => {
+    expect(
+      putBackAs({
+        noted: [{ target: "data root", because: "The library stays moved." }],
+      }),
+    ).toStrictEqual([
+      m.came_undo_noted({
+        target: "data root",
+        because: "The library stays moved.",
+      }),
+    ]);
+  });
+
+  it.each([
+    [{ does: "remove", id: "7", resource: "indexer" }, m.came_undo_remove()],
+    [
+      { does: "restore", key: "k", value: null, wrote: "w" },
+      m.came_undo_restore(),
+    ],
+    [{ does: "delete", path: "/tmp/x" }, m.came_undo_delete()],
+    [
+      { does: "withdraw", key: "k", owner: "o", path: "p", written: 1 },
+      m.came_undo_withdraw(),
+    ],
+    [{ does: "repin", current: "2", previous: "1" }, m.came_undo_repin()],
+    [
+      {
+        does: "reconfigure",
+        field: "f",
+        id: "1",
+        resource: "r",
+        value: null,
+      },
+      m.came_undo_reconfigure(),
+    ],
+    [
+      { does: "pondered" } as unknown as Undone["reversed"][number]["action"],
+      m.came_undo_other(),
+    ],
+  ] as const)("says what putting back %j did", (action, does) => {
+    expect(
+      putBackAs({ reversed: [{ target: "sonarr", action }] }),
+    ).toStrictEqual([m.came_undo_reversed({ target: "sonarr", does })]);
+  });
+
+  it("says there was nothing to put back, rather than nothing at all", () => {
+    expect(putBackAs({})).toStrictEqual([m.came_undo_nothing()]);
   });
 });

@@ -6,16 +6,19 @@
  * and what it could not do. A record that said only "finished" would be asking
  * the operator to go and look for what the reply had already told them.
  *
- * Two outcomes are read. A start, stop, switch, restart or fetch answers with
- * what Compose ran and what the services ended up doing; wiring the programs
- * to each other, and keeping the operator's own edits, answer with every
- * connection attempted and how each turned out. Anything else arrives as an
- * outcome nobody here reads, which is said rather than drawn as nothing.
+ * A start, stop, switch, restart or fetch answers with what Compose ran and
+ * what the services ended up doing; wiring the programs to each other, and
+ * keeping the operator's own edits, answer with every connection attempted and
+ * how each turned out. The checks answer with a run of them; a repair with what
+ * it would do, or what it did; putting a repair back with what went back and
+ * what did not. Anything else arrives as an outcome nobody here reads, which is
+ * said rather than drawn as nothing.
  *
  * The sentences lemonfiber writes into a report are its own and are passed
  * through unchanged. The words around them live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { gradingOf } from "./verdict";
 import * as m from "../paraglide/messages.js";
 
 /** What a start, stop, switch, restart or fetch came to. */
@@ -30,10 +33,31 @@ type Wired = Seeded["wirings"][number];
 /** How one connection turned out, as the report names it. */
 type WiredAs = Wired["state"]["state"];
 
+/** What a run of the checks found. */
+export type Checked = ByKind["doctor"]["data"];
+
+/** What could be put right, or what putting it right came to. */
+export type Repaired = ByKind["repair"]["data"];
+
+/** One repair an offer holds: what it would do, and what else it changes. */
+export type Offered = Repaired["offered"][number];
+
+/** One repair carried out, and how the check read afterwards. */
+type Mended = Repaired["mended"][number];
+
+/** What putting back a run of changes came to. */
+export type Undone = ByKind["undo"]["data"];
+
+/** One change put back, and what putting it back did. */
+type Reversal = Undone["reversed"][number]["action"]["does"];
+
 /** What one piece of finished work came to, as far as this page reads it. */
 export type Came =
   | { readonly kind: "lifecycle"; readonly report: Lifecycle }
   | { readonly kind: "seed"; readonly report: Seeded }
+  | { readonly kind: "doctor"; readonly report: Checked }
+  | { readonly kind: "repair"; readonly report: Repaired }
+  | { readonly kind: "undo"; readonly report: Undone }
   | { readonly kind: "unread" };
 
 /** A service still doing what the action asked of it. */
@@ -255,6 +279,94 @@ function seedLines(report: Seeded): readonly string[] {
   return lines;
 }
 
+/** What one repair carried out came to, once the check was asked again. */
+function mendedLine(one: Mended): string {
+  const check = one.repair.check;
+  switch (one.outcome.outcome) {
+    case "fixed":
+      return m.came_repair_fixed({ check });
+    case "fix_failed":
+      return m.came_repair_fix_failed({ check });
+    case "stopped":
+      return m.came_repair_stopped({ check, leaving: one.outcome.leaving });
+    case "declined":
+      return m.came_repair_declined({ check });
+    case "would_overwrite":
+      return m.came_repair_would_overwrite({ check });
+    case "unmanaged":
+      return m.came_repair_unmanaged({ check });
+    default:
+      return m.came_repair_unknown({ check });
+  }
+}
+
+/**
+ * What an offer holds, or what agreeing to one came to, line by line.
+ *
+ * An offer is what was read before agreeing, so each repair in it is said with
+ * what it would do. What was carried out is said with how the check read once
+ * it was asked again, and what has been tried too often is said with what is
+ * left to the operator.
+ */
+function repairLines(report: Repaired): readonly string[] {
+  const lines: string[] = [];
+  if (!report.acted) {
+    for (const one of report.offered) {
+      lines.push(m.came_repair_offered({ check: one.check, does: one.does }));
+    }
+  }
+  for (const one of report.mended) lines.push(mendedLine(one));
+  for (const one of report.beyond) {
+    lines.push(
+      m.came_repair_beyond({ check: one.check, action: one.remedy.action }),
+    );
+  }
+  if (lines.length === 0) lines.push(m.came_repair_nothing());
+  return lines;
+}
+
+/** What putting one change back did, in a few words. */
+function reversalWords(does: Reversal): string {
+  switch (does) {
+    case "remove":
+      return m.came_undo_remove();
+    case "restore":
+      return m.came_undo_restore();
+    case "delete":
+      return m.came_undo_delete();
+    case "withdraw":
+      return m.came_undo_withdraw();
+    case "repin":
+      return m.came_undo_repin();
+    case "reconfigure":
+      return m.came_undo_reconfigure();
+    default:
+      return m.came_undo_other();
+  }
+}
+
+/** What putting a run of changes back came to, line by line. */
+function undoLines(report: Undone): readonly string[] {
+  const lines: string[] = [];
+  if (report.rehearsed) lines.push(m.came_rehearsed());
+  for (const one of report.reversed) {
+    lines.push(
+      m.came_undo_reversed({
+        target: one.target,
+        does: reversalWords(one.action.does),
+      }),
+    );
+  }
+  for (const one of report.left) {
+    lines.push(m.came_undo_left({ target: one.target, because: one.because }));
+  }
+  for (const one of report.noted ?? []) {
+    lines.push(m.came_undo_noted({ target: one.target, because: one.because }));
+  }
+  if (lines.length === 0) lines.push(m.came_undo_nothing());
+  return lines;
+}
+
 /**
  * What a record of finished work says it came to, line by line.
  *
@@ -267,6 +379,12 @@ export function linesOf(came: Came): readonly string[] {
       return lifecycleLines(came.report);
     case "seed":
       return seedLines(came.report);
+    case "doctor":
+      return [gradingOf(came.report.overall).lead, m.came_checks_shown()];
+    case "repair":
+      return repairLines(came.report);
+    case "undo":
+      return undoLines(came.report);
     case "unread":
       return [m.came_unread()];
   }

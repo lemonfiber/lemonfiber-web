@@ -46,6 +46,16 @@ const ACCEPTED = 202;
 export interface Arguments {
   /** The forms to act on. Empty means the whole stack. */
   readonly forms?: readonly string[];
+  /** Whether the checks that disturb a running stack are included. */
+  readonly disruptive?: boolean;
+  /** Whether what the action costs was agreed to. */
+  readonly confirm?: boolean;
+  /** The offer the agreement was read in, as it named itself. */
+  readonly offer?: string;
+  /** The repairs agreed to, as that offer names them. */
+  readonly agreed?: readonly string[];
+  /** The check a warning is being answered for. */
+  readonly check?: string;
 }
 
 /**
