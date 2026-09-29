@@ -98,10 +98,16 @@ function annotate(message) {
 }
 
 function git(...args) {
-  return execFileSync(GIT, args, {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  }).trim();
+  // No background maintenance: a throwaway clone that git keeps writing into
+  // after a command returns is one that cannot be removed.
+  return execFileSync(
+    GIT,
+    ["-c", "gc.auto=0", "-c", "maintenance.auto=false", ...args],
+    {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  ).trim();
 }
 
 function readJson(name) {
@@ -266,7 +272,12 @@ function compare(pin) {
     );
     return false;
   } finally {
-    rmSync(clone, { recursive: true, force: true });
+    rmSync(clone, {
+      recursive: true,
+      force: true,
+      maxRetries: 5,
+      retryDelay: 200,
+    });
   }
 }
 
