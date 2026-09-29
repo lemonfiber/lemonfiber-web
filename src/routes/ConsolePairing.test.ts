@@ -58,7 +58,7 @@ describe("pairing a phone from the settings screen", () => {
     expect(
       await within(asked()).findByText(material.written),
     ).toBeInTheDocument();
-    expect(await within(asked()).findByText(zeroesForm)).toBeInTheDocument();
+    expect(within(asked()).getByText(zeroesForm)).toBeInTheDocument();
   });
 
   // lemonfiber makes material only while the web interface is served

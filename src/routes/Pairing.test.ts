@@ -5,6 +5,7 @@ import Settings from "./Settings.svelte";
 import { made, material, pairer, zeroesForm } from "./paired";
 import type { Freshness } from "../lib/freshness";
 import type { Pairer } from "../lib/pairing";
+import type { Work } from "../lib/work";
 import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 3 };
@@ -51,15 +52,44 @@ describe("pairing a phone from the settings screen", () => {
 
   // Typed entry is checked against the short form before the phone trusts
   // this machine, so the two are shown together.
-  it("shows the line to type, and the short form to check it against", async () => {
+  it("shows the line to type, and the short form to check it against", () => {
     pairing({ work: [made] });
 
     const shown = within(asked()).getByRole("region", {
       name: m.pairing_title(),
     });
     expect(within(shown).getByText(material.written)).toBeVisible();
-    expect(await within(shown).findByText(zeroesForm)).toBeVisible();
+    expect(within(shown).getByText(zeroesForm)).toBeVisible();
     expect(within(asked()).getByText(material.replacing)).toBeVisible();
+  });
+
+  // The short form is lemonfiber's, carried with the material it belongs to,
+  // so fresher material brings its own rather than keeping the last one's.
+  it("shows the short form the newest material came with", () => {
+    const fs = "Z9JL-Q3PK-BZ6M-HRQZ";
+    const newer: Work = {
+      id: "63",
+      doing: "companion-pair",
+      scoped: false,
+      given: {},
+      at: "done",
+      job: undefined,
+      came: {
+        kind: "pairing",
+        report: {
+          ...material,
+          compare: fs,
+          material: { ...material.material, fingerprint: "f".repeat(64) },
+        },
+      },
+    };
+    pairing({ work: [newer, made] });
+
+    const shown = within(asked()).getByRole("region", {
+      name: m.pairing_title(),
+    });
+    expect(within(shown).getByText(fs)).toBeVisible();
+    expect(within(shown).queryByText(zeroesForm)).toBeNull();
   });
 
   it("shows nothing to type before any material has come back", () => {

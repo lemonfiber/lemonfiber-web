@@ -12,7 +12,7 @@ import type { Paired } from "../lib/paired";
 export const reachAt = ["https:", "", "lemonfiber.local:8443"].join("/");
 
 /** A certificate's fingerprint whose short form the spec states. */
-export const zeroes = "0".repeat(64);
+const zeroes = "0".repeat(64);
 
 /** The short form the spec states for that fingerprint. */
 export const zeroesForm = "22VK-KPHH-NKH9-TUWA";
@@ -24,6 +24,7 @@ export const replacing =
 /** Fresh pairing material, as the one line a phone reads. */
 export const material: Paired = {
   caution: null,
+  compare: zeroesForm,
   material: {
     address: reachAt,
     expires: 1_790_000_000,
