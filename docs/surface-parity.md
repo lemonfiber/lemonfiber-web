@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 64 kinds of answer, and this console reads 34 of them.
-Another surface can make 44 requests of the stack, and this console offers 33 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 28 kinds and 10
+The client carries 65 kinds of answer, and this console reads 34 of them.
+Another surface can make 45 requests of the stack, and this console offers 33 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 29 kinds and 11
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -107,6 +107,7 @@ answers with a kind the contract did not have before.
 | `credentials`  | A7      | Credential management: every credential, with no values                                                  |
 | `front-door`   | G5      | The front door, asked for on its own                                                                     |
 | `glossary`     | G2      | Plain language: every word there is to ask about                                                         |
+| `handoff`      | G9      | Mobile handoff: where getting one person's phone onto the media server stands                            |
 | `held`         | D8      | Parental controls: what one member can watch                                                             |
 | `history`      | E4      | Rollback: everything lemonfiber changed                                                                  |
 | `import`       | A5      | Migration: copying an operator's records across                                                          |
@@ -205,5 +206,6 @@ carries while it runs (`step`) are not drawn yet.
 | `reset`                 | C9      | Drift: revert every edit to lemonfiber's own state                                                             |
 | `space`                 | D5      | Disk space: take what costs nothing                                                                            |
 | `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes |
+| `household-handoff`     | G9      | Mobile handoff: issue one person a code pointing an app at the media server, and check a device signed in      |
 | `setup`                 | A2      | Setup wizard, walked in a browser                                                                              |
 | `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only       |
