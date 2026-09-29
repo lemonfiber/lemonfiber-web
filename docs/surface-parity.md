@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 64 kinds of answer, and this console reads 29 of them.
-Another surface can make 44 requests of the stack, and this console offers 28 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 33 kinds and 15
+The client carries 64 kinds of answer, and this console reads 32 of them.
+Another surface can make 44 requests of the stack, and this console offers 32 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 30 kinds and 11
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -61,6 +61,7 @@ answers with a kind the contract did not have before.
 | `dashboard`   | the overview, from the stream                                                                                                                                                |
 | `doctor`      | the checks, and the checks about the disk                                                                                                                                    |
 | `forms`       | the forms the controls act on                                                                                                                                                |
+| `hosting`     | the overview: every command this machine can keep running, what each does, the command it runs and where it stands, and what keeping one or taking it back changed           |
 | `household`   | the requests, and what running the household left it as                                                                                                                      |
 | `invitation`  | the requests: what offering somebody an account, or a new password, would make or made                                                                                       |
 | `job`         | each record of work handed to the runtime                                                                                                                                    |
@@ -74,8 +75,10 @@ answers with a kind the contract did not have before.
 | `seed`        | what wiring the programs, or keeping edits made by hand, came to, under its record                                                                                           |
 | `start`       | what a start is still waiting for, from the stream                                                                                                                           |
 | `status`      | how the stack stands, and each program in it                                                                                                                                 |
+| `stored`      | the disk: everything lemonfiber keeps, where and why, what is beside it, and what forgetting it removed or left                                                              |
 | `trace`       | the requests: how far one item got, why it stopped, how sure the trace is, and what happened to it                                                                           |
 | `undo`        | the checks: what putting back the last repair came to                                                                                                                        |
+| `uninstall`   | the disk: every line a removal reaches, going or kept, with its size, what is coming down, what lemonfiber cannot remove and how to by hand, and what went                   |
 | `update`      | the settings: every step moving onto this build's pins would take, and how each service ended once it moved                                                                  |
 | `upgrade`     | the settings: what fetching the library again would cost, and what it started                                                                                                |
 | `walkthrough` | the requests: what walking one thing through proved, every step it took, and where it stopped or what to do next                                                             |
@@ -104,7 +107,6 @@ answers with a kind the contract did not have before.
 | `glossary`     | G2      | Plain language: every word there is to ask about                                                         |
 | `held`         | D8      | Parental controls: what one member can watch                                                             |
 | `history`      | E4      | Rollback: everything lemonfiber changed                                                                  |
-| `hosting`      | B10     | Hosting: what keeps running when no terminal is open                                                     |
 | `import`       | A5      | Migration: copying an operator's records across                                                          |
 | `migration`    | A5      | Migration: what is already on this machine                                                               |
 | `music`        | D2      | Quality presets: the music format                                                                        |
@@ -118,10 +120,8 @@ answers with a kind the contract did not have before.
 | `space`        | D5      | Disk space: where the room went                                                                          |
 | `step`         | D3      | First content: one step of a walkthrough, from the stream                                                |
 | `stop-seeding` | D5      | Disk space: letting one completed download go                                                            |
-| `stored`       | A6      | Uninstall: everything lemonfiber keeps on this machine                                                   |
 | `stuck`        | C7      | Queue health, asked for on its own                                                                       |
 | `substitution` | F4      | Capabilities: which service fills one; lemonfiber serves no endpoint                                     |
-| `uninstall`    | A6      | Uninstall: what a removal would come to                                                                  |
 | `version`      | E2      | Self-update: the versions in play                                                                        |
 | `wiring`       | D1      | Auto-wiring: what is wired to what; lemonfiber serves no endpoint                                        |
 | `wizard`       | A2      | Setup: where setup stands                                                                                |
@@ -133,36 +133,40 @@ here could read them.
 
 ## Requests offered here
 
-| Request             | Where                                                                                                                      |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `up`                | the overview, against the forms chosen or all                                                                              |
-| `down`              | the overview, against the forms chosen or all                                                                              |
-| `switch`            | the overview, against the forms chosen                                                                                     |
-| `restart`           | the overview, against the forms chosen                                                                                     |
-| `pull`              | the overview, against the forms chosen                                                                                     |
-| `seed`              | the overview, for the whole stack                                                                                          |
-| `adopt`             | the overview, for the whole stack                                                                                          |
-| `repair`            | the checks: the offer first, then the repairs chosen from it, named by the offer they were read in                         |
-| `diagnose`          | the checks, after a question saying the tunnel goes away for a moment                                                      |
-| `accept`            | the checks, one warning at a time, after a question                                                                        |
-| `undo`              | the checks: the last repair, after a question                                                                              |
-| `backup`            | the disk, for the whole stack, after a question saying it writes settings and no media while the stack is stopped          |
-| `restore`           | the disk: the listing first, then the archive put back, named by the listing it was read in                                |
-| `support`           | the checks: every file a bundle would hold, read in full, then the bundle written on the terms it was read under           |
-| `quality-reapply`   | the settings, where the config was edited by hand, after a question saying the edits are lost                              |
-| `quality-upgrade`   | the settings: the cost first, then the library fetched again on a yes under it                                             |
-| `config-set`        | the settings: made at once where it costs nothing, otherwise the review first and the change on a yes under it             |
-| `invite`            | the requests: what the offer would make first, then the account offered on a yes under it, on the terms it was read on     |
-| `reissue`           | the requests, under each person, after a question saying they cannot sign in until they set a new password                 |
-| `household-allow`   | the requests: for the whole house, and under each person, a policy and a limit over a period                               |
-| `household-approve` | the requests, under each person, for each request waiting on the operator                                                  |
-| `household-decline` | the requests, under each person, for each request waiting on the operator, with the reason the person who asked is given   |
-| `companion-pair`    | the settings: fresh pairing material for the companion app, made at once, since it carries no credential and admits nobody |
-| `bandwidth`         | the settings: the limits typed, as they were typed, made at once; or the limits lifted for the minutes typed               |
-| `update`            | the settings: every step first, then the move on a yes under it, letting downloads finish first where asked                |
-| `watch`             | the overview, against the forms chosen                                                                                     |
-| `walkthrough`       | the requests: the thing named, or something likely to work, after a question saying it fetches it                          |
-| `search`            | the requests: one item followed with the indexers asked, beside looking it up without asking them                          |
+| Request             | Where                                                                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `up`                | the overview, against the forms chosen or all                                                                                          |
+| `down`              | the overview, against the forms chosen or all                                                                                          |
+| `switch`            | the overview, against the forms chosen                                                                                                 |
+| `restart`           | the overview, against the forms chosen                                                                                                 |
+| `pull`              | the overview, against the forms chosen                                                                                                 |
+| `seed`              | the overview, for the whole stack                                                                                                      |
+| `adopt`             | the overview, for the whole stack                                                                                                      |
+| `repair`            | the checks: the offer first, then the repairs chosen from it, named by the offer they were read in                                     |
+| `diagnose`          | the checks, after a question saying the tunnel goes away for a moment                                                                  |
+| `accept`            | the checks, one warning at a time, after a question                                                                                    |
+| `undo`              | the checks: the last repair, after a question                                                                                          |
+| `backup`            | the disk, for the whole stack, after a question saying it writes settings and no media while the stack is stopped                      |
+| `restore`           | the disk: the listing first, then the archive put back, named by the listing it was read in                                            |
+| `support`           | the checks: every file a bundle would hold, read in full, then the bundle written on the terms it was read under                       |
+| `quality-reapply`   | the settings, where the config was edited by hand, after a question saying the edits are lost                                          |
+| `quality-upgrade`   | the settings: the cost first, then the library fetched again on a yes under it                                                         |
+| `config-set`        | the settings: made at once where it costs nothing, otherwise the review first and the change on a yes under it                         |
+| `invite`            | the requests: what the offer would make first, then the account offered on a yes under it, on the terms it was read on                 |
+| `reissue`           | the requests, under each person, after a question saying they cannot sign in until they set a new password                             |
+| `household-allow`   | the requests: for the whole house, and under each person, a policy and a limit over a period                                           |
+| `household-approve` | the requests, under each person, for each request waiting on the operator                                                              |
+| `household-decline` | the requests, under each person, for each request waiting on the operator, with the reason the person who asked is given               |
+| `companion-pair`    | the settings: fresh pairing material for the companion app, made at once, since it carries no credential and admits nobody             |
+| `bandwidth`         | the settings: the limits typed, as they were typed, made at once; or the limits lifted for the minutes typed                           |
+| `update`            | the settings: every step first, then the move on a yes under it, letting downloads finish first where asked                            |
+| `watch`             | the overview, against the forms chosen                                                                                                 |
+| `walkthrough`       | the requests: the thing named, or something likely to work, after a question saying it fetches it                                      |
+| `search`            | the requests: one item followed with the indexers asked, beside looking it up without asking them                                      |
+| `hosting-install`   | the overview: one command kept running after a question naming what it does, the guard against the forms chosen                        |
+| `hosting-remove`    | the overview: one command taken back after a question naming what stops                                                                |
+| `forget`            | the disk: everything kept listed first, then forgotten on a yes under the listing                                                      |
+| `uninstall`         | the disk: one of four removals listed first, then carried out on a yes naming that listing, letting downloads finish first where asked |
 
 Eight of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
@@ -198,12 +202,8 @@ carries while it runs (`step`) are not drawn yet.
 | `migrate-replace`       | A5      | Migration: stand in its place                                                                                  |
 | `migrate-import`        | A5      | Migration: copy its records across                                                                             |
 | `reset`                 | C9      | Drift: revert every edit to lemonfiber's own state                                                             |
-| `forget`                | A6      | Uninstall: remove everything lemonfiber keeps                                                                  |
-| `uninstall`             | A6      | Uninstall: one of four removals                                                                                |
 | `space`                 | D5      | Disk space: take what costs nothing                                                                            |
 | `stop-seeding`          | D5      | Disk space: let one completed download go                                                                      |
 | `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes |
-| `hosting-install`       | B10     | Hosting: keep a command running                                                                                |
-| `hosting-remove`        | B10     | Hosting: stop keeping it                                                                                       |
 | `setup`                 | A2      | Setup wizard, walked in a browser                                                                              |
 | `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only       |

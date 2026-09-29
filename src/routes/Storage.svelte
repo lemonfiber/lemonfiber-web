@@ -2,10 +2,12 @@
   import Board from "./Board.svelte";
   import Backups from "./panels/Backups.svelte";
   import Findings from "./panels/Findings.svelte";
+  import Removal from "./panels/Removal.svelte";
   import Space from "./panels/Space.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
   import type { Archives } from "../lib/kept";
+  import type { Remover } from "../lib/removing";
   import type { Keeper } from "../lib/upkeep";
   import type { Diagnosis, Disk } from "../lib/wire";
   import * as m from "../paraglide/messages.js";
@@ -29,14 +31,19 @@
           readonly archives: Reading<Archives> | undefined;
         }
       | undefined;
+    /**
+     * What forgetting what lemonfiber keeps, and taking it off this machine,
+     * asks for. Left out where nothing answers it.
+     */
+    remover?: Remover | undefined;
   }
 
-  let { disk, live, diagnosis, read, keeping }: Props = $props();
+  let { disk, live, diagnosis, read, keeping, remover }: Props = $props();
 </script>
 
 <!--
-  The disk: what is left of it, everything the checks about it found, and the
-  backups kept on it.
+  The disk: what is left of it, everything the checks about it found, the
+  backups kept on it, and taking lemonfiber off it.
 
   Two sources fill this screen and neither waits for the other. The figures come
   off the live connection, which is where a volume is measured; the checks and
@@ -60,5 +67,9 @@
       archives={keeping.archives}
       freshness={read}
     />
+  {/if}
+
+  {#if remover !== undefined}
+    <Removal {remover} freshness={read} />
   {/if}
 </Board>

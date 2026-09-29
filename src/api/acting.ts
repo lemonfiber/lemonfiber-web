@@ -108,6 +108,10 @@ export interface Arguments {
   readonly term?: string;
   /** The season to narrow a search to. */
   readonly season?: number;
+  /** The long-running command to keep running, or stop keeping, by its name. */
+  readonly kept?: string;
+  /** Which of the four removals, by its name. */
+  readonly tier?: string;
 }
 
 /**

@@ -16,8 +16,9 @@
  * setting changed in `./configured`, an account offered or the household as
  * an act on it left it in `./invited`, pairing material in `./paired`, how the
  * line is shared in `./shared`, moving onto this build's pins in
- * `./updated`, and where one item is, a walk through and a guard in
- * `./traced`.
+ * `./updated`, where one item is, a walk through and a guard in
+ * `./traced`, and what this machine keeps running, what lemonfiber keeps and
+ * taking it off the machine in `./removed`.
  * Anything else arrives as an outcome nobody here reads, which is said rather
  * than drawn as nothing.
  *
@@ -46,6 +47,14 @@ import {
   type Walked,
 } from "./traced";
 import { updateLines, type Updated } from "./updated";
+import {
+  hostingLines,
+  storedLines,
+  uninstallLines,
+  type Hosted,
+  type Stored,
+  type Uninstalled,
+} from "./removed";
 import {
   householdLines,
   invitationLines,
@@ -106,6 +115,9 @@ export type Came =
   | { readonly kind: "trace"; readonly report: Traced }
   | { readonly kind: "walkthrough"; readonly report: Walked }
   | { readonly kind: "watch"; readonly report: Guarded }
+  | { readonly kind: "hosting"; readonly report: Hosted }
+  | { readonly kind: "stored"; readonly report: Stored }
+  | { readonly kind: "uninstall"; readonly report: Uninstalled }
   | { readonly kind: "unread" };
 
 /** A service still doing what the action asked of it. */
@@ -461,6 +473,12 @@ export function linesOf(came: Came): readonly string[] {
       return walkthroughLines(came.report);
     case "watch":
       return guardLines(came.report);
+    case "hosting":
+      return hostingLines(came.report);
+    case "stored":
+      return storedLines(came.report);
+    case "uninstall":
+      return uninstallLines(came.report);
     case "unread":
       return [m.came_unread()];
   }

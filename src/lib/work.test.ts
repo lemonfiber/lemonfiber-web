@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { everyMending } from "./mending";
 import { everyFinding } from "./finding";
+import { everyHosting } from "./hosting";
+import { everyRemoving } from "./removing";
 import { everyPairing } from "./pairing";
 import { everySharing } from "./sharing";
 import { everyUpdating } from "./updating";
@@ -65,6 +67,8 @@ describe("what the console can ask for", () => {
       ...everySharing,
       ...everyUpdating,
       ...everyFinding,
+      ...everyHosting,
+      ...everyRemoving,
     ];
     const titles = new Set(
       requested.map((doing) => titleOfDoing(doing, false)),
