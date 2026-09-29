@@ -15,8 +15,9 @@
  * the quality choice and fetching the library again in `./tuned`, a
  * setting changed in `./configured`, an account offered or the household as
  * an act on it left it in `./invited`, pairing material in `./paired`, how the
- * line is shared in `./shared`, and moving onto this build's pins in
- * `./updated`.
+ * line is shared in `./shared`, moving onto this build's pins in
+ * `./updated`, and where one item is, a walk through and a guard in
+ * `./traced`.
  * Anything else arrives as an outcome nobody here reads, which is said rather
  * than drawn as nothing.
  *
@@ -36,6 +37,14 @@ import { qualityLines, upgradeLines, type Tuned, type Upgraded } from "./tuned";
 import { configLines, type Configured } from "./configured";
 import { pairingLines, type Paired } from "./paired";
 import { lineLines, type Shared } from "./shared";
+import {
+  guardLines,
+  traceLines,
+  walkthroughLines,
+  type Guarded,
+  type Traced,
+  type Walked,
+} from "./traced";
 import { updateLines, type Updated } from "./updated";
 import {
   householdLines,
@@ -94,6 +103,9 @@ export type Came =
   | { readonly kind: "pairing"; readonly report: Paired }
   | { readonly kind: "bandwidth"; readonly report: Shared }
   | { readonly kind: "update"; readonly report: Updated }
+  | { readonly kind: "trace"; readonly report: Traced }
+  | { readonly kind: "walkthrough"; readonly report: Walked }
+  | { readonly kind: "watch"; readonly report: Guarded }
   | { readonly kind: "unread" };
 
 /** A service still doing what the action asked of it. */
@@ -443,6 +455,12 @@ export function linesOf(came: Came): readonly string[] {
       return lineLines(came.report);
     case "update":
       return updateLines(came.report);
+    case "trace":
+      return traceLines(came.report);
+    case "walkthrough":
+      return walkthroughLines(came.report);
+    case "watch":
+      return guardLines(came.report);
     case "unread":
       return [m.came_unread()];
   }

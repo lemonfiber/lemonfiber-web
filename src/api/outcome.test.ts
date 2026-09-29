@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { backed, described, listing } from "./archived";
 import { staged } from "./configs";
 import { offered } from "./invitations";
+import { guarded, traced, walked } from "./found";
 import { declared, plan } from "./lines";
 import { material } from "./pairings";
 import { household } from "../routes/house";
@@ -126,6 +127,21 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("update", plan))).toStrictEqual({
       kind: "update",
       report: plan,
+    });
+  });
+
+  it("reads where one item is, a walk through, and how a guard ended", () => {
+    expect(outcomeOf(sealed("trace", traced))).toStrictEqual({
+      kind: "trace",
+      report: traced,
+    });
+    expect(outcomeOf(sealed("walkthrough", walked))).toStrictEqual({
+      kind: "walkthrough",
+      report: walked,
+    });
+    expect(outcomeOf(sealed("watch", guarded))).toStrictEqual({
+      kind: "watch",
+      report: guarded,
     });
   });
 

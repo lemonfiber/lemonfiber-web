@@ -2,8 +2,8 @@
  * What the console can ask lemonfiber to do, and how the asking reads.
  *
  * An action is named the way the command line names it, so a control here is a
- * command a person could have typed. Seven are offered here, and
- * `docs/surface-parity.md` names every other one lemonfiber offers. Five are
+ * command a person could have typed. Eight are offered on the overview, and
+ * `docs/surface-parity.md` names every other one lemonfiber offers. Six are
  * about the forms the stack declares and are asked for against the ones the
  * operator chose; two are about the whole stack and take no argument at all.
  *
@@ -12,7 +12,7 @@
  * takes which is stated here as a list, because the alternative is knowing it by
  * having read the one function that builds a body.
  *
- * The operator's agreement is never sent. None of the seven takes one, and an
+ * The operator's agreement is never sent. None of the eight takes one, and an
  * agreement given to an action that takes none is an agreement about a request
  * that was never made.
  *
@@ -33,92 +33,23 @@ import type { Freshness } from "./freshness";
 import type { Forms, Preview } from "./wire";
 import * as m from "../paraglide/messages.js";
 
-/**
- * Something the console can ask for, named as the endpoint names it.
- */
-export type Doing =
-  "up" | "down" | "switch" | "restart" | "pull" | "seed" | "adopt";
+import { everyDoing, type Doing, type Requested } from "./requested";
 
-/**
- * Something the checks screen can ask for, named as the endpoint names it.
- * What each takes and how it is asked about is in `./mending`.
- */
-export type Mending = "repair" | "diagnose" | "accept" | "undo";
+export { everyDoing } from "./requested";
 
-/**
- * Something the backups and support panels can ask for, named as the endpoint
- * names it. What each takes and how it is asked about is in `./upkeep`.
- */
-export type Upkeep = "backup" | "restore" | "support";
-
-/**
- * Something the quality panel can ask for, named as the endpoint names it.
- * What each takes and how it is asked about is in `./tuning`.
- */
-export type Tuning = "quality-reapply" | "quality-upgrade";
-
-/**
- * Something the settings panel can ask for, named as the endpoint names it.
- * What it takes and how it is asked about is in `./configuring`.
- */
-export type Configuring = "config-set";
-
-/**
- * Something the household panels can ask for, named as the endpoint names it.
- * What each takes and how it is asked about is in `./tending`.
- */
-export type Tending =
-  | "invite"
-  | "reissue"
-  | "household-allow"
-  | "household-approve"
-  | "household-decline";
-
-/**
- * Something the pairing panel can ask for, named as the endpoint names it.
- * What it takes and how it is asked about is in `./pairing`.
- */
-export type Pairing = "companion-pair";
-
-/**
- * Something the line panel can ask for, named as the endpoint names it. What
- * it takes and how it is asked about is in `./sharing`.
- */
-export type Sharing = "bandwidth";
-
-/**
- * Something the updates panel can ask for, named as the endpoint names it.
- * What it takes and how it is asked about is in `./updating`.
- */
-export type Updating = "update";
-
-/** Anything a record can be of. */
-export type Requested =
-  | Doing
-  | Mending
-  | Upkeep
-  | Tuning
-  | Configuring
-  | Tending
-  | Pairing
-  | Sharing
-  | Updating;
-
-/**
- * Every action there is, in the order the controls show them.
- *
- * A screen, a story and a test all walk this one list, as they do for states
- * and severities.
- */
-export const everyDoing: readonly Doing[] = [
-  "up",
-  "down",
-  "switch",
-  "restart",
-  "pull",
-  "seed",
-  "adopt",
-];
+export type {
+  Doing,
+  Mending,
+  Upkeep,
+  Tuning,
+  Configuring,
+  Tending,
+  Pairing,
+  Sharing,
+  Updating,
+  Finding,
+  Requested,
+} from "./requested";
 
 /** Whether a record is of something the overview asked for. */
 export function isDoing(doing: Requested): doing is Doing {
@@ -140,6 +71,7 @@ export const takesForms: readonly Doing[] = [
   "switch",
   "restart",
   "pull",
+  "watch",
 ];
 
 /**
@@ -149,7 +81,12 @@ export const takesForms: readonly Doing[] = [
  * request that has lost its subject. Starting and stopping can mean everything,
  * so naming no form to either is a whole-stack request rather than a mistake.
  */
-export const namesItsForms: readonly Doing[] = ["switch", "restart", "pull"];
+export const namesItsForms: readonly Doing[] = [
+  "switch",
+  "restart",
+  "pull",
+  "watch",
+];
 
 /**
  * What to send for one action, given what the operator chose.
@@ -256,6 +193,8 @@ export function wordOfDoing(doing: Doing, scoped: boolean): string {
       return m.action_restart_chosen();
     case "pull":
       return m.action_pull_chosen();
+    case "watch":
+      return m.action_watch_chosen();
     case "seed":
       return m.action_seed();
     case "adopt":
@@ -314,6 +253,12 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_restart_title();
     case "pull":
       return m.doing_pull_title();
+    case "watch":
+      return m.doing_watch_title();
+    case "walkthrough":
+      return m.doing_walk_title();
+    case "search":
+      return m.doing_search_title();
     case "seed":
       return m.doing_seed_title();
     case "adopt":

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Requests from "./Requests.svelte";
 import { household, unasked, unread } from "./house";
 import { letThrough, madeOffer, readOffer, tender } from "./tended";
+import { finder, searchedRecord, traced, tracer, walkedRecord } from "./finds";
 
 const answered = { kind: "answered", secondsAgo: 8 } as const;
 const never = { kind: "never" } as const;
@@ -121,4 +122,15 @@ export const WhatRunningItCameTo: Story = {
  */
 export const BeforeANewPassword: Story = {
   args: { tender: { ...tender, asked: { doing: "reissue", name: "Kit" } } },
+};
+
+/**
+ * One thing walked through end to end, and where another item is, with a
+ * search for it kept as a record.
+ */
+export const FindingThings: Story = {
+  args: {
+    finder: { ...finder, work: [walkedRecord, searchedRecord] },
+    tracer: { ...tracer, reading: { ok: true, value: traced } },
+  },
 };

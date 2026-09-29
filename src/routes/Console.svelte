@@ -19,6 +19,7 @@
   import { pausing as waiting, type Pausing } from "../api/redeeming";
   import { Asked, Desk } from "./desk.svelte";
   import { Saving } from "./saving.svelte";
+  import { Tracing } from "./tracing.svelte";
   import type { Flow } from "../lib/flow";
   import {
     changedTheChecks,
@@ -31,6 +32,7 @@
   import type { Configured } from "../lib/configured";
   import { changedTheSettings, configuring } from "../lib/configuring";
   import type { Tuned } from "../lib/tuned";
+  import { finding } from "../lib/finding";
   import { pairing } from "../lib/pairing";
   import type { Shared } from "../lib/shared";
   import { changedTheLine, sharing } from "../lib/sharing";
@@ -384,12 +386,16 @@
   }
 
   /** Everything this tab has asked for, and the one way to ask. */
-  const desk = new Desk({
+  /** Where every asking goes, and what a refused key asks for. */
+  const handing = {
     reaching: () => reaching,
-    pausing: () => pausing,
     onrefused: () => {
       onrefused();
     },
+  };
+  const desk = new Desk({
+    ...handing,
+    pausing: () => pausing,
     here: () => here,
     settled,
   });
@@ -401,6 +407,7 @@
   const pairAsks = new Asked(desk, pairing);
   const shareAsks = new Asked(desk, sharing);
   const updateAsks = new Asked(desk, updating);
+  const findAsks = new Asked(desk, finding);
 
   const mender = $derived<Mender>({
     ...mendAsks.asker,
@@ -419,19 +426,12 @@
   });
 
   const keeper = $derived(keepAsks.asker);
-  const saving = new Saving({
-    reaching: () => reaching,
-    onrefused: () => {
-      onrefused();
-    },
-  });
+  const saving = new Saving(handing);
   const saver = $derived(saving.saver);
-  const tuner = $derived(tuneAsks.asker);
-  const configurer = $derived(changeAsks.asker);
+  const tracing = new Tracing(handing);
+  const tracer = $derived(tracing.tracer);
   const tender = $derived(tendAsks.asker);
-  const pairer = $derived(pairAsks.asker);
-  const sharer = $derived(shareAsks.asker);
-  const updater = $derived(updateAsks.asker);
+  const finder = $derived(findAsks.asker);
 
   const controls = $derived<Controls>({
     forms,
@@ -526,18 +526,18 @@
   {:else if place === "logs"}
     <Logs scrollback={lines} freshness={stamped} />
   {:else if place === "requests"}
-    <Requests {household} freshness={stamped} {tender} />
+    <Requests {household} freshness={stamped} {tender} {finder} {tracer} />
   {:else}
     <Settings
       {quality}
       settings={config}
       {line}
       freshness={stamped}
-      {tuner}
-      {configurer}
-      {pairer}
-      {sharer}
-      {updater}
+      tuner={tuneAsks.asker}
+      configurer={changeAsks.asker}
+      pairer={pairAsks.asker}
+      sharer={shareAsks.asker}
+      updater={updateAsks.asker}
     />
   {/if}
 </Shell>

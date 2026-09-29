@@ -35,6 +35,9 @@ function ofTheStack(envelope: Envelope<unknown>): Came | undefined {
     return { kind: "lifecycle", report: envelope.data };
   }
   if (isKind(envelope, "seed")) return { kind: "seed", report: envelope.data };
+  if (isKind(envelope, "watch")) {
+    return { kind: "watch", report: envelope.data };
+  }
   return undefined;
 }
 
@@ -80,6 +83,12 @@ function ofTheHousehold(envelope: Envelope<unknown>): Came | undefined {
   }
   if (isKind(envelope, "household")) {
     return { kind: "household", report: envelope.data };
+  }
+  if (isKind(envelope, "trace")) {
+    return { kind: "trace", report: envelope.data };
+  }
+  if (isKind(envelope, "walkthrough")) {
+    return { kind: "walkthrough", report: envelope.data };
   }
   return undefined;
 }
