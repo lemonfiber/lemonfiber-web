@@ -208,6 +208,7 @@ export function wordOfDoing(doing: Doing, scoped: boolean): string {
  * What a record of it is headed by: what was asked for, as it is happening.
  */
 export function titleOfDoing(doing: Requested, scoped: boolean): string {
+  if (isDoing(doing)) return titleOfOverview(doing, scoped);
   switch (doing) {
     case "repair":
       return m.doing_repair_title();
@@ -245,18 +246,6 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_approve_title();
     case "household-decline":
       return m.doing_decline_title();
-    case "up":
-      return scoped ? m.doing_up_chosen_title() : m.doing_up_title();
-    case "down":
-      return scoped ? m.doing_down_chosen_title() : m.doing_down_title();
-    case "switch":
-      return m.doing_switch_title();
-    case "restart":
-      return m.doing_restart_title();
-    case "pull":
-      return m.doing_pull_title();
-    case "watch":
-      return m.doing_watch_title();
     case "walkthrough":
       return m.doing_walk_title();
     case "search":
@@ -269,6 +258,24 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_forget_title();
     case "uninstall":
       return m.doing_uninstall_title();
+  }
+}
+
+/** What a record of something the overview asked for is headed by. */
+function titleOfOverview(doing: Doing, scoped: boolean): string {
+  switch (doing) {
+    case "up":
+      return scoped ? m.doing_up_chosen_title() : m.doing_up_title();
+    case "down":
+      return scoped ? m.doing_down_chosen_title() : m.doing_down_title();
+    case "switch":
+      return m.doing_switch_title();
+    case "restart":
+      return m.doing_restart_title();
+    case "pull":
+      return m.doing_pull_title();
+    case "watch":
+      return m.doing_watch_title();
     case "seed":
       return m.doing_seed_title();
     case "adopt":
