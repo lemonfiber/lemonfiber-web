@@ -75,6 +75,7 @@ type Feature =
   | "G5"
   | "G6"
   | "G8"
+  | "G9"
   | "N1";
 
 /**
@@ -116,6 +117,7 @@ const EVERY_REQUEST = [
   "household-allow",
   "household-approve",
   "household-decline",
+  "household-handoff",
   "support",
   "restore",
   "watch",
@@ -273,6 +275,7 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   reset: "C9",
   space: "D5",
   remove: "D6",
+  "household-handoff": "G9",
   setup: "A2",
   "companion-certificate": "N1",
 };
@@ -346,6 +349,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   credentials: "A7",
   "front-door": "G5",
   glossary: "G2",
+  handoff: "G9",
   held: "D8",
   history: "E4",
   import: "A5",
