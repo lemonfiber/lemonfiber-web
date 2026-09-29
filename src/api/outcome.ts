@@ -79,6 +79,9 @@ function ofWhatIsKept(envelope: Envelope<unknown>): Came | undefined {
   if (isKind(envelope, "uninstall")) {
     return { kind: "uninstall", report: envelope.data };
   }
+  if (isKind(envelope, "stop-seeding")) {
+    return { kind: "stop-seeding", report: envelope.data };
+  }
   return undefined;
 }
 

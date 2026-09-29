@@ -50,6 +50,7 @@ export type {
   Finding,
   Hosting,
   Removing,
+  Seeding,
   Requested,
 } from "./requested";
 
@@ -258,6 +259,8 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_forget_title();
     case "uninstall":
       return m.doing_uninstall_title();
+    case "stop-seeding":
+      return m.doing_let_go_title();
   }
 }
 

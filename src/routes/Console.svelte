@@ -38,6 +38,8 @@
   import { hosting } from "../lib/hosting";
   import type { Hosted } from "../lib/removed";
   import { removing } from "../lib/removing";
+  import type { Reckoned } from "../lib/letting";
+  import { lettingGo } from "../lib/seeding";
   import { placeChangedBy } from "../lib/rereading";
   import { consoleMenu, ours, pathOf, placeAt, type Place } from "../lib/route";
   import type {
@@ -91,6 +93,7 @@
   let previewedAt = $state<number | undefined>(undefined);
   let diagnosis = $state<Reading<Diagnosis> | undefined>(undefined);
   let aboutDisk = $state<Reading<Diagnosis> | undefined>(undefined);
+  let space = $state<Reading<Reckoned> | undefined>(undefined);
   let lines = $state<Reading<readonly Logged[]> | undefined>(undefined);
   let household = $state<Reading<Household> | undefined>(undefined);
   let quality = $state<Reading<Tuned> | undefined>(undefined);
@@ -185,12 +188,14 @@
         diagnosis = noted(where, await asked(reaching, "checks", "doctor"));
         return;
       case "storage": {
-        const [disk, kept] = await Promise.all([
+        const [disk, kept, reckoned] = await Promise.all([
           asked(reaching, "storage", "doctor"),
           asked(reaching, "backups", "archives"),
+          asked(reaching, "space", "space"),
         ]);
         aboutDisk = noted(where, disk);
         archives = noted(where, kept);
+        space = noted(where, reckoned);
         return;
       }
       case "logs":
@@ -399,6 +404,7 @@
   const findAsks = new Asked(desk, finding);
   const hostAsks = new Asked(desk, hosting);
   const removeAsks = new Asked(desk, removing);
+  const letAsks = new Asked(desk, lettingGo);
 
   const mender = $derived<Mender>({
     ...mendAsks.asker,
@@ -489,8 +495,9 @@
   once a whole page is assembled.
 
   The disk is the one screen with more than one source: the volume comes off the
-  stream, which is where it is measured, and the checks about it and the backups
-  kept on it come off readings asked for together.
+  stream, which is where it is measured, and the checks about it, the backups
+  kept on it and the accounting of its completed downloads come off readings
+  asked for together.
 -->
 <Shell {place} menu={consoleMenu} ongo={go}>
   {#if place === "overview"}
@@ -515,6 +522,7 @@
       read={stamped}
       keeping={{ keeper, archives }}
       remover={removeAsks.asker}
+      letting={{ letter: letAsks.asker, space }}
     />
   {:else if place === "logs"}
     <Logs scrollback={lines} freshness={stamped} />

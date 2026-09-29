@@ -4,6 +4,7 @@ import { moment, unavailable } from "./fixture";
 import { diskChecks } from "./findings";
 import { keeper, kept, readListing, tookBackup } from "./keeping";
 import { remover, storedRecord, surveyRecord } from "./removals";
+import { letter, offerRecord, reckoned } from "./lettings";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
 const never = { kind: "never" } as const;
@@ -116,4 +117,17 @@ export const WhatARemovalWouldTake: Story = {
  */
 export const WhatForgettingWouldTake: Story = {
   args: { remover: { ...remover, work: [storedRecord] } },
+};
+
+/**
+ * The completed downloads the disk accounting names, with what letting the
+ * one still being shared go would cost standing over the yes that names it.
+ */
+export const WhatLettingADownloadGoWouldCost: Story = {
+  args: {
+    letting: {
+      letter: { ...letter, work: [offerRecord] },
+      space: { ok: true, value: reckoned },
+    },
+  },
 };

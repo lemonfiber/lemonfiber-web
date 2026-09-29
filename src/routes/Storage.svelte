@@ -2,12 +2,15 @@
   import Board from "./Board.svelte";
   import Backups from "./panels/Backups.svelte";
   import Findings from "./panels/Findings.svelte";
+  import Letting from "./panels/Letting.svelte";
   import Removal from "./panels/Removal.svelte";
   import Space from "./panels/Space.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
   import type { Archives } from "../lib/kept";
+  import type { Reckoned } from "../lib/letting";
   import type { Remover } from "../lib/removing";
+  import type { Letter } from "../lib/seeding";
   import type { Keeper } from "../lib/upkeep";
   import type { Diagnosis, Disk } from "../lib/wire";
   import * as m from "../paraglide/messages.js";
@@ -36,14 +39,26 @@
      * asks for. Left out where nothing answers it.
      */
     remover?: Remover | undefined;
+    /**
+     * The completed downloads the disk accounting names, and what letting one
+     * go asks for. Left out where nothing answers it.
+     */
+    letting?:
+      | {
+          readonly letter: Letter;
+          readonly space: Reading<Reckoned> | undefined;
+        }
+      | undefined;
   }
 
-  let { disk, live, diagnosis, read, keeping, remover }: Props = $props();
+  let { disk, live, diagnosis, read, keeping, remover, letting }: Props =
+    $props();
 </script>
 
 <!--
   The disk: what is left of it, everything the checks about it found, the
-  backups kept on it, and taking lemonfiber off it.
+  backups kept on it, the completed downloads on it and letting one go, and
+  taking lemonfiber off it.
 
   Two sources fill this screen and neither waits for the other. The figures come
   off the live connection, which is where a volume is measured; the checks and
@@ -67,6 +82,10 @@
       archives={keeping.archives}
       freshness={read}
     />
+  {/if}
+
+  {#if letting !== undefined}
+    <Letting space={letting.space} letter={letting.letter} freshness={read} />
   {/if}
 
   {#if remover !== undefined}

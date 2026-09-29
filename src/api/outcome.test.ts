@@ -7,6 +7,7 @@ import { guarded, traced, walked } from "./found";
 import { declared, plan } from "./lines";
 import { material } from "./pairings";
 import { hosted, stored, surveyed } from "./removals";
+import { letOffer } from "./spaces";
 import { household } from "../routes/house";
 import { outcomeOf } from "./outcome";
 import { costed, reapplied } from "./qualities";
@@ -158,6 +159,10 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("uninstall", surveyed))).toStrictEqual({
       kind: "uninstall",
       report: surveyed,
+    });
+    expect(outcomeOf(sealed("stop-seeding", letOffer))).toStrictEqual({
+      kind: "stop-seeding",
+      report: letOffer,
     });
   });
 

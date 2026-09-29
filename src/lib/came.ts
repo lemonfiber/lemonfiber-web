@@ -17,8 +17,9 @@
  * an act on it left it in `./invited`, pairing material in `./paired`, how the
  * line is shared in `./shared`, moving onto this build's pins in
  * `./updated`, where one item is, a walk through and a guard in
- * `./traced`, and what this machine keeps running, what lemonfiber keeps and
- * taking it off the machine in `./removed`.
+ * `./traced`, what this machine keeps running, what lemonfiber keeps and
+ * taking it off the machine in `./removed`, and letting a download go in
+ * `./letting`.
  * Anything else arrives as an outcome nobody here reads, which is said rather
  * than drawn as nothing.
  *
@@ -55,6 +56,7 @@ import {
   type Stored,
   type Uninstalled,
 } from "./removed";
+import { lettingLines, type Let } from "./letting";
 import {
   householdLines,
   invitationLines,
@@ -118,6 +120,7 @@ export type Came =
   | { readonly kind: "hosting"; readonly report: Hosted }
   | { readonly kind: "stored"; readonly report: Stored }
   | { readonly kind: "uninstall"; readonly report: Uninstalled }
+  | { readonly kind: "stop-seeding"; readonly report: Let }
   | { readonly kind: "unread" };
 
 /** A service still doing what the action asked of it. */
@@ -479,6 +482,8 @@ export function linesOf(came: Came): readonly string[] {
       return storedLines(came.report);
     case "uninstall":
       return uninstallLines(came.report);
+    case "stop-seeding":
+      return lettingLines(came.report);
     case "unread":
       return [m.came_unread()];
   }

@@ -112,6 +112,8 @@ export interface Arguments {
   readonly kept?: string;
   /** Which of the four removals, by its name. */
   readonly tier?: string;
+  /** The completed download to let go, by the name the client gives it. */
+  readonly download?: string;
 }
 
 /**
