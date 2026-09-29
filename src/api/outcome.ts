@@ -12,12 +12,37 @@ import type { Came } from "../lib/came";
 
 /**
  * What one envelope says a piece of work came to.
+ *
+ * Asked of each subject's kinds in turn, so the question for any one kind is a
+ * single comparison and no list of them grows past what a reader takes in.
  */
 export function outcomeOf(envelope: Envelope<unknown>): Came {
+  return (
+    ofTheStack(envelope) ??
+    ofTheChecks(envelope) ??
+    ofWhatIsKept(envelope) ??
+    ofTheHousehold(envelope) ??
+    ofTheSettings(envelope) ?? { kind: "unread" }
+  );
+}
+
+/**
+ * Read an envelope about running the stack, or nothing where it is about
+ * something else.
+ */
+function ofTheStack(envelope: Envelope<unknown>): Came | undefined {
   if (isKind(envelope, "lifecycle")) {
     return { kind: "lifecycle", report: envelope.data };
   }
   if (isKind(envelope, "seed")) return { kind: "seed", report: envelope.data };
+  return undefined;
+}
+
+/**
+ * Read an envelope about the checks and repairs, or nothing where it is about
+ * something else.
+ */
+function ofTheChecks(envelope: Envelope<unknown>): Came | undefined {
   if (isKind(envelope, "doctor")) {
     return { kind: "doctor", report: envelope.data };
   }
@@ -25,6 +50,14 @@ export function outcomeOf(envelope: Envelope<unknown>): Came {
     return { kind: "repair", report: envelope.data };
   }
   if (isKind(envelope, "undo")) return { kind: "undo", report: envelope.data };
+  return undefined;
+}
+
+/**
+ * Read an envelope about what is kept on this machine, or nothing where it is
+ * about something else.
+ */
+function ofWhatIsKept(envelope: Envelope<unknown>): Came | undefined {
   if (isKind(envelope, "backup")) {
     return { kind: "backup", report: envelope.data };
   }
@@ -34,6 +67,28 @@ export function outcomeOf(envelope: Envelope<unknown>): Came {
   if (isKind(envelope, "bundle")) {
     return { kind: "bundle", report: envelope.data };
   }
+  return undefined;
+}
+
+/**
+ * Read an envelope about the household and what it asks for, or nothing where
+ * it is about something else.
+ */
+function ofTheHousehold(envelope: Envelope<unknown>): Came | undefined {
+  if (isKind(envelope, "invitation")) {
+    return { kind: "invitation", report: envelope.data };
+  }
+  if (isKind(envelope, "household")) {
+    return { kind: "household", report: envelope.data };
+  }
+  return undefined;
+}
+
+/**
+ * Read an envelope about the settings, or nothing where it is about something
+ * else.
+ */
+function ofTheSettings(envelope: Envelope<unknown>): Came | undefined {
   if (isKind(envelope, "quality")) {
     return { kind: "quality", report: envelope.data };
   }
@@ -43,14 +98,14 @@ export function outcomeOf(envelope: Envelope<unknown>): Came {
   if (isKind(envelope, "config")) {
     return { kind: "config", report: envelope.data };
   }
-  if (isKind(envelope, "invitation")) {
-    return { kind: "invitation", report: envelope.data };
-  }
-  if (isKind(envelope, "household")) {
-    return { kind: "household", report: envelope.data };
-  }
   if (isKind(envelope, "pairing")) {
     return { kind: "pairing", report: envelope.data };
   }
-  return { kind: "unread" };
+  if (isKind(envelope, "bandwidth")) {
+    return { kind: "bandwidth", report: envelope.data };
+  }
+  if (isKind(envelope, "update")) {
+    return { kind: "update", report: envelope.data };
+  }
+  return undefined;
 }

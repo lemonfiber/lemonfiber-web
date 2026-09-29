@@ -88,6 +88,20 @@ export interface Arguments {
   readonly request?: number;
   /** Why a request is turned down, for the person who asked. */
   readonly reason?: string;
+  /** How much of the line downloads may take, as it was typed. */
+  readonly down?: string;
+  /** How much of it uploads may take, as it was typed. */
+  readonly up?: string;
+  /** The hours the household is awake, as `HH:MM-HH:MM`. */
+  readonly active?: string;
+  /** What the line carries, as `<down>/<up>`. */
+  readonly line?: string;
+  /** A monthly allowance for what the stack itself moves. */
+  readonly cap?: string;
+  /** What happens when that cap is reached. */
+  readonly exceeded?: string;
+  /** How many minutes to lift the limits for. */
+  readonly unrestricted_for?: number;
 }
 
 /**

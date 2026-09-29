@@ -80,9 +80,29 @@ export type Tending =
  */
 export type Pairing = "companion-pair";
 
+/**
+ * Something the line panel can ask for, named as the endpoint names it. What
+ * it takes and how it is asked about is in `./sharing`.
+ */
+export type Sharing = "bandwidth";
+
+/**
+ * Something the updates panel can ask for, named as the endpoint names it.
+ * What it takes and how it is asked about is in `./updating`.
+ */
+export type Updating = "update";
+
 /** Anything a record can be of. */
 export type Requested =
-  Doing | Mending | Upkeep | Tuning | Configuring | Tending | Pairing;
+  | Doing
+  | Mending
+  | Upkeep
+  | Tuning
+  | Configuring
+  | Tending
+  | Pairing
+  | Sharing
+  | Updating;
 
 /**
  * Every action there is, in the order the controls show them.
@@ -272,6 +292,10 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_invite_title();
     case "companion-pair":
       return m.doing_pair_title();
+    case "bandwidth":
+      return m.doing_bandwidth_title();
+    case "update":
+      return m.doing_update_title();
     case "reissue":
       return m.doing_reissue_title();
     case "household-allow":

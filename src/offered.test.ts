@@ -26,6 +26,8 @@ import type { Kind } from "@lemonfiber/sdk-ts";
 import { everyConfiguring } from "./lib/configuring";
 import { everyMending } from "./lib/mending";
 import { everyPairing } from "./lib/pairing";
+import { everySharing } from "./lib/sharing";
+import { everyUpdating } from "./lib/updating";
 import { everyTending } from "./lib/tending";
 import { everyTuning } from "./lib/tuning";
 import { everyUpkeep } from "./lib/upkeep";
@@ -180,6 +182,16 @@ const WALKED: readonly {
     named: "everyPairing",
     by: ["src/routes/panels/Pairing.svelte"],
   },
+  {
+    list: everySharing,
+    named: "everySharing",
+    by: ["src/routes/panels/Line.svelte"],
+  },
+  {
+    list: everyUpdating,
+    named: "everyUpdating",
+    by: ["src/routes/panels/Updates.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -207,6 +219,8 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "household-approve",
   "household-decline",
   "companion-pair",
+  "bandwidth",
+  "update",
 ];
 
 /**
@@ -229,8 +243,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   uninstall: "A6",
   space: "D5",
   "stop-seeding": "D5",
-  bandwidth: "D10",
-  update: "E1",
   remove: "D6",
   watch: "C5",
   "hosting-install": "B10",
@@ -246,6 +258,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "admission",
   "archives",
   "backup",
+  "bandwidth",
   "bundle",
   "config",
   "dashboard",
@@ -265,6 +278,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "start",
   "status",
   "undo",
+  "update",
   "upgrade",
 ];
 
@@ -293,7 +307,6 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   adoption: "A5",
   alerts: "B5",
-  bandwidth: "D10",
   beside: "A5",
   catalogue: "F2",
   certificate: "N1",
@@ -322,7 +335,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   substitution: "F4",
   trace: "D9",
   uninstall: "A6",
-  update: "E1",
   version: "E2",
   walkthrough: "D3",
   watch: "C5",
