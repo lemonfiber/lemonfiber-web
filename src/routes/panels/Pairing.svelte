@@ -4,7 +4,6 @@
   import Panel from "../../components/Panel.svelte";
   import { linesOf } from "../../lib/came";
   import type { Freshness } from "../../lib/freshness";
-  import { comparableForm } from "../../lib/paired";
   import { standingMaterial, type Pairer } from "../../lib/pairing";
   import { readingOf, titleOfDoing } from "../../lib/work";
   import * as m from "../../paraglide/messages.js";
@@ -23,35 +22,13 @@
   /** The region a row sits in, bound as soon as the panel draws one. */
   let asked!: HTMLDivElement;
 
-  /** The short form worked out, and the fingerprint it was worked out from. */
-  let compared = $state<{ fingerprint: string; form: string } | undefined>(
-    undefined,
-  );
-
   /** Put the reader where the row they were standing in was. */
   function landing(): void {
     asked.focus();
   }
 
   const standing = $derived(standingMaterial(pairer.work));
-  const fingerprint = $derived(standing?.material.fingerprint);
-  const form = $derived(
-    compared !== undefined && compared.fingerprint === fingerprint
-      ? compared.form
-      : undefined,
-  );
   const parted = $derived(pairer.work.length > 0);
-
-  // The browser answers for the digest a moment after it is asked, so the
-  // short form lands after the material it belongs to, and is shown only while
-  // that material is still the one on the screen.
-  $effect(() => {
-    if (fingerprint === undefined) return;
-    const from = fingerprint;
-    void comparableForm(from).then((worked) => {
-      compared = { fingerprint: from, form: worked };
-    });
-  });
 </script>
 
 <!--
@@ -95,10 +72,8 @@
         <h3 id={materialId}>{m.pairing_title()}</h3>
         <p class="prose">{m.pairing_written()}</p>
         <code class="written">{standing.written}</code>
-        {#if form !== undefined}
-          <p class="prose">{m.pairing_compare()}</p>
-          <code class="form">{form}</code>
-        {/if}
+        <p class="prose">{m.pairing_compare()}</p>
+        <code class="form">{standing.compare}</code>
       </section>
     {/if}
 
