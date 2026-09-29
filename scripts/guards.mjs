@@ -11,13 +11,14 @@ const LINE_CAP = 550;
 
 /** Every file under `dir`, recursively. */
 async function walk(dir) {
-  const found = [];
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) found.push(...(await walk(path)));
-    else found.push(path);
-  }
-  return found;
+  const entries = await readdir(dir, { withFileTypes: true });
+  const found = await Promise.all(
+    entries.map((entry) => {
+      const path = join(dir, entry.name);
+      return entry.isDirectory() ? walk(path) : [path];
+    }),
+  );
+  return found.flat();
 }
 
 const failures = [];
@@ -470,9 +471,12 @@ for (const { rule, find, refuses: refused, allows } of REFUSES) {
 /** How many files drawing markup the compiler's word was read for. */
 let read = 0;
 
-for (const file of files) {
+const sources = await Promise.all(
+  files.map(async (file) => [file, await readFile(file, "utf8")]),
+);
+
+for (const [file, text] of sources) {
   const story = isStory(file);
-  const text = await readFile(file, "utf8");
   const lines = text.split("\n");
 
   lines.forEach((line, i) => {
