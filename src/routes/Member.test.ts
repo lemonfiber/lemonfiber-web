@@ -4,7 +4,7 @@ import { tick } from "svelte";
 import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Member from "./Member.svelte";
-import { enveloped, replying } from "../api/bodies";
+import { enveloped, refusedAs, replying } from "../api/bodies";
 import { kit, kitsId, kitsShelf, yours } from "./mine";
 import { household } from "./house";
 import { nameOfRoom } from "../lib/rooms";
@@ -445,6 +445,79 @@ describe("a member lemonfiber stops taking", () => {
     const { onrefused } = signedIn(
       answering(() => ({ status: 403, body: "" })),
     );
+    await waitFor(() => {
+      expect(onrefused).toHaveBeenCalledWith(m.unlock_signed_out_prose());
+    });
+  });
+});
+
+describe("a refusal that says which it is", () => {
+  // The code decides whether the session still stands; the sentence is shown
+  // where the page drew, or carried to the door where it does not.
+  it("stays signed in where the media server could not be asked, and says so where they are", async () => {
+    globalThis.history.replaceState(undefined, "", "/");
+    const { onrefused } = signedIn(
+      answering(() => ({
+        status: 403,
+        body: refusedAs("UNCONFIRMED", unconfirmed),
+      })),
+    );
+
+    expect(await screen.findByText(unconfirmed)).toBeInTheDocument();
+    expect(onrefused).not.toHaveBeenCalled();
+  });
+
+  it("stays signed in where the shelf is not theirs, and says so on the shelf", async () => {
+    globalThis.history.replaceState(undefined, "", "/held");
+    const { onrefused } = signedIn(
+      answering((url) =>
+        url.pathname === "/api/held"
+          ? { status: 403, body: refusedAs("NOT_YOURS", notYours) }
+          : answers()(url),
+      ),
+    );
+
+    expect(await screen.findByText(notYours)).toBeInTheDocument();
+    expect(onrefused).not.toHaveBeenCalled();
+  });
+
+  it("says on the shelf what lemonfiber said of the media server, and stays", async () => {
+    globalThis.history.replaceState(undefined, "", "/held");
+    const { onrefused } = signedIn(
+      answering(() => ({
+        status: 403,
+        body: refusedAs("UNCONFIRMED", unconfirmed),
+      })),
+    );
+
+    expect(await screen.findAllByText(unconfirmed)).not.toHaveLength(0);
+    expect(onrefused).not.toHaveBeenCalled();
+  });
+
+  it("shows an address that is not theirs in lemonfiber's words, and stays", async () => {
+    globalThis.history.replaceState(undefined, "", "/logs");
+    const { onrefused } = signedIn(
+      answering((url) =>
+        url.pathname === "/api/logs"
+          ? { status: 403, body: refusedAs("NOT_YOURS", notYours) }
+          : answers()(url),
+      ),
+    );
+
+    expect(await screen.findByText(notYours)).toBeInTheDocument();
+    expect(screen.getByText(m.member_away_lead())).toBeInTheDocument();
+    expect(onrefused).not.toHaveBeenCalled();
+  });
+
+  it("signs out a session no longer admitted, in the page's own words", async () => {
+    globalThis.history.replaceState(undefined, "", "/");
+    const { onrefused } = signedIn(
+      answering(() => ({
+        status: 403,
+        body: refusedAs("NOT_ADMITTED", nobody),
+      })),
+    );
+
     await waitFor(() => {
       expect(onrefused).toHaveBeenCalledWith(m.unlock_signed_out_prose());
     });

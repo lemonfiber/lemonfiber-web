@@ -25,7 +25,7 @@
 <Board>
   {#if answer === undefined}
     <Skeleton width="16rem" label={m.waiting_answer()} />
-  {:else if answer.at === "refused"}
+  {:else if answer.at === "refused" || answer.at === "declined"}
     <Banner
       tone="watch"
       lead={m.member_away_lead()}
