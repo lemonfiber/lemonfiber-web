@@ -56,8 +56,14 @@
   /** How many askings this screen has made, which is what tells the latest. */
   let asking = 0;
 
-  /** Whether the latest asking about them went unanswered. */
-  const quiet = $derived(own?.at === "unanswered");
+  /**
+   * Whether the latest asking about them went unanswered, or was refused with the
+   * session still standing — both are drawn in place, with a way to ask again.
+   */
+  const quiet = $derived(own?.at === "unanswered" || own?.at === "declined");
+
+  /** What lemonfiber said when it declined the latest asking, where it did. */
+  const declined = $derived(own?.at === "declined" ? own.said : undefined);
 
   /**
    * When what they asked for was last answered: answered, or quiet since then
@@ -232,6 +238,7 @@
       household={kept}
       freshness={asked}
       {quiet}
+      said={declined}
       onretry={() => {
         void ask(where);
       }}

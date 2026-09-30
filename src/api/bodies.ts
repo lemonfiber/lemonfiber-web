@@ -22,7 +22,13 @@
  * the same reading, and four copies of what an envelope looks like is four
  * places for one to stop looking like it.
  */
-import { API_VERSION, type ByKind, type Kind } from "@lemonfiber/sdk-ts";
+import {
+  API_VERSION,
+  REFUSAL_CODES,
+  type ByKind,
+  type Kind,
+  type RefusalCode,
+} from "@lemonfiber/sdk-ts";
 
 /** One envelope, rendered as the server renders it. */
 export function enveloped<K extends Kind>(
@@ -47,6 +53,25 @@ export function failure(summary: string): ByKind["error"]["data"] {
     severity: "error",
     state: "actionable",
   };
+}
+
+/**
+ * The code the contract lists under a registry name.
+ *
+ * Found by name so no code is written here, the way the readers find the ones
+ * they branch on; a name the contract does not list fails the suite at once.
+ */
+export function codeNamed(name: string): RefusalCode {
+  const found = (Object.keys(REFUSAL_CODES) as RefusalCode[]).find(
+    (code) => REFUSAL_CODES[code].name === name,
+  );
+  if (found === undefined) throw new Error(`the contract lists no ${name}`);
+  return found;
+}
+
+/** A refusal of who is asking, carrying the code a registry name is listed under. */
+export function refusedAs(name: string, summary: string): string {
+  return enveloped("error", { ...failure(summary), code: codeNamed(name) });
 }
 
 /** One reply, as a transport hands it over. */

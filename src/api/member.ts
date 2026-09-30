@@ -1,14 +1,16 @@
 /**
  * What a household member asks lemonfiber, and what comes back.
  *
- * lemonfiber answers a member's refusal in words that say which of three things
- * it is — this is not something this account may ask for, this carried nothing
- * this run admits, or this account could not be checked with the media server —
- * and all three arrive under the same status. The client package reads every
- * refusal under that status as the one about the key and keeps none of the
- * words, which is the right reading for the operator's console and loses the
- * whole of what a member is owed. So a member's reads keep the sentence, and the
- * screen shows it as lemonfiber said it.
+ * lemonfiber refuses a member's read for one of several reasons, and the code it
+ * refuses with says which. Two leave the session standing: this is not something
+ * this account may ask for, and this account could not be checked with the media
+ * server. Those are drawn where the page was, in lemonfiber's words, and asking
+ * again is the way on. Every other refusal of who is asking — the session is no
+ * longer admitted, or the page reached lemonfiber somewhere it is not listening —
+ * puts the page away and sends the member back to the door.
+ *
+ * A refusal carrying no code this page knows is read as the session no longer
+ * standing, keeping lemonfiber's sentence where the body is one.
  *
  * Everything else about a read is the client package's: the address it checked,
  * the header the key travels in, the envelope and its wire version, and what a
@@ -18,10 +20,12 @@ import {
   isKind,
   malformed,
   parse,
+  REFUSAL_CODES,
   refusalIn,
   type ByKind,
   type Kind,
   type Problem,
+  type RefusalCode,
 } from "@lemonfiber/sdk-ts";
 import type { Reaching } from "./asking";
 import { reached, succeeded } from "./reached";
@@ -38,6 +42,19 @@ const TURNED_AWAY: ReadonlySet<number> = new Set([401, 403]);
 /** What opens a document rather than a sentence. */
 const OPENS_A_STRUCTURE = /^[<[{]/;
 
+/**
+ * The refusals that leave the session standing, by the names the contract lists
+ * their codes under.
+ *
+ * By name rather than by code, so no code is written here: the contract's own
+ * list says which code each name is. A refusal named anything else puts the page
+ * away, which is the safe direction for one this page has not been told about.
+ */
+const LEAVES_THE_SESSION: ReadonlySet<string> = new Set([
+  "NOT_YOURS",
+  "UNCONFIRMED",
+]);
+
 /** What one read came to. */
 export type Answer<T> =
   /** Answered, with the payload the kind it named carries. */
@@ -47,6 +64,11 @@ export type Answer<T> =
    * where the body held none, which a proxy in front of it may answer with.
    */
   | { readonly at: "refused"; readonly said: string | undefined }
+  /**
+   * Refused, and the session still stands: what was asked is not this member's,
+   * or the media server could not say who they are. lemonfiber's own sentence.
+   */
+  | { readonly at: "declined"; readonly said: string }
   /** Not answered, and why, in the client package's words. */
   | { readonly at: "unanswered"; readonly problem: Problem };
 
@@ -74,7 +96,7 @@ export async function knocked(
   const answer = await reached(reaching, path, { method: "GET" });
   if (!answer.ok) return { at: "unanswered", problem: answer.problem };
   if (TURNED_AWAY.has(answer.status))
-    return { at: "refused", said: sentenceIn(answer.said) };
+    return turnedAway(answer.status, answer.said);
   if (!succeeded(answer.status)) {
     return {
       at: "unanswered",
@@ -101,6 +123,30 @@ export async function heard<K extends Kind>(
     return { at: "unanswered", problem: malformed() };
 
   return { at: "answered", value: read.value.data };
+}
+
+/**
+ * What a refusal of who is asking comes to: declined where the session still
+ * stands, and refused where it does not.
+ *
+ * The client package reads the code. A code it lists comes back declined with
+ * lemonfiber's sentence; the one that is the key, and a refusal with no code it
+ * lists, comes back refused, and then the sentence is whatever the body says
+ * where the body is a sentence.
+ */
+function turnedAway(status: number, body: string): Answer<never> {
+  const problem = refusalIn(status, body);
+  if (problem.kind !== "declined") {
+    return { at: "refused", said: sentenceIn(body) };
+  }
+  return leavesTheSession(problem.code)
+    ? { at: "declined", said: problem.message }
+    : { at: "refused", said: problem.message };
+}
+
+/** Whether a refusal with this code leaves the session standing. */
+function leavesTheSession(code: RefusalCode | undefined): boolean {
+  return code !== undefined && LEAVES_THE_SESSION.has(REFUSAL_CODES[code].name);
 }
 
 /**

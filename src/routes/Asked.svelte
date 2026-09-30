@@ -25,11 +25,16 @@
     freshness: Freshness;
     /** Whether the latest asking went unanswered. */
     quiet: boolean;
+    /**
+     * What lemonfiber said when it declined the asking with the session still
+     * standing, drawn in place of the words for a silence.
+     */
+    said?: string | undefined;
     /** What asking again asks for. Left out where nothing answers it. */
     onretry?: (() => void) | undefined;
   }
 
-  let { household, freshness, quiet, onretry }: Props = $props();
+  let { household, freshness, quiet, said, onretry }: Props = $props();
 
   const columns: readonly Column[] = [
     { head: m.head_asked_for() },
@@ -106,9 +111,10 @@
     <Banner
       tone="watch"
       lead={m.member_unanswered_lead()}
-      prose={household === undefined
-        ? m.member_asking_declined()
-        : m.member_unanswered_prose()}
+      prose={said ??
+        (household === undefined
+          ? m.member_asking_declined()
+          : m.member_unanswered_prose())}
       actions={onretry === undefined ? undefined : retry}
     />
   {/if}

@@ -10,6 +10,8 @@ import type { Reaching } from "./asking";
 import {
   enveloped,
   failure,
+  codeNamed,
+  refusedAs,
   notFromLemonfiber,
   proxyPage,
   replying,
@@ -207,5 +209,55 @@ describe("the shelf", () => {
       "held",
     );
     expect(came).toEqual({ at: "answered", value: kitsShelf });
+  });
+
+  // Since lemonfiber says which refusal it is, the code decides whether the
+  // session still stands, and the sentence is only ever shown.
+  it.each([
+    ["NOT_YOURS", notYours],
+    [
+      "UNCONFIRMED",
+      "This account could not be checked with the media server, so nobody was identified. Nothing about the account has changed.",
+    ],
+  ])(
+    "reads a refusal coded %s as declined, the session still standing",
+    async (name, said) => {
+      const came = await heard(
+        reaching(saying(403, refusedAs(name, said))),
+        REQUESTS,
+        "household",
+      );
+      expect(came).toEqual({ at: "declined", said });
+    },
+  );
+
+  it("reads a refusal from somewhere lemonfiber is not listening as turned away, in its words", async () => {
+    const said = "This request said it came from somewhere this server is not.";
+    const came = await knocked(
+      reaching(saying(403, refusedAs("ELSEWHERE", said))),
+      "/api/logs",
+    );
+    expect(came).toEqual({ at: "refused", said });
+  });
+
+  it("reads a session no longer admitted as turned away, keeping no document as words", async () => {
+    const came = await heard(
+      reaching(
+        saying(
+          403,
+          refusedAs(
+            "NOT_ADMITTED",
+            "This request carried no token or session this run admits.",
+          ),
+        ),
+      ),
+      REQUESTS,
+      "household",
+    );
+    expect(came).toEqual({ at: "refused", said: undefined });
+  });
+
+  it("stands in for no refusal the contract does not list", () => {
+    expect(() => codeNamed("NOT_A_REFUSAL")).toThrow("NOT_A_REFUSAL");
   });
 });

@@ -85,7 +85,12 @@
     {:else if access === undefined}
       <Skeleton width="16rem" label={m.waiting_answer()} />
     {:else}
-      <Value state="unknown" absent={m.member_watch_unread()} />
+      <Value
+        state="unknown"
+        absent={access.at === "declined"
+          ? access.said
+          : m.member_watch_unread()}
+      />
     {/if}
   </Panel>
 
@@ -105,7 +110,10 @@
     {:else if shelf === undefined}
       <Skeleton width="16rem" label={m.waiting_answer()} />
     {:else}
-      <Value state="unknown" absent={m.member_shelf_unread()} />
+      <Value
+        state="unknown"
+        absent={shelf.at === "declined" ? shelf.said : m.member_shelf_unread()}
+      />
     {/if}
   </Panel>
 </Board>
