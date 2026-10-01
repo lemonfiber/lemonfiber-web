@@ -44,7 +44,8 @@ const admitting: Sending = (url) =>
 const refusing: Sending = () =>
   Promise.resolve({ ok: false, status: 401, text: () => Promise.resolve("") });
 
-const silent: Fetching = () => Promise.resolve({ ok: false, body: null });
+const silent: Fetching = () =>
+  Promise.resolve({ ok: false, status: 500, body: null });
 
 const app = (sending: Sending = answering): void => {
   render(App, {

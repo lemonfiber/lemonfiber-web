@@ -29,7 +29,7 @@ describe("the transport", () => {
   });
 
   it("hands one held-open request over the same way", async () => {
-    const answer = { ok: true, body: null };
+    const answer = { ok: true, status: 200, body: null };
     const asked = vi.fn(() => Promise.resolve(answer));
     vi.stubGlobal("fetch", asked);
 

@@ -33,7 +33,8 @@ const enveloped = <K extends Kind>(kind: K, data: ByKind[K]["data"]): string =>
   JSON.stringify({ api_version: API_VERSION, kind, data });
 
 /** The stream is never opened in these, so nothing needs to answer it. */
-const silent: Fetching = () => Promise.resolve({ ok: false, body: null });
+const silent: Fetching = () =>
+  Promise.resolve({ ok: false, status: 500, body: null });
 
 /** One reply, as a transport hands it over, or no reply at all. */
 type Says = { readonly status: number; readonly body: string } | "unreachable";

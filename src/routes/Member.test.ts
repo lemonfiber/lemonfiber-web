@@ -52,7 +52,7 @@ const answers =
 
 /** The stream is refused a member, and nothing here opens it. */
 const fetching: Fetching = vi.fn(() =>
-  Promise.resolve({ ok: false, body: null }),
+  Promise.resolve({ ok: false, status: 500, body: null }),
 );
 
 function signedIn(sending: Sending): { onrefused: ReturnType<typeof vi.fn> } {

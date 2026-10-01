@@ -9,7 +9,8 @@ const key = ["a", "run", "key"].join("-");
 const here = "http://127.0.0.1:7777";
 
 /** The stream is never opened from here, so nothing needs to answer it. */
-const fetching: Fetching = () => Promise.resolve({ ok: true, body: null });
+const fetching: Fetching = () =>
+  Promise.resolve({ ok: true, status: 200, body: null });
 
 /** Whatever this reply is, said as the transport hands it over. */
 const saying = (status: number, body = ""): Sending =>

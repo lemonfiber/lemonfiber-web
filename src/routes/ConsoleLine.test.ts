@@ -23,7 +23,8 @@ import * as m from "../paraglide/messages.js";
 const bandwidth = "/api/bandwidth";
 
 /** The stream is never opened in these, so nothing needs to answer it. */
-const silent: Fetching = () => Promise.resolve({ ok: false, body: null });
+const silent: Fetching = () =>
+  Promise.resolve({ ok: false, status: 500, body: null });
 
 /** The settings screen, against a stack whose line and updates answer as told. */
 function settling(

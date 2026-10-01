@@ -22,7 +22,8 @@ import * as m from "../paraglide/messages.js";
 const trace = "/api/trace";
 
 /** The stream is never opened in these, so nothing needs to answer it. */
-const silent: Fetching = () => Promise.resolve({ ok: false, body: null });
+const silent: Fetching = () =>
+  Promise.resolve({ ok: false, status: 500, body: null });
 
 /** The requests screen, against a stack whose finding answers as it is told. */
 function seeking(
