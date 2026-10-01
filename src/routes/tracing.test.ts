@@ -23,7 +23,7 @@ function tracing(sending: Sending, onrefused = vi.fn()): Tracing {
       at: here,
       token: key,
       sending,
-      fetching: () => Promise.resolve({ ok: false, body: null }),
+      fetching: () => Promise.resolve({ ok: false, status: 500, body: null }),
     }),
     onrefused,
   });

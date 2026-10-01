@@ -17,7 +17,8 @@ import { inForce } from "../api/qualities";
 import * as m from "../paraglide/messages.js";
 
 /** The stream is never opened in these, so nothing needs to answer it. */
-const silent: Fetching = () => Promise.resolve({ ok: false, body: null });
+const silent: Fetching = () =>
+  Promise.resolve({ ok: false, status: 500, body: null });
 
 /** The settings screen, against a stack that answers pairing as it is told. */
 function opening(asked: Asked, pairing: readonly Says[]): void {

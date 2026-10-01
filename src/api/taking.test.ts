@@ -15,7 +15,8 @@ const path = "/home/ada/.local/share/lemonfiber/support/bundle-0928.tar.gz";
 const elsewhere = ["http:", "", "example.test"].join("/");
 
 /** The stream is never opened here, so nothing needs to answer it. */
-const silent: Fetching = () => Promise.resolve({ ok: false, body: null });
+const silent: Fetching = () =>
+  Promise.resolve({ ok: false, status: 500, body: null });
 
 /** A stack that answers every request the one way, and notes where it was asked. */
 function answering(

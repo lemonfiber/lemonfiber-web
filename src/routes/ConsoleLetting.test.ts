@@ -22,7 +22,8 @@ import * as m from "../paraglide/messages.js";
 const space = "/api/space";
 
 /** The stream is never opened in these, so nothing needs to answer it. */
-const silent: Fetching = () => Promise.resolve({ ok: false, body: null });
+const silent: Fetching = () =>
+  Promise.resolve({ ok: false, status: 500, body: null });
 
 /** The disk screen, against a stack whose letting go answers as it is told. */
 function letting(

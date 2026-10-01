@@ -25,6 +25,7 @@ const streaming = (said: readonly string[]): Fetching => {
   return () =>
     Promise.resolve({
       ok: true,
+      status: 200,
       body: new ReadableStream<Uint8Array>({
         start(controller) {
           const bytes = new TextEncoder();

@@ -29,7 +29,8 @@ import * as m from "../paraglide/messages.js";
 const hosting = "/api/hosting";
 
 /** The stream is never opened in these, so nothing needs to answer it. */
-const silent: Fetching = () => Promise.resolve({ ok: false, body: null });
+const silent: Fetching = () =>
+  Promise.resolve({ ok: false, status: 500, body: null });
 
 /** One screen, against a stack whose removals answer as it is told. */
 function opened(

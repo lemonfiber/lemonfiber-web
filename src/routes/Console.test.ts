@@ -107,10 +107,11 @@ const framed = <K extends Kind>(kind: K, data: ByKind[K]["data"]): string =>
 function saying(said: readonly string[]): Fetching {
   let opened = false;
   return () => {
-    if (opened) return Promise.resolve({ ok: false, body: null });
+    if (opened) return Promise.resolve({ ok: false, status: 500, body: null });
     opened = true;
     return Promise.resolve({
       ok: true,
+      status: 200,
       body: new ReadableStream<Uint8Array>({
         start(controller) {
           const bytes = new TextEncoder();
@@ -123,13 +124,14 @@ function saying(said: readonly string[]): Fetching {
 }
 
 /** A stream that will not open at all. */
-const silent: Fetching = () => Promise.resolve({ ok: false, body: null });
+const silent: Fetching = () =>
+  Promise.resolve({ ok: false, status: 500, body: null });
 
 /** A stream that will not open at all, counting every asking. */
 function refused(openings: { count: number }): Fetching {
   return () => {
     openings.count += 1;
-    return Promise.resolve({ ok: false, body: null });
+    return Promise.resolve({ ok: false, status: 500, body: null });
   };
 }
 
@@ -138,6 +140,7 @@ function holding(said: readonly string[]): Fetching {
   return () =>
     Promise.resolve({
       ok: true,
+      status: 200,
       body: new ReadableStream<Uint8Array>({
         start(controller) {
           const bytes = new TextEncoder();
@@ -152,9 +155,11 @@ function openingLater(said: readonly string[]): Fetching {
   let asked = 0;
   return () => {
     asked += 1;
-    if (asked === 1) return Promise.resolve({ ok: false, body: null });
+    if (asked === 1)
+      return Promise.resolve({ ok: false, status: 500, body: null });
     return Promise.resolve({
       ok: true,
+      status: 200,
       body: new ReadableStream<Uint8Array>({
         start(controller) {
           const bytes = new TextEncoder();
@@ -182,6 +187,7 @@ function opening(
         openings.count += 1;
         resolve({
           ok: true,
+          status: 200,
           body: new ReadableStream<Uint8Array>({
             start(controller) {
               const bytes = new TextEncoder();
