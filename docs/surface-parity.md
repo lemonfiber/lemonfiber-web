@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 65 kinds of answer, and this console reads 34 of them.
+The client carries 67 kinds of answer, and this console reads 34 of them.
 Another surface can make 45 requests of the stack, and this console offers 33 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 29 kinds and 11
+them. 2 kinds and 1 request are offered elsewhere by rule, and 31 kinds and 11
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -113,6 +113,8 @@ answers with a kind the contract did not have before.
 | `import`       | A5      | Migration: copying an operator's records across                                                          |
 | `migration`    | A5      | Migration: what is already on this machine                                                               |
 | `music`        | D2      | Quality presets: the music format                                                                        |
+| `news`         | N27     | What's new: the newest of each kind, from the stream                                                     |
+| `news-items`   | N27     | What's new: everything newer than what was last seen, asked for                                          |
 | `outbound`     | G8      | Privacy: everything that leaves this machine                                                             |
 | `plugins`      | F6      | Plugin lifecycle; lemonfiber serves no endpoint for it                                                   |
 | `provenance`   | F2      | Service catalogue: where each service comes from                                                         |
