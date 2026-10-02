@@ -76,7 +76,8 @@ type Feature =
   | "G6"
   | "G8"
   | "G9"
-  | "N1";
+  | "N1"
+  | "N27";
 
 /**
  * Every request another surface can make of the stack.
@@ -355,6 +356,8 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   import: "A5",
   migration: "A5",
   music: "D2",
+  news: "N27",
+  "news-items": "N27",
   outbound: "G8",
   plugins: "F6",
   provenance: "F2",

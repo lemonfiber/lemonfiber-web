@@ -191,6 +191,7 @@ export const moment: Moment = {
         summary: "Prowlarr is not answering its health check.",
         meaning:
           "Nothing new is being found, and anything waiting on a search stays where it is.",
+        onset: "1787650862",
         remedies: [
           "Read what it said for itself, then start it again.",
           "Check that nothing else holds the port it binds to.",
@@ -203,6 +204,7 @@ export const moment: Moment = {
         summary: "Less than a tenth of the data volume is free.",
         meaning:
           "A download large enough to fill the rest will fail partway and leave what it wrote.",
+        onset: "1787564462",
         remedies: [],
         downstream: [],
       },
