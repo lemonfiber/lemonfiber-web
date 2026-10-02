@@ -73,7 +73,10 @@ describe("the checks about the disk", () => {
 
   it("says plainly where no check about the disk has reported in", () => {
     disk({
-      diagnosis: { ok: true, value: { overall: "unknown", findings: [] } },
+      diagnosis: {
+        ok: true,
+        value: { rehearsed: false, overall: "unknown", findings: [] },
+      },
     });
     expect(
       screen.getByRole("region", { name: m.panel_disk_findings() }),

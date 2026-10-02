@@ -40,7 +40,7 @@ export const NobodyHasAskedForAnything: Story = {
   args: {
     household: {
       ok: true,
-      value: { available: true, findings: [], members: [] },
+      value: { rehearsed: false, available: true, findings: [], members: [] },
     },
   },
 };

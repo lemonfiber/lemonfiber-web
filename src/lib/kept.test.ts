@@ -89,6 +89,7 @@ describe("what putting an archive back would do, or did", () => {
 
   it("warns of an older archive, and says nothing of a location that matches", () => {
     const older: Restored = {
+      rehearsed: false,
       would: {
         ...listing.would,
         downgrade: true,
@@ -175,8 +176,13 @@ describe("what a support bundle holds", () => {
       missing: [],
       terms: { ...contents.terms, filenames: true, revealed: ["VPN_USER"] },
     };
-    const nowhere = bundleLines({ bytes: described.bytes, contents: opened });
+    const nowhere = bundleLines({
+      rehearsed: false,
+      bytes: described.bytes,
+      contents: opened,
+    });
     const cleared = bundleLines({
+      rehearsed: false,
       bytes: described.bytes,
       contents: opened,
       path: null,

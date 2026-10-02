@@ -110,6 +110,7 @@ const setAside: Trouble = {
 
 /** One run of the checks, with every kind of verdict in it. */
 export const diagnosis: Diagnosis = {
+  rehearsed: false,
   overall: "broken",
   findings: [
     {
@@ -186,6 +187,7 @@ export const diagnosis: Diagnosis = {
 
 /** A run in which everything that ran passed. */
 export const allWell: Diagnosis = {
+  rehearsed: false,
   overall: "healthy",
   findings: [
     {
@@ -200,6 +202,7 @@ export const allWell: Diagnosis = {
 
 /** The checks about the disk, on their own. */
 export const diskChecks: Diagnosis = {
+  rehearsed: false,
   overall: "degraded",
   findings: [
     {
@@ -231,6 +234,7 @@ export const diskChecks: Diagnosis = {
  * gave, and one whose reason it left blank.
  */
 export const attributed: Diagnosis = {
+  rehearsed: false,
   overall: "healthy",
   findings: [
     {

@@ -59,7 +59,10 @@ export const TheVolumeCouldNotBeRead: Story = {
  */
 export const NoCheckHasReported: Story = {
   args: {
-    diagnosis: { ok: true, value: { overall: "unknown", findings: [] } },
+    diagnosis: {
+      ok: true,
+      value: { rehearsed: false, overall: "unknown", findings: [] },
+    },
   },
 };
 

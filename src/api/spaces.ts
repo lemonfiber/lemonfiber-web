@@ -33,6 +33,7 @@ export const kept: Candidate = {
 
 /** The disk accounting, naming three completed downloads. */
 export const reckoned: Reckoned = {
+  rehearsed: false,
   agreement: "space-9b2c",
   level: "advisory",
   halted: false,
@@ -46,6 +47,7 @@ export const reckoned: Reckoned = {
 
 /** What letting the shared download go would cost, with nothing let go. */
 export const letOffer: Let = {
+  rehearsed: false,
   agreement: "let-go-4e11",
   download: shared,
   goes: "The client stops sharing it and deletes its files.",

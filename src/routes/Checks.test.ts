@@ -338,7 +338,10 @@ describe("where each check came from", () => {
 
 describe("a run with nothing in it", () => {
   it("says so in words rather than leaving the panel empty", () => {
-    checks({ ok: true, value: { overall: "unknown", findings: [] } });
+    checks({
+      ok: true,
+      value: { rehearsed: false, overall: "unknown", findings: [] },
+    });
     expect(panel()).toHaveTextContent(m.checks_none());
   });
 });

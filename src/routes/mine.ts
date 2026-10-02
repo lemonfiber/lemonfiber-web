@@ -94,6 +94,7 @@ export const yoursSpent: Household = {
 
 /** The household read, where the media server could not be asked. */
 export const yoursUnread: Household = {
+  rehearsed: false,
   available: false,
   findings: ["The media server did not answer."],
   members: [],
@@ -101,6 +102,7 @@ export const yoursUnread: Household = {
 
 /** What the household holds that Kit can watch, newest first. */
 export const kitsShelf: Shelf = {
+  rehearsed: false,
   available: true,
   findings: [],
   id: kitsId,
@@ -117,6 +119,7 @@ export const kitsEmptyShelf: Shelf = { ...kitsShelf, holdings: [] };
 
 /** A shelf the media server would not give up, which is not an empty one. */
 export const kitsUnreadShelf: Shelf = {
+  rehearsed: false,
   available: false,
   findings: [
     "the media server would not say what this member holds, so the shelf is reported as unread rather than as empty",

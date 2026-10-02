@@ -20,6 +20,7 @@ const address = m.came_invite_address({ address: claimAt, hours: "72" });
 
 /** A house that waits on the operator for everything, as a ruling left it. */
 const household: Housed = {
+  rehearsed: false,
   available: true,
   findings: [],
   members: [],
@@ -29,6 +30,7 @@ const household: Housed = {
 
 /** A house nothing could be read from. */
 const unread: Housed = {
+  rehearsed: false,
   available: false,
   findings: ["The list of requests could not be read."],
   members: [],

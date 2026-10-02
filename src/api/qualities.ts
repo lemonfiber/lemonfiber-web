@@ -13,6 +13,7 @@ export const recyclarr = "/srv/lemonfiber/config/recyclarr/recyclarr.yml";
 
 /** The choice in force, over a config somebody has edited by hand. */
 export const inForce: Tuned = {
+  rehearsed: false,
   choices: [
     {
       means: "Good-looking video that does not fill the disk.",
@@ -58,6 +59,7 @@ export const reapplied: Tuned = {
 
 /** What fetching the library again would cost, with nothing fetched. */
 export const costed: Upgraded = {
+  rehearsed: false,
   confirmed: false,
   media: [
     { media_type: "tv", preset: "balanced", size_per_hour: "2 GB" },
@@ -67,6 +69,7 @@ export const costed: Upgraded = {
 
 /** What fetching the library again started. */
 export const fetched: Upgraded = {
+  rehearsed: false,
   confirmed: true,
   media: [
     {

@@ -13,6 +13,7 @@ export const agreement = "offer-7d0e5c63";
 
 /** What can be put right, and nothing changed yet. */
 export const offer: Repaired = {
+  rehearsed: false,
   acted: false,
   agreement,
   beyond: [],
@@ -35,6 +36,7 @@ export const offer: Repaired = {
 
 /** What agreeing to one repair came to. */
 export const carried: Repaired = {
+  rehearsed: false,
   acted: true,
   agreement,
   beyond: [

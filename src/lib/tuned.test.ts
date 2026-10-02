@@ -76,6 +76,7 @@ describe("what fetching the library again costs, or started", () => {
 
   it("says a search that did not start did not", () => {
     const unstarted: Upgraded = {
+      rehearsed: false,
       confirmed: true,
       media: [
         {
