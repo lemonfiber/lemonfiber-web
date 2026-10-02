@@ -50,7 +50,11 @@ export const HealthCouldNotBeEstablished: Story = {
   args: {
     diagnosis: {
       ok: true,
-      value: { overall: "unknown", findings: diagnosis.findings.slice(4, 6) },
+      value: {
+        rehearsed: false,
+        overall: "unknown",
+        findings: diagnosis.findings.slice(4, 6),
+      },
     },
   },
 };
@@ -81,7 +85,10 @@ export const BeforeAnythingAnswers: Story = {
  */
 export const NothingWasChecked: Story = {
   args: {
-    diagnosis: { ok: true, value: { overall: "unknown", findings: [] } },
+    diagnosis: {
+      ok: true,
+      value: { rehearsed: false, overall: "unknown", findings: [] },
+    },
   },
 };
 

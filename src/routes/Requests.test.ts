@@ -79,7 +79,7 @@ describe("a household that has asked for nothing", () => {
   it("says so where the record was read", () => {
     asked({
       ok: true,
-      value: { available: true, findings: [], members: [] },
+      value: { rehearsed: false, available: true, findings: [], members: [] },
     });
 
     expect(screen.getByText(m.requests_nobody())).toBeInTheDocument();

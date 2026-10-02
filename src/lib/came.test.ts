@@ -12,7 +12,7 @@ import { carried, offer, undone } from "../api/reports";
 import * as m from "../paraglide/messages.js";
 
 /** A run of the checks in which nothing was found. */
-const allWell: Checked = { overall: "healthy", findings: [] };
+const allWell: Checked = { rehearsed: false, overall: "healthy", findings: [] };
 
 /** A start that did what it was asked and nothing else worth saying. */
 const plain: Lifecycle = {
@@ -340,6 +340,7 @@ const repaired = (over: Partial<Repaired>): readonly string[] =>
       beyond: [],
       mended: [],
       offered: [],
+      rehearsed: false,
       ...over,
     },
   });

@@ -1073,6 +1073,7 @@ describe("when lemonfiber will not do what was asked", () => {
       sending: acting({
         status: 200,
         body: enveloped("reset", {
+          rehearsed: false,
           confirmed: false,
           reverted: [],
           reverted_connections: [],

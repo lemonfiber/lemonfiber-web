@@ -14,7 +14,7 @@ import { agreement, carried, offer, undone } from "../api/reports";
 import * as m from "../paraglide/messages.js";
 
 /** A run of the checks in which nothing was found. */
-const allWell: Checked = { overall: "healthy", findings: [] };
+const allWell: Checked = { rehearsed: false, overall: "healthy", findings: [] };
 
 /** A record of asking what can be put right, with the offer it came back with. */
 const offered: Work = {

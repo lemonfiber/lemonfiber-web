@@ -231,7 +231,12 @@ describe("whether the household has changed", () => {
     expect(
       changedTheHousehold({
         kind: "household",
-        report: { available: true, findings: [], members: [] },
+        report: {
+          rehearsed: false,
+          available: true,
+          findings: [],
+          members: [],
+        },
       }),
     ).toBe(true);
   });

@@ -54,6 +54,7 @@ export const noRequestService =
 
 /** What the house has asked for, and what each of them may watch. */
 export const household: Household = {
+  rehearsed: false,
   available: true,
   findings: [],
   policy: "everything-waits",
@@ -166,6 +167,7 @@ export const house: House = household;
 
 /** A household nothing could be read from, which is not an empty one. */
 export const unread: Household = {
+  rehearsed: false,
   available: false,
   findings: [
     "The request service answered, but its list of requests could not be read.",

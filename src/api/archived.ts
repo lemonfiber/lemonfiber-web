@@ -31,6 +31,7 @@ export const backed: Backed = {
 
 /** What an archive holds and what putting it back would overwrite. */
 export const listing: Restored = {
+  rehearsed: false,
   done: null,
   would: {
     agreement: listed,
@@ -50,6 +51,7 @@ export const listing: Restored = {
 
 /** What putting the archive back came to, re-pointed at this machine. */
 export const restored: Restored = {
+  rehearsed: false,
   done: {
     from_version: "0.18.0",
     relocated: { now: "/mnt/media", was: "/srv/media" },
@@ -64,6 +66,7 @@ export const destination =
 
 /** What a bundle would hold, with nothing written. */
 export const described: Bundled = {
+  rehearsed: false,
   bytes: 184_320,
   contents: {
     missing: ["the engine's own log"],

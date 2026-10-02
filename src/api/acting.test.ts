@@ -119,6 +119,7 @@ describe("when the work had finished before the reply", () => {
         sending: saying(
           200,
           enveloped("reset", {
+            rehearsed: false,
             confirmed: false,
             reverted: [],
             reverted_connections: [],

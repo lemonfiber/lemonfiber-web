@@ -72,6 +72,7 @@ export const stoppedWalk: Walked = {
 
 /** A guard that ended because the data location went away. */
 export const guarded: Guarded = {
+  rehearsed: false,
   forms: ["media"],
   reason: "The data location vanished, so the forms were stopped.",
   stopped: true,

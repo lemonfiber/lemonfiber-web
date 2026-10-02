@@ -15,6 +15,7 @@ export const means =
 
 /** How the line is shared in the household's hours, as a reading answers. */
 export const shared: Shared = {
+  rehearsed: false,
   applied: false,
   cautions: ["The line was measured once, a week ago."],
   clients: [
@@ -58,6 +59,7 @@ export const declared: Shared = {
 
 /** A steps plan: two services behind their pins, one of them a one-way step. */
 export const plan: Updated = {
+  rehearsed: false,
   applied: [],
   changelog: { releases: [], requirements: {}, state: "current" },
   changes: [

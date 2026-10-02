@@ -172,6 +172,7 @@ describe("what an envelope says a piece of work came to", () => {
     expect(
       outcomeOf(
         sealed("reset", {
+          rehearsed: false,
           confirmed: false,
           reverted: [],
           reverted_connections: [],

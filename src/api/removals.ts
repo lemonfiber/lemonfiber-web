@@ -43,6 +43,7 @@ export const boot: Command = {
 
 /** The guard not kept, the clock kept, and the boot start left behind. */
 export const hosted: Hosted = {
+  rehearsed: false,
   manager: "launchd",
   caveat: "launchd starts it again only after you sign in.",
   commands: [guard, clock, boot],
@@ -50,6 +51,7 @@ export const hosted: Hosted = {
 
 /** A machine whose service manager lemonfiber cannot configure. */
 export const unhosted: Hosted = {
+  rehearsed: false,
   manager: "unsupported",
   instruction: "Start lemonfiber watch from your own service manager.",
   commands: [
@@ -89,6 +91,7 @@ export const clockTaken: Hosted = {
 
 /** Everything lemonfiber keeps, listed with nothing removed. */
 export const stored: Stored = {
+  rehearsed: false,
   roots: [
     {
       at: "/Users/ada/.config/lemonfiber",
@@ -135,6 +138,7 @@ export const forgotten: Stored = {
 
 /** What removing the services would reach, listed with nothing removed. */
 export const surveyed: Uninstalled = {
+  rehearsed: false,
   manifest: {
     tier: "services",
     agreement: "services-4f1a",
@@ -194,6 +198,7 @@ export const surveyed: Uninstalled = {
 
 /** Nothing coming down, and everything read. */
 export const settledSurvey: Uninstalled = {
+  rehearsed: false,
   manifest: {
     ...surveyed.manifest,
     tier: "stop",
