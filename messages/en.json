@@ -501,6 +501,7 @@
   "came_wiring_skipped": "{connection} was not wired yet, and a later run will finish it: {reason}",
   "came_wiring_failed": "{connection} was tried and refused. The service said: {detail}",
   "came_wiring_refused": "{connection} was not wired, and running it again will not change that: {reason}",
+  "came_wiring_unmatched": "{connection} was not wired, because nothing lemonfiber does connects these two: {reason}",
   "came_wiring_adopted": "Kept as they were set by hand: {connections}.",
   "came_wiring_already": "Already connected: {connections}.",
   "came_wiring_unmanaged": "Set before lemonfiber was, and taken as they are: {connections}.",

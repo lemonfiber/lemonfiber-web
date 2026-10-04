@@ -263,6 +263,13 @@ describe("what wiring the programs to each other came to", () => {
         reason: "Two services share one folder",
       }),
     ],
+    [
+      { state: "unmatched", reason: "NZBGet names no adapter" },
+      m.came_wiring_unmatched({
+        connection: "SABnzbd into Sonarr",
+        reason: "NZBGet names no adapter",
+      }),
+    ],
   ] as const)("says why %j, in the words given", (state, words) => {
     expect(seeded({ wirings: [wiring(state)] })).toStrictEqual([words]);
   });
