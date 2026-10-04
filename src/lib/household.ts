@@ -125,6 +125,7 @@ export const everyAllowed: readonly Allowed[] = [
 export const everyMembership: readonly Membership[] = [
   "invited",
   "expired",
+  "declined",
   "active",
   "suspended",
 ];
@@ -271,6 +272,8 @@ export function tagOfPerson(person: Person): string | undefined {
       return m.person_not_taken_up();
     case "expired":
       return m.person_ran_out();
+    case "declined":
+      return m.person_declined();
     case "suspended":
       return m.person_switched_off();
     case "active":
