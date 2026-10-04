@@ -218,7 +218,7 @@ function switchedLines(switched: Lifecycle["switched"]): readonly string[] {
 /** A way a connection can turn out that carries nothing but its name. */
 type Bare = Exclude<
   WiredAs,
-  "conflicted" | "observed" | "skipped" | "failed" | "refused"
+  "conflicted" | "observed" | "skipped" | "failed" | "refused" | "unmatched"
 >;
 
 /**
@@ -280,6 +280,8 @@ function ownLine(wiring: Wired): string | undefined {
       return m.came_wiring_failed({ connection, detail: state.detail });
     case "refused":
       return m.came_wiring_refused({ connection, reason: state.reason });
+    case "unmatched":
+      return m.came_wiring_unmatched({ connection, reason: state.reason });
     case "drifted":
     case "stale":
     case "wired":
