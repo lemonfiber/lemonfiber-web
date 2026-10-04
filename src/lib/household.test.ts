@@ -263,6 +263,7 @@ describe("the word beside one person's name", () => {
     expect(said).toEqual([
       m.person_not_taken_up(),
       m.person_ran_out(),
+      m.person_declined(),
       undefined,
       m.person_switched_off(),
     ]);
@@ -297,6 +298,12 @@ describe("the word beside one person's name", () => {
   it("says an invitation that ran out did, rather than that it is still open", () => {
     expect(tagOfPerson(someone({ standing: "expired", claimed: false }))).toBe(
       m.person_ran_out(),
+    );
+  });
+
+  it("says an invitation that was declined was, rather than that it ran out", () => {
+    expect(tagOfPerson(someone({ standing: "declined", claimed: false }))).toBe(
+      m.person_declined(),
     );
   });
 

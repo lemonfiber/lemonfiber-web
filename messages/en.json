@@ -414,6 +414,7 @@
   "person_not_taken_up": "not taken up yet",
   "person_switched_off": "switched off",
   "person_ran_out": "invitation ran out",
+  "person_declined": "invitation declined",
   "person_unrecognised": "in a state this page has no word for",
   "person_never_seen": "Nobody has signed in to this account yet.",
   "quota_within": "Room to ask",
