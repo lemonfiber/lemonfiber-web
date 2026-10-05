@@ -28,13 +28,13 @@
   --fiber-deep: var(--lf-color-fiber-deep);
   --text: var(--ink);
 
-  /* Product tokens. The brand has no severity palette, and deliberately no
-     blues, teals or cyans — so these stay in its warm family. */
-  --ok: #55701e;
+  /* The severity palette, which brand carries in its warm family with no
+     blues, teals or cyans. */
+  --ok: var(--lf-color-ok);
   --warn: var(--lf-color-fiber);
-  --warn-tint: #fbebd8;
-  --alarm: #a82717;
-  --alarm-tint: #f7e2dd;
+  --warn-tint: var(--lf-color-warn-tint);
+  --alarm: var(--lf-color-alarm);
+  --alarm-tint: var(--lf-color-alarm-tint);
 
   --focus: var(--lf-color-fiber-deep);
 
@@ -105,14 +105,9 @@
   --text-figure: 2.25rem;
 }
 
-/* Brand carries every surface and text colour for this theme, so what is left
-   here is the severity palette it has no opinion on. */
+/* Brand carries every colour for this theme, the severity palette included,
+   so what is left here is the focus ring. */
 [data-lf-theme="ink"] {
-  --ok: #9db856;
-  --warn-tint: #35240f;
-  --alarm: #e8705c;
-  --alarm-tint: #3a1c16;
-
   --focus: var(--lf-color-lemon);
 }
 
@@ -131,11 +126,10 @@
     --lf-color-text-faint: #8d8972;
     --lf-color-line: #34322a;
     --lf-color-line-soft: #262419;
-
-    --ok: #9db856;
-    --warn-tint: #35240f;
-    --alarm: #e8705c;
-    --alarm-tint: #3a1c16;
+    --lf-color-ok: #9db856;
+    --lf-color-alarm: #e8705c;
+    --lf-color-warn-tint: #35240f;
+    --lf-color-alarm-tint: #3a1c16;
 
     --focus: var(--lf-color-lemon);
   }
