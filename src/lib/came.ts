@@ -405,6 +405,10 @@ function reversalWords(does: Reversal): string {
       return m.came_undo_repin();
     case "reconfigure":
       return m.came_undo_reconfigure();
+    case "revoke":
+      return m.came_undo_revoke();
+    case "reinstate":
+      return m.came_undo_reinstate();
     default:
       return m.came_undo_other();
   }

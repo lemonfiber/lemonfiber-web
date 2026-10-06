@@ -529,6 +529,8 @@
   "came_undo_withdraw": "what it wrote into a file was taken out",
   "came_undo_repin": "the version before it is back",
   "came_undo_reconfigure": "a field has its old value again",
+  "came_undo_revoke": "the key it minted was revoked",
+  "came_undo_reinstate": "a revoked key was made good again",
   "came_undo_other": "something this page has no words for was put back",
   "panel_mending": "Putting it right",
   "mending_prose": "Nothing here changes anything until you say yes to it.",
