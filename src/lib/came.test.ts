@@ -497,6 +497,10 @@ describe("what putting the last repair back came to", () => {
       },
       m.came_undo_reconfigure(),
     ],
+    [
+      { does: "rewind", path: "p", previous: "old", written: 1 },
+      m.came_undo_rewind(),
+    ],
     [{ does: "revoke", name: "ha" }, m.came_undo_revoke()],
     [{ does: "reinstate", name: "ha" }, m.came_undo_reinstate()],
     [
