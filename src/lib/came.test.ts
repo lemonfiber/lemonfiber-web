@@ -497,6 +497,8 @@ describe("what putting the last repair back came to", () => {
       },
       m.came_undo_reconfigure(),
     ],
+    [{ does: "revoke", name: "ha" }, m.came_undo_revoke()],
+    [{ does: "reinstate", name: "ha" }, m.came_undo_reinstate()],
     [
       { does: "pondered" } as unknown as Undone["reversed"][number]["action"],
       m.came_undo_other(),

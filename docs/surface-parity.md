@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 67 kinds of answer, and this console reads 34 of them.
-Another surface can make 45 requests of the stack, and this console offers 33 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 31 kinds and 11
+The client carries 71 kinds of answer, and this console reads 34 of them.
+Another surface can make 54 requests of the stack, and this console offers 33 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 35 kinds and 20
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -45,8 +45,9 @@ on this page stating a figure or a row those lists do not come to.
 The kinds are read off the client. The requests are not in the client, which
 asks for an action by whatever name it is handed, so the suite lists them as
 lemonfiber's action table names them, with the setup walk, serving this
-surface and replacing the certificate a paired phone pins beside them. A request lemonfiber adds is caught there only where it
-answers with a kind the contract did not have before.
+surface, replacing the certificate a paired phone pins, and minting, listing
+and revoking keys beside them. A request lemonfiber adds is caught there only
+where it answers with a kind the contract did not have before.
 
 ## Kinds read here
 
@@ -96,43 +97,46 @@ answers with a kind the contract did not have before.
 
 ## Kinds not read yet
 
-| Kind           | Feature | What it is                                                                                               |
-| -------------- | ------- | -------------------------------------------------------------------------------------------------------- |
-| `adoption`     | A5      | Migration: what taking over a setup already here came to                                                 |
-| `alerts`       | B5      | Notifications: what the operator is told about                                                           |
-| `beside`       | A5      | Migration: standing beside a setup already here                                                          |
-| `catalogue`    | F2      | Service catalogue: what each service is for                                                              |
-| `certificate`  | N1      | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |
-| `clients`      | G6      | Client apps: which app to watch on                                                                       |
-| `credentials`  | A7      | Credential management: every credential, with no values                                                  |
-| `front-door`   | G5      | The front door, asked for on its own                                                                     |
-| `glossary`     | G2      | Plain language: every word there is to ask about                                                         |
-| `handoff`      | G9      | Mobile handoff: where getting one person's phone onto the media server stands                            |
-| `held`         | D8      | Parental controls: what one member can watch                                                             |
-| `history`      | E4      | Rollback: everything lemonfiber changed                                                                  |
-| `import`       | A5      | Migration: copying an operator's records across                                                          |
-| `migration`    | A5      | Migration: what is already on this machine                                                               |
-| `music`        | D2      | Quality presets: the music format                                                                        |
-| `news`         | N27     | What's new: the newest of each kind, from the stream                                                     |
-| `news-items`   | N27     | What's new: everything newer than what was last seen, asked for                                          |
-| `outbound`     | G8      | Privacy: everything that leaves this machine                                                             |
-| `plugins`      | F6      | Plugin lifecycle; lemonfiber serves no endpoint for it                                                   |
-| `provenance`   | F2      | Service catalogue: where each service comes from                                                         |
-| `removal`      | D6      | Household identity: somebody taken out of the household                                                  |
-| `replacement`  | A5      | Migration: standing in place of a setup already here                                                     |
-| `reset`        | C9      | Drift: what a full reset would revert                                                                    |
-| `self-update`  | E2      | Self-update: where this copy stands                                                                      |
-| `step`         | D3      | First content: one step of a walkthrough, from the stream                                                |
-| `stuck`        | C7      | Queue health, asked for on its own                                                                       |
-| `substitution` | F4      | Capabilities: which service fills one; lemonfiber serves no endpoint                                     |
-| `version`      | E2      | Self-update: the versions in play                                                                        |
-| `wiring`       | D1      | Auto-wiring: what is wired to what; lemonfiber serves no endpoint                                        |
-| `wizard`       | A2      | Setup: where setup stands                                                                                |
-| `word`         | G2      | Plain language: what one word means; `Term` asks for it, and no screen draws a `Term`                    |
+| Kind           | Feature  | What it is                                                                                               |
+| -------------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| `adoption`     | A5       | Migration: what taking over a setup already here came to                                                 |
+| `alerts`       | B5       | Notifications: what the operator is told about                                                           |
+| `beside`       | A5       | Migration: standing beside a setup already here                                                          |
+| `capabilities` | ARCH-R78 | What this copy of lemonfiber can do, each named by the path it is served at                              |
+| `catalogue`    | F2       | Service catalogue: what each service is for                                                              |
+| `certificate`  | N1       | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |
+| `clients`      | G6       | Client apps: which app to watch on                                                                       |
+| `credentials`  | A7       | Credential management: every credential, with no values                                                  |
+| `front-door`   | G5       | The front door, asked for on its own                                                                     |
+| `glossary`     | G2       | Plain language: every word there is to ask about                                                         |
+| `handoff`      | G9       | Mobile handoff: where getting one person's phone onto the media server stands                            |
+| `held`         | D8       | Parental controls: what one member can watch                                                             |
+| `history`      | E4       | Rollback: everything lemonfiber changed                                                                  |
+| `import`       | A5       | Migration: copying an operator's records across                                                          |
+| `keys`         | C10      | Integration keys: every key, with no secret                                                              |
+| `migration`    | A5       | Migration: what is already on this machine                                                               |
+| `minted-key`   | C10      | Integration keys: one key just minted, its secret shown this once                                        |
+| `music`        | D2       | Quality presets: the music format                                                                        |
+| `news`         | N27      | What's new: the newest of each kind, from the stream                                                     |
+| `news-items`   | N27      | What's new: everything newer than what was last seen, asked for                                          |
+| `outbound`     | G8       | Privacy: everything that leaves this machine                                                             |
+| `pausing`      | D10      | Bandwidth: what pausing or resuming downloads came to                                                    |
+| `plugins`      | F6       | Plugin lifecycle: every plugin installed, and what installing, updating or removing one came to          |
+| `provenance`   | F2       | Service catalogue: where each service comes from                                                         |
+| `removal`      | D6       | Household identity: somebody taken out of the household                                                  |
+| `replacement`  | A5       | Migration: standing in place of a setup already here                                                     |
+| `reset`        | C9       | Drift: what a full reset would revert                                                                    |
+| `self-update`  | E2       | Self-update: where this copy stands                                                                      |
+| `step`         | D3       | First content: one step of a walkthrough, from the stream                                                |
+| `stuck`        | C7       | Queue health, asked for on its own                                                                       |
+| `substitution` | F4       | Capabilities: which service fills one                                                                    |
+| `version`      | E2       | Self-update: the versions in play                                                                        |
+| `wiring`       | D1       | Auto-wiring: what is wired to what                                                                       |
+| `wizard`       | A2       | Setup: where setup stands                                                                                |
+| `word`         | G2       | Plain language: what one word means; `Term` asks for it, and no screen draws a `Term`                    |
 
-Four of these wait on lemonfiber rather than on this surface: no endpoint
-answers with `certificate`, `plugins`, `substitution` or `wiring`, so nothing
-here could read them.
+One of these waits on lemonfiber rather than on this surface: no endpoint
+answers with `certificate`, so nothing here could read it.
 
 ## Requests offered here
 
@@ -211,3 +215,12 @@ carries while it runs (`step`) are not drawn yet.
 | `household-handoff`     | G9      | Mobile handoff: issue one person a code pointing an app at the media server, and check a device signed in      |
 | `setup`                 | A2      | Setup wizard, walked in a browser                                                                              |
 | `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only       |
+| `downloads-pause`       | D10     | Bandwidth: pause every download client                                                                         |
+| `downloads-resume`      | D10     | Bandwidth: resume what was paused                                                                              |
+| `wiring-fill`           | F4      | Capabilities: choose which service fills one, from the offer read first                                        |
+| `plugin-install`        | F6      | Plugin lifecycle: install one, from the offer read first                                                       |
+| `plugin-update`         | F6      | Plugin lifecycle: update one, from the offer read first                                                        |
+| `plugin-remove`         | F6      | Plugin lifecycle: remove one, from the offer read first                                                        |
+| `key-mint`              | C10     | Integration keys: mint one, with the password in the same request                                              |
+| `key-list`              | C10     | Integration keys: list them                                                                                    |
+| `key-revoke`            | C10     | Integration keys: revoke one                                                                                   |

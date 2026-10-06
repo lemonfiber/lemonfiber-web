@@ -55,6 +55,7 @@ type Feature =
   | "C5"
   | "C7"
   | "C9"
+  | "C10"
   | "D1"
   | "D2"
   | "D3"
@@ -77,7 +78,8 @@ type Feature =
   | "G8"
   | "G9"
   | "N1"
-  | "N27";
+  | "N27"
+  | "ARCH-R78";
 
 /**
  * Every request another surface can make of the stack.
@@ -85,7 +87,8 @@ type Feature =
  * The core's actions in the order its table lists them, then the setup walk its
  * own endpoints serve, then serving this surface, which the command line does,
  * then replacing the certificate a paired phone pins, which only the command
- * line offers.
+ * line offers, then minting, listing and revoking keys, which the core serves at
+ * routes of their own.
  */
 const EVERY_REQUEST = [
   "up",
@@ -109,6 +112,8 @@ const EVERY_REQUEST = [
   "space",
   "stop-seeding",
   "bandwidth",
+  "downloads-pause",
+  "downloads-resume",
   "update",
   "backup",
   "invite",
@@ -130,9 +135,16 @@ const EVERY_REQUEST = [
   "undo",
   "accept",
   "search",
+  "wiring-fill",
+  "plugin-install",
+  "plugin-update",
+  "plugin-remove",
   "setup",
   "ui",
   "companion-certificate",
+  "key-mint",
+  "key-list",
+  "key-revoke",
 ] as const;
 
 /** One request another surface can make. */
@@ -279,6 +291,15 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "household-handoff": "G9",
   setup: "A2",
   "companion-certificate": "N1",
+  "downloads-pause": "D10",
+  "downloads-resume": "D10",
+  "wiring-fill": "F4",
+  "plugin-install": "F6",
+  "plugin-update": "F6",
+  "plugin-remove": "F6",
+  "key-mint": "C10",
+  "key-list": "C10",
+  "key-revoke": "C10",
 };
 
 /** Kinds something the page imports reads. */
@@ -344,6 +365,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   adoption: "A5",
   alerts: "B5",
   beside: "A5",
+  capabilities: "ARCH-R78",
   catalogue: "F2",
   certificate: "N1",
   clients: "G6",
@@ -354,11 +376,14 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   held: "D8",
   history: "E4",
   import: "A5",
+  keys: "C10",
   migration: "A5",
+  "minted-key": "C10",
   music: "D2",
   news: "N27",
   "news-items": "N27",
   outbound: "G8",
+  pausing: "D10",
   plugins: "F6",
   provenance: "F2",
   removal: "D6",
