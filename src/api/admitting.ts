@@ -127,7 +127,7 @@ export async function admitting(
     return { at: "declined", said: refusalIn(status, said).message };
   }
 
-  const read = parse<unknown>(said);
+  const read = parse(said);
   if (!read.ok) return { at: "declined", said: read.problem.message };
   if (!isKind(read.value, "admission")) {
     return { at: "declined", said: malformed().message };
