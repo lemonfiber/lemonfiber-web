@@ -1,6 +1,6 @@
-import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
+import { problem, type Fetching, type Sending } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
-import { asked, scrollback, turnedAway, watching } from "./asking";
+import { asked, carrying, scrollback, turnedAway, watching } from "./asking";
 import { enveloped, failure, notFromLemonfiber } from "./bodies";
 import { moment, stack } from "../routes/fixture";
 
@@ -65,7 +65,10 @@ describe("asked", () => {
       "status",
     );
 
-    expect(got).toMatchObject({ ok: false, problem: { kind: "refused" } });
+    expect(got).toMatchObject({
+      ok: false,
+      problem: { kind: "configuration" },
+    });
   });
 
   it("says plainly when the key is not the one this run expects", async () => {
@@ -97,7 +100,10 @@ describe("watching", () => {
       new AbortController().signal,
     );
 
-    expect(got).toMatchObject({ ok: false, problem: { kind: "refused" } });
+    expect(got).toMatchObject({
+      ok: false,
+      problem: { kind: "configuration" },
+    });
   });
 
   it("hands over what the stream said", async () => {
@@ -113,6 +119,34 @@ describe("watching", () => {
     const first = await got.arrivals.next();
     expect(first.value).toMatchObject({ at: "live", kind: "dashboard" });
     await got.arrivals.return(undefined);
+  });
+});
+
+describe("carrying", () => {
+  it("is true for a live or a stale arrival of the kind it names", () => {
+    expect(
+      carrying({ at: "live", kind: "dashboard", data: moment }, "dashboard"),
+    ).toBe(true);
+    expect(
+      carrying(
+        { at: "stale", kind: "dashboard", data: moment, quietForMs: 1 },
+        "dashboard",
+      ),
+    ).toBe(true);
+  });
+
+  it("is false for an arrival of another kind", () => {
+    expect(carrying({ at: "live", kind: "start", data: {} }, "dashboard")).toBe(
+      false,
+    );
+  });
+
+  it("is false for an event that could not be read, or a stream that is gone", () => {
+    const broken = problem("malformed", "The event could not be read.");
+    expect(carrying({ at: "unreadable", problem: broken }, "dashboard")).toBe(
+      false,
+    );
+    expect(carrying({ at: "lost", problem: broken }, "dashboard")).toBe(false);
   });
 });
 
@@ -211,7 +245,10 @@ describe("scrollback", () => {
       at: elsewhere,
     });
 
-    expect(got).toMatchObject({ ok: false, problem: { kind: "refused" } });
+    expect(got).toMatchObject({
+      ok: false,
+      problem: { kind: "configuration" },
+    });
   });
 
   // A page holding no key at all has nothing to ask with, and asking anyway

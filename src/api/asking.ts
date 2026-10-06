@@ -116,14 +116,16 @@ export type Heard<T> = Extract<Arrival<T>, { kind: string }>;
  * One stream carries every kind the server has anything to say about, so what
  * arrived has to be sorted before it is read: the generated types are what know
  * which payload goes with which kind, and a payload read under the wrong one is
- * fields with changed meanings. A break in the stream carries no payload at all
- * and is never one of these.
+ * fields with changed meanings. A break in the stream, and an event that could
+ * not be read, carry no payload at all and are never one of these.
  */
 export function carrying<K extends Kind>(
   arrival: Arrival<unknown>,
   kind: K,
 ): arrival is Heard<ByKind[K]["data"]> & { readonly kind: K } {
-  return arrival.at !== "lost" && arrival.kind === kind;
+  return (
+    (arrival.at === "live" || arrival.at === "stale") && arrival.kind === kind
+  );
 }
 
 /**
