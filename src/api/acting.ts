@@ -151,7 +151,7 @@ export async function acting(
       : { at: "declined", said: problem.message };
   }
 
-  const read = parse<unknown>(said);
+  const read = parse(said);
   if (!read.ok) return { at: "declined", said: read.problem.message };
   if (status !== ACCEPTED)
     return { at: "settled", came: outcomeOf(read.value) };

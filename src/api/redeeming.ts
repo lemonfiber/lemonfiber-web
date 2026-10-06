@@ -90,7 +90,7 @@ export async function redeeming(
       : { at: "stopped", said: problem.message };
   }
 
-  const read = parse<unknown>(said);
+  const read = parse(said);
   if (!read.ok) return { at: "adrift", said: read.problem.message };
   return status === STILL_GOING
     ? { at: "running" }

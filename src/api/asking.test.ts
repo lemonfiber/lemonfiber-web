@@ -136,9 +136,9 @@ describe("carrying", () => {
   });
 
   it("is false for an arrival of another kind", () => {
-    expect(carrying({ at: "live", kind: "start", data: {} }, "dashboard")).toBe(
-      false,
-    );
+    expect(
+      carrying({ at: "live", kind: "start", data: "Starting" }, "dashboard"),
+    ).toBe(false);
   });
 
   it("is false for an event that could not be read, or a stream that is gone", () => {

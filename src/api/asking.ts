@@ -73,7 +73,7 @@ export async function asked<K extends Kind>(
   });
   if (!opened.ok) return { ok: false, problem: opened.problem };
 
-  const reading = await opened.client.read<unknown>(endpoint, query);
+  const reading = await opened.client.read(endpoint, query);
   if (!reading.ok) return { ok: false, problem: reading.problem };
   if (!isKind(reading.value, kind)) return { ok: false, problem: malformed() };
 
@@ -82,7 +82,7 @@ export async function asked<K extends Kind>(
 
 /** The stream, opened, or why it could not be. */
 export type Watching =
-  | { readonly ok: true; readonly arrivals: AsyncGenerator<Arrival<unknown>> }
+  | { readonly ok: true; readonly arrivals: AsyncGenerator<Arrival> }
   | { readonly ok: false; readonly problem: Problem };
 
 /**
@@ -98,7 +98,7 @@ export function watching(reaching: Reaching, signal: AbortSignal): Watching {
 
   return {
     ok: true,
-    arrivals: follow<unknown>({
+    arrivals: follow({
       url: `${where.base}${STREAM}`,
       token: reaching.token,
       fetching: reaching.fetching,
@@ -107,8 +107,8 @@ export function watching(reaching: Reaching, signal: AbortSignal): Watching {
   };
 }
 
-/** One thing the stream said, as against a break in it. */
-export type Heard<T> = Extract<Arrival<T>, { kind: string }>;
+/** One thing the stream said under one kind, as against a break in it. */
+export type Heard<K extends Kind> = Extract<Arrival, { kind: K }>;
 
 /**
  * Whether an arrival carries the payload the kind it names carries.
@@ -120,9 +120,9 @@ export type Heard<T> = Extract<Arrival<T>, { kind: string }>;
  * not be read, carry no payload at all and are never one of these.
  */
 export function carrying<K extends Kind>(
-  arrival: Arrival<unknown>,
+  arrival: Arrival,
   kind: K,
-): arrival is Heard<ByKind[K]["data"]> & { readonly kind: K } {
+): arrival is Heard<K> {
   return (
     (arrival.at === "live" || arrival.at === "stale") && arrival.kind === kind
   );
@@ -204,7 +204,7 @@ function everyLine(body: string): Reading<readonly Logged[]> {
   for (const line of body.split("\n")) {
     if (line.trim() === "") continue;
 
-    const envelope = parse<unknown>(line);
+    const envelope = parse(line);
     if (!envelope.ok) return { ok: false, problem: envelope.problem };
     if (!isKind(envelope.value, "log")) {
       return { ok: false, problem: malformed() };

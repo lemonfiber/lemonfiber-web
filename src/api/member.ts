@@ -117,7 +117,7 @@ export async function heard<K extends Kind>(
   const came = await knocked(reaching, path);
   if (came.at !== "answered") return came;
 
-  const read = parse<unknown>(came.value);
+  const read = parse(came.value);
   if (!read.ok) return { at: "unanswered", problem: read.problem };
   if (!isKind(read.value, kind))
     return { at: "unanswered", problem: malformed() };

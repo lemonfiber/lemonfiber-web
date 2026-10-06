@@ -8,8 +8,8 @@
  * Naming every one instead makes a new one *unclassified*, which fails saying
  * which it is.
  *
- * The kinds are read off the client: the declaration `@lemonfiber/sdk-ts` ships
- * states every kind the contract names. The requests are not in the client — it
+ * The kinds are read off the client: `@lemonfiber/sdk-ts` exports every kind the
+ * contract names as `KINDS`. The requests are not in the client — it
  * asks for an action by whatever name it is handed — so they are listed here as
  * the core's action table names them, with the setup walk and the one request
  * that serves this surface beside them. A new action the core adds is caught here
@@ -22,7 +22,7 @@
  * and names every one still waiting, and is held to both.
  */
 /// <reference types="vite/client" />
-import type { Kind } from "@lemonfiber/sdk-ts";
+import { KINDS, type Kind } from "@lemonfiber/sdk-ts";
 import { everyConfiguring } from "./lib/configuring";
 import { everyFinding } from "./lib/finding";
 import { everyHosting } from "./lib/hosting";
@@ -36,7 +36,6 @@ import { everyTending } from "./lib/tending";
 import { everyTuning } from "./lib/tuning";
 import { everyUpkeep } from "./lib/upkeep";
 import { everyDoing } from "./lib/work";
-import declared from "../node_modules/@lemonfiber/sdk-ts/dist/index.d.mts?raw";
 import written from "../docs/surface-parity.md?raw";
 
 /** A feature of the spec, which is what a request still waiting belongs to. */
@@ -420,15 +419,9 @@ function read(path: string): string {
   return SOURCES[path] ?? "";
 }
 
-/**
- * Every kind the client names, read off the declaration it ships.
- *
- * The union is a type and leaves nothing behind at run time, so it is read where
- * the client states it rather than restated here.
- */
+/** Every kind the client names, as the list it exports rather than restated here. */
 function everyKind(): readonly string[] {
-  const union = /type Kind = ([^;]+);/.exec(declared)?.[1] ?? "";
-  return [...union.matchAll(/"([^"]+)"/g)].map((kind) => kind[1] ?? "");
+  return KINDS;
 }
 
 /** Where an import names a file of this repository. */
