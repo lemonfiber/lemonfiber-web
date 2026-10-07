@@ -4,7 +4,7 @@ import { backed, described, listing } from "./archived";
 import { staged } from "./configs";
 import { offered } from "./invitations";
 import { guarded, traced, walked } from "./found";
-import { declared, plan } from "./lines";
+import { declared, paused, plan } from "./lines";
 import { material } from "./pairings";
 import { hosted, stored, surveyed } from "./removals";
 import { letOffer } from "./spaces";
@@ -118,6 +118,13 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("pairing", material))).toStrictEqual({
       kind: "pairing",
       report: material,
+    });
+  });
+
+  it("reads what pausing every download came to", () => {
+    expect(outcomeOf(sealed("pausing", paused))).toStrictEqual({
+      kind: "pausing",
+      report: paused,
     });
   });
 

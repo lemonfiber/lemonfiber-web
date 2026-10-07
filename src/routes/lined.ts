@@ -5,12 +5,20 @@
  * this. The reports inside each record are the ones a suite stands in for a
  * running lemonfiber, in `../api/lines`.
  */
-import { declared, moved, plan } from "../api/lines";
+import { declared, moved, paused, plan } from "../api/lines";
 import type { Sharer } from "../lib/sharing";
 import type { Updater } from "../lib/updating";
 import type { Work } from "../lib/work";
 
-export { declared, means, moved, plan, shared } from "../api/lines";
+export {
+  declared,
+  means,
+  moved,
+  paused,
+  plan,
+  shared,
+  unreached,
+} from "../api/lines";
 
 /** A record of limits declared and written to the clients. */
 export const declaredRecord: Work = {
@@ -21,6 +29,17 @@ export const declaredRecord: Work = {
   at: "done",
   job: undefined,
   came: { kind: "bandwidth", report: declared },
+};
+
+/** A record of every download paused. */
+export const pausedRecord: Work = {
+  id: "74",
+  doing: "downloads-pause",
+  scoped: false,
+  given: {},
+  at: "done",
+  job: undefined,
+  came: { kind: "pausing", report: paused },
 };
 
 /** A record of what updating would change, read and not yet agreed to. */

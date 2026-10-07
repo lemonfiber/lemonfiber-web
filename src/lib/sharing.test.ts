@@ -15,16 +15,18 @@ import { declared, shared } from "../api/lines";
 const nothing: Typed = { down: "", up: "", active: "", line: "", cap: "" };
 
 describe("what the line panel asks for", () => {
-  it("is the one request it makes, and nothing else", () => {
+  it("is the requests it makes, and nothing else", () => {
     expect(everySharing.every(isSharing)).toBe(true);
     expect(isSharing("update")).toBe(false);
   });
 
-  // A declaration is made at once, and nothing reads what one would do.
+  // A declaration is made at once, and nothing reads what one would do. A pause
+  // holds until a resume lets it go, so neither is asked about either.
   it("asks nothing before it is sent", () => {
     expect(
       sharing.question({ doing: "bandwidth", minutes: 30 }),
     ).toBeUndefined();
+    expect(sharing.question({ doing: "downloads-pause" })).toBeUndefined();
   });
 });
 
@@ -75,6 +77,11 @@ describe("what each asking sends", () => {
     expect(givenForDeclare({ doing: "bandwidth", minutes: 30 })).toStrictEqual({
       unrestricted_for: 30,
     });
+  });
+
+  it("sends nothing with a pause or a resume", () => {
+    expect(givenForDeclare({ doing: "downloads-pause" })).toStrictEqual({});
+    expect(givenForDeclare({ doing: "downloads-resume" })).toStrictEqual({});
   });
 });
 

@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 34 of them.
-Another surface can make 54 requests of the stack, and this console offers 33 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 36 kinds and 20
+The client carries 72 kinds of answer, and this console reads 35 of them.
+Another surface can make 54 requests of the stack, and this console offers 35 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 35 kinds and 18
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -69,6 +69,7 @@ where it answers with a kind the contract did not have before.
 | `lifecycle`    | what a start, stop, switch, restart or fetch came to, under its record                                                                                                       |
 | `log`          | the logs                                                                                                                                                                     |
 | `pairing`      | the settings: the line a phone's code carries, the short form of the certificate's fingerprint to check on the phone, and what would make a paired phone refuse this machine |
+| `pausing`      | the settings: what pausing or resuming every download came to, each download client with what it was doing and what it read back                                             |
 | `preview`      | what starting the forms chosen would come to                                                                                                                                 |
 | `quality`      | the settings: the quality new media is fetched at, and what putting the recorded preset back came to                                                                         |
 | `repair`       | the checks: what can be put right, chosen from, and what putting it right came to                                                                                            |
@@ -120,7 +121,6 @@ where it answers with a kind the contract did not have before.
 | `news`         | N27       | What's new: the newest of each kind, from the stream                                                     |
 | `news-items`   | N27       | What's new: everything newer than what was last seen, asked for                                          |
 | `outbound`     | G8        | Privacy: everything that leaves this machine                                                             |
-| `pausing`      | D10       | Bandwidth: what pausing or resuming downloads came to                                                    |
 | `playing`      | ARCH-R156 | What the media server is playing now, for the house or one member                                        |
 | `plugins`      | F6        | Plugin lifecycle: every plugin installed, and what installing, updating or removing one came to          |
 | `provenance`   | F2        | Service catalogue: where each service comes from                                                         |
@@ -167,6 +167,8 @@ answers with `certificate`, so nothing here could read it.
 | `household-decline` | the requests, under each person, for each request waiting on the operator, with the reason the person who asked is given               |
 | `companion-pair`    | the settings: fresh pairing material for the companion app, made at once, since it carries no credential and admits nobody             |
 | `bandwidth`         | the settings: the limits typed, as they were typed, made at once; or the limits lifted for the minutes typed                           |
+| `downloads-pause`   | the settings: every download client paused at once, since a pause holds until it is resumed                                            |
+| `downloads-resume`  | the settings: every download client resumed at once, with whatever would stop them again                                               |
 | `update`            | the settings: every step first, then the move on a yes under it, letting downloads finish first where asked                            |
 | `watch`             | the overview, against the forms chosen                                                                                                 |
 | `walkthrough`       | the requests: the thing named, or something likely to work, after a question saying it fetches it                                      |
@@ -216,8 +218,6 @@ carries while it runs (`step`) are not drawn yet.
 | `household-handoff`     | G9      | Mobile handoff: issue one person a code pointing an app at the media server, and check a device signed in      |
 | `setup`                 | A2      | Setup wizard, walked in a browser                                                                              |
 | `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only       |
-| `downloads-pause`       | D10     | Bandwidth: pause every download client                                                                         |
-| `downloads-resume`      | D10     | Bandwidth: resume what was paused                                                                              |
 | `wiring-fill`           | F4      | Capabilities: choose which service fills one, from the offer read first                                        |
 | `plugin-install`        | F6      | Plugin lifecycle: install one, from the offer read first                                                       |
 | `plugin-update`         | F6      | Plugin lifecycle: update one, from the offer read first                                                        |

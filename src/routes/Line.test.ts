@@ -3,7 +3,14 @@ import userEvent from "@testing-library/user-event";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
 import Settings from "./Settings.svelte";
-import { declaredRecord, means, shared, sharer } from "./lined";
+import {
+  declaredRecord,
+  means,
+  pausedRecord,
+  shared,
+  sharer,
+  unreached,
+} from "./lined";
 import type { Freshness } from "../lib/freshness";
 import type { Shared } from "../lib/shared";
 import type { Sharer } from "../lib/sharing";
@@ -194,5 +201,60 @@ describe("declaring how the line is shared", () => {
     });
     await press(m.action_hide_record());
     expect(within(asked()).getByText(m.doing_bandwidth_title())).toBeVisible();
+  });
+});
+
+describe("pausing and resuming every download", () => {
+  it("pauses every download at once, and puts the reader on what it came to", async () => {
+    const onask = vi.fn();
+    sharing({ onask });
+    const group = screen.getByRole("group", { name: m.line_pausing() });
+
+    await userEvent.click(
+      within(group).getByRole("button", { name: m.action_downloads_pause() }),
+    );
+
+    expect(onask).toHaveBeenCalledWith({ doing: "downloads-pause" });
+    expect(asked()).toHaveFocus();
+  });
+
+  it("resumes every download at once", async () => {
+    const onask = vi.fn();
+    sharing({ onask });
+
+    await press(m.action_downloads_resume());
+
+    expect(onask).toHaveBeenCalledWith({ doing: "downloads-resume" });
+    expect(asked()).toHaveFocus();
+  });
+
+  it("keeps a record naming each client with what it read back", () => {
+    sharing({ work: [pausedRecord] });
+
+    expect(within(asked()).getByText(m.doing_pause_title())).toBeVisible();
+    expect(
+      within(asked()).getByText(
+        m.came_paused_unreached({ client: "sabnzbd", said: unreached }),
+      ),
+    ).toBeVisible();
+  });
+
+  it("is silenced while a request is in flight", () => {
+    sharing({ busy: true });
+    for (const label of [
+      m.action_downloads_pause(),
+      m.action_downloads_resume(),
+    ]) {
+      expect(button(label)).toHaveAttribute("aria-disabled", "true");
+    }
+  });
+
+  it("is not offered where nothing can be asked", () => {
+    render(Settings, {
+      quality: undefined,
+      freshness: answered,
+      line: { ok: true, value: shared },
+    });
+    expect(screen.queryByRole("group", { name: m.line_pausing() })).toBeNull();
   });
 });

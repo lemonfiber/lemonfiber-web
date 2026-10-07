@@ -125,6 +125,9 @@ function ofTheSettings(envelope: Envelope): Came | undefined {
   if (isKind(envelope, "bandwidth")) {
     return { kind: "bandwidth", report: envelope.data };
   }
+  if (isKind(envelope, "pausing")) {
+    return { kind: "pausing", report: envelope.data };
+  }
   if (isKind(envelope, "update")) {
     return { kind: "update", report: envelope.data };
   }

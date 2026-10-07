@@ -1,11 +1,13 @@
 /**
- * How the line is shared, and what moving onto this build's pins would come
- * to, as a suite stands them in for a running lemonfiber.
+ * How the line is shared, what pausing every download came to, and what
+ * moving onto this build's pins would come to, as a suite stands them in for a
+ * running lemonfiber.
  *
  * Declared as the payload the kind it names carries, so the compiler asks
  * whether each field is one the contract has rather than whoever wrote the
  * reader and the body agreeing with each other.
  */
+import type { Paused } from "../lib/paused";
 import type { Shared } from "../lib/shared";
 import type { Updated } from "../lib/updated";
 
@@ -55,6 +57,31 @@ export const declared: Shared = {
   ratio: "Holding uploads back makes some trackers slower to give.",
   respite_says: null,
   acting: null,
+};
+
+/** Why one download client could not be asked to pause. */
+export const unreached = "Connection refused at sabnzbd:8080.";
+
+/** Every download client paused: one stopped, and one nobody reached. */
+export const paused: Paused = {
+  asked: "pause",
+  rehearsed: false,
+  clients: [
+    { client: "qbittorrent", was: "fetching", now: "stopped" },
+    { client: "sabnzbd", unreached },
+  ],
+};
+
+/** What a resume runs into while a spent cap holds the clients. */
+export const capped =
+  "The month's cap is spent, so the next check of the line stops them again.";
+
+/** Every download client resumed under a spent cap. */
+export const resumed: Paused = {
+  asked: "resume",
+  rehearsed: false,
+  caution: capped,
+  clients: [{ client: "qbittorrent", was: "stopped", now: "fetching" }],
 };
 
 /** A steps plan: two services behind their pins, one of them a one-way step. */

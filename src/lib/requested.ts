@@ -75,7 +75,7 @@ export type Pairing = "companion-pair";
  * Something the line panel can ask for, named as the endpoint names it. What
  * it takes and how it is asked about is in `./sharing`.
  */
-export type Sharing = "bandwidth";
+export type Sharing = "bandwidth" | "downloads-pause" | "downloads-resume";
 
 /**
  * Something the updates panel can ask for, named as the endpoint names it.

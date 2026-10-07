@@ -237,6 +237,10 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_pair_title();
     case "bandwidth":
       return m.doing_bandwidth_title();
+    case "downloads-pause":
+      return m.doing_pause_title();
+    case "downloads-resume":
+      return m.doing_resume_title();
     case "update":
       return m.doing_update_title();
     case "reissue":

@@ -3,7 +3,7 @@ import Settings from "./Settings.svelte";
 import { configurer, everySetting, stagedChange } from "./configured";
 import { inForce, putQualityBack, readCost, tuner } from "./tuned";
 import { made, pairer } from "./paired";
-import { planRecord, shared, sharer, updater } from "./lined";
+import { pausedRecord, planRecord, shared, sharer, updater } from "./lined";
 
 const answered = { kind: "answered", secondsAgo: 6 } as const;
 
@@ -84,5 +84,16 @@ export const TheLineAndTheVersions: Story = {
     line: { ok: true, value: shared },
     sharer,
     updater: { ...updater, work: [planRecord] },
+  },
+};
+
+/**
+ * Every download paused: one client stopped and one nobody reached, said in
+ * the client's own words rather than read as paused.
+ */
+export const EveryDownloadPaused: Story = {
+  args: {
+    line: { ok: true, value: shared },
+    sharer: { ...sharer, work: [pausedRecord] },
   },
 };
