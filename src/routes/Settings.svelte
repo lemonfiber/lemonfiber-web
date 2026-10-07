@@ -2,6 +2,7 @@
   import Board from "./Board.svelte";
   import Configuration from "./panels/Configuration.svelte";
   import Line from "./panels/Line.svelte";
+  import Outbound from "./panels/Outbound.svelte";
   import Pairing from "./panels/Pairing.svelte";
   import Quality from "./panels/Quality.svelte";
   import Updates from "./panels/Updates.svelte";
@@ -9,6 +10,7 @@
   import type { Configured } from "../lib/configured";
   import type { Configurer } from "../lib/configuring";
   import type { Freshness } from "../lib/freshness";
+  import type { Leaving } from "../lib/leaving";
   import type { Pairer } from "../lib/pairing";
   import type { Shared } from "../lib/shared";
   import type { Sharer } from "../lib/sharing";
@@ -23,6 +25,8 @@
     settings?: Reading<Configured> | undefined;
     /** How the line is shared, or why it could not be read. */
     line?: Reading<Shared> | undefined;
+    /** Everything that leaves this machine, or why it could not be read. */
+    outbound?: Reading<Leaving> | undefined;
     /** When this screen's sources last answered. */
     freshness: Freshness;
     /**
@@ -44,6 +48,7 @@
     quality,
     settings,
     line,
+    outbound,
     freshness,
     tuner,
     configurer,
@@ -56,7 +61,8 @@
 <!--
   How the stack is set up, and what can be changed about it from here: the
   quality new media is fetched at, every setting lemonfiber keeps, how the line
-  is shared, the versions the stack stands on, and pairing the companion app.
+  is shared, everything that leaves this machine, the versions the stack stands
+  on, and pairing the companion app.
 
   The readings are asked for together on the way in, and stamped together.
   The line is drawn where it was read or can be declared.
@@ -69,6 +75,7 @@
   {#if line !== undefined || sharer !== undefined}
     <Line {line} {freshness} {sharer} />
   {/if}
+  <Outbound {outbound} {freshness} />
 
   {#if updater !== undefined}
     <Updates {updater} {freshness} />

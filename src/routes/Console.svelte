@@ -20,16 +20,19 @@
   import { Asked, Desk } from "./desk.svelte";
   import { Saving } from "./saving.svelte";
   import { Tracing } from "./tracing.svelte";
+  import {
+    readSettings,
+    readStorage,
+    type Answered,
+    type SettingsRead,
+    type StorageRead,
+  } from "./readings";
   import type { Flow } from "../lib/flow";
   import { mending, type Mend, type Mender } from "../lib/mending";
   import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
-  import type { Archives } from "../lib/kept";
-  import type { Configured } from "../lib/configured";
   import { configuring } from "../lib/configuring";
-  import type { Tuned } from "../lib/tuned";
   import { finding } from "../lib/finding";
   import { pairing } from "../lib/pairing";
-  import type { Shared } from "../lib/shared";
   import { sharing } from "../lib/sharing";
   import { updating } from "../lib/updating";
   import { tending } from "../lib/tending";
@@ -38,7 +41,6 @@
   import { hosting } from "../lib/hosting";
   import type { Hosted } from "../lib/removed";
   import { removing } from "../lib/removing";
-  import type { Reckoned } from "../lib/letting";
   import { reclaiming } from "../lib/reclaiming";
   import { lettingGo } from "../lib/seeding";
   import { placeChangedBy } from "../lib/rereading";
@@ -93,13 +95,10 @@
   let preview = $state<Reading<Preview> | undefined>(undefined);
   let previewedAt = $state<number | undefined>(undefined);
   let diagnosis = $state<Reading<Diagnosis> | undefined>(undefined);
-  let aboutDisk = $state<Reading<Diagnosis> | undefined>(undefined);
-  let space = $state<Reading<Reckoned> | undefined>(undefined);
+  let disk = $state<StorageRead | undefined>(undefined);
   let lines = $state<Reading<readonly Logged[]> | undefined>(undefined);
   let household = $state<Reading<Household> | undefined>(undefined);
-  let quality = $state<Reading<Tuned> | undefined>(undefined);
-  let config = $state<Reading<Configured> | undefined>(undefined);
-  let line = $state<Reading<Shared> | undefined>(undefined);
+  let setup = $state<SettingsRead | undefined>(undefined);
   let stampedAt = $state<number | undefined>(undefined);
   let moment = $state<Moment | undefined>(undefined);
   let flow = $state<Flow>("opening");
@@ -108,7 +107,6 @@
   let now = $state(Date.now());
   let waitingSaid = $state<string | undefined>(undefined);
   let confirming = $state<Doing | undefined>(undefined);
-  let archives = $state<Reading<Archives> | undefined>(undefined);
   let picked = $state<readonly string[]>([]);
   let listening = $state(false);
 
@@ -188,17 +186,9 @@
       case "checks":
         diagnosis = noted(where, await asked(reaching, "checks", "doctor"));
         return;
-      case "storage": {
-        const [disk, kept, reckoned] = await Promise.all([
-          asked(reaching, "storage", "doctor"),
-          asked(reaching, "backups", "archives"),
-          asked(reaching, "space", "space"),
-        ]);
-        aboutDisk = noted(where, disk);
-        archives = noted(where, kept);
-        space = noted(where, reckoned);
+      case "storage":
+        disk = all(where, await readStorage(reaching));
         return;
-      }
       case "logs":
         lines = noted(where, await scrollback(reaching));
         return;
@@ -208,17 +198,9 @@
           await asked(reaching, "requests", "household"),
         );
         return;
-      case "settings": {
-        const [choice, held, shared] = await Promise.all([
-          asked(reaching, "quality", "quality"),
-          asked(reaching, "config", "config"),
-          asked(reaching, "bandwidth", "bandwidth"),
-        ]);
-        quality = noted(where, choice);
-        config = noted(where, held);
-        line = noted(where, shared);
+      case "settings":
+        setup = all(where, await readSettings(reaching));
         return;
-      }
     }
   }
 
@@ -235,6 +217,13 @@
     if (where === place) stampedAt = Date.now();
     if (turnedAway(answer)) onrefused();
     return answer;
+  }
+
+  /** Take every reading a screen was drawn from, as one answer. */
+  function all<T>(where: Place, answered: Answered<T>): T {
+    if (where === place) stampedAt = Date.now();
+    if (answered.refused) onrefused();
+    return answered.read;
   }
 
   /**
@@ -520,12 +509,12 @@
     <Storage
       disk={moment?.storage}
       {live}
-      diagnosis={aboutDisk}
+      diagnosis={disk?.diagnosis}
       read={stamped}
-      keeping={{ keeper, archives }}
+      keeping={{ keeper, archives: disk?.archives }}
       remover={removeAsks.asker}
-      letting={{ letter: letAsks.asker, space }}
-      reclaiming={{ reclaimer: reclaimAsks.asker, space }}
+      letting={{ letter: letAsks.asker, space: disk?.space }}
+      reclaiming={{ reclaimer: reclaimAsks.asker, space: disk?.space }}
     />
   {:else if place === "logs"}
     <Logs scrollback={lines} freshness={stamped} />
@@ -533,9 +522,10 @@
     <Requests {household} freshness={stamped} {tender} {finder} {tracer} />
   {:else}
     <Settings
-      {quality}
-      settings={config}
-      {line}
+      quality={setup?.quality}
+      settings={setup?.settings}
+      line={setup?.line}
+      outbound={setup?.outbound}
       freshness={stamped}
       tuner={tuneAsks.asker}
       configurer={changeAsks.asker}
