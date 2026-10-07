@@ -1,0 +1,20 @@
+# What this repository has built against the specification, one row per
+# requirement (OPS-R74). Change a row in the pull request that changes whether
+# its requirement is met. The format and the checks are in the specification's
+# scripts/status_check.py; the release gate reads this file.
+
+requirement = [
+  { id = "ARCH-R36", state = "partial", evidence = ["scripts/guards.mjs", "src/app.css", "src/components/Item.svelte"] },
+  { id = "D7-R15", state = "partial", evidence = ["src/lib/yours.ts", "lemonfiber:crates/lemonfiber-core/src/model/household.rs", "lemonfiber:crates/lemonfiber-core/src/asking/refusal.rs", "src/lib/yours.test.ts"] },
+  { id = "G10-R1", state = "done", evidence = ["src/App.svelte", "src/api/token.ts", "src/App.test.ts"] },
+  { id = "G10-R2", state = "done", evidence = ["src/routes/Member.test.ts", "lemonfiber:crates/lemonfiber-api/src/entitled/tests.rs", "src/routes/Member.svelte", "src/api/member.ts"] },
+  { id = "G10-R5", state = "done", evidence = ["src/routes/Asked.svelte", "src/lib/yours.ts", "lemonfiber:crates/lemonfiber-core/src/household/run/allowance.rs", "src/routes/Asked.test.ts"] },
+  { id = "G10-R6", state = "done", evidence = ["src/routes/Member.test.ts", "src/routes/Shelf.test.ts", "lemonfiber:crates/lemonfiber-core/src/model/household.rs", "lemonfiber:crates/lemonfiber-api/src/entitled.rs"] },
+  { id = "G10-R9", state = "done", evidence = ["src/routes/Member.test.ts", "src/routes/Asked.test.ts", "lemonfiber:crates/lemonfiber-api/src/entitled.rs", "src/lib/rooms.ts"] },
+  { id = "G10-R10", state = "done", evidence = ["src/routes/Away.test.ts", "src/routes/Member.test.ts", "src/api/member.ts", "src/routes/Away.svelte"] },
+  { id = "G10-R11", state = "done", evidence = ["src/routes/Member.test.ts", "src/App.test.ts", "src/routes/Member.svelte", "src/App.svelte"] },
+  { id = "G3-R3", state = "done", evidence = ["scripts/a11y.mjs"] },
+  { id = "G3-R4", state = "done", evidence = ["svelte.config.js", "scripts/warned.mjs", "scripts/a11y.mjs"] },
+  { id = "G3-R5", state = "done", evidence = ["scripts/a11y.mjs", "src/components/Switch.svelte", "src/components/Skeleton.svelte"] },
+  { id = "G3-R13", state = "done", evidence = ["scripts/guards.mjs", "src/app.css"] },
+]
