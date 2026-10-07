@@ -72,6 +72,7 @@
   "line_client_silent": "{client} did not answer: {said}",
   "line_said": "How the line is shared",
   "line_declare": "Declare how the line is shared",
+  "line_pausing": "Pause or resume every download",
   "line_down": "Download limit",
   "line_up": "Upload limit",
   "line_share_hint": "A share of the line, such as 50%, or a figure, such as 20Mbit. Left empty, it stays as it is.",

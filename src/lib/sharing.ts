@@ -1,5 +1,6 @@
 /**
- * Declaring how the line is shared, and how the asking reads.
+ * Declaring how the line is shared, pausing and resuming every download, and
+ * how the asking reads.
  *
  * One request, named as the command line names it. A declaration is carried as
  * it was written and read by lemonfiber, which answers with how the line is
@@ -8,6 +9,10 @@
  * empty is left as it is rather than cleared.
  *
  * Lifting the limits for a while is the same request, naming how many minutes.
+ *
+ * Pausing every download client, and resuming them, are a request each and name
+ * nothing. Neither is asked about first: a pause holds until a resume lets it
+ * go, and a resume is answered with whatever would stop the clients again.
  */
 import type { Arguments } from "../api/acting";
 import { sameDoing, type Asker, type Family } from "./asker";
@@ -15,7 +20,11 @@ import type { Came } from "./came";
 import type { Requested, Sharing } from "./work";
 
 /** Every request the line panel makes. */
-export const everySharing: readonly Sharing[] = ["bandwidth"];
+export const everySharing: readonly Sharing[] = [
+  "bandwidth",
+  "downloads-pause",
+  "downloads-resume",
+];
 
 /** Whether a record is of something the line panel asked for. */
 export function isSharing(doing: Requested): doing is Sharing {
@@ -59,7 +68,9 @@ export type Declare =
   /** Limits declared, as typed. */
   | { readonly doing: "bandwidth"; readonly declared: Declared }
   /** The limits lifted for this many minutes. */
-  | { readonly doing: "bandwidth"; readonly minutes: number };
+  | { readonly doing: "bandwidth"; readonly minutes: number }
+  /** Every download client paused, or resumed. */
+  | { readonly doing: "downloads-pause" | "downloads-resume" };
 
 /** The fields a declaration can name as typed, in the order they are shown. */
 export const everyTyped = ["down", "up", "active", "line", "cap"] as const;
@@ -91,9 +102,9 @@ export { linesTyped as minutesTyped } from "./upkeep";
 
 /** What to send for one asking. */
 export function givenForDeclare(declare: Declare): Arguments {
-  return "minutes" in declare
-    ? { unrestricted_for: declare.minutes }
-    : { ...declare.declared };
+  if ("minutes" in declare) return { unrestricted_for: declare.minutes };
+  if ("declared" in declare) return { ...declare.declared };
+  return {};
 }
 
 /** How the line panel's requests are asked for. */

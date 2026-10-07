@@ -14,7 +14,15 @@ import {
   type Asked,
   type Says,
 } from "./served";
-import { declared, means, moved, plan, shared } from "../api/lines";
+import {
+  capped,
+  declared,
+  means,
+  moved,
+  plan,
+  resumed,
+  shared,
+} from "../api/lines";
 import { inForce } from "../api/qualities";
 import { stepLine } from "../lib/updated";
 import * as m from "../paraglide/messages.js";
@@ -98,6 +106,29 @@ describe("the line, from the settings screen", () => {
     const asked = screen.getByRole("status", { name: m.line_asked() });
     expect(await within(asked).findByText(unread)).toBeInTheDocument();
     expect(within(asked).getByText(m.eyebrow_refused())).toBeInTheDocument();
+  });
+});
+
+describe("pausing and resuming, from the settings screen", () => {
+  it("resumes every download and says what each client read back", async () => {
+    const sent = fresh();
+    settling(sent, {
+      "downloads-resume": [
+        { status: 200, body: enveloped("pausing", resumed) },
+      ],
+    });
+    await screen.findByText(means);
+
+    await press(m.action_downloads_resume());
+
+    expect(sent.posted).toStrictEqual([
+      { at: "/api/actions/downloads-resume", body: "{}" },
+    ]);
+    const asked = screen.getByRole("status", { name: m.line_asked() });
+    expect(
+      await within(asked).findByText(m.doing_resume_title()),
+    ).toBeInTheDocument();
+    expect(within(asked).getByText(capped)).toBeInTheDocument();
   });
 });
 

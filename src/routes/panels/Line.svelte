@@ -82,6 +82,8 @@
   left as it is. What happens when a cap is reached is asked only where a cap
   is typed. Declaring is made at once and answered with how the line is now
   shared; lifting the limits for a while is the same request, naming minutes.
+  Every download is paused, or resumed, at once, and answered with what each
+  download client read back.
 -->
 <Panel title={m.panel_line()} {freshness} flush>
   <div class="scope">
@@ -198,6 +200,24 @@
         {/if}
       </div>
     </div>
+    <div class="pausing" role="group" aria-label={m.line_pausing()}>
+      <Action
+        label={m.action_downloads_pause()}
+        off={silent}
+        onclick={() => {
+          sharer.onask({ doing: "downloads-pause" });
+          landing();
+        }}
+      />
+      <Action
+        label={m.action_downloads_resume()}
+        off={silent}
+        onclick={() => {
+          sharer.onask({ doing: "downloads-resume" });
+          landing();
+        }}
+      />
+    </div>
   {/if}
 
   <div
@@ -277,6 +297,14 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--sp-2);
+  }
+
+  .pausing {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    padding: var(--sp-3) var(--panel-pad);
+    border-top: 1px solid var(--line);
   }
 
   .lift {
