@@ -27,27 +27,27 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    uses: lemonfiber/spec/.github/workflows/spec-check.yml@999f97e9414290f029391d5d541087b8a6d23bdf # v1.0.29
+    uses: lemonfiber/spec/.github/workflows/spec-check.yml@92ec12769c3fdebc6063a839e9ea7c8bc23e6d3d # v1.0.31
   hygiene:
-    uses: lemonfiber/spec/.github/workflows/hygiene.yml@999f97e9414290f029391d5d541087b8a6d23bdf # v1.0.29
+    uses: lemonfiber/spec/.github/workflows/hygiene.yml@92ec12769c3fdebc6063a839e9ea7c8bc23e6d3d # v1.0.31
   # Every pin this repository holds on a shared workflow, against what the spec's
   # default branch holds now. It fails naming the commits a pin has not taken; a
   # run that could not ask which they are says so rather than reporting clean.
   workflow-pins:
-    uses: lemonfiber/spec/.github/workflows/workflow-pins.yml@999f97e9414290f029391d5d541087b8a6d23bdf # v1.0.29
+    uses: lemonfiber/spec/.github/workflows/workflow-pins.yml@92ec12769c3fdebc6063a839e9ea7c8bc23e6d3d # v1.0.31
   security:
-    uses: lemonfiber/spec/.github/workflows/security.yml@999f97e9414290f029391d5d541087b8a6d23bdf # v1.0.29
+    uses: lemonfiber/spec/.github/workflows/security.yml@92ec12769c3fdebc6063a839e9ea7c8bc23e6d3d # v1.0.31
   dco:
-    uses: lemonfiber/spec/.github/workflows/dco.yml@999f97e9414290f029391d5d541087b8a6d23bdf # v1.0.29
+    uses: lemonfiber/spec/.github/workflows/dco.yml@92ec12769c3fdebc6063a839e9ea7c8bc23e6d3d # v1.0.31
   attribution:
-    uses: lemonfiber/spec/.github/workflows/attribution.yml@999f97e9414290f029391d5d541087b8a6d23bdf # v1.0.29
+    uses: lemonfiber/spec/.github/workflows/attribution.yml@92ec12769c3fdebc6063a839e9ea7c8bc23e6d3d # v1.0.31
   commitlint:
-    uses: lemonfiber/spec/.github/workflows/commitlint.yml@999f97e9414290f029391d5d541087b8a6d23bdf # v1.0.29
+    uses: lemonfiber/spec/.github/workflows/commitlint.yml@92ec12769c3fdebc6063a839e9ea7c8bc23e6d3d # v1.0.31
   labeler:
     permissions:
       contents: read
       pull-requests: write
-    uses: lemonfiber/spec/.github/workflows/labeler.yml@999f97e9414290f029391d5d541087b8a6d23bdf # v1.0.29
+    uses: lemonfiber/spec/.github/workflows/labeler.yml@92ec12769c3fdebc6063a839e9ea7c8bc23e6d3d # v1.0.31
 
   # OPS-R39, OPS-R40, OPS-R42: label a PR that cites a goal the staged version
   # locks, put it in that version's milestone, comment which goals it moves, and
@@ -67,7 +67,7 @@ jobs:
       contents: read
       pull-requests: write
       issues: write
-    uses: lemonfiber/spec/.github/workflows/goal-automations.yml@999f97e9414290f029391d5d541087b8a6d23bdf # v1.0.29
+    uses: lemonfiber/spec/.github/workflows/goal-automations.yml@92ec12769c3fdebc6063a839e9ea7c8bc23e6d3d # v1.0.31
 
   # SonarCloud scans this repo by Automatic Analysis, which reports the quality
   # gate and not the zero-new-issues standard. This reads the summary it posts
@@ -77,7 +77,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    uses: lemonfiber/spec/.github/workflows/sonar-gate.yml@999f97e9414290f029391d5d541087b8a6d23bdf # v1.0.29
+    uses: lemonfiber/spec/.github/workflows/sonar-gate.yml@92ec12769c3fdebc6063a839e9ea7c8bc23e6d3d # v1.0.31
     with:
       allowed-open: 2
     secrets:
