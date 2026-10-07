@@ -34,8 +34,8 @@
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
-    "@lemonfiber/brand": "github:lemonfiber/brand#54e0d70b1d39ff205512cfec8c1553b1a4ae44e4",
-    "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#10dffd09f6e15cc6589d3ec2cb22f20f8ff8192b"
+    "@lemonfiber/brand": "github:lemonfiber/brand#566e04f5a6c514b67034ccd8ef5a3e935fb706e3",
+    "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#420a4695afdc57f1e19ea1a55dec85e3a48acd24"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
