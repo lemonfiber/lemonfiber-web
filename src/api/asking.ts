@@ -7,6 +7,7 @@
  * repository would be a surface that had learned something on its own.
  */
 import {
+  DEFAULT_TIMEOUT_MS,
   address,
   Client,
   follow,
@@ -177,6 +178,7 @@ async function said(reaching: Reaching, url: string): Promise<Reading<string>> {
       method: "GET",
       redirect: "error",
       headers: { [TOKEN_HEADER]: reaching.token, Accept: "application/json" },
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
     });
     const body = await answer.text();
     if (answer.ok) return { ok: true, value: body };

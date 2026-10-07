@@ -21,6 +21,7 @@ describe("the transport", () => {
       method: "GET",
       headers: { Accept: "application/json" },
       redirect: "error" as const,
+      signal: new AbortController().signal,
     };
     const got = await sending(where, init);
 

@@ -15,6 +15,7 @@
  * thing the client's own reader has a single answer for.
  */
 import {
+  DEFAULT_TIMEOUT_MS,
   address,
   TOKEN_HEADER,
   unreachable,
@@ -67,6 +68,7 @@ export async function reached(
       redirect: "error",
       headers,
       ...(carrying.body !== undefined && { body: carrying.body }),
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
     });
     return { ok: true, status: answer.status, said: await answer.text() };
   } catch {
