@@ -8,47 +8,53 @@
 <h1 align="center">Lemonfiber &mdash; lemonfiber-web</h1>
 
 <p align="center">
-  The web surface: an operator console and a household view, drawn from the JSON
-  API the <code>lemonfiber</code> binary serves. A static application with no
-  server of its own.
+  lemonfiber's web interface: a console for the person who runs the stack, and
+  a view for everyone else in the household.
 </p>
 
 <p align="center">
-  <img alt="Status" src="https://img.shields.io/badge/status-in%20progress%20%C2%B7%20M7-F0C419?labelColor=17160F">
   <img alt="Licence" src="https://img.shields.io/badge/licence-Hippocratic%203.0-17160F">
 </p>
 
 ---
 
-> **Status: early.** The component library is built, and the operator's console
-> and the household view are assembled from it. This repo is milestone **M7** on the
-> [roadmap](https://github.com/lemonfiber/spec/blob/main/00-overview/roadmap.md).
-> Full account in the spec:
-> [`30-repos/lemonfiber-web.md`](https://github.com/lemonfiber/spec/blob/main/30-repos/lemonfiber-web.md).
+This is the browser interface to a [lemonfiber](https://github.com/lemonfiber/lemonfiber)
+stack. You do not install it on its own: the `lemonfiber` binary carries a
+built copy and serves it.
 
-## What it is
+```console
+$ lemonfiber ui
+lemonfiber is serving at:
+  http://[::1]:49596
+  http://127.0.0.1:49596
+…
+The token for this run, which the page will ask you for:
+  417284f4…
+```
 
-A **static application with no server of its own**. It is built to a directory of
-files, and on a version tag [`publish.yml`](.github/workflows/publish.yml) pushes
-that build output to a `built-<tag>` tag — the form the `lemonfiber` binary takes
-it in, as a pinned submodule it embeds. `v0.1.0` is cut, so `built-v0.1.0` is what
-`lemonfiber` pins at `assets/web` and embeds. The build declares the wire version it
-speaks in `app.json`, and the binary refuses to compile against an app that speaks
-one it does not serve.
+Open the address, paste the token, and sign in. `lemonfiber ui --help` lists the
+options, such as `--lan` to offer it to your network.
 
-`lemonfiber`'s
-[web API](https://github.com/lemonfiber/spec/blob/main/20-architecture/contracts/web-api.md)
-is the only place this application may get data from, and it reaches nothing else.
-The operator's console asks it for what it draws, asks it to act on the forms
-the stack declares, and redeems the name work outliving a request comes back
-with. The household view asks it for what the member signed in asked for and
-what the household holds that they can watch, and nothing else.
+> **Status:** the console offers part of what the command line can do.
+> [docs/surface-parity.md](docs/surface-parity.md) lists every request and every
+> kind of answer it does not offer yet.
 
-That constraint is the point rather than a limitation. `G1-R2` says no surface may
-implement behaviour independently, and an application whose only capability is to
-ask the core and draw the answer **cannot** violate it.
+## How it works
 
-## The two surfaces
+It is a static application with no server of its own. It gets every piece of
+data from lemonfiber's local
+[web API](https://github.com/lemonfiber/spec/blob/main/20-architecture/contracts/web-api.md),
+through the [`@lemonfiber/sdk-ts`](https://github.com/lemonfiber/sdk-ts) client,
+and reaches nothing else: no CDN, no font host, no analytics. It decides nothing
+itself; it asks lemonfiber and draws the answer.
+
+On a version tag, [`publish.yml`](.github/workflows/publish.yml) pushes the build
+output to a `built-<tag>` tag. The `lemonfiber` repository pins one of those
+tags as a submodule at `assets/web` and embeds it in the binary. The build
+declares the API version it speaks in `app.json`, and the binary refuses to
+compile against an app that speaks a version it does not serve.
+
+## The two views
 
 The application serves two audiences, and they are **not** the same interface with
 things hidden:
@@ -66,34 +72,23 @@ household member's, and lemonfiber's answer names the member or nobody. Neither
 the address nor a setting chooses, and neither view holds a permission —
 lemonfiber refuses whatever a session may not have, whichever view sent it.
 
-Neither offers everything yet. The console offers a handful of the requests the
-command line can make and reads a handful of the answers the client carries;
-[`docs/surface-parity.md`](docs/surface-parity.md) counts both, and names every
-request and answer not offered yet with the feature it belongs to.
+## Working on it
 
-## Running it
+You need Node 26 or newer (`engines` in `package.json`).
 
 ```console
 npm ci
 npm run dev
 ```
 
-That serves the application on Vite's dev server, which has no back end of its own
-and no proxy to one. The page asks lemonfiber at its own address, which is the
-address the binary serves it from — so the dev server draws the shell and the
-empty states, and a console with figures in it means running a build the binary
-carries.
+The dev server draws the shell and the empty states only. It has no back end and
+no proxy: the page asks lemonfiber at its own address. To see real data, serve
+your build through the binary: `just ready` (once, to build the client), then
+`npm run build` and `lemonfiber ui --assets dist`.
 
-Requires Node **26 or newer**, as declared in `engines`.
+`npm ci` also turns on the repository's git hooks.
 
-`npm ci` is also what turns on this repository's pre-push hook, which refuses a
-push that would leave a branch carrying no commit `origin/main` does not — what
-pushing the trunk over a feature branch looks like. npm's `prepare` script does
-it, so `npm install` serves too. A clone nobody has installed into has no hook:
-it is `git config core.hooksPath .githooks`, per clone, and git cannot read
-`.githooks/` on its own.
-
-## The gate
+### The gate
 
 ```console
 just ready     # once per clone, and again whenever the SDK moves
@@ -118,26 +113,14 @@ runs on its own while you work — `npm test` for the fast loop, `npm run storyb
 to build a component in isolation, and `npm run a11y` to sweep every built story in
 a browser (after `npm run storybook:build`).
 
-The Rust workspace's standards apply here from the first commit, in their web
-equivalents: 100% coverage across lines, statements, branches and functions;
-`strict` TypeScript with `any` and non-null assertions banned; zero lint warnings
+The `lemonfiber` repository's standards apply here, in their web equivalents:
+100% coverage across lines, statements, branches and functions; `strict`
+TypeScript with `any` and non-null assertions banned; zero lint warnings
 tolerated; architecture and file-size guards; every Svelte `a11y_` warning
 refused at the compile, and accessibility asserted in the component tests and
 swept over every built story in a browser. The
 [spec page](https://github.com/lemonfiber/spec/blob/main/30-repos/lemonfiber-web.md)
 maps each one to the workspace rule it mirrors.
-
-## What this repo must not do
-
-These are the load-bearing rules, and each has a spec requirement behind it:
-
-| Rule                                   | Why                                                                                                                                                                |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Reach anything but `lemonfiber`**    | No CDN, no font host, no analytics, no telemetry. Every asset it draws is embedded at build time                                                                   |
-| **Talk to the API directly**           | Transport, the event stream and version negotiation belong to [`@lemonfiber/sdk-ts`](https://github.com/lemonfiber/sdk-ts); this repo renders what the SDK returns |
-| **Implement behaviour**                | If the answer is not in an envelope, the surface does not know it (`G1-R2`)                                                                                        |
-| **Invent an action**                   | Everything it can do, the CLI can do (`ARCH-R48`)                                                                                                                  |
-| **Hardcode a colour, size or spacing** | Those belong to [`@lemonfiber/brand`](https://github.com/lemonfiber/brand) and are consumed as data                                                                |
 
 ## What it consumes
 
@@ -159,27 +142,24 @@ lettering.
 
 ## Contributing
 
-The spec is **canonical**: every change cites a spec identifier that already
-exists. Routine maintenance cites `GOV-R12`.
+Every change cites a requirement in the
+[specification](https://github.com/lemonfiber/spec); routine maintenance cites
+`GOV-R12`. The [spec page for this repository](https://github.com/lemonfiber/spec/blob/main/30-repos/lemonfiber-web.md)
+explains why it is shaped this way. Read the
+[contributing guide](https://github.com/lemonfiber/spec/blob/main/50-governance/contributing.md)
+and [AGENTS.md](AGENTS.md) first.
 
-- [Contributing guide](https://github.com/lemonfiber/.github/blob/main/CONTRIBUTING.md)
-  · [Support](https://github.com/lemonfiber/.github/blob/main/SUPPORT.md)
-  · [Security](https://github.com/lemonfiber/.github/blob/main/SECURITY.md)
-  · [Code of conduct](https://github.com/lemonfiber/.github/blob/main/CODE_OF_CONDUCT.md)
-- [ADR-0011](https://github.com/lemonfiber/spec/blob/main/00-overview/decisions/0011-web-surface-as-a-fifth-repo.md)
-  — why the web surface is its own repo
-- [ADR-0012](https://github.com/lemonfiber/spec/blob/main/00-overview/decisions/0012-web-assets-embedded-at-build-time.md)
-  — how it ships
-- [ADR-0013](https://github.com/lemonfiber/spec/blob/main/00-overview/decisions/0013-an-sdk-owns-the-api-client.md)
-  — why it goes through an SDK rather than `fetch`
-- [G1 interface tiers](https://github.com/lemonfiber/spec/blob/main/10-functional/features/g-ux/g1-interface-tiers.md)
-  · [G3 accessibility](https://github.com/lemonfiber/spec/blob/main/10-functional/features/g-ux/g3-accessibility.md)
+[Support](https://github.com/lemonfiber/.github/blob/main/SUPPORT.md) ·
+[Security](https://github.com/lemonfiber/.github/blob/main/SECURITY.md) ·
+[Code of conduct](https://github.com/lemonfiber/.github/blob/main/CODE_OF_CONDUCT.md)
 
 ## Licence
 
 [Hippocratic License 3.0](LICENSE) — ethical-source, source-available,
 deliberately not OSI-approved. See the
 [rationale](https://github.com/lemonfiber/spec/blob/main/90-appendix/license-rationale.md).
+
+lemonfiber is made by [NightWorksIO](https://nightworks.io).
 
 ---
 
