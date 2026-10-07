@@ -125,6 +125,9 @@ export interface Sent {
   redeemed: string[];
 }
 
+/** Nothing asked of the write endpoints yet. */
+const nothingSent = (): Sent => ({ bodies: [], redeemed: [] });
+
 /** Work the runtime took, as the action endpoint answers it. */
 export const accepted: Says = {
   status: 202,
@@ -167,7 +170,7 @@ export const going: Says = accepted;
  */
 export function acting(
   reply: Says,
-  sent: Sent = { bodies: [], redeemed: [] },
+  sent: Sent = nothingSent(),
   becoming: readonly Says[] = [rendered],
 ): Sending {
   let asked = 0;
