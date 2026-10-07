@@ -6,6 +6,13 @@
     "https://cdn.jsdelivr.net/npm/@inlang/plugin-message-format@4/dist/index.js"
   ],
   "plugin.inlang.messageFormat": {
-    "pathPattern": "./messages/{locale}.json"
+    "pathPattern": [
+      "./messages/{locale}/common.json",
+      "./messages/{locale}/dashboard.json",
+      "./messages/{locale}/door.json",
+      "./messages/{locale}/household.json",
+      "./messages/{locale}/upkeep.json",
+      "./messages/{locale}/work.json"
+    ]
   }
 }

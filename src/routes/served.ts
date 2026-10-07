@@ -1,7 +1,8 @@
 /**
  * A stack the console is opened against in its suites, answering as each suite
- * tells it to. Opening the console itself stays in each suite, which is what
- * leans on the tools that only tests carry.
+ * tells it to. Nothing here leans on the tools only tests carry. A helper that
+ * does, such as one opening the console, lives in a `.testing.ts` module, which
+ * only a suite, a story or another such module may import.
  *
  * Each action is answered with the next of the replies it was told, and with a
  * name for the work where it was told none. Each name is redeemed for the next
