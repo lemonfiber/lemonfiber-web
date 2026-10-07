@@ -20,11 +20,13 @@ import {
   unreachable,
   type Arrival,
   type ByKind,
+  type DocumentRead,
   type Fetching,
   type Kind,
   type Problem,
-  type Query,
   type Reading,
+  type ReadAnswer,
+  type ReadQuery,
   type Sending,
 } from "@lemonfiber/sdk-ts";
 import type { Logged } from "../lib/wire";
@@ -51,21 +53,26 @@ export interface Reaching {
 }
 
 /**
- * One endpoint's answer, narrowed to the payload the kind it names carries.
+ * One read's answer, narrowed to the payload the kind it names carries.
  *
- * An envelope calling itself something else is refused rather than read: the
+ * The read is named as the contract lists it, and the client package refuses an
+ * answer of a kind the contract does not list for that read. A read listed with
+ * more than one kind is narrowed further here, to the one this screen draws: the
  * generated types are what know which payload goes with which kind, and a
  * payload read under the wrong one is fields with changed meanings.
  *
- * A read that narrows by a question is given one. The client package builds the
- * query, so a value carrying a space or an ampersand is one parameter rather than
- * two, and no endpoint joins its own.
+ * A read that narrows by a question is given one, in the parameters the contract
+ * lists for it. The client package builds the query, so a value carrying a space
+ * or an ampersand is one parameter rather than two.
  */
-export async function asked<K extends Kind>(
+export async function asked<
+  N extends DocumentRead,
+  K extends ReadAnswer<N>["kind"],
+>(
   reaching: Reaching,
-  endpoint: string,
+  read: N,
   kind: K,
-  query?: Query,
+  query?: ReadQuery[N],
 ): Promise<Reading<ByKind[K]["data"]>> {
   const opened = Client.at({
     url: reaching.at,
@@ -74,7 +81,7 @@ export async function asked<K extends Kind>(
   });
   if (!opened.ok) return { ok: false, problem: opened.problem };
 
-  const reading = await opened.client.read(endpoint, query);
+  const reading = await opened.client.read(read, query);
   if (!reading.ok) return { ok: false, problem: reading.problem };
   if (!isKind(reading.value, kind)) return { ok: false, problem: malformed() };
 

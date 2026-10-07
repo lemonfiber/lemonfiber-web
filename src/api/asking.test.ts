@@ -82,11 +82,27 @@ describe("asked", () => {
   });
 
   // Reading a payload under the wrong kind is fields with changed meanings.
-  it("refuses an envelope calling itself something else", async () => {
+  it("refuses an envelope of a kind the read does not answer with", async () => {
     const got = await asked(
       reaching(answering(notFromLemonfiber("doctor", stack))),
       "status",
       "status",
+    );
+
+    expect(got).toMatchObject({
+      ok: false,
+      problem: { kind: "unrecognised" },
+    });
+  });
+
+  // `explain` answers one word as `word` and the whole table as `glossary`;
+  // the screen asking for one word draws only the first.
+  it("refuses the other kind a read answers with", async () => {
+    const got = await asked(
+      reaching(answering(enveloped("glossary", { words: [] }))),
+      "explain",
+      "word",
+      { word: "hardlink" },
     );
 
     expect(got).toMatchObject({ ok: false, problem: { kind: "malformed" } });
