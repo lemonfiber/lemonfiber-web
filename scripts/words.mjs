@@ -6,18 +6,31 @@
  * That sweep reads only paths inside its own repository, and this surface is a
  * separate one, so rules written to hold across every surface reached one of them.
  *
- * The corpus is `messages/en.json` and nothing else, which is the whole of what a
- * person reads here. `scripts/guards.mjs` refuses prose anywhere else in the tree,
- * so the collection point it enforces is what makes this sweep complete rather
- * than a sample of the words.
+ * The corpus is the base locale's catalogue files under `messages/`, as
+ * `project.inlang/settings.json` names them for the compiler, and nothing else.
+ * That is the whole of what a person reads here. `scripts/guards.mjs` refuses
+ * prose anywhere else in the tree, so the collection point it enforces is what
+ * makes this sweep complete rather than a sample of the words.
  *
  * A drawn screen is deliberately not the corpus. It carries another service's
  * name, a release title and whatever a daemon said back, and a sweep reading it
  * would be scanning words this product did not write.
  */
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const CORPUS = new URL("../messages/en.json", import.meta.url);
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
+const SETTINGS = JSON.parse(
+  readFileSync(join(ROOT, "project.inlang", "settings.json"), "utf8"),
+);
+
+/** Every catalogue file the base locale is compiled from, in the order named. */
+const CORPUS = [SETTINGS["plugin.inlang.messageFormat"].pathPattern]
+  .flat()
+  .map((pattern) =>
+    join(ROOT, pattern.replace("{locale}", SETTINGS.baseLocale)),
+  );
 
 /** The key inlang uses for the file's own schema, which nobody reads. */
 const SCHEMA = "$schema";
@@ -477,11 +490,54 @@ for (const { rule, find, refuses, allows } of PROVEN) {
 const FLOOR_MESSAGES = 250;
 const FLOOR_CHARACTERS = 6_000;
 
-const said = Object.entries(JSON.parse(readFileSync(CORPUS, "utf8"))).filter(
-  ([key]) => key !== SCHEMA,
-);
+// ── Which file holds a message ───────────────────────────────────────────
+
+/**
+ * Each message with the file it is kept in.
+ *
+ * The compiler merges the files into one set of keys, so a key kept twice is
+ * one of them silently replaced. A key's area is the part before its first
+ * underscore, and an area lives in one file: that is what tells a writer where
+ * a new key goes.
+ */
+const said = [];
+const keptIn = new Map();
+const areaIn = new Map();
+for (const path of CORPUS) {
+  const file = relative(ROOT, path);
+  const messages = Object.entries(JSON.parse(readFileSync(path, "utf8")));
+  for (const [key, message] of messages) {
+    if (key === SCHEMA) continue;
+    const before = keptIn.get(key);
+    if (before === undefined) keptIn.set(key, file);
+    else
+      fail(`${file}  ${key}`, `is kept in ${before} too — keep it in one file`);
+    const area = key.split("_")[0];
+    const home = areaIn.get(area);
+    if (home === undefined) areaIn.set(area, file);
+    else if (home !== file)
+      fail(
+        `${file}  ${key}`,
+        `belongs with the other ${area}_ keys in ${home}`,
+      );
+    said.push([file, key, message]);
+  }
+}
+
+/**
+ * A catalogue file the settings do not name is one the compiler never reads,
+ * so every key in it is a word no screen can show.
+ */
+for (const folder of new Set(CORPUS.map((path) => dirname(path))))
+  for (const name of readdirSync(folder))
+    if (name.endsWith(".json") && !CORPUS.includes(join(folder, name)))
+      fail(
+        relative(ROOT, join(folder, name)),
+        "is not named in project.inlang/settings.json, so nothing compiles it",
+      );
+
 const characters = said.reduce(
-  (total, [, message]) => total + message.length,
+  (total, [, , message]) => total + message.length,
   0,
 );
 
@@ -493,8 +549,8 @@ if (said.length < FLOOR_MESSAGES || characters < FLOOR_CHARACTERS)
       "it is reading the wrong file, or a file that no longer holds the words",
   );
 
-for (const [key, message] of said) {
-  const where = `messages/en.json  ${key}`;
+for (const [file, key, message] of said) {
+  const where = `${file}  ${key}`;
 
   for (const idiom of idioms(message))
     fail(

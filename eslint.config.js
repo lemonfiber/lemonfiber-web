@@ -68,7 +68,7 @@ export default tseslint.config(
   },
 
   {
-    files: ["**/*.test.ts", "e2e/**/*.ts"],
+    files: ["**/*.test.ts", "**/*.testing.ts", "e2e/**/*.ts"],
     rules: { "@typescript-eslint/no-unsafe-assignment": "off" },
   },
 

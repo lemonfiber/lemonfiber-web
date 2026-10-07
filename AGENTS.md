@@ -38,12 +38,15 @@ own style block: the `<input>` in `Field.svelte` and the `<a>` in `MenuItem.svel
 Structural geometry — a border width, an `aspect-ratio`, a `stroke-width` — is not
 a token and stays literal.
 
-**Every word a person reads comes from `messages/`.** Add a key, run
-`npm run messages`, import `* as m from "../paraglide/messages.js"`. Prefer a prop:
-a component is a shape and the screen supplies the words. Bare figures and proper
-nouns are data and stay literal. `scripts/words.mjs` reads what those keys say and
-refuses four things: an idiom, an acronym nobody declared ordinary, a fault named
-beside the person reading, and an explanation of a word.
+**Every word a person reads comes from `messages/`.** Add a key to the file in
+`messages/en/` that holds the other keys with its prefix, run `npm run messages`,
+import `* as m from "../paraglide/messages.js"`. A new area gets a new file, named
+in `project.inlang/settings.json`. Prefer a prop: a component is a shape and the
+screen supplies the words. Bare figures and proper nouns are data and stay literal.
+`scripts/words.mjs` reads what those keys say and refuses four things: an idiom,
+an acronym nobody declared ordinary, a fault named beside the person reading, and
+an explanation of a word. It also refuses a key kept in two files, a prefix split
+across files, and a file the settings do not name.
 
 **This ecosystem's own words are not among them.** _Indexer, hardlink, retention,
 ratio_ live in one table compiled into the binary and served at `/api/explain`.
@@ -100,7 +103,11 @@ app build · Storybook build · the accessibility sweep. All of it, green.
 Every component gets a `.test.ts` and a `.stories.ts` beside it. Tests query by
 role and accessible name and assert what a reader can observe, not that an element
 exists. Stories are `Foundations/<Name>` for atoms and `Surfaces/<Name>` for
-composites.
+composites. A screen with more to test than one file holds is tested in one file
+per concern beside it (`Dashboard.test.ts`, `DashboardDoor.test.ts`, …). Helpers
+those files share live in a `.testing.ts` module (`Dashboard.testing.ts`). It may
+use the test tools and is outside the coverage gate, so dependency-cruiser refuses
+an import of it from anything but a suite, a story or another `.testing.ts`.
 
 Commit with `git commit -s`, and carry a `Spec:` trailer naming an identifier that
 exists in the spec repo — grep for it before citing it.
@@ -118,7 +125,7 @@ src/routes/       the screens, the chrome they sit in, and the panels a screen
 src/app.css       brand tokens mapped to this interface's names, the element
                   reset, and the one `.said` utility every component would
                   otherwise restate
-messages/en.json  every word a person reads
+messages/en/      every word a person reads, one file per area
 docs/             what the console offers, and what it does not yet
 scripts/          the gate's own tooling: structural guards, the accessibility
                   sweep, the compiler warnings the build refuses, the built
@@ -139,5 +146,5 @@ what lets the same screen be drawn from a fixture in a story and swept by
 Two actors editing one working copy has broken this repo repeatedly. Give each one
 its own git worktree with its own `node_modules` (`cp -c -R` is a near-free clone
 on APFS), let it run the gate there, and collect the files afterwards. Shared
-files — `messages/en.json`, `src/app.css`, `.storybook/snippets.ts` — are merged by
+files — `messages/en/*.json`, `src/app.css`, `.storybook/snippets.ts` — are merged by
 whoever is coordinating, not by the agents.

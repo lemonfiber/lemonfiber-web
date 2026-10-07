@@ -50,10 +50,20 @@ module.exports = {
       name: "no-dev-dep-in-what-ships",
       severity: "error",
       comment: "Something that ships must not lean on a tool that does not.",
-      from: { path: "^src", pathNot: "\\.(test|stories)\\.ts$" },
+      from: { path: "^src", pathNot: "\\.(test|testing|stories)\\.ts$" },
       // Svelte is a compiler: it is a dev dependency whose small runtime is
       // bundled into the output, so a component importing it is correct.
       to: { dependencyTypes: ["npm-dev"], pathNot: "^node_modules/svelte/" },
+    },
+    {
+      name: "test-helpers-stay-with-the-tests",
+      severity: "error",
+      comment:
+        "A .testing.ts module holds helpers the suites share. It may lean on " +
+        "test tools and is outside the coverage gate, which holds only while " +
+        "nothing that ships can reach it.",
+      from: { pathNot: "\\.(test|testing|stories)\\.ts$" },
+      to: { path: "\\.testing\\.ts$" },
     },
   ],
   options: {
