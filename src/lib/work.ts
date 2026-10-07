@@ -51,6 +51,7 @@ export type {
   Hosting,
   Removing,
   Seeding,
+  Reclaiming,
   Requested,
 } from "./requested";
 
@@ -265,6 +266,8 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_uninstall_title();
     case "stop-seeding":
       return m.doing_let_go_title();
+    case "space":
+      return m.doing_reclaim_title();
   }
 }
 

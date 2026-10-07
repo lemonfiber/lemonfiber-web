@@ -19,8 +19,8 @@
  * `./paused`, moving onto this build's pins in
  * `./updated`, where one item is, a walk through and a guard in
  * `./traced`, what this machine keeps running, what lemonfiber keeps and
- * taking it off the machine in `./removed`, and letting a download go in
- * `./letting`.
+ * taking it off the machine in `./removed`, letting a download go in
+ * `./letting`, and taking back the room that costs nothing in `./reclaimed`.
  * Anything else arrives as an outcome nobody here reads, which is said rather
  * than drawn as nothing.
  *
@@ -58,7 +58,8 @@ import {
   type Stored,
   type Uninstalled,
 } from "./removed";
-import { lettingLines, type Let } from "./letting";
+import { lettingLines, type Let, type Reckoned } from "./letting";
+import { reclaimedLines } from "./reclaimed";
 import {
   householdLines,
   invitationLines,
@@ -124,6 +125,7 @@ export type Came =
   | { readonly kind: "stored"; readonly report: Stored }
   | { readonly kind: "uninstall"; readonly report: Uninstalled }
   | { readonly kind: "stop-seeding"; readonly report: Let }
+  | { readonly kind: "space"; readonly report: Reckoned }
   | { readonly kind: "unread" };
 
 /** A service still doing what the action asked of it. */
@@ -497,6 +499,8 @@ export function linesOf(came: Came): readonly string[] {
       return uninstallLines(came.report);
     case "stop-seeding":
       return lettingLines(came.report);
+    case "space":
+      return reclaimedLines(came.report);
     case "unread":
       return [m.came_unread()];
   }

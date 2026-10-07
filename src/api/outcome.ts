@@ -82,6 +82,9 @@ function ofWhatIsKept(envelope: Envelope): Came | undefined {
   if (isKind(envelope, "stop-seeding")) {
     return { kind: "stop-seeding", report: envelope.data };
   }
+  if (isKind(envelope, "space")) {
+    return { kind: "space", report: envelope.data };
+  }
   return undefined;
 }
 

@@ -28,6 +28,7 @@ import { everyFinding } from "./lib/finding";
 import { everyHosting } from "./lib/hosting";
 import { everyMending } from "./lib/mending";
 import { everyPairing } from "./lib/pairing";
+import { everyReclaiming } from "./lib/reclaiming";
 import { everyRemoving } from "./lib/removing";
 import { everySeeding } from "./lib/seeding";
 import { everySharing } from "./lib/sharing";
@@ -231,6 +232,11 @@ const WALKED: readonly {
     named: "everySeeding",
     by: ["src/routes/panels/Letting.svelte"],
   },
+  {
+    list: everyReclaiming,
+    named: "everyReclaiming",
+    by: ["src/routes/panels/Reclaim.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -270,6 +276,7 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "forget",
   "uninstall",
   "stop-seeding",
+  "space",
 ];
 
 /**
@@ -288,7 +295,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "migrate-replace": "A5",
   "migrate-import": "A5",
   reset: "C9",
-  space: "D5",
   remove: "D6",
   "household-handoff": "G9",
   setup: "A2",
