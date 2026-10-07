@@ -107,6 +107,12 @@ export type Removing = "forget" | "uninstall";
  */
 export type Seeding = "stop-seeding";
 
+/**
+ * Something the room panel can ask for, named as the endpoint names it. What
+ * it takes and how it is asked about is in `./reclaiming`.
+ */
+export type Reclaiming = "space";
+
 /** Anything a record can be of. */
 export type Requested =
   | Doing
@@ -121,4 +127,5 @@ export type Requested =
   | Finding
   | Hosting
   | Removing
-  | Seeding;
+  | Seeding
+  | Reclaiming;

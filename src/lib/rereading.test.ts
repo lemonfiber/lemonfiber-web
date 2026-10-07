@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { placeChangedBy } from "./rereading";
 import { forgotten, guardKept, hosted, removed } from "../api/removals";
+import { reclaimedRoom } from "../api/spaces";
 
 describe("which screen a finished piece of work changed", () => {
   it("is the disk for anything taken off it", () => {
@@ -8,6 +9,9 @@ describe("which screen a finished piece of work changed", () => {
       "storage",
     );
     expect(placeChangedBy({ kind: "uninstall", report: removed })).toBe(
+      "storage",
+    );
+    expect(placeChangedBy({ kind: "space", report: reclaimedRoom })).toBe(
       "storage",
     );
   });

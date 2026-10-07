@@ -5,6 +5,7 @@ import { diskChecks } from "./findings";
 import { keeper, kept, readListing, tookBackup } from "./keeping";
 import { remover, storedRecord, surveyRecord } from "./removals";
 import { letter, offerRecord, reckoned } from "./lettings";
+import { reclaimedRecord, reclaimer, roomy } from "./reclaims";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
 const never = { kind: "never" } as const;
@@ -131,6 +132,20 @@ export const WhatLettingADownloadGoWouldCost: Story = {
     letting: {
       letter: { ...letter, work: [offerRecord] },
       space: { ok: true, value: reckoned },
+    },
+  },
+};
+
+/**
+ * Every part of the disk that could be got back with what each would cost, the
+ * yes for what costs nothing under them, and what an earlier yes took and
+ * could not.
+ */
+export const RoomToGetBack: Story = {
+  args: {
+    reclaiming: {
+      reclaimer: { ...reclaimer, work: [reclaimedRecord] },
+      space: { ok: true, value: roomy },
     },
   },
 };

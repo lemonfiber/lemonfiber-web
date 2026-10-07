@@ -243,11 +243,15 @@
   "came_paused_unsaid": "{client} did not say whether it is fetching.",
   "came_paused_unreached": "{client} could not be reached: {said}",
   "came_paused_none": "The stack runs no download client.",
+  "came_reclaim_taken": "It gave back {size}.",
+  "came_reclaim_left": "It could not take {at}: {why}",
+  "came_reclaim_untaken": "Nothing was taken back.",
   "came_pulling_fetching": "fetching",
   "came_pulling_stopped": "stopped",
   "doing_bandwidth_title": "Declaring how the line is shared",
   "doing_pause_title": "Pausing every download",
   "doing_resume_title": "Resuming every download",
+  "doing_reclaim_title": "Taking back what costs nothing",
   "doing_update_title": "Moving onto this build's versions",
   "came_update_current": "Every service stands on the version this build pins.",
   "came_update_available": "Newer versions are pinned than what is running, and nothing has moved yet.",
@@ -307,5 +311,6 @@
   "doing_uninstall_title": "Taking lemonfiber off this machine",
   "doing_let_go_title": "Letting one download go",
   "action_let_go_cost": "What letting {name} go would cost",
-  "action_let_go_yes": "Yes, let it go"
+  "action_let_go_yes": "Yes, let it go",
+  "action_reclaim_yes": "Yes, take back {size}"
 }

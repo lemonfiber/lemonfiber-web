@@ -3,12 +3,14 @@
   import Backups from "./panels/Backups.svelte";
   import Findings from "./panels/Findings.svelte";
   import Letting from "./panels/Letting.svelte";
+  import Reclaim from "./panels/Reclaim.svelte";
   import Removal from "./panels/Removal.svelte";
   import Space from "./panels/Space.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
   import type { Archives } from "../lib/kept";
   import type { Reckoned } from "../lib/letting";
+  import type { Reclaimer } from "../lib/reclaiming";
   import type { Remover } from "../lib/removing";
   import type { Letter } from "../lib/seeding";
   import type { Keeper } from "../lib/upkeep";
@@ -49,16 +51,35 @@
           readonly space: Reading<Reckoned> | undefined;
         }
       | undefined;
+    /**
+     * What of the disk could be got back, and what taking back what costs
+     * nothing asks for. Left out where nothing answers it.
+     */
+    reclaiming?:
+      | {
+          readonly reclaimer: Reclaimer;
+          readonly space: Reading<Reckoned> | undefined;
+        }
+      | undefined;
   }
 
-  let { disk, live, diagnosis, read, keeping, remover, letting }: Props =
-    $props();
+  let {
+    disk,
+    live,
+    diagnosis,
+    read,
+    keeping,
+    remover,
+    letting,
+    reclaiming,
+  }: Props = $props();
 </script>
 
 <!--
   The disk: what is left of it, everything the checks about it found, the
-  backups kept on it, the completed downloads on it and letting one go, and
-  taking lemonfiber off it.
+  backups kept on it, the completed downloads on it and letting one go, what of
+  it could be got back and taking back what costs nothing, and taking
+  lemonfiber off it.
 
   Two sources fill this screen and neither waits for the other. The figures come
   off the live connection, which is where a volume is measured; the checks and
@@ -86,6 +107,14 @@
 
   {#if letting !== undefined}
     <Letting space={letting.space} letter={letting.letter} freshness={read} />
+  {/if}
+
+  {#if reclaiming !== undefined}
+    <Reclaim
+      space={reclaiming.space}
+      reclaimer={reclaiming.reclaimer}
+      freshness={read}
+    />
   {/if}
 
   {#if remover !== undefined}

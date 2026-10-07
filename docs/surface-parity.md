@@ -29,8 +29,8 @@ actually reach.
 ## The measurement
 
 The client carries 72 kinds of answer, and this console reads 35 of them.
-Another surface can make 54 requests of the stack, and this console offers 35 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 35 kinds and 18
+Another surface can make 54 requests of the stack, and this console offers 36 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 35 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -51,43 +51,43 @@ where it answers with a kind the contract did not have before.
 
 ## Kinds read here
 
-| Kind           | Where it is drawn                                                                                                                                                            |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `admission`    | the door a password opens                                                                                                                                                    |
-| `archives`     | the disk: the backups this machine keeps                                                                                                                                     |
-| `backup`       | the disk: where a backup was written, and what it covers, under its record                                                                                                   |
-| `bandwidth`    | the settings: where the line stands, what that means, each limit, and what each download client is doing about it                                                            |
-| `bundle`       | the checks: what a support bundle would hold, in full, or where it was written                                                                                               |
-| `config`       | the settings: every setting, where each value came from, and what changing one came to                                                                                       |
-| `dashboard`    | the overview, from the stream                                                                                                                                                |
-| `doctor`       | the checks, and the checks about the disk                                                                                                                                    |
-| `forms`        | the forms the controls act on                                                                                                                                                |
-| `hosting`      | the overview: every command this machine can keep running, what each does, the command it runs and where it stands, and what keeping one or taking it back changed           |
-| `household`    | the requests, and what running the household left it as                                                                                                                      |
-| `invitation`   | the requests: what offering somebody an account, or a new password, would make or made                                                                                       |
-| `job`          | each record of work handed to the runtime                                                                                                                                    |
-| `lifecycle`    | what a start, stop, switch, restart or fetch came to, under its record                                                                                                       |
-| `log`          | the logs                                                                                                                                                                     |
-| `pairing`      | the settings: the line a phone's code carries, the short form of the certificate's fingerprint to check on the phone, and what would make a paired phone refuse this machine |
-| `pausing`      | the settings: what pausing or resuming every download came to, each download client with what it was doing and what it read back                                             |
-| `preview`      | what starting the forms chosen would come to                                                                                                                                 |
-| `quality`      | the settings: the quality new media is fetched at, and what putting the recorded preset back came to                                                                         |
-| `repair`       | the checks: what can be put right, chosen from, and what putting it right came to                                                                                            |
-| `restore`      | the disk: what an archive holds and what putting it back would overwrite, or what it put back                                                                                |
-| `seed`         | what wiring the programs, or keeping edits made by hand, came to, under its record                                                                                           |
-| `space`        | the disk: the completed downloads the accounting names, what each takes up, where it stands and what removing it costs; the rest of the accounting is not drawn yet          |
-| `start`        | what a start is still waiting for, from the stream                                                                                                                           |
-| `status`       | how the stack stands, and each program in it                                                                                                                                 |
-| `stop-seeding` | the disk: what letting one download go would cost and what goes with it, and what the client let go                                                                          |
-| `stored`       | the disk: everything lemonfiber keeps, where and why, what is beside it, and what forgetting it removed or left                                                              |
-| `trace`        | the requests: how far one item got, why it stopped, how sure the trace is, and what happened to it                                                                           |
-| `undo`         | the checks: what putting back the last repair came to                                                                                                                        |
-| `uninstall`    | the disk: every line a removal reaches, going or kept, with its size, what is coming down, what lemonfiber cannot remove and how to by hand, and what went                   |
-| `update`       | the settings: every step moving onto this build's pins would take, and how each service ended once it moved                                                                  |
-| `upgrade`      | the settings: what fetching the library again would cost, and what it started                                                                                                |
-| `walkthrough`  | the requests: what walking one thing through proved, every step it took, and where it stopped or what to do next                                                             |
-| `watch`        | the overview: why a guard over the data location ended, and the forms it stopped                                                                                             |
-| `error`        | every refusal, read by the client and handed over as a sentence                                                                                                              |
+| Kind           | Where it is drawn                                                                                                                                                                                                                                                                          |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `admission`    | the door a password opens                                                                                                                                                                                                                                                                  |
+| `archives`     | the disk: the backups this machine keeps                                                                                                                                                                                                                                                   |
+| `backup`       | the disk: where a backup was written, and what it covers, under its record                                                                                                                                                                                                                 |
+| `bandwidth`    | the settings: where the line stands, what that means, each limit, and what each download client is doing about it                                                                                                                                                                          |
+| `bundle`       | the checks: what a support bundle would hold, in full, or where it was written                                                                                                                                                                                                             |
+| `config`       | the settings: every setting, where each value came from, and what changing one came to                                                                                                                                                                                                     |
+| `dashboard`    | the overview, from the stream                                                                                                                                                                                                                                                              |
+| `doctor`       | the checks, and the checks about the disk                                                                                                                                                                                                                                                  |
+| `forms`        | the forms the controls act on                                                                                                                                                                                                                                                              |
+| `hosting`      | the overview: every command this machine can keep running, what each does, the command it runs and where it stands, and what keeping one or taking it back changed                                                                                                                         |
+| `household`    | the requests, and what running the household left it as                                                                                                                                                                                                                                    |
+| `invitation`   | the requests: what offering somebody an account, or a new password, would make or made                                                                                                                                                                                                     |
+| `job`          | each record of work handed to the runtime                                                                                                                                                                                                                                                  |
+| `lifecycle`    | what a start, stop, switch, restart or fetch came to, under its record                                                                                                                                                                                                                     |
+| `log`          | the logs                                                                                                                                                                                                                                                                                   |
+| `pairing`      | the settings: the line a phone's code carries, the short form of the certificate's fingerprint to check on the phone, and what would make a paired phone refuse this machine                                                                                                               |
+| `pausing`      | the settings: what pausing or resuming every download came to, each download client with what it was doing and what it read back                                                                                                                                                           |
+| `preview`      | what starting the forms chosen would come to                                                                                                                                                                                                                                               |
+| `quality`      | the settings: the quality new media is fetched at, and what putting the recorded preset back came to                                                                                                                                                                                       |
+| `repair`       | the checks: what can be put right, chosen from, and what putting it right came to                                                                                                                                                                                                          |
+| `restore`      | the disk: what an archive holds and what putting it back would overwrite, or what it put back                                                                                                                                                                                              |
+| `seed`         | what wiring the programs, or keeping edits made by hand, came to, under its record                                                                                                                                                                                                         |
+| `space`        | the disk: the completed downloads the accounting names, what each takes up, where it stands and what removing it costs; every part that could be got back with what it would cost; and what taking back what costs nothing took and could not; the rest of the accounting is not drawn yet |
+| `start`        | what a start is still waiting for, from the stream                                                                                                                                                                                                                                         |
+| `status`       | how the stack stands, and each program in it                                                                                                                                                                                                                                               |
+| `stop-seeding` | the disk: what letting one download go would cost and what goes with it, and what the client let go                                                                                                                                                                                        |
+| `stored`       | the disk: everything lemonfiber keeps, where and why, what is beside it, and what forgetting it removed or left                                                                                                                                                                            |
+| `trace`        | the requests: how far one item got, why it stopped, how sure the trace is, and what happened to it                                                                                                                                                                                         |
+| `undo`         | the checks: what putting back the last repair came to                                                                                                                                                                                                                                      |
+| `uninstall`    | the disk: every line a removal reaches, going or kept, with its size, what is coming down, what lemonfiber cannot remove and how to by hand, and what went                                                                                                                                 |
+| `update`       | the settings: every step moving onto this build's pins would take, and how each service ended once it moved                                                                                                                                                                                |
+| `upgrade`      | the settings: what fetching the library again would cost, and what it started                                                                                                                                                                                                              |
+| `walkthrough`  | the requests: what walking one thing through proved, every step it took, and where it stopped or what to do next                                                                                                                                                                           |
+| `watch`        | the overview: why a guard over the data location ended, and the forms it stopped                                                                                                                                                                                                           |
+| `error`        | every refusal, read by the client and handed over as a sentence                                                                                                                                                                                                                            |
 
 ## Kinds served by no endpoint
 
@@ -178,6 +178,7 @@ answers with `certificate`, so nothing here could read it.
 | `forget`            | the disk: everything kept listed first, then forgotten on a yes under the listing                                                      |
 | `uninstall`         | the disk: one of four removals listed first, then carried out on a yes naming that listing, letting downloads finish first where asked |
 | `stop-seeding`      | the disk: one download still being shared, its cost read first, then let go on a yes naming that offer                                 |
+| `space`             | the disk: what costs nothing to get back, taken on a yes naming the accounting it was read in                                          |
 
 Eight of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
@@ -213,7 +214,6 @@ carries while it runs (`step`) are not drawn yet.
 | `migrate-replace`       | A5      | Migration: stand in its place                                                                                  |
 | `migrate-import`        | A5      | Migration: copy its records across                                                                             |
 | `reset`                 | C9      | Drift: revert every edit to lemonfiber's own state                                                             |
-| `space`                 | D5      | Disk space: take what costs nothing                                                                            |
 | `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes |
 | `household-handoff`     | G9      | Mobile handoff: issue one person a code pointing an app at the media server, and check a device signed in      |
 | `setup`                 | A2      | Setup wizard, walked in a browser                                                                              |

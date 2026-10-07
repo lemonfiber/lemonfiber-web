@@ -39,6 +39,7 @@
   import type { Hosted } from "../lib/removed";
   import { removing } from "../lib/removing";
   import type { Reckoned } from "../lib/letting";
+  import { reclaiming } from "../lib/reclaiming";
   import { lettingGo } from "../lib/seeding";
   import { placeChangedBy } from "../lib/rereading";
   import { consoleMenu, ours, pathOf, placeAt, type Place } from "../lib/route";
@@ -405,6 +406,7 @@
   const hostAsks = new Asked(desk, hosting);
   const removeAsks = new Asked(desk, removing);
   const letAsks = new Asked(desk, lettingGo);
+  const reclaimAsks = new Asked(desk, reclaiming);
 
   const mender = $derived<Mender>({
     ...mendAsks.asker,
@@ -523,6 +525,7 @@
       keeping={{ keeper, archives }}
       remover={removeAsks.asker}
       letting={{ letter: letAsks.asker, space }}
+      reclaiming={{ reclaimer: reclaimAsks.asker, space }}
     />
   {:else if place === "logs"}
     <Logs scrollback={lines} freshness={stamped} />
