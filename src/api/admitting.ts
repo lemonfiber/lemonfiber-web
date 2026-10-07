@@ -31,6 +31,7 @@
  * that moment would be a second opinion about who is admitted.
  */
 import {
+  DEFAULT_TIMEOUT_MS,
   address,
   isKind,
   malformed,
@@ -115,6 +116,7 @@ export async function admitting(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(given),
+      signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS),
     });
     status = answer.status;
     said = await answer.text();
