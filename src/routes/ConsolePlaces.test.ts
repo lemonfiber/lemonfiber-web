@@ -123,13 +123,13 @@ const unanswered: Sending = (url, init) => {
 };
 
 /**
- * A transport that holds the household's answer until it is let go, and never
- * answers the checks at all.
+ * A transport that holds the answers at one address until they are let go, and
+ * never answers the checks at all.
  *
  * What that leaves is a reader standing on a screen whose own reading has not
  * come back, while the one they left answers behind them.
  */
-function heldBack(): { sending: Sending; answer: () => void } {
+function heldBack(at: string): { sending: Sending; answer: () => void } {
   let answer!: () => void;
   const held = new Promise<void>((resolve) => {
     answer = resolve;
@@ -137,7 +137,7 @@ function heldBack(): { sending: Sending; answer: () => void } {
 
   const sending: Sending = async (url, init) => {
     if (url.includes("/api/checks")) return new Promise(() => undefined);
-    if (url.includes("/api/requests")) await held;
+    if (url.includes(at)) await held;
     return readings(url, init);
   };
 
@@ -228,7 +228,7 @@ describe("what each place is drawn from", () => {
   // being read. An answer that landed after the reader moved on would put one
   // screen's clock on another's.
   it("takes no stamp from an answer the screen before it asked for", async () => {
-    const holding = heldBack();
+    const holding = heldBack("/api/requests");
     console_({ sending: holding.sending });
     await goTo("requests");
     await goTo("checks");
@@ -267,6 +267,42 @@ describe("what each place is drawn from", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  // A screen drawn from several readings is stamped by them together, and by
+  // none of them once the reader has gone elsewhere.
+  it("takes no stamp from the readings of a screen the reader left", async () => {
+    const holding = heldBack("/api/space");
+    console_({ sending: holding.sending });
+    await goTo("storage");
+    await goTo("checks");
+
+    holding.answer();
+    // The readings resolve together, a few turns after the one held is let go.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(screen.getAllByText(m.fresh_never()).length).toBeGreaterThan(0);
+    expect(
+      screen.queryByText(
+        m.fresh_answered({ span: m.span_seconds({ count: 0 }) }),
+      ),
+    ).toBeNull();
+  });
+
+  it("says so when one of a screen's readings is refused this run's key", async () => {
+    const refused = vi.fn();
+    console_({
+      sending: (url, init) =>
+        url.includes("/api/outbound")
+          ? refusing(url, init)
+          : readings(url, init),
+      onrefused: refused,
+    });
+    await goTo("settings");
+
+    await waitFor(() => {
+      expect(refused).toHaveBeenCalled();
+    });
   });
 
   it("says so when a place is asked for with a key this run refuses", async () => {

@@ -3,6 +3,7 @@ import Settings from "./Settings.svelte";
 import { configurer, everySetting, stagedChange } from "./configured";
 import { inForce, putQualityBack, readCost, tuner } from "./tuned";
 import { made, pairer } from "./paired";
+import { leaving } from "../api/leavings";
 import { pausedRecord, planRecord, shared, sharer, updater } from "./lined";
 
 const answered = { kind: "answered", secondsAgo: 6 } as const;
@@ -96,4 +97,13 @@ export const EveryDownloadPaused: Story = {
     line: { ok: true, value: shared },
     sharer: { ...sharer, work: [pausedRecord] },
   },
+};
+
+/**
+ * Everything that leaves this machine: lemonfiber's own requests, one allowed
+ * and one switched off, and two services' requests, one with no record shipped
+ * of what it reaches.
+ */
+export const WhatLeavesThisMachine: Story = {
+  args: { outbound: { ok: true, value: leaving } },
 };

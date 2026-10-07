@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 35 of them.
+The client carries 72 kinds of answer, and this console reads 36 of them.
 Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 35 kinds and 17
+them. 2 kinds and 1 request are offered elsewhere by rule, and 34 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -68,6 +68,7 @@ where it answers with a kind the contract did not have before.
 | `job`          | each record of work handed to the runtime                                                                                                                                                                                                                                                  |
 | `lifecycle`    | what a start, stop, switch, restart or fetch came to, under its record                                                                                                                                                                                                                     |
 | `log`          | the logs                                                                                                                                                                                                                                                                                   |
+| `outbound`     | the settings: every request lemonfiber makes on its own account, where it goes, what travels, whether it is allowed, the setting that switches it off and what that costs; and every request the stack's services make, with whose it is                                                   |
 | `pairing`      | the settings: the line a phone's code carries, the short form of the certificate's fingerprint to check on the phone, and what would make a paired phone refuse this machine                                                                                                               |
 | `pausing`      | the settings: what pausing or resuming every download came to, each download client with what it was doing and what it read back                                                                                                                                                           |
 | `preview`      | what starting the forms chosen would come to                                                                                                                                                                                                                                               |
@@ -120,7 +121,6 @@ where it answers with a kind the contract did not have before.
 | `music`        | D2        | Quality presets: the music format                                                                        |
 | `news`         | N27       | What's new: the newest of each kind, from the stream                                                     |
 | `news-items`   | N27       | What's new: everything newer than what was last seen, asked for                                          |
-| `outbound`     | G8        | Privacy: everything that leaves this machine                                                             |
 | `playing`      | ARCH-R156 | What the media server is playing now, for the house or one member                                        |
 | `plugins`      | F6        | Plugin lifecycle: every plugin installed, and what installing, updating or removing one came to          |
 | `provenance`   | F2        | Service catalogue: where each service comes from                                                         |
