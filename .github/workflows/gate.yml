@@ -29,10 +29,12 @@ jobs:
           persist-credentials: false
 
       # Whether the change reaches anything but formatting. Of what `npm run
-      # ci` checks, only Prettier reads Markdown, LICENSE and the files under
-      # `.github/` other than this one, so a change to those alone is checked
-      # for formatting and nothing else. Any other file runs the whole gate,
-      # and so does a base commit that cannot be read.
+      # ci` checks, only Prettier reads the readme, the agent guides, LICENSE
+      # and the files under `.github/` other than this one, so a change to those
+      # alone is checked for formatting and nothing else. They are named rather
+      # than matched as Markdown, because `docs/surface-parity.md` is read by a
+      # test. Any other file runs the whole gate, and so does a base commit that
+      # cannot be read.
       - name: What changed
         id: scope
         env:
@@ -47,7 +49,7 @@ jobs:
           code=false
           while IFS= read -r path; do
             case "${path}" in
-            '' | *.md | LICENSE) ;;
+            '' | README.md | AGENTS.md | CLAUDE.md | LICENSE) ;;
             .github/workflows/gate.yml) code=true ;;
             .github/*) ;;
             *) code=true ;;
