@@ -23,7 +23,7 @@
 > **Status: early.** The component library is built, and the operator's console
 > and the household view are assembled from it. This repo is milestone **M7** on the
 > [roadmap](https://github.com/lemonfiber/spec/blob/main/00-overview/roadmap.md).
-> Full account in the spec:
+> The full account is in the spec:
 > [`30-repos/lemonfiber-web.md`](https://github.com/lemonfiber/spec/blob/main/30-repos/lemonfiber-web.md).
 
 ## What it is
