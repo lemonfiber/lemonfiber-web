@@ -33,6 +33,7 @@ export default defineConfig({
       include: ["src/**/*.{ts,svelte}"],
       exclude: [
         "src/**/*.test.ts",
+        "src/**/*.testing.ts",
         "src/**/*.stories.ts",
         "src/**/*.stories.svelte",
         "src/main.ts",
