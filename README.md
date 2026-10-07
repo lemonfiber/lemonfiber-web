@@ -136,9 +136,8 @@ The type is the one thing not embedded. `src/app.css` names Golos Text for the
 interface, Bricolage Grotesque for the wordmark and DM Mono for figures, and no
 `@font-face` ships here — `@lemonfiber/brand` owns type and gives this repo the
 tokens rather than the files. So each of the three falls back to the platform's
-own stack wherever the face is not installed, and until the faces ship the
-interface is identical across Linux, Windows and macOS in everything but its
-lettering.
+own stack wherever the face is not installed, and the interface looks the same
+across Linux, Windows and macOS in everything but its lettering.
 
 ## Contributing
 
