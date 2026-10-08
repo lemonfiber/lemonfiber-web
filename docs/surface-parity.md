@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 45 of them.
+The client carries 72 kinds of answer, and this console reads 46 of them.
 Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 25 kinds and 17
+them. 2 kinds and 1 request are offered elsewhere by rule, and 24 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -59,6 +59,7 @@ where it answers with a kind the contract did not have before.
 | `backup`       | the disk: where a backup was written, and what it covers, under its record                                                                                                                                                                                                                 |
 | `bandwidth`    | the settings: where the line stands, what that means, each limit, and what each download client is doing about it                                                                                                                                                                          |
 | `bundle`       | the checks: what a support bundle would hold, in full, or where it was written                                                                                                                                                                                                             |
+| `clients`      | the requests: which app to watch on for each kind of device, how well each is served and what to do instead, where playback will struggle on this machine, and what to do when it does not work                                                                                            |
 | `catalogue`    | the settings: every service the stack holds, what it does, what going without it costs and how much that matters, and every service the stack dropped with why and what took its place                                                                                                     |
 | `config`       | the settings: every setting, where each value came from, and what changing one came to                                                                                                                                                                                                     |
 | `credentials`  | the settings: every credential the stack holds, where it stands, who made it, whose it is, where its value lives, the setting it is recorded under and what signs in with it, with no value; and what keeping them in files protects against and what it does not                          |
@@ -114,7 +115,6 @@ where it answers with a kind the contract did not have before.
 | `beside`       | A5       | Migration: standing beside a setup already here                                                          |
 | `capabilities` | ARCH-R78 | What this copy of lemonfiber can do, each named by the path it is served at                              |
 | `certificate`  | N1       | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |
-| `clients`      | G6       | Client apps: which app to watch on                                                                       |
 | `front-door`   | G5       | The front door, asked for on its own                                                                     |
 | `glossary`     | G2       | Plain language: every word there is to ask about                                                         |
 | `handoff`      | G9       | Mobile handoff: where getting one person's phone onto the media server stands                            |

@@ -181,5 +181,6 @@
   "panel_hosting": "Kept running",
   "panel_removal": "Taking lemonfiber off",
   "panel_letting": "Completed downloads",
-  "panel_room": "Room to get back"
+  "panel_room": "Room to get back",
+  "panel_clients": "Which app to watch on"
 }

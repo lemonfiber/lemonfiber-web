@@ -25,6 +25,7 @@
   import type { History } from "../lib/history";
   import type { Playing } from "../lib/playing";
   import type { Stuck } from "../lib/stuck";
+  import type { Guidance } from "../lib/clients";
   import { mending, type Mend, type Mender } from "../lib/mending";
   import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
   import { configuring } from "../lib/configuring";
@@ -89,6 +90,7 @@
   let disk = $state<StorageRead | undefined>(undefined);
   let history = $state<Reading<History> | undefined>(undefined);
   let stuck = $state<Reading<Stuck> | undefined>(undefined);
+  let clients = $state<Reading<Guidance> | undefined>(undefined);
   let lines = $state<Reading<readonly Logged[]> | undefined>(undefined);
   let household = $state<Reading<Household> | undefined>(undefined);
   let setup = $state<SettingsRead | undefined>(undefined);
@@ -187,12 +189,14 @@
         lines = noted(where, await scrollback(reaching));
         return;
       case "requests": {
-        const [house, held] = await Promise.all([
+        const [house, held, apps] = await Promise.all([
           asked(reaching, "requests", "household"),
           asked(reaching, "stuck", "stuck"),
+          asked(reaching, "clients", "clients"),
         ]);
         household = noted(where, house);
         stuck = noted(where, held);
+        clients = noted(where, apps);
         return;
       }
       case "settings":
@@ -476,6 +480,7 @@
       {finder}
       {tracer}
       {stuck}
+      {clients}
     />
   {:else}
     <Settings
