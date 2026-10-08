@@ -501,6 +501,7 @@
       alerts={setup?.alerts}
       wiring={setup?.wiring}
       plugins={setup?.plugins}
+      glossary={setup?.glossary}
       freshness={stamped}
       tuner={tuneAsks.asker}
       configurer={changeAsks.asker}

@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 49 of them.
+The client carries 72 kinds of answer, and this console reads 50 of them.
 Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 21 kinds and 17
+them. 2 kinds and 1 request are offered elsewhere by rule, and 20 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -66,6 +66,7 @@ where it answers with a kind the contract did not have before.
 | `dashboard`    | the overview, from the stream                                                                                                                                                                                                                                                              |
 | `doctor`       | the checks, and the checks about the disk                                                                                                                                                                                                                                                  |
 | `forms`        | the forms the controls act on                                                                                                                                                                                                                                                              |
+| `glossary`     | the settings: every word lemonfiber explains, in the order somebody meets them, with what it is for, more where there is more, what other services call it and the other forms lemonfiber writes it in                                                                                     |
 | `history`      | the checks: everything lemonfiber changed, newest first, with what made each change, when, how far it could be put back and what goes with it, under how far back the record goes                                                                                                          |
 | `hosting`      | the overview: every command this machine can keep running, what each does, the command it runs and where it stands, and what keeping one or taking it back changed                                                                                                                         |
 | `household`    | the requests, and what running the household left it as                                                                                                                                                                                                                                    |
@@ -119,7 +120,6 @@ where it answers with a kind the contract did not have before.
 | `capabilities` | ARCH-R78 | What this copy of lemonfiber can do, each named by the path it is served at                              |
 | `certificate`  | N1       | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |
 | `front-door`   | G5       | The front door, asked for on its own                                                                     |
-| `glossary`     | G2       | Plain language: every word there is to ask about                                                         |
 | `handoff`      | G9       | Mobile handoff: where getting one person's phone onto the media server stands                            |
 | `held`         | D8       | Parental controls: what one member can watch                                                             |
 | `import`       | A5       | Migration: copying an operator's records across                                                          |
