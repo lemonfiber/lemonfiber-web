@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 38 of them.
+The client carries 72 kinds of answer, and this console reads 40 of them.
 Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 32 kinds and 17
+them. 2 kinds and 1 request are offered elsewhere by rule, and 30 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -78,6 +78,7 @@ where it answers with a kind the contract did not have before.
 | `repair`       | the checks: what can be put right, chosen from, and what putting it right came to                                                                                                                                                                                                          |
 | `restore`      | the disk: what an archive holds and what putting it back would overwrite, or what it put back                                                                                                                                                                                              |
 | `seed`         | what wiring the programs, or keeping edits made by hand, came to, under its record                                                                                                                                                                                                         |
+| `self-update`  | the settings: where this copy of lemonfiber stands against the newest release, how it was installed, where it runs from, exactly what to type to move it or why not, and what a release brings                                                                                             |
 | `space`        | the disk: the completed downloads the accounting names, what each takes up, where it stands and what removing it costs; every part that could be got back with what it would cost; and what taking back what costs nothing took and could not; the rest of the accounting is not drawn yet |
 | `start`        | what a start is still waiting for, from the stream                                                                                                                                                                                                                                         |
 | `status`       | how the stack stands, and each program in it                                                                                                                                                                                                                                               |
@@ -88,6 +89,7 @@ where it answers with a kind the contract did not have before.
 | `uninstall`    | the disk: every line a removal reaches, going or kept, with its size, what is coming down, what lemonfiber cannot remove and how to by hand, and what went                                                                                                                                 |
 | `update`       | the settings: every step moving onto this build's pins would take, and how each service ended once it moved                                                                                                                                                                                |
 | `upgrade`      | the settings: what fetching the library again would cost, and what it started                                                                                                                                                                                                              |
+| `version`      | the settings: the running program, the stack it operates, what the container engine reports and the manifest schemas it reads; the changelog is not drawn yet                                                                                                                              |
 | `walkthrough`  | the requests: what walking one thing through proved, every step it took, and where it stopped or what to do next                                                                                                                                                                           |
 | `watch`        | the overview: why a guard over the data location ended, and the forms it stopped                                                                                                                                                                                                           |
 | `error`        | every refusal, read by the client and handed over as a sentence                                                                                                                                                                                                                            |
@@ -127,11 +129,9 @@ where it answers with a kind the contract did not have before.
 | `removal`      | D6        | Household identity: somebody taken out of the household                                                  |
 | `replacement`  | A5        | Migration: standing in place of a setup already here                                                     |
 | `reset`        | C9        | Drift: what a full reset would revert                                                                    |
-| `self-update`  | E2        | Self-update: where this copy stands                                                                      |
 | `step`         | D3        | First content: one step of a walkthrough, from the stream                                                |
 | `stuck`        | C7        | Queue health, asked for on its own                                                                       |
 | `substitution` | F4        | Capabilities: which service fills one                                                                    |
-| `version`      | E2        | Self-update: the versions in play                                                                        |
 | `wiring`       | D1        | Auto-wiring: what is wired to what                                                                       |
 | `wizard`       | A2        | Setup: where setup stands                                                                                |
 | `word`         | G2        | Plain language: what one word means; `Term` asks for it, and no screen draws a `Term`                    |

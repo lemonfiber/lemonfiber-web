@@ -466,6 +466,8 @@
       line={setup?.line}
       outbound={setup?.outbound}
       credentials={setup?.credentials}
+      versions={setup?.versions}
+      standing={setup?.standing}
       freshness={stamped}
       tuner={tuneAsks.asker}
       configurer={changeAsks.asker}

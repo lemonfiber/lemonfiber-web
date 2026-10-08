@@ -9,6 +9,7 @@
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { asked, turnedAway, type Reaching } from "../api/asking";
 import type { Configured } from "../lib/configured";
+import type { Standing, Versions } from "../lib/copy";
 import type { Inventory } from "../lib/credentials";
 import type { Archives } from "../lib/kept";
 import type { Leaving } from "../lib/leaving";
@@ -39,6 +40,10 @@ export interface SettingsRead {
   readonly outbound: Reading<Leaving>;
   /** Every credential the stack holds, without values. */
   readonly credentials: Reading<Inventory>;
+  /** The versions in play. */
+  readonly versions: Reading<Versions>;
+  /** Where this copy of lemonfiber stands against the newest release. */
+  readonly standing: Reading<Standing>;
 }
 
 /** A screen's readings, and whether any of them was turned away. */
@@ -68,15 +73,27 @@ export async function readStorage(
 export async function readSettings(
   reaching: Reaching,
 ): Promise<Answered<SettingsRead>> {
-  const [quality, settings, line, outbound, credentials] = await Promise.all([
+  const read = await Promise.all([
     asked(reaching, "quality", "quality"),
     asked(reaching, "config", "config"),
     asked(reaching, "bandwidth", "bandwidth"),
     asked(reaching, "outbound", "outbound"),
     asked(reaching, "credentials", "credentials"),
+    asked(reaching, "version", "version"),
+    asked(reaching, "update", "self-update", { what: "self" }),
   ]);
+  const [quality, settings, line, outbound, credentials, versions, standing] =
+    read;
   return {
-    read: { quality, settings, line, outbound, credentials },
-    refused: turnedAway(quality, settings, line, outbound, credentials),
+    read: {
+      quality,
+      settings,
+      line,
+      outbound,
+      credentials,
+      versions,
+      standing,
+    },
+    refused: turnedAway(...read),
   };
 }

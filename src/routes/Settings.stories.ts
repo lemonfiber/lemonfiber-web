@@ -3,6 +3,7 @@ import Settings from "./Settings.svelte";
 import { configurer, everySetting, stagedChange } from "./configured";
 import { inForce, putQualityBack, readCost, tuner } from "./tuned";
 import { made, pairer } from "./paired";
+import { behind, versions } from "../api/copies";
 import { inventory } from "../api/credentials";
 import { leaving } from "../api/leavings";
 import { pausedRecord, planRecord, shared, sharer, updater } from "./lined";
@@ -115,4 +116,15 @@ export const WhatLeavesThisMachine: Story = {
  */
 export const EveryCredential: Story = {
   args: { credentials: { ok: true, value: inventory } },
+};
+
+/**
+ * This copy of lemonfiber: the versions in play, a newer release out, and the
+ * command the tool that installed it takes to move it.
+ */
+export const ANewerReleaseIsOut: Story = {
+  args: {
+    versions: { ok: true, value: versions },
+    standing: { ok: true, value: behind },
+  },
 };
