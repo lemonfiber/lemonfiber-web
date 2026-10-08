@@ -38,6 +38,7 @@
   import { tending } from "../lib/tending";
   import { tuning } from "../lib/tuning";
   import { filling } from "../lib/filling";
+  import { moving } from "../lib/moving";
   import { upkeep } from "../lib/upkeep";
   import { hosting } from "../lib/hosting";
   import type { Hosted } from "../lib/removed";
@@ -335,6 +336,7 @@
   const keepAsks = new Asked(desk, upkeep);
   const tuneAsks = new Asked(desk, tuning);
   const fillAsks = new Asked(desk, filling);
+  const moveAsks = new Asked(desk, moving);
   const changeAsks = new Asked(desk, configuring);
   const tendAsks = new Asked(desk, tending);
   const pairAsks = new Asked(desk, pairing);
@@ -463,6 +465,7 @@
       {diagnosis}
       {history}
       {survey}
+      mover={moveAsks.asker}
       freshness={stamped}
       {mender}
       {keeper}

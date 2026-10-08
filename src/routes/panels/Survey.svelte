@@ -1,8 +1,10 @@
 <script lang="ts">
   import Panel from "../../components/Panel.svelte";
   import Value from "../../components/Value.svelte";
+  import Moving from "./Moving.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../../lib/freshness";
+  import type { Mover } from "../../lib/moving";
   import { surveyGroups, type Survey } from "../../lib/survey";
   import * as m from "../../paraglide/messages.js";
 
@@ -11,9 +13,14 @@
     survey: Reading<Survey>;
     /** When this panel's source last answered. */
     freshness: Freshness;
+    /**
+     * What acting on what is here asks for. Left out where nothing answers it,
+     * which offers no way forward.
+     */
+    mover?: Mover | undefined;
   }
 
-  let { survey, freshness }: Props = $props();
+  let { survey, freshness, mover }: Props = $props();
 
   const groupId = $props.id();
 
@@ -25,7 +32,7 @@
   its containers, the ports in the way, what taking each over would come to,
   what the layout costs, what may be done, and what is named and not carried.
   A survey that could not ask the container engine says so rather than drawing
-  an empty machine. Choosing what to do about it is not offered here yet.
+  an empty machine. Under it, each way forward is offered, asked about first.
 -->
 <Panel title={m.panel_survey()} {freshness} flush>
   <div class="scope">
@@ -57,6 +64,10 @@
       </ul>
     </section>
   {/each}
+
+  {#if mover !== undefined && survey.ok && survey.value.read}
+    <Moving survey={survey.value} {mover} />
+  {/if}
 </Panel>
 
 <style>

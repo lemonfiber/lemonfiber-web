@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 52 of them.
-Another surface can make 54 requests of the stack, and this console offers 37 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 18 kinds and 16
+The client carries 72 kinds of answer, and this console reads 56 of them.
+Another surface can make 54 requests of the stack, and this console offers 41 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 14 kinds and 12
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -54,10 +54,12 @@ where it answers with a kind the contract did not have before.
 | Kind           | Where it is drawn                                                                                                                                                                                                                                                                          |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `admission`    | the door a password opens                                                                                                                                                                                                                                                                  |
+| `adoption`     | the checks: what adopting a setup already here would come to, the project, what to back up first and every database a newer version would upgrade, then where the backup went                                                                                                              |
 | `alerts`       | the settings: the preset in force for what the operator is told about and what it means, and each kind of event set apart from it                                                                                                                                                          |
 | `archives`     | the disk: the backups this machine keeps                                                                                                                                                                                                                                                   |
 | `backup`       | the disk: where a backup was written, and what it covers, under its record                                                                                                                                                                                                                 |
 | `bandwidth`    | the settings: where the line stands, what that means, each limit, and what each download client is doing about it                                                                                                                                                                          |
+| `beside`       | the checks: where standing beside a setup already here would move each service, then where the file saying so was written                                                                                                                                                                  |
 | `bundle`       | the checks: what a support bundle would hold, in full, or where it was written                                                                                                                                                                                                             |
 | `clients`      | the requests: which app to watch on for each kind of device, how well each is served and what to do instead, where playback will struggle on this machine, and what to do when it does not work                                                                                            |
 | `catalogue`    | the settings: every service the stack holds, what it does, what going without it costs and how much that matters, and every service the stack dropped with why and what took its place                                                                                                     |
@@ -71,6 +73,7 @@ where it answers with a kind the contract did not have before.
 | `history`      | the checks: everything lemonfiber changed, newest first, with what made each change, when, how far it could be put back and what goes with it, under how far back the record goes                                                                                                          |
 | `hosting`      | the overview: every command this machine can keep running, what each does, the command it runs and where it stands, and what keeping one or taking it back changed                                                                                                                         |
 | `household`    | the requests, and what running the household left it as                                                                                                                                                                                                                                    |
+| `import`       | the checks: what importing a setup's own records would carry across and what it cannot, then what it carried                                                                                                                                                                               |
 | `invitation`   | the requests: what offering somebody an account, or a new password, would make or made                                                                                                                                                                                                     |
 | `job`          | each record of work handed to the runtime                                                                                                                                                                                                                                                  |
 | `lifecycle`    | what a start, stop, switch, restart or fetch came to, under its record                                                                                                                                                                                                                     |
@@ -85,6 +88,7 @@ where it answers with a kind the contract did not have before.
 | `provenance`   | the settings: where each service comes from, beside what it is for: the image, the tag and digest it is pinned at, its licence and the project it is built from                                                                                                                            |
 | `quality`      | the settings: the quality new media is fetched at, and what putting the recorded preset back came to                                                                                                                                                                                       |
 | `repair`       | the checks: what can be put right, chosen from, and what putting it right came to                                                                                                                                                                                                          |
+| `replacement`  | the checks: every service replacing a setup already here would stop, then what stopped and what is still running                                                                                                                                                                           |
 | `restore`      | the disk: what an archive holds and what putting it back would overwrite, or what it put back                                                                                                                                                                                              |
 | `seed`         | what wiring the programs, or keeping edits made by hand, came to, under its record                                                                                                                                                                                                         |
 | `self-update`  | the settings: where this copy of lemonfiber stands against the newest release, how it was installed, where it runs from, exactly what to type to move it or why not, and what a release brings                                                                                             |
@@ -117,20 +121,16 @@ where it answers with a kind the contract did not have before.
 
 | Kind           | Feature  | What it is                                                                                               |
 | -------------- | -------- | -------------------------------------------------------------------------------------------------------- |
-| `adoption`     | A5       | Migration: what taking over a setup already here came to                                                 |
-| `beside`       | A5       | Migration: standing beside a setup already here                                                          |
 | `capabilities` | ARCH-R78 | What this copy of lemonfiber can do, each named by the path it is served at                              |
 | `certificate`  | N1       | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |
 | `front-door`   | G5       | The front door, asked for on its own                                                                     |
 | `handoff`      | G9       | Mobile handoff: where getting one person's phone onto the media server stands                            |
-| `import`       | A5       | Migration: copying an operator's records across                                                          |
 | `keys`         | C10      | Integration keys: every key, with no secret                                                              |
 | `minted-key`   | C10      | Integration keys: one key just minted, its secret shown this once                                        |
 | `music`        | D2       | Quality presets: the music format                                                                        |
 | `news`         | N27      | What's new: the newest of each kind, from the stream                                                     |
 | `news-items`   | N27      | What's new: everything newer than what was last seen, asked for                                          |
 | `removal`      | D6       | Household identity: somebody taken out of the household                                                  |
-| `replacement`  | A5       | Migration: standing in place of a setup already here                                                     |
 | `reset`        | C9       | Drift: what a full reset would revert                                                                    |
 | `step`         | D3       | First content: one step of a walkthrough, from the stream                                                |
 | `wizard`       | A2       | Setup: where setup stands                                                                                |
@@ -180,6 +180,10 @@ answers with `certificate`, so nothing here could read it.
 | `stop-seeding`      | the disk: one download still being shared, its cost read first, then let go on a yes naming that offer                                 |
 | `space`             | the disk: what costs nothing to get back, taken on a yes naming the accounting it was read in                                          |
 | `wiring-fill`       | the settings: which service fills a capability several claim, rehearsed first, then written on a yes naming that offer                 |
+| `migrate-adopt`     | the checks: take over a setup already here, read first, then agreed to with a yes that says what was named was backed up               |
+| `migrate-import`    | the checks: copy a setup's own records across, read first, then agreed to with a yes that says what was named was backed up            |
+| `migrate-beside`    | the checks: stand beside a setup already here on other ports, read first, then agreed to with a yes                                    |
+| `migrate-replace`   | the checks: stand in place of a setup already here, what it stops read first, then stopped on a yes naming that offer                  |
 
 Eight of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
@@ -210,10 +214,6 @@ carries while it runs (`step`) are not drawn yet.
 | Request                 | Feature | What it is                                                                                                     |
 | ----------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
 | `quality-set`           | D2      | Quality presets: choose one; the reading names no presets to choose from                                       |
-| `migrate-adopt`         | A5      | Migration: take over a setup already here                                                                      |
-| `migrate-beside`        | A5      | Migration: stand beside it                                                                                     |
-| `migrate-replace`       | A5      | Migration: stand in its place                                                                                  |
-| `migrate-import`        | A5      | Migration: copy its records across                                                                             |
 | `reset`                 | C9      | Drift: revert every edit to lemonfiber's own state                                                             |
 | `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes |
 | `household-handoff`     | G9      | Mobile handoff: issue one person a code pointing an app at the media server, and check a device signed in      |

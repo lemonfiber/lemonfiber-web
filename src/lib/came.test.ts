@@ -1,5 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
+  adoptedLines,
+  besideLines,
+  importedLines,
+  replacedLines,
+} from "./moved";
+import {
+  wouldAdopt,
+  wouldImport,
+  wouldReplace,
+  wouldStandBeside,
+} from "../api/moves";
+import {
   linesOf,
   type Checked,
   type Lifecycle,
@@ -515,5 +527,22 @@ describe("what putting the last repair back came to", () => {
 
   it("says there was nothing to put back, rather than nothing at all", () => {
     expect(putBackAs({})).toStrictEqual([m.came_undo_nothing()]);
+  });
+});
+
+describe("what acting on a setup already here came to", () => {
+  it("is read by the reader for each act", () => {
+    expect(linesOf({ kind: "adoption", report: wouldAdopt })).toStrictEqual(
+      adoptedLines(wouldAdopt),
+    );
+    expect(linesOf({ kind: "beside", report: wouldStandBeside })).toStrictEqual(
+      besideLines(wouldStandBeside),
+    );
+    expect(linesOf({ kind: "import", report: wouldImport })).toStrictEqual(
+      importedLines(wouldImport),
+    );
+    expect(
+      linesOf({ kind: "replacement", report: wouldReplace }),
+    ).toStrictEqual(replacedLines(wouldReplace));
   });
 });

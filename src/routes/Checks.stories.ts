@@ -5,6 +5,7 @@ import { keeper, readBundle } from "./keeping";
 import { mender, offered, putBack } from "./mended";
 import { changed } from "../api/histories";
 import { survey, unread } from "../api/surveys";
+import { adoptOffer, mover } from "./movings";
 
 const answered = { kind: "answered", secondsAgo: 6 } as const;
 const never = { kind: "never" } as const;
@@ -163,4 +164,15 @@ export const AlreadyOnThisMachine: Story = {
 /** A survey that could not ask the container engine. */
 export const TheEngineDidNotAnswer: Story = {
   args: { survey: { ok: true, value: unread } },
+};
+
+/**
+ * Acting on what is already here: each way forward offered, and what adopting
+ * would come to, its yes standing under it.
+ */
+export const MovingIn: Story = {
+  args: {
+    survey: { ok: true, value: survey },
+    mover: { ...mover, work: [adoptOffer] },
+  },
 };

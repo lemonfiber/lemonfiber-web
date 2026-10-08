@@ -20,8 +20,9 @@
  * `./updated`, where one item is, a walk through and a guard in
  * `./traced`, what this machine keeps running, what lemonfiber keeps and
  * taking it off the machine in `./removed`, letting a download go in
- * `./letting`, taking back the room that costs nothing in `./reclaimed`, and
- * choosing which service fills a capability in `./substituted`.
+ * `./letting`, taking back the room that costs nothing in `./reclaimed`,
+ * choosing which service fills a capability in `./substituted`, and acting on
+ * a setup already here in `./moved`.
  * Anything else arrives as an outcome nobody here reads, which is said rather
  * than drawn as nothing.
  *
@@ -62,6 +63,16 @@ import {
 import { lettingLines, type Let, type Reckoned } from "./letting";
 import { reclaimedLines } from "./reclaimed";
 import { substitutedLines, type Substituted } from "./substituted";
+import {
+  adoptedLines,
+  besideLines,
+  importedLines,
+  replacedLines,
+  type Adopted,
+  type Beside,
+  type Imported,
+  type Replaced,
+} from "./moved";
 import {
   householdLines,
   invitationLines,
@@ -130,6 +141,10 @@ export type Came =
   | { readonly kind: "stop-seeding"; readonly report: Let }
   | { readonly kind: "space"; readonly report: Reckoned }
   | { readonly kind: "substitution"; readonly report: Substituted }
+  | { readonly kind: "adoption"; readonly report: Adopted }
+  | { readonly kind: "beside"; readonly report: Beside }
+  | { readonly kind: "import"; readonly report: Imported }
+  | { readonly kind: "replacement"; readonly report: Replaced }
   | { readonly kind: "unread" };
 
 /** A service still doing what the action asked of it. */
@@ -502,6 +517,14 @@ export function linesOf(came: Came): readonly string[] {
       return reclaimedLines(came.report);
     case "substitution":
       return substitutedLines(came.report);
+    case "adoption":
+      return adoptedLines(came.report);
+    case "beside":
+      return besideLines(came.report);
+    case "import":
+      return importedLines(came.report);
+    case "replacement":
+      return replacedLines(came.report);
     case "unread":
       return [m.came_unread()];
   }

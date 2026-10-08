@@ -119,6 +119,13 @@ export type Reclaiming = "space";
  */
 export type Filling = "wiring-fill";
 
+/**
+ * Something the survey panel can ask for, named as the endpoint names it. What
+ * each takes and how it is asked about is in `./moving`.
+ */
+export type Moving =
+  "migrate-adopt" | "migrate-import" | "migrate-beside" | "migrate-replace";
+
 /** Anything a record can be of. */
 export type Requested =
   | Doing
@@ -135,4 +142,5 @@ export type Requested =
   | Removing
   | Seeding
   | Reclaiming
-  | Filling;
+  | Filling
+  | Moving;

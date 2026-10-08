@@ -53,6 +53,7 @@ export type {
   Seeding,
   Reclaiming,
   Filling,
+  Moving,
   Requested,
 } from "./requested";
 
@@ -271,6 +272,14 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_reclaim_title();
     case "wiring-fill":
       return m.doing_fill_title();
+    case "migrate-adopt":
+      return m.doing_migrate_adopt_title();
+    case "migrate-import":
+      return m.doing_migrate_import_title();
+    case "migrate-beside":
+      return m.doing_migrate_beside_title();
+    case "migrate-replace":
+      return m.doing_migrate_replace_title();
   }
 }
 
