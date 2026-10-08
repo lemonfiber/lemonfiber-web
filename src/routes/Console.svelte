@@ -15,6 +15,7 @@
   import { Listening } from "./listening.svelte";
   import { Tracing } from "./tracing.svelte";
   import { shelving } from "./shelving";
+  import { Keying } from "./keying.svelte";
   import {
     readSettings,
     readStorage,
@@ -206,9 +207,14 @@
         clients = noted(where, apps);
         return;
       }
-      case "settings":
-        setup = all(where, await readSettings(reaching));
+      case "settings": {
+        const [read] = await Promise.all([
+          readSettings(reaching),
+          keying.read(),
+        ]);
+        setup = all(where, read);
         return;
+      }
     }
   }
 
@@ -370,6 +376,8 @@
   const tracing = new Tracing(handing);
   const tracer = $derived(tracing.tracer);
   const shelves = shelving(handing);
+  const keying = new Keying(handing);
+  const keyer = $derived(keying.keyer);
   const tender = $derived(tendAsks.asker);
   const finder = $derived(findAsks.asker);
 
@@ -513,6 +521,7 @@
       freshness={stamped}
       tuner={tuneAsks.asker}
       filler={fillAsks.asker}
+      {keyer}
       configurer={changeAsks.asker}
       pairer={pairAsks.asker}
       sharer={shareAsks.asker}

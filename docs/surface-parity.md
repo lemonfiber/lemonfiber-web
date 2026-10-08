@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 73 kinds of answer, and this console reads 56 of them.
-Another surface can make 54 requests of the stack, and this console offers 41 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 15 kinds and 12
+The client carries 73 kinds of answer, and this console reads 58 of them.
+Another surface can make 54 requests of the stack, and this console offers 44 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 13 kinds and 9
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -76,9 +76,11 @@ where it answers with a kind the contract did not have before.
 | `import`       | the checks: what importing a setup's own records would carry across and what it cannot, then what it carried                                                                                                                                                                               |
 | `invitation`   | the requests: what offering somebody an account, or a new password, would make or made                                                                                                                                                                                                     |
 | `job`          | each record of work handed to the runtime                                                                                                                                                                                                                                                  |
+| `keys`         | the settings: every integration key without its secret, what it admits, what its minter said it is for, where it stands, when it was minted and last used, and who minted it; one revoked once the operator says so                                                                        |
 | `lifecycle`    | what a start, stop, switch, restart or fetch came to, under its record                                                                                                                                                                                                                     |
 | `log`          | the logs                                                                                                                                                                                                                                                                                   |
 | `migration`    | the checks: every project on this machine that is not lemonfiber's and its containers, the ports in the way, what taking each over would come to, what the layout costs, what may be done, and what is not carried                                                                         |
+| `minted-key`   | the settings: a key just minted, its secret shown once with the pin and the address a program needs, dropped when closed or on reload                                                                                                                                                      |
 | `outbound`     | the settings: every request lemonfiber makes on its own account, where it goes, what travels, whether it is allowed, the setting that switches it off and what that costs; and every request the stack's services make, with whose it is                                                   |
 | `pairing`      | the settings: the line a phone's code carries, the short form of the certificate's fingerprint to check on the phone, and what would make a paired phone refuse this machine                                                                                                               |
 | `pausing`      | the settings: what pausing or resuming every download came to, each download client with what it was doing and what it read back                                                                                                                                                           |
@@ -126,8 +128,6 @@ where it answers with a kind the contract did not have before.
 | `certificate`  | N1        | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint       |
 | `front-door`   | G5        | The front door, asked for on its own                                                                           |
 | `handoff`      | G9        | Mobile handoff: where getting one person's phone onto the media server stands                                  |
-| `keys`         | C10       | Integration keys: every key, with no secret                                                                    |
-| `minted-key`   | C10       | Integration keys: one key just minted, its secret shown this once                                              |
 | `music`        | D2        | Quality presets: the music format                                                                              |
 | `news`         | N27       | What's new: the newest of each kind, from the stream                                                           |
 | `news-items`   | N27       | What's new: everything newer than what was last seen, asked for                                                |
@@ -185,6 +185,9 @@ answers with `certificate`, so nothing here could read it.
 | `migrate-import`    | the checks: copy a setup's own records across, read first, then agreed to with a yes that says what was named was backed up            |
 | `migrate-beside`    | the checks: stand beside a setup already here on other ports, read first, then agreed to with a yes                                    |
 | `migrate-replace`   | the checks: stand in place of a setup already here, what it stops read first, then stopped on a yes naming that offer                  |
+| `key-list`          | the settings: every integration key, listed on the way in and again on asking                                                          |
+| `key-mint`          | the settings: one key minted with the operator's password typed for that request and kept by nothing                                   |
+| `key-revoke`        | the settings: one key revoked by name, once the operator says so                                                                       |
 
 Eight of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
@@ -223,6 +226,3 @@ carries while it runs (`step`) are not drawn yet.
 | `plugin-install`        | F6      | Plugin lifecycle: install one, from the offer read first                                                       |
 | `plugin-update`         | F6      | Plugin lifecycle: update one, from the offer read first                                                        |
 | `plugin-remove`         | F6      | Plugin lifecycle: remove one, from the offer read first                                                        |
-| `key-mint`              | C10     | Integration keys: mint one, with the password in the same request                                              |
-| `key-list`              | C10     | Integration keys: list them                                                                                    |
-| `key-revoke`            | C10     | Integration keys: revoke one                                                                                   |

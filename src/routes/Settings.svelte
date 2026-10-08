@@ -10,6 +10,8 @@
   import Pairing from "./panels/Pairing.svelte";
   import Plugins from "./panels/Plugins.svelte";
   import Glossary from "./panels/Glossary.svelte";
+  import Keys from "./panels/Keys.svelte";
+  import type { Keyer } from "./keying.svelte";
   import Quality from "./panels/Quality.svelte";
   import Updates from "./panels/Updates.svelte";
   import Wiring from "./panels/Wiring.svelte";
@@ -76,6 +78,8 @@
      * nothing answers it.
      */
     filler?: Filler | undefined;
+    /** What keeping integration keys asks for. Left out where nothing answers it. */
+    keyer?: Keyer | undefined;
     /** What updating the stack asks for. Left out where nothing answers it. */
     updater?: Updater | undefined;
     /** What pairing a phone asks for. Left out where nothing answers it. */
@@ -99,6 +103,7 @@
     freshness,
     tuner,
     filler,
+    keyer,
     configurer,
     sharer,
     updater,
@@ -113,7 +118,7 @@
   about, every credential the stack holds, the versions the stack stands on,
   what the stack holds and where each service comes from, what it wires to
   what, the plugins on this machine, this copy of lemonfiber, pairing the
-  companion app, and every word lemonfiber explains.
+  companion app, the integration keys, and every word lemonfiber explains.
 
   The readings are asked for together on the way in, and stamped together.
   The line is drawn where it was read or can be declared.
@@ -140,6 +145,9 @@
   <Copy {versions} {standing} {freshness} />
   {#if pairer !== undefined}
     <Pairing {pairer} {freshness} />
+  {/if}
+  {#if keyer !== undefined}
+    <Keys {keyer} {freshness} />
   {/if}
   <Glossary {glossary} {freshness} />
 </Board>

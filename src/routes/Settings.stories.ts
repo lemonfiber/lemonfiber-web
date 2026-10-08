@@ -6,6 +6,7 @@ import { made, pairer } from "./paired";
 import { alerts } from "../api/alerting";
 import { wiring } from "../api/wirings";
 import { filler, fillOffer } from "./fillings";
+import { keyer, made as justMinted } from "./keyings";
 import { plugins } from "../api/installs";
 import { vocabulary } from "../api/vocabularies";
 import { catalogue, provenance } from "../api/catalogues";
@@ -190,4 +191,14 @@ export const ChoosingWhatFills: Story = {
     wiring: { ok: true, value: wiring },
     filler: { ...filler, work: [fillOffer] },
   },
+};
+
+/** The integration keys: three listed, the mint form, and nothing minted. */
+export const IntegrationKeys: Story = {
+  args: { keyer },
+};
+
+/** A key just minted, its secret shown once with its pin and address. */
+export const AKeyJustMinted: Story = {
+  args: { keyer: { ...keyer, minted: justMinted } },
 };
