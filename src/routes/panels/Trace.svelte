@@ -105,7 +105,7 @@
   </div>
 
   {#if reading !== undefined || tracer.busy}
-    <div class="said">
+    <div class="answer">
       {#if reading?.ok === true}
         <ul aria-label={m.trace_said()}>
           {#each traceLines(reading.value) as one, at (at)}
@@ -183,7 +183,7 @@
     gap: var(--sp-2);
   }
 
-  .said {
+  .answer {
     padding: 0 var(--panel-pad) var(--sp-3);
   }
 

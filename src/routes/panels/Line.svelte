@@ -88,7 +88,7 @@
 <Panel title={m.panel_line()} {freshness} flush>
   <div class="scope">
     {#if said !== undefined}
-      <ul class="said" aria-label={m.line_said()}>
+      <ul class="standing" aria-label={m.line_said()}>
         {#each said as one, at (at)}
           <li><span class="word">{one}</span></li>
         {/each}
@@ -260,7 +260,7 @@
     padding: var(--sp-4) var(--panel-pad) var(--sp-3);
   }
 
-  .said {
+  .standing {
     display: grid;
     gap: var(--sp-2);
     margin: 0;
