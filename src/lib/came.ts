@@ -63,16 +63,7 @@ import {
 import { lettingLines, type Let, type Reckoned } from "./letting";
 import { reclaimedLines } from "./reclaimed";
 import { substitutedLines, type Substituted } from "./substituted";
-import {
-  adoptedLines,
-  besideLines,
-  importedLines,
-  replacedLines,
-  type Adopted,
-  type Beside,
-  type Imported,
-  type Replaced,
-} from "./moved";
+import { movedLines, type Moved } from "./moved";
 import {
   householdLines,
   invitationLines,
@@ -141,10 +132,7 @@ export type Came =
   | { readonly kind: "stop-seeding"; readonly report: Let }
   | { readonly kind: "space"; readonly report: Reckoned }
   | { readonly kind: "substitution"; readonly report: Substituted }
-  | { readonly kind: "adoption"; readonly report: Adopted }
-  | { readonly kind: "beside"; readonly report: Beside }
-  | { readonly kind: "import"; readonly report: Imported }
-  | { readonly kind: "replacement"; readonly report: Replaced }
+  | Moved
   | { readonly kind: "unread" };
 
 /** A service still doing what the action asked of it. */
@@ -518,13 +506,10 @@ export function linesOf(came: Came): readonly string[] {
     case "substitution":
       return substitutedLines(came.report);
     case "adoption":
-      return adoptedLines(came.report);
     case "beside":
-      return besideLines(came.report);
     case "import":
-      return importedLines(came.report);
     case "replacement":
-      return replacedLines(came.report);
+      return movedLines(came);
     case "unread":
       return [m.came_unread()];
   }

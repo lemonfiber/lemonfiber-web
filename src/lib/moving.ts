@@ -11,6 +11,7 @@
 import type { Arguments } from "../api/acting";
 import { sameDoing, type Asker, type Family } from "./asker";
 import type { Came } from "./came";
+import type { Moved } from "./moved";
 import type { Moving, Requested, Work } from "./work";
 
 /** Every request the survey panel makes, least disruptive first. */
@@ -61,12 +62,6 @@ const MOVES: ReadonlySet<Came["kind"]> = new Set([
   "import",
   "replacement",
 ]);
-
-/** What one of the four acts came to. */
-type Moved = Extract<
-  Came,
-  { readonly kind: "adoption" | "beside" | "import" | "replacement" }
->;
 
 /** Whether a piece of work is one of the four acts. */
 function isMove(came: Came): came is Moved {

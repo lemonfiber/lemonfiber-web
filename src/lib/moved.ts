@@ -18,6 +18,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { listed } from "./listed";
+import type { Moving } from "./requested";
 import { carryingLines } from "./survey";
 import * as m from "../paraglide/messages.js";
 
@@ -152,4 +153,39 @@ export function replacedLines(report: Replaced): readonly string[] {
     lines.push(m.move_still_running({ services: listed(running) }));
   }
   return lines;
+}
+
+/** What one of the four acts came to, as a record carries it. */
+export type Moved =
+  | { readonly kind: "adoption"; readonly report: Adopted }
+  | { readonly kind: "beside"; readonly report: Beside }
+  | { readonly kind: "import"; readonly report: Imported }
+  | { readonly kind: "replacement"; readonly report: Replaced };
+
+/** What one of the four acts came to, line by line. */
+export function movedLines(moved: Moved): readonly string[] {
+  switch (moved.kind) {
+    case "adoption":
+      return adoptedLines(moved.report);
+    case "beside":
+      return besideLines(moved.report);
+    case "import":
+      return importedLines(moved.report);
+    case "replacement":
+      return replacedLines(moved.report);
+  }
+}
+
+/** What a record of one of the four acts is headed. */
+export function titleOfMove(doing: Moving): string {
+  switch (doing) {
+    case "migrate-adopt":
+      return m.doing_migrate_adopt_title();
+    case "migrate-import":
+      return m.doing_migrate_import_title();
+    case "migrate-beside":
+      return m.doing_migrate_beside_title();
+    case "migrate-replace":
+      return m.doing_migrate_replace_title();
+  }
 }
