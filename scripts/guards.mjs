@@ -356,6 +356,28 @@ for (const { at, markup, refused } of PROVEN) {
 }
 
 /**
+ * The classes `app.css` declares for every component to use as they are.
+ *
+ * `.said` is the one today: it takes what it marks off the screen and leaves it
+ * to a screen reader. A component's own rule for a class of that name is still
+ * the global rule plus its own, so what the component meant to draw is drawn one
+ * pixel wide and clipped away.
+ */
+function utilitiesOf(css) {
+  return [...css.matchAll(/^\.([a-z][a-z-]*)\s*\{/gm)].map((found) => found[1]);
+}
+
+/** The global classes a stylesheet line names in a selector of its own. */
+function restyled(line, utilities) {
+  if (!/\{\s*$|,\s*$/.test(line)) return [];
+  return utilities.filter((name) =>
+    new RegExp(String.raw`\.${name}(?![\w-])`).test(line),
+  );
+}
+
+const UTILITIES = utilitiesOf(await readFile(join(SRC, "app.css"), "utf8"));
+
+/**
  * What each rule below must refuse, and what it must let through.
  *
  * A sweep that finds nothing looks exactly like a rule that reads nothing, and
@@ -415,6 +437,17 @@ const REFUSES = [
       "the status the endpoint answers a refused read with",
       "R2 names nothing on its own",
       "the reading of what is running",
+    ],
+  },
+  {
+    rule: "a component restyling a global class",
+    find: (line) => restyled(line, ["said"]),
+    refuses: ["  .said {", "  .said,", "  .lines .said {"],
+    allows: [
+      "  .lines {",
+      "  .saids {",
+      '    <ul class="said">',
+      "  .said-ish {",
     ],
   },
   {
@@ -540,6 +573,24 @@ for (const [file, text] of sources) {
         "reasoning in a comment — state the fact, argue in the ADR",
       );
   });
+
+  if (isDrawn(file)) {
+    let styling = false;
+    lines.forEach((line, i) => {
+      if (/<style[\s>]/.test(line)) styling = true;
+      else if (/<\/style>/.test(line)) styling = false;
+      else if (styling) {
+        for (const name of restyled(line, UTILITIES))
+          fail(
+            file,
+            i + 1,
+            `restyles .${name}, which app.css declares for every component. The ` +
+              "global rule still applies, so what this marks is taken off the " +
+              "screen. Name the component's own class something else",
+          );
+      }
+    });
+  }
 
   if (!file.endsWith(".test.ts") && lines.length > LINE_CAP) {
     fail(
