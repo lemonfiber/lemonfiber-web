@@ -29,8 +29,8 @@ actually reach.
 ## The measurement
 
 The client carries 73 kinds of answer, and this console reads 59 of them.
-Another surface can make 54 requests of the stack, and this console offers 45 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 12 kinds and 8
+Another surface can make 54 requests of the stack, and this console offers 48 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 12 kinds and 5
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -142,55 +142,58 @@ answers with `certificate`, so nothing here could read it.
 
 ## Requests offered here
 
-| Request             | Where                                                                                                                                  |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `up`                | the overview, against the forms chosen or all                                                                                          |
-| `down`              | the overview, against the forms chosen or all                                                                                          |
-| `switch`            | the overview, against the forms chosen                                                                                                 |
-| `restart`           | the overview, against the forms chosen                                                                                                 |
-| `pull`              | the overview, against the forms chosen                                                                                                 |
-| `seed`              | the overview, for the whole stack                                                                                                      |
-| `adopt`             | the overview, for the whole stack                                                                                                      |
-| `repair`            | the checks: the offer first, then the repairs chosen from it, named by the offer they were read in                                     |
-| `diagnose`          | the checks, after a question saying the tunnel goes away for a moment                                                                  |
-| `accept`            | the checks, one warning at a time, after a question                                                                                    |
-| `undo`              | the checks: the last repair, after a question                                                                                          |
-| `backup`            | the disk, for the whole stack, after a question saying it writes settings and no media while the stack is stopped                      |
-| `restore`           | the disk: the listing first, then the archive put back, named by the listing it was read in                                            |
-| `support`           | the checks: every file a bundle would hold, read in full, then the bundle written on the terms it was read under                       |
-| `quality-reapply`   | the settings, where the config was edited by hand, after a question saying the edits are lost                                          |
-| `quality-upgrade`   | the settings: the cost first, then the library fetched again on a yes under it                                                         |
-| `config-set`        | the settings: made at once where it costs nothing, otherwise the review first and the change on a yes under it                         |
-| `invite`            | the requests: what the offer would make first, then the account offered on a yes under it, on the terms it was read on                 |
-| `reissue`           | the requests, under each person, after a question saying they cannot sign in until they set a new password                             |
-| `household-allow`   | the requests: for the whole house, and under each person, a policy and a limit over a period                                           |
-| `household-approve` | the requests, under each person, for each request waiting on the operator                                                              |
-| `household-decline` | the requests, under each person, for each request waiting on the operator, with the reason the person who asked is given               |
-| `household-handoff` | the requests, under each person: a code for each app pointing it at the media server, and asking again whether a device signed in      |
-| `companion-pair`    | the settings: fresh pairing material for the companion app, made at once, since it carries no credential and admits nobody             |
-| `bandwidth`         | the settings: the limits typed, as they were typed, made at once; or the limits lifted for the minutes typed                           |
-| `downloads-pause`   | the settings: every download client paused at once, since a pause holds until it is resumed                                            |
-| `downloads-resume`  | the settings: every download client resumed at once, with whatever would stop them again                                               |
-| `update`            | the settings: every step first, then the move on a yes under it, letting downloads finish first where asked                            |
-| `watch`             | the overview, against the forms chosen                                                                                                 |
-| `walkthrough`       | the requests: the thing named, or something likely to work, after a question saying it fetches it                                      |
-| `search`            | the requests: one item followed with the indexers asked, beside looking it up without asking them                                      |
-| `hosting-install`   | the overview: one command kept running after a question naming what it does, the guard against the forms chosen                        |
-| `hosting-remove`    | the overview: one command taken back after a question naming what stops                                                                |
-| `forget`            | the disk: everything kept listed first, then forgotten on a yes under the listing                                                      |
-| `uninstall`         | the disk: one of four removals listed first, then carried out on a yes naming that listing, letting downloads finish first where asked |
-| `stop-seeding`      | the disk: one download still being shared, its cost read first, then let go on a yes naming that offer                                 |
-| `space`             | the disk: what costs nothing to get back, taken on a yes naming the accounting it was read in                                          |
-| `wiring-fill`       | the settings: which service fills a capability several claim, rehearsed first, then written on a yes naming that offer                 |
-| `migrate-adopt`     | the checks: take over a setup already here, read first, then agreed to with a yes that says what was named was backed up               |
-| `migrate-import`    | the checks: copy a setup's own records across, read first, then agreed to with a yes that says what was named was backed up            |
-| `migrate-beside`    | the checks: stand beside a setup already here on other ports, read first, then agreed to with a yes                                    |
-| `migrate-replace`   | the checks: stand in place of a setup already here, what it stops read first, then stopped on a yes naming that offer                  |
-| `key-list`          | the settings: every integration key, listed on the way in and again on asking                                                          |
-| `key-mint`          | the settings: one key minted with the operator's password typed for that request and kept by nothing                                   |
-| `key-revoke`        | the settings: one key revoked by name, once the operator says so                                                                       |
+| Request             | Where                                                                                                                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `up`                | the overview, against the forms chosen or all                                                                                                                                      |
+| `down`              | the overview, against the forms chosen or all                                                                                                                                      |
+| `switch`            | the overview, against the forms chosen                                                                                                                                             |
+| `restart`           | the overview, against the forms chosen                                                                                                                                             |
+| `pull`              | the overview, against the forms chosen                                                                                                                                             |
+| `seed`              | the overview, for the whole stack                                                                                                                                                  |
+| `adopt`             | the overview, for the whole stack                                                                                                                                                  |
+| `repair`            | the checks: the offer first, then the repairs chosen from it, named by the offer they were read in                                                                                 |
+| `diagnose`          | the checks, after a question saying the tunnel goes away for a moment                                                                                                              |
+| `accept`            | the checks, one warning at a time, after a question                                                                                                                                |
+| `undo`              | the checks: the last repair, after a question                                                                                                                                      |
+| `backup`            | the disk, for the whole stack, after a question saying it writes settings and no media while the stack is stopped                                                                  |
+| `restore`           | the disk: the listing first, then the archive put back, named by the listing it was read in                                                                                        |
+| `support`           | the checks: every file a bundle would hold, read in full, then the bundle written on the terms it was read under                                                                   |
+| `quality-reapply`   | the settings, where the config was edited by hand, after a question saying the edits are lost                                                                                      |
+| `quality-upgrade`   | the settings: the cost first, then the library fetched again on a yes under it                                                                                                     |
+| `config-set`        | the settings: made at once where it costs nothing, otherwise the review first and the change on a yes under it                                                                     |
+| `invite`            | the requests: what the offer would make first, then the account offered on a yes under it, on the terms it was read on                                                             |
+| `reissue`           | the requests, under each person, after a question saying they cannot sign in until they set a new password                                                                         |
+| `household-allow`   | the requests: for the whole house, and under each person, a policy and a limit over a period                                                                                       |
+| `household-approve` | the requests, under each person, for each request waiting on the operator                                                                                                          |
+| `household-decline` | the requests, under each person, for each request waiting on the operator, with the reason the person who asked is given                                                           |
+| `household-handoff` | the requests, under each person: a code for each app pointing it at the media server, and asking again whether a device signed in                                                  |
+| `companion-pair`    | the settings: fresh pairing material for the companion app, made at once, since it carries no credential and admits nobody                                                         |
+| `bandwidth`         | the settings: the limits typed, as they were typed, made at once; or the limits lifted for the minutes typed                                                                       |
+| `downloads-pause`   | the settings: every download client paused at once, since a pause holds until it is resumed                                                                                        |
+| `downloads-resume`  | the settings: every download client resumed at once, with whatever would stop them again                                                                                           |
+| `update`            | the settings: every step first, then the move on a yes under it, letting downloads finish first where asked                                                                        |
+| `watch`             | the overview, against the forms chosen                                                                                                                                             |
+| `walkthrough`       | the requests: the thing named, or something likely to work, after a question saying it fetches it                                                                                  |
+| `search`            | the requests: one item followed with the indexers asked, beside looking it up without asking them                                                                                  |
+| `hosting-install`   | the overview: one command kept running after a question naming what it does, the guard against the forms chosen                                                                    |
+| `hosting-remove`    | the overview: one command taken back after a question naming what stops                                                                                                            |
+| `forget`            | the disk: everything kept listed first, then forgotten on a yes under the listing                                                                                                  |
+| `uninstall`         | the disk: one of four removals listed first, then carried out on a yes naming that listing, letting downloads finish first where asked                                             |
+| `stop-seeding`      | the disk: one download still being shared, its cost read first, then let go on a yes naming that offer                                                                             |
+| `space`             | the disk: what costs nothing to get back, taken on a yes naming the accounting it was read in                                                                                      |
+| `wiring-fill`       | the settings: which service fills a capability several claim, rehearsed first, then written on a yes naming that offer                                                             |
+| `migrate-adopt`     | the checks: take over a setup already here, read first, then agreed to with a yes that says what was named was backed up                                                           |
+| `migrate-import`    | the checks: copy a setup's own records across, read first, then agreed to with a yes that says what was named was backed up                                                        |
+| `migrate-beside`    | the checks: stand beside a setup already here on other ports, read first, then agreed to with a yes                                                                                |
+| `migrate-replace`   | the checks: stand in place of a setup already here, what it stops read first, then stopped on a yes naming that offer                                                              |
+| `key-list`          | the settings: every integration key, listed on the way in and again on asking                                                                                                      |
+| `key-mint`          | the settings: one key minted with the operator's password typed for that request and kept by nothing                                                                               |
+| `key-revoke`        | the settings: one key revoked by name, once the operator says so                                                                                                                   |
+| `plugin-install`    | the settings: a plugin read from the source typed, drawn whole, then installed on a yes naming that reading, with each value its recipes would carry elsewhere approved on its own |
+| `plugin-update`     | the settings, under each plugin: the update read as one account, then made on a yes naming that reading                                                                            |
+| `plugin-remove`     | the settings, under each plugin: what stops and what is left unfilled, then the removal on a yes naming that reading                                                               |
 
-Eight of these are offered in part. `backup` takes the whole stack; lemonfiber
+Nine of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
 yet. `support` writes the bundle where lemonfiber keeps its own files, and the
 newest one written is handed to the browser to be saved; showing a setting as
@@ -206,7 +209,10 @@ of it yet (`D6-R4`). `companion-pair` shows the line a phone's code carries and
 no code a camera reads yet (`N1-R6`). `update` moves the whole stack; lemonfiber
 also moves one service, and this console has no control for that yet.
 `walkthrough` shows every step it took once the walk ends; the steps the stream
-carries while it runs (`step`) are not drawn yet.
+carries while it runs (`step`) are not drawn yet. `plugin-install`
+and `plugin-update` send no value for a recipe input the operator supplies:
+the reading does not list a recipe's inputs, so lemonfiber refuses one that
+asks for any, naming it.
 
 ## Requests unsuited to this surface
 
@@ -223,6 +229,3 @@ carries while it runs (`step`) are not drawn yet.
 | `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes |
 | `setup`                 | A2      | Setup wizard, walked in a browser                                                                              |
 | `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only       |
-| `plugin-install`        | F6      | Plugin lifecycle: install one, from the offer read first                                                       |
-| `plugin-update`         | F6      | Plugin lifecycle: update one, from the offer read first                                                        |
-| `plugin-remove`         | F6      | Plugin lifecycle: remove one, from the offer read first                                                        |

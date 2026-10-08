@@ -127,6 +127,12 @@ export type Filling = "wiring-fill";
 export type Moving =
   "migrate-adopt" | "migrate-import" | "migrate-beside" | "migrate-replace";
 
+/**
+ * Something the plugins panel can ask for, named as the endpoint names it.
+ * What each takes and how it is asked about is in `./plugging`.
+ */
+export type Plugging = "plugin-install" | "plugin-update" | "plugin-remove";
+
 /** Anything a record can be of. */
 export type Requested =
   | Doing
@@ -144,4 +150,5 @@ export type Requested =
   | Seeding
   | Reclaiming
   | Filling
-  | Moving;
+  | Moving
+  | Plugging;

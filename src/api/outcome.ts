@@ -157,5 +157,8 @@ function ofTheSettings(envelope: Envelope): Came | undefined {
   if (isKind(envelope, "update")) {
     return { kind: "update", report: envelope.data };
   }
+  if (isKind(envelope, "plugins")) {
+    return { kind: "plugins", report: envelope.data };
+  }
   return undefined;
 }

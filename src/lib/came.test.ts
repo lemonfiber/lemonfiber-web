@@ -22,6 +22,8 @@ import {
 import { gradingOf } from "./verdict";
 import { handoffLines } from "./handoff";
 import { readyForSam } from "../api/handoffs";
+import { pluggedLines } from "./plugged";
+import { madeInstall } from "../api/plugs";
 import { carried, offer, undone } from "../api/reports";
 import * as m from "../paraglide/messages.js";
 
@@ -340,6 +342,14 @@ describe("what handing somebody a device came to", () => {
   it("says where it stands, as the panel under their name does", () => {
     expect(linesOf({ kind: "handoff", report: readyForSam })).toStrictEqual(
       handoffLines(readyForSam),
+    );
+  });
+});
+
+describe("what acting on a plugin came to", () => {
+  it("says it as the plugins panel does", () => {
+    expect(linesOf({ kind: "plugins", report: madeInstall })).toStrictEqual(
+      pluggedLines(madeInstall),
     );
   });
 });

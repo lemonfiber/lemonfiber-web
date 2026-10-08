@@ -31,6 +31,7 @@ import { everyPairing } from "./lib/pairing";
 import { everyReclaiming } from "./lib/reclaiming";
 import { everyFilling } from "./lib/filling";
 import { everyMoving } from "./lib/moving";
+import { everyPlugging } from "./lib/plugging";
 import { everyKeying } from "./routes/keying.svelte";
 import { everyRemoving } from "./lib/removing";
 import { everySeeding } from "./lib/seeding";
@@ -74,7 +75,6 @@ type Feature =
   | "E4"
   | "F2"
   | "F4"
-  | "F6"
   | "G2"
   | "G5"
   | "G6"
@@ -255,6 +255,15 @@ const WALKED: readonly {
     named: "everyKeying",
     by: ["src/routes/panels/Keys.svelte"],
   },
+  {
+    list: everyPlugging,
+    named: "everyPlugging",
+    by: [
+      "src/routes/panels/Plugins.svelte",
+      "src/routes/panels/Plugging.svelte",
+      "src/routes/panels/PlugOffer.svelte",
+    ],
+  },
 ];
 
 /** Requests this console offers. */
@@ -304,6 +313,9 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "key-list",
   "key-mint",
   "key-revoke",
+  "plugin-install",
+  "plugin-update",
+  "plugin-remove",
 ];
 
 /**
@@ -321,9 +333,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   remove: "D6",
   setup: "A2",
   "companion-certificate": "N1",
-  "plugin-install": "F6",
-  "plugin-update": "F6",
-  "plugin-remove": "F6",
 };
 
 /** Kinds something the page imports reads. */

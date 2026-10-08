@@ -25,6 +25,7 @@
  * carries from lemonfiber are lemonfiber's own and are passed through unchanged.
  */
 import { titleOfMove } from "./moved";
+import { titleOfPlug } from "./plugged";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import type { Acted, Arguments } from "../api/acting";
 import type { Redeemed } from "../api/redeeming";
@@ -60,6 +61,7 @@ export type {
   Reclaiming,
   Filling,
   Moving,
+  Plugging,
   Requested,
 } from "./requested";
 
@@ -298,6 +300,10 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
     case "migrate-beside":
     case "migrate-replace":
       return titleOfMove(doing);
+    case "plugin-install":
+    case "plugin-update":
+    case "plugin-remove":
+      return titleOfPlug(doing);
   }
 }
 
