@@ -14,6 +14,7 @@
   import { Saving } from "./saving.svelte";
   import { Listening } from "./listening.svelte";
   import { Tracing } from "./tracing.svelte";
+  import { shelving } from "./shelving";
   import {
     readSettings,
     readStorage,
@@ -364,6 +365,7 @@
   const saver = $derived(saving.saver);
   const tracing = new Tracing(handing);
   const tracer = $derived(tracing.tracer);
+  const shelves = shelving(handing);
   const tender = $derived(tendAsks.asker);
   const finder = $derived(findAsks.asker);
 
@@ -484,6 +486,7 @@
       {tender}
       {finder}
       {tracer}
+      shelving={shelves}
       {stuck}
       {clients}
     />

@@ -5,6 +5,7 @@ import { letThrough, madeOffer, readOffer, tender } from "./tended";
 import { finder, searchedRecord, traced, tracer, walkedRecord } from "./finds";
 import { guidance } from "../api/apps";
 import { stalled } from "../api/stalls";
+import { kitsShelf } from "../api/shelves";
 
 const answered = { kind: "answered", secondsAgo: 8 } as const;
 const never = { kind: "never" } as const;
@@ -152,4 +153,16 @@ export const StuckDownloads: Story = {
  */
 export const WhichAppToWatchOn: Story = {
   args: { clients: { ok: true, value: guidance } },
+};
+
+/**
+ * Running the household, with what each member can watch offered under their
+ * name: opening a shelf lists every title with its year and kind.
+ */
+export const WhatEachCanWatch: Story = {
+  args: {
+    tender,
+    shelving: (member: string) =>
+      Promise.resolve({ ok: true, value: { ...kitsShelf, member } }),
+  },
 };

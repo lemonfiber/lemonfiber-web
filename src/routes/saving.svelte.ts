@@ -6,17 +6,9 @@
  * written with. Nothing is kept here beyond whether it is being asked for and,
  * where it could not be, why, in lemonfiber's words.
  */
-import type { Reaching } from "../api/asking";
+import type { Handing } from "../api/asking";
 import { takingBundle } from "../api/taking";
 import type { Saver } from "../lib/upkeep";
-
-/** What saving is handed: where to ask, and what a refused key asks for. */
-export interface Handing {
-  /** Where to ask, as the console holds it now. */
-  readonly reaching: () => Reaching;
-  /** What a refusal of the key asks for. */
-  readonly onrefused: () => void;
-}
 
 /**
  * Offer a file to the browser as a download.

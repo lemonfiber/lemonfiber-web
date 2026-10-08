@@ -231,6 +231,8 @@
   "action_decline_open": "Turn {title} down",
   "action_decline_yes": "Turn it down",
   "action_reissue": "Let {name} set a new password",
+  "action_shelf": "Show {name}'s shelf",
+  "action_shelf_close": "Hide {name}'s shelf",
   "action_limits_member": "Say what {name} may ask for",
   "came_invite_unheld": "The request service could not be held to the same limit yet, so what they ask for is not narrowed there.",
   "doing_pair_title": "Making a pairing code for a phone",

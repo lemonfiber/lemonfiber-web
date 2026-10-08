@@ -52,6 +52,14 @@ export interface Reaching {
   readonly fetching: Fetching;
 }
 
+/** What a reader on the console is handed: where to ask, and what a refused key asks for. */
+export interface Handing {
+  /** Where to ask, as the console holds it now. */
+  readonly reaching: () => Reaching;
+  /** What a refusal of the key asks for. */
+  readonly onrefused: () => void;
+}
+
 /**
  * One read's answer, narrowed to the payload the kind it names carries.
  *

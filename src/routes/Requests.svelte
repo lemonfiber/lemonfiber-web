@@ -11,6 +11,7 @@
   import Trace from "./panels/Trace.svelte";
   import Walk from "./panels/Walk.svelte";
   import type { Tracer } from "./tracing.svelte";
+  import type { Shelving } from "./shelving";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
   import type { Stuck as Stalled } from "../lib/stuck";
@@ -44,6 +45,8 @@
     finder?: Finder | undefined;
     /** Where one item is, and how to look one up. */
     tracer?: Tracer | undefined;
+    /** How what one member can watch is asked. Left out where nothing answers it. */
+    shelving?: Shelving | undefined;
     /**
      * The items whose downloads are stuck, or why they could not be read.
      * Left out until it answers.
@@ -56,8 +59,16 @@
     clients?: Reading<Guidance> | undefined;
   }
 
-  let { household, freshness, tender, finder, tracer, stuck, clients }: Props =
-    $props();
+  let {
+    household,
+    freshness,
+    tender,
+    finder,
+    tracer,
+    shelving,
+    stuck,
+    clients,
+  }: Props = $props();
 
   const columns: readonly Column[] = [
     { head: m.head_asked_for() },
@@ -151,7 +162,7 @@
           </div>
         {/if}
         {#if tender !== undefined}
-          <Tended {member} {tender} />
+          <Tended {member} {tender} {shelving} />
         {/if}
       </Panel>
     {/each}

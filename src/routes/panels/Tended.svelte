@@ -2,6 +2,8 @@
   import Action from "../../components/Action.svelte";
   import Field from "../../components/Field.svelte";
   import Limiting from "./Limiting.svelte";
+  import Watchable from "./Watchable.svelte";
+  import type { Shelving } from "../shelving";
   import { nameOfRequest } from "../../lib/household";
   import type { Limits, Tender } from "../../lib/tending";
   import type { Member } from "../../lib/wire";
@@ -12,9 +14,14 @@
     member: Member;
     /** What can be asked about them. */
     tender: Tender;
+    /**
+     * How what they can watch is asked. Left out where nothing answers it,
+     * which offers no shelf.
+     */
+    shelving?: Shelving | undefined;
   }
 
-  let { member, tender }: Props = $props();
+  let { member, tender, shelving }: Props = $props();
 
   /** What is open for them: their limits, or one request being turned down. */
   let open = $state<"limits" | number | undefined>(undefined);
@@ -32,8 +39,8 @@
 
 <!--
   What can be done for one person: let each request waiting on the operator
-  through, or turn it down with a reason; let them set a new password; and say
-  what they may ask for.
+  through, or turn it down with a reason; let them set a new password; say
+  what they may ask for; and see what they can watch.
 
   Every control names the request or the person it is about, because a reader
   listing the controls on a screen is given the names and nothing around them.
@@ -140,6 +147,9 @@
         }}
       />
     </div>
+  {/if}
+  {#if shelving !== undefined}
+    <Watchable name={member.name} {shelving} />
   {/if}
 </div>
 
