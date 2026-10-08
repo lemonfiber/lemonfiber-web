@@ -1,6 +1,7 @@
 <script lang="ts">
   import Board from "./Board.svelte";
   import Configuration from "./panels/Configuration.svelte";
+  import Credentials from "./panels/Credentials.svelte";
   import Line from "./panels/Line.svelte";
   import Outbound from "./panels/Outbound.svelte";
   import Pairing from "./panels/Pairing.svelte";
@@ -9,6 +10,7 @@
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Configured } from "../lib/configured";
   import type { Configurer } from "../lib/configuring";
+  import type { Inventory } from "../lib/credentials";
   import type { Freshness } from "../lib/freshness";
   import type { Leaving } from "../lib/leaving";
   import type { Pairer } from "../lib/pairing";
@@ -27,6 +29,8 @@
     line?: Reading<Shared> | undefined;
     /** Everything that leaves this machine, or why it could not be read. */
     outbound?: Reading<Leaving> | undefined;
+    /** Every credential the stack holds, or why they could not be read. */
+    credentials?: Reading<Inventory> | undefined;
     /** When this screen's sources last answered. */
     freshness: Freshness;
     /**
@@ -49,6 +53,7 @@
     settings,
     line,
     outbound,
+    credentials,
     freshness,
     tuner,
     configurer,
@@ -61,8 +66,8 @@
 <!--
   How the stack is set up, and what can be changed about it from here: the
   quality new media is fetched at, every setting lemonfiber keeps, how the line
-  is shared, everything that leaves this machine, the versions the stack stands
-  on, and pairing the companion app.
+  is shared, everything that leaves this machine, every credential the stack
+  holds, the versions the stack stands on, and pairing the companion app.
 
   The readings are asked for together on the way in, and stamped together.
   The line is drawn where it was read or can be declared.
@@ -76,6 +81,7 @@
     <Line {line} {freshness} {sharer} />
   {/if}
   <Outbound {outbound} {freshness} />
+  <Credentials {credentials} {freshness} />
 
   {#if updater !== undefined}
     <Updates {updater} {freshness} />
