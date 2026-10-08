@@ -79,7 +79,6 @@ type Feature =
   | "G5"
   | "G6"
   | "G8"
-  | "G9"
   | "N1"
   | "N27"
   | "ARCH-R78"
@@ -282,6 +281,7 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "household-allow",
   "household-approve",
   "household-decline",
+  "household-handoff",
   "companion-pair",
   "bandwidth",
   "downloads-pause",
@@ -319,7 +319,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "quality-set": "D2",
   reset: "C9",
   remove: "D6",
-  "household-handoff": "G9",
   setup: "A2",
   "companion-certificate": "N1",
   "plugin-install": "F6",
@@ -345,6 +344,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "doctor",
   "forms",
   "glossary",
+  "handoff",
   "held",
   "history",
   "hosting",
@@ -415,7 +415,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   capabilities: "ARCH-R78",
   certificate: "N1",
   "front-door": "G5",
-  handoff: "G9",
   music: "D2",
   news: "N27",
   "news-items": "N27",

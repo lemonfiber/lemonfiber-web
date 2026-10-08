@@ -34,7 +34,12 @@ import type { Freshness } from "./freshness";
 import type { Forms, Preview } from "./wire";
 import * as m from "../paraglide/messages.js";
 
-import { everyDoing, type Doing, type Requested } from "./requested";
+import {
+  everyDoing,
+  type Doing,
+  type Requested,
+  type Tending,
+} from "./requested";
 
 export { everyDoing } from "./requested";
 
@@ -209,6 +214,24 @@ export function wordOfDoing(doing: Doing, scoped: boolean): string {
   }
 }
 
+/** What a record of something the household panels asked for is headed. */
+function titleOfTending(doing: Tending): string {
+  switch (doing) {
+    case "invite":
+      return m.doing_invite_title();
+    case "reissue":
+      return m.doing_reissue_title();
+    case "household-allow":
+      return m.doing_allow_title();
+    case "household-approve":
+      return m.doing_approve_title();
+    case "household-decline":
+      return m.doing_decline_title();
+    case "household-handoff":
+      return m.doing_handoff_title();
+  }
+}
+
 /**
  * What a record of it is headed by: what was asked for, as it is happening.
  */
@@ -236,7 +259,12 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
     case "config-set":
       return m.doing_config_title();
     case "invite":
-      return m.doing_invite_title();
+    case "reissue":
+    case "household-allow":
+    case "household-approve":
+    case "household-decline":
+    case "household-handoff":
+      return titleOfTending(doing);
     case "companion-pair":
       return m.doing_pair_title();
     case "bandwidth":
@@ -247,14 +275,6 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_resume_title();
     case "update":
       return m.doing_update_title();
-    case "reissue":
-      return m.doing_reissue_title();
-    case "household-allow":
-      return m.doing_allow_title();
-    case "household-approve":
-      return m.doing_approve_title();
-    case "household-decline":
-      return m.doing_decline_title();
     case "walkthrough":
       return m.doing_walk_title();
     case "search":

@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 73 kinds of answer, and this console reads 58 of them.
-Another surface can make 54 requests of the stack, and this console offers 44 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 13 kinds and 9
+The client carries 73 kinds of answer, and this console reads 59 of them.
+Another surface can make 54 requests of the stack, and this console offers 45 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 12 kinds and 8
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -69,6 +69,7 @@ where it answers with a kind the contract did not have before.
 | `doctor`       | the checks, and the checks about the disk                                                                                                                                                                                                                                                  |
 | `forms`        | the forms the controls act on                                                                                                                                                                                                                                                              |
 | `glossary`     | the settings: every word lemonfiber explains, in the order somebody meets them, with what it is for, more where there is more, what other services call it and the other forms lemonfiber writes it in                                                                                     |
+| `handoff`      | the requests, under each person: where getting their device onto the media server stands, a code for each app, the steps to sign in and the devices signed in now                                                                                                                          |
 | `held`         | the requests: what one member can watch, asked when the operator opens it under their name, each title with its year and kind, a shelf that could not be read said as that, and what lemonfiber found about it                                                                             |
 | `history`      | the checks: everything lemonfiber changed, newest first, with what made each change, when, how far it could be put back and what goes with it, under how far back the record goes                                                                                                          |
 | `hosting`      | the overview: every command this machine can keep running, what each does, the command it runs and where it stands, and what keeping one or taking it back changed                                                                                                                         |
@@ -127,7 +128,6 @@ where it answers with a kind the contract did not have before.
 | `capabilities` | ARCH-R78  | What this copy of lemonfiber can do, each named by the path it is served at                                    |
 | `certificate`  | N1        | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint       |
 | `front-door`   | G5        | The front door, asked for on its own                                                                           |
-| `handoff`      | G9        | Mobile handoff: where getting one person's phone onto the media server stands                                  |
 | `music`        | D2        | Quality presets: the music format                                                                              |
 | `news`         | N27       | What's new: the newest of each kind, from the stream                                                           |
 | `news-items`   | N27       | What's new: everything newer than what was last seen, asked for                                                |
@@ -166,6 +166,7 @@ answers with `certificate`, so nothing here could read it.
 | `household-allow`   | the requests: for the whole house, and under each person, a policy and a limit over a period                                           |
 | `household-approve` | the requests, under each person, for each request waiting on the operator                                                              |
 | `household-decline` | the requests, under each person, for each request waiting on the operator, with the reason the person who asked is given               |
+| `household-handoff` | the requests, under each person: a code for each app pointing it at the media server, and asking again whether a device signed in      |
 | `companion-pair`    | the settings: fresh pairing material for the companion app, made at once, since it carries no credential and admits nobody             |
 | `bandwidth`         | the settings: the limits typed, as they were typed, made at once; or the limits lifted for the minutes typed                           |
 | `downloads-pause`   | the settings: every download client paused at once, since a pause holds until it is resumed                                            |
@@ -220,7 +221,6 @@ carries while it runs (`step`) are not drawn yet.
 | `quality-set`           | D2      | Quality presets: choose one; the reading names no presets to choose from                                       |
 | `reset`                 | C9      | Drift: revert every edit to lemonfiber's own state                                                             |
 | `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes |
-| `household-handoff`     | G9      | Mobile handoff: issue one person a code pointing an app at the media server, and check a device signed in      |
 | `setup`                 | A2      | Setup wizard, walked in a browser                                                                              |
 | `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only       |
 | `plugin-install`        | F6      | Plugin lifecycle: install one, from the offer read first                                                       |

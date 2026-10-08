@@ -116,6 +116,9 @@ function ofTheHousehold(envelope: Envelope): Came | undefined {
   if (isKind(envelope, "invitation")) {
     return { kind: "invitation", report: envelope.data };
   }
+  if (isKind(envelope, "handoff")) {
+    return { kind: "handoff", report: envelope.data };
+  }
   if (isKind(envelope, "household")) {
     return { kind: "household", report: envelope.data };
   }

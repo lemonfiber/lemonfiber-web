@@ -16,6 +16,7 @@
 import type { Arguments } from "../api/acting";
 import type { Asker, Family } from "./asker";
 import type { Came } from "./came";
+import type { Handoff } from "./handoff";
 import { everyPolicy } from "./household";
 import { linesTyped } from "./upkeep";
 import type { Policy } from "./wire";
@@ -29,6 +30,7 @@ export const everyTending: readonly Tending[] = [
   "household-allow",
   "household-approve",
   "household-decline",
+  "household-handoff",
 ];
 
 /** Whether a record is of something the household panel asked for. */
@@ -133,7 +135,9 @@ export type Tend =
       readonly request: number;
       readonly title: string;
       readonly reason: string;
-    };
+    }
+  /** A code for one person's device, or how far their sign-in has got. */
+  | { readonly doing: "household-handoff"; readonly name: string };
 
 /** What an offer's terms send. */
 function termsGiven(terms: Terms): Arguments {
@@ -171,6 +175,8 @@ export function givenForTend(tend: Tend): Arguments {
       return { request: tend.request };
     case "household-decline":
       return { request: tend.request, reason: tend.reason };
+    case "household-handoff":
+      return { name: tend.name };
   }
 }
 
@@ -245,6 +251,22 @@ export function standingInvitation(
     name: came.report.name,
     terms: { ageLimit, holdUnrated: given.unrated !== "allow" },
   };
+}
+
+/**
+ * The newest hand-off answered for one person, where one has been: what the
+ * panel draws their code and steps from.
+ */
+export function standingHandoff(
+  work: readonly Work[],
+  name: string,
+): Handoff | undefined {
+  for (const one of work) {
+    if (one.doing !== "household-handoff" || one.given.name !== name) continue;
+    if (one.at !== "done" || one.came.kind !== "handoff") return undefined;
+    return one.came.report;
+  }
+  return undefined;
 }
 
 /**

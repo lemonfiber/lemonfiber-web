@@ -20,6 +20,8 @@ import {
   type Undone,
 } from "./came";
 import { gradingOf } from "./verdict";
+import { handoffLines } from "./handoff";
+import { readyForSam } from "../api/handoffs";
 import { carried, offer, undone } from "../api/reports";
 import * as m from "../paraglide/messages.js";
 
@@ -331,6 +333,14 @@ describe("what wiring the programs to each other came to", () => {
         because: "It speaks an older API.",
       }),
     ]);
+  });
+});
+
+describe("what handing somebody a device came to", () => {
+  it("says where it stands, as the panel under their name does", () => {
+    expect(linesOf({ kind: "handoff", report: readyForSam })).toStrictEqual(
+      handoffLines(readyForSam),
+    );
   });
 });
 
