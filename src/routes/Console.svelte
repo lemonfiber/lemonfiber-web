@@ -482,6 +482,7 @@
       standing={setup?.standing}
       catalogue={setup?.catalogue}
       provenance={setup?.provenance}
+      alerts={setup?.alerts}
       freshness={stamped}
       tuner={tuneAsks.asker}
       configurer={changeAsks.asker}

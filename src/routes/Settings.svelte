@@ -1,5 +1,6 @@
 <script lang="ts">
   import Board from "./Board.svelte";
+  import Alerts from "./panels/Alerts.svelte";
   import Catalogue from "./panels/Catalogue.svelte";
   import Configuration from "./panels/Configuration.svelte";
   import Copy from "./panels/Copy.svelte";
@@ -12,6 +13,7 @@
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Configured } from "../lib/configured";
   import type { Configurer } from "../lib/configuring";
+  import type { Alerts as Told } from "../lib/alerts";
   import type { Catalogue as Held, Provenance } from "../lib/catalogue";
   import type { Standing, Versions } from "../lib/copy";
   import type { Inventory } from "../lib/credentials";
@@ -43,6 +45,8 @@
     catalogue?: Reading<Held> | undefined;
     /** Where each service comes from, or why it could not be read. */
     provenance?: Reading<Provenance> | undefined;
+    /** What the operator is told about, or why it could not be read. */
+    alerts?: Reading<Told> | undefined;
     /** When this screen's sources last answered. */
     freshness: Freshness;
     /**
@@ -70,6 +74,7 @@
     standing,
     catalogue,
     provenance,
+    alerts,
     freshness,
     tuner,
     configurer,
@@ -82,9 +87,10 @@
 <!--
   How the stack is set up, and what can be changed about it from here: the
   quality new media is fetched at, every setting lemonfiber keeps, how the line
-  is shared, everything that leaves this machine, every credential the stack
-  holds, the versions the stack stands on, what the stack holds and where each
-  service comes from, this copy of lemonfiber, and pairing the companion app.
+  is shared, everything that leaves this machine, what the operator is told
+  about, every credential the stack holds, the versions the stack stands on,
+  what the stack holds and where each service comes from, this copy of
+  lemonfiber, and pairing the companion app.
 
   The readings are asked for together on the way in, and stamped together.
   The line is drawn where it was read or can be declared.
@@ -98,6 +104,7 @@
     <Line {line} {freshness} {sharer} />
   {/if}
   <Outbound {outbound} {freshness} />
+  <Alerts {alerts} {freshness} />
   <Credentials {credentials} {freshness} />
 
   {#if updater !== undefined}

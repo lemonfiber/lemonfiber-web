@@ -8,6 +8,7 @@
  */
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { asked, turnedAway, type Reaching } from "../api/asking";
+import type { Alerts } from "../lib/alerts";
 import type { Catalogue, Provenance } from "../lib/catalogue";
 import type { Configured } from "../lib/configured";
 import type { Standing, Versions } from "../lib/copy";
@@ -49,6 +50,8 @@ export interface SettingsRead {
   readonly catalogue: Reading<Catalogue>;
   /** Where each service comes from. */
   readonly provenance: Reading<Provenance>;
+  /** What the operator is told about. */
+  readonly alerts: Reading<Alerts>;
 }
 
 /** A screen's readings, and whether any of them was turned away. */
@@ -88,6 +91,7 @@ export async function readSettings(
     asked(reaching, "update", "self-update", { what: "self" }),
     asked(reaching, "catalogue", "catalogue"),
     asked(reaching, "provenance", "provenance"),
+    asked(reaching, "alerts", "alerts"),
   ]);
   const [
     quality,
@@ -99,6 +103,7 @@ export async function readSettings(
     standing,
     catalogue,
     provenance,
+    alerts,
   ] = read;
   return {
     read: {
@@ -111,6 +116,7 @@ export async function readSettings(
       standing,
       catalogue,
       provenance,
+      alerts,
     },
     refused: turnedAway(...read),
   };
