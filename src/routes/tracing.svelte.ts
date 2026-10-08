@@ -6,7 +6,7 @@
  * next one. Being turned away is passed on as every other refusal of the key.
  */
 import type { Reading } from "@lemonfiber/sdk-ts";
-import { asked, turnedAway, type Reaching } from "../api/asking";
+import { asked, turnedAway, type Handing } from "../api/asking";
 import type { Sought } from "../lib/finding";
 import type { Traced } from "../lib/traced";
 
@@ -20,14 +20,6 @@ export interface Tracer {
   readonly onlook: (sought: Sought) => void;
 }
 
-/** What tracing is handed: where to ask, and what a refused key asks for. */
-export interface Asking {
-  /** Where to ask, as the console holds it now. */
-  readonly reaching: () => Reaching;
-  /** What a refusal of the key asks for. */
-  readonly onrefused: () => void;
-}
-
 /** Where the item looked up last is, and whether one is being looked up. */
 export class Tracing {
   /** Where the item looked up last is, or why that could not be read. */
@@ -36,9 +28,9 @@ export class Tracing {
   /** Whether an item is being looked up. */
   busy = $state(false);
 
-  readonly #asking: Asking;
+  readonly #asking: Handing;
 
-  constructor(asking: Asking) {
+  constructor(asking: Handing) {
     this.#asking = asking;
   }
 
