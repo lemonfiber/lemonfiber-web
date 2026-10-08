@@ -130,5 +130,17 @@
   "tended_controls": "What you can do for {name}",
   "decline_reason": "Why {title} is turned down, for the person who asked",
   "limits_hint": "Give both numbers, or neither.",
-  "limits_unread": "Both have to be whole numbers above nothing, or both left empty."
+  "limits_unread": "Both have to be whole numbers above nothing, or both left empty.",
+  "clients_prose": "Which app each person in the house should watch on, and what to do when it does not work. It is the same on every machine.",
+  "clients_devices": "Devices",
+  "clients_trouble": "When it does not work",
+  "clients_use": "Use {client}, which is open source.",
+  "clients_use_closed": "Use {client}, which is not open source.",
+  "clients_good": "It is well served.",
+  "clients_workable": "It works, with some limits.",
+  "clients_poor": "It is poorly served.",
+  "clients_fallback": "It is a last resort.",
+  "clients_support_other": "How well it is served is something this page has no word for.",
+  "clients_tell": "How to tell: {tell}",
+  "clients_fix": "What to do: {fix}"
 }

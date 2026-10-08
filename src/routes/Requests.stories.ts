@@ -3,6 +3,7 @@ import Requests from "./Requests.svelte";
 import { household, unasked, unread } from "./house";
 import { letThrough, madeOffer, readOffer, tender } from "./tended";
 import { finder, searchedRecord, traced, tracer, walkedRecord } from "./finds";
+import { guidance } from "../api/apps";
 import { stalled } from "../api/stalls";
 
 const answered = { kind: "answered", secondsAgo: 8 } as const;
@@ -143,4 +144,12 @@ export const FindingThings: Story = {
  */
 export const StuckDownloads: Story = {
   args: { stuck: { ok: true, value: stalled }, finder, tracer },
+};
+
+/**
+ * Which app to watch on: a phone well served and a TV poorly served, a caution
+ * that playback will struggle on this machine, and what to do when it buffers.
+ */
+export const WhichAppToWatchOn: Story = {
+  args: { clients: { ok: true, value: guidance } },
 };

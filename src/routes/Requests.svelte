@@ -4,6 +4,7 @@
   import Panel from "../components/Panel.svelte";
   import Skeleton from "../components/Skeleton.svelte";
   import Value from "../components/Value.svelte";
+  import Clients from "./panels/Clients.svelte";
   import Stuck from "./panels/Stuck.svelte";
   import Tended from "./panels/Tended.svelte";
   import Tending from "./panels/Tending.svelte";
@@ -13,6 +14,7 @@
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
   import type { Stuck as Stalled } from "../lib/stuck";
+  import type { Guidance } from "../lib/clients";
   import {
     askingWasRead,
     kindOfRequest,
@@ -47,9 +49,15 @@
      * Left out until it answers.
      */
     stuck?: Reading<Stalled> | undefined;
+    /**
+     * Which app to watch on, or why it could not be read. Left out until it
+     * answers.
+     */
+    clients?: Reading<Guidance> | undefined;
   }
 
-  let { household, freshness, tender, finder, tracer, stuck }: Props = $props();
+  let { household, freshness, tender, finder, tracer, stuck, clients }: Props =
+    $props();
 
   const columns: readonly Column[] = [
     { head: m.head_asked_for() },
@@ -170,6 +178,10 @@
     {#if tracer !== undefined}
       <Trace {tracer} {finder} {freshness} />
     {/if}
+  {/if}
+
+  {#if clients !== undefined}
+    <Clients {clients} {freshness} />
   {/if}
 
   {#if unread.length > 0}
