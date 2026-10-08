@@ -195,5 +195,15 @@
   "severity_critical": "Urgent",
   "severity_unrecognised": "A weight this page has no word for",
   "head_forms": "Forms it runs for",
-  "nav_member": "Where to go"
+  "nav_member": "Where to go",
+  "step_choosing": "Choosing",
+  "step_searching": "Searching",
+  "step_grabbing": "Grabbing",
+  "step_downloading": "Downloading",
+  "step_importing": "Importing",
+  "step_scanning": "Scanning",
+  "step_available": "Ready",
+  "step_other": "A step this page has no word for",
+  "step_line": "{stage}: {said}",
+  "step_line_detail": "{stage}: {said} {detail}"
 }

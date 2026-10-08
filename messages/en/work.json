@@ -352,5 +352,6 @@
   "action_plug_remove": "Remove {name}",
   "action_plug_install_yes": "Install as {offer}",
   "action_plug_update_yes": "Update as {offer}",
-  "action_plug_remove_yes": "Remove as {offer}"
+  "action_plug_remove_yes": "Remove as {offer}",
+  "action_told_dismiss": "Put away"
 }

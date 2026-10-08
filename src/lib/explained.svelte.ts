@@ -18,6 +18,7 @@ import { SvelteMap } from "svelte/reactivity";
 import type { Vocabulary } from "./glossary";
 import { finderOf, type Finder } from "./terms";
 import type { Explaining, Word } from "./wire";
+import { asked, turnedAway, type Reaching } from "../api/asking";
 
 /** Where this browser keeps whether explaining is on. */
 export const KEPT = "lemonfiber.explained";
@@ -54,7 +55,7 @@ export class Explained {
   #on = $state(true);
   #read = $state<Reading<Vocabulary> | undefined>(undefined);
 
-  constructor(keeping?: Keeping) {
+  constructor(keeping: Keeping | undefined = browserKeeping()) {
     this.#keeping = keeping;
     this.#on = !keptOff(keeping);
   }
@@ -72,6 +73,16 @@ export class Explained {
     } catch {
       // A browser that keeps nothing still honours the choice until it reloads.
     }
+  }
+
+  /**
+   * Read the glossary and hold it, handing a refused key to `onrefused`.
+   */
+  read(reaching: Reaching, onrefused: () => void): void {
+    void asked(reaching, "explain", "glossary").then((read) => {
+      this.hold(read);
+      if (turnedAway(read)) onrefused();
+    });
   }
 
   /** Hold the glossary as read, or why it could not be. */
@@ -110,9 +121,9 @@ export function explainedIn(explained: Explained): Map<symbol, Explained> {
   return new SvelteMap([[CONTEXT, explained]]);
 }
 
-/** Hand explaining to everything this component draws. */
-export function handExplained(explained: Explained): void {
-  setContext(CONTEXT, explained);
+/** Hand explaining to everything this component draws, and keep it. */
+export function handExplained(explained: Explained): Explained {
+  return setContext(CONTEXT, explained);
 }
 
 /** The explaining handed down to here, where any was. */

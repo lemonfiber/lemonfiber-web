@@ -2,22 +2,30 @@
  * The console's live connection: what it last carried, and whether it still
  * carries.
  *
- * The stream carries the figures the overview and the disk are drawn from, and
- * the line a wait says while it is still waiting. A connection that carried
+ * The stream carries the figures the overview and the disk are drawn from, the
+ * line a wait says while it is still waiting, each step a walk takes while it
+ * takes it, and each alert as it starts and as it ends. A connection that carried
  * figures and stopped leaves them in place and dates them; one that never
  * carried any has nothing to date. Whether anything is still listening is held,
  * so the screen can offer to open it again only when nothing is.
  */
-import type { Kind } from "@lemonfiber/sdk-ts";
+import type { Arrival, Kind } from "@lemonfiber/sdk-ts";
 import { carrying, watching, type Reaching } from "../api/asking";
 import type { Flow } from "../lib/flow";
-import type { Moment } from "../lib/wire";
+import { heardWith, type Heard } from "../lib/stepping";
+import type { Alert, Moment } from "../lib/wire";
 
 /** What the stream calls the payload the screens are drawn from. */
 const MOMENTS = "dashboard" satisfies Kind;
 
 /** What the stream calls a line said while a wait is still waiting. */
 const WAITING = "start" satisfies Kind;
+
+/** What the stream calls one step a walk takes while it takes it. */
+const STEP = "step" satisfies Kind;
+
+/** What the stream calls an alert starting or ending. */
+const ALERT = "alert" satisfies Kind;
 
 /** The live connection, as the console holds it. */
 export class Listening {
@@ -32,6 +40,12 @@ export class Listening {
 
   /** What a wait said while it is still waiting, where one is. */
   waitingSaid = $state<string | undefined>(undefined);
+
+  /** Each step heard, by the job of the walk taking it. */
+  steps = $state<Heard>({});
+
+  /** The latest alert the stream said start or end, until it is put away. */
+  told = $state<Alert | undefined>(undefined);
 
   /** Whether anything is still listening. */
   listening = $state(false);
@@ -78,6 +92,8 @@ export class Listening {
           }
         } else if (carrying(arrival, WAITING)) {
           this.waitingSaid = arrival.data;
+        } else if (arrival.at === "live") {
+          this.#heard(arrival);
         }
       }
       this.listening = false;
@@ -95,6 +111,27 @@ export class Listening {
     this.#gate.abort();
     this.flow = "opening";
     this.listen();
+  }
+
+  /** Put away the alert on the screen, which the next one replaces anyway. */
+  readonly dismiss = (): void => {
+    this.told = undefined;
+  };
+
+  /**
+   * A step or an alert that has just arrived.
+   *
+   * Only what arrives live is taken: what the stream hands over again after a
+   * break is the last of each kind held from before it, already heard once,
+   * and taking it twice would narrate a step twice or raise an alert again.
+   * A step said for no job belongs to no walk this console can show.
+   */
+  #heard(arrival: Extract<Arrival, { at: "live" }>): void {
+    if (carrying(arrival, STEP) && arrival.job !== undefined) {
+      this.steps = heardWith(this.steps, arrival.job, arrival.data);
+    } else if (carrying(arrival, ALERT)) {
+      this.told = arrival.data;
+    }
   }
 
   /** Stop listening, for a screen that is being put away. */
