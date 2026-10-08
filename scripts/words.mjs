@@ -373,22 +373,39 @@ function keysWritten(text) {
   let at = 0;
   while (at < text.length) {
     const character = text[at];
-    if (character === "{" || character === "[") depth += 1;
-    else if (character === "}" || character === "]") depth -= 1;
-    else if (character === '"') {
-      let end = at + 1;
-      while (end < text.length && text[end] !== '"') {
-        end += text[end] === "\\" ? 2 : 1;
-      }
-      const after = text.slice(end + 1).trimStart();
-      if (depth === 1 && after.startsWith(":")) {
+    if (character === '"') {
+      const end = closingQuote(text, at);
+      if (depth === 1 && text[nextWritten(text, end + 1)] === ":") {
         keys.push(JSON.parse(text.slice(at, end + 1)));
       }
       at = end;
+    } else {
+      depth += OPENS.has(character) ? 1 : 0;
+      depth -= CLOSES.has(character) ? 1 : 0;
     }
     at += 1;
   }
   return keys;
+}
+
+/** What opens a level of a document, and what closes one. */
+const OPENS = new Set(["{", "["]);
+const CLOSES = new Set(["}", "]"]);
+
+/** Where the string that opens at `at` closes, stepping over each escape. */
+function closingQuote(text, at) {
+  let end = at + 1;
+  while (end < text.length && text[end] !== '"') {
+    end += text[end] === "\\" ? 2 : 1;
+  }
+  return end;
+}
+
+/** Where the next character that is not space stands, from `from` on. */
+function nextWritten(text, from) {
+  let at = from;
+  while (at < text.length && /\s/u.test(text[at])) at += 1;
+  return at;
 }
 
 /** Every key a catalogue file writes more than once. */
@@ -421,11 +438,11 @@ const PROVEN = [
     find: keptTwice,
     refuses: [
       '{ "panel_a": "One", "panel_a": "Two" }',
-      '{\n  "a_b": "x",\n  "c_d": "y \\" with a quote",\n  "a_b": "z"\n}',
+      String.raw`{ "a_b": "x", "c_d": "y \" with a quote", "a_b": "z" }`,
     ],
     allows: [
       '{ "panel_a": "One", "panel_b": "One" }',
-      '{ "a_b": "it says \\"a_b\\": twice in its text" }',
+      String.raw`{ "a_b": "it says \"a_b\": twice in its text" }`,
     ],
   },
   {
