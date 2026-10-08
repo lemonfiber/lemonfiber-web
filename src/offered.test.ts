@@ -320,6 +320,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "dashboard",
   "doctor",
   "forms",
+  "history",
   "hosting",
   "household",
   "invitation",
@@ -382,7 +383,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   glossary: "G2",
   handoff: "G9",
   held: "D8",
-  history: "E4",
   import: "A5",
   keys: "C10",
   migration: "A5",
@@ -451,7 +451,10 @@ function resolved(from: string, named: string): string | undefined {
   if (!at.startsWith("src/") || at.startsWith("src/paraglide/")) {
     return undefined;
   }
-  if (at.endsWith(".svelte") || at.endsWith(".ts")) return at;
+  if (at.endsWith(".svelte")) {
+    return SOURCES[at] === undefined ? `${at}.ts` : at;
+  }
+  if (at.endsWith(".ts")) return at;
   return `${at.replace(/\.js$/, "")}.ts`;
 }
 
