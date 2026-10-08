@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Panel from "../../components/Panel.svelte";
   import Value from "../../components/Value.svelte";
@@ -31,13 +32,13 @@
 -->
 <Panel title={m.panel_stuck()} {freshness} flush>
   <div class="scope">
-    <p>{m.stuck_prose()}</p>
+    <p><Said text={m.stuck_prose()} /></p>
     {#if stuck.ok}
       {#each shortLines(stuck.value) as line, at (at)}
         <p>{line}</p>
       {/each}
       {#if stuck.value.items.length === 0}
-        <p>{m.stuck_none()}</p>
+        <p><Said text={m.stuck_none()} /></p>
       {/if}
     {/if}
     {#if !stuck.ok}

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Code from "../../components/Code.svelte";
   import {
@@ -36,7 +37,7 @@
   <h3 id={titleId}>{m.handoff_said({ name: handoff.name })}</h3>
   <ul class="lines">
     {#each handoffLines(handoff) as line, at (at)}
-      <li><span class="word">{line}</span></li>
+      <li><Said text={line} /></li>
     {/each}
   </ul>
 
@@ -44,7 +45,7 @@
     <ul class="apps" aria-label={m.handoff_apps()}>
       {#each handoff.clients as client, at (at)}
         <li>
-          <p><span class="word">{clientLine(client)}</span></p>
+          <p><Said text={clientLine(client)} /></p>
           <Code
             text={client.code}
             label={m.handoff_code_said({
@@ -52,7 +53,7 @@
               device: client.device,
             })}
           />
-          <p class="carried"><span class="word">{codeLine(client)}</span></p>
+          <p class="carried"><Said text={codeLine(client)} /></p>
         </li>
       {/each}
     </ul>
@@ -61,7 +62,7 @@
   {#if handoff.steps.length > 0}
     <ol class="lines" aria-label={m.handoff_steps()}>
       {#each handoff.steps as step, at (at)}
-        <li><span class="word">{step}</span></li>
+        <li><Said text={step} /></li>
       {/each}
     </ol>
   {/if}
@@ -69,7 +70,7 @@
   {#if handoff.sessions.length > 0}
     <ul class="lines" aria-label={m.handoff_sessions()}>
       {#each handoff.sessions as session, at (at)}
-        <li><span class="word">{sessionLine(session)}</span></li>
+        <li><Said text={sessionLine(session)} /></li>
       {/each}
     </ul>
   {/if}
@@ -138,10 +139,5 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--sp-2);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

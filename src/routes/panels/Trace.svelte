@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Field from "../../components/Field.svelte";
   import Item from "../../components/Item.svelte";
@@ -54,7 +55,7 @@
 -->
 <Panel title={m.panel_trace()} {freshness} flush>
   <div class="scope">
-    <p>{m.trace_prose()}</p>
+    <p><Said text={m.trace_prose()} /></p>
   </div>
 
   <div class="form">
@@ -109,7 +110,7 @@
       {#if reading?.ok === true}
         <ul aria-label={m.trace_said()}>
           {#each traceLines(reading.value) as one, at (at)}
-            <li><span class="word">{one}</span></li>
+            <li><Said text={one} /></li>
           {/each}
         </ul>
       {:else if reading?.ok === false}
@@ -200,11 +201,6 @@
     font-size: var(--text-prose);
     color: var(--muted);
     overflow-wrap: anywhere;
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 
   /* The rule appears only when there is something under it, so a panel nobody

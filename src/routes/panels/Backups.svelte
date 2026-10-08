@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -78,7 +79,7 @@
 -->
 <Panel title={m.panel_backups()} {freshness} flush>
   <div class="scope">
-    <p>{m.backups_prose()}</p>
+    <p><Said text={m.backups_prose()} /></p>
   </div>
 
   <div class="controls" role="group" aria-label={m.backups_controls()}>
@@ -160,7 +161,7 @@
         <h3 id={listingId}>
           {m.backups_listing_title({ archive: standing.archive })}
         </h3>
-        <p class="prose">{m.backups_listing_prose()}</p>
+        <p class="prose"><Said text={m.backups_listing_prose()} /></p>
         {#if standing.relocation !== undefined}
           <div class="choice">
             <p class="prose">

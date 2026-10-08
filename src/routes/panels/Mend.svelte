@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -81,7 +82,7 @@
 -->
 <Panel title={m.panel_mending()} {freshness} flush>
   <div class="scope">
-    <p>{m.mending_prose()}</p>
+    <p><Said text={m.mending_prose()} /></p>
   </div>
 
   <div class="controls" role="group" aria-label={m.mending_controls()}>
@@ -165,7 +166,7 @@
     {#if standing !== undefined}
       <section class="offer" aria-labelledby={offerId}>
         <h3 id={offerId}>{m.mending_offer_title()}</h3>
-        <p class="prose">{m.mending_offer_prose()}</p>
+        <p class="prose"><Said text={m.mending_offer_prose()} /></p>
         <ul class="repairs">
           {#each standing.offered as one (one.check)}
             <li class="repair">

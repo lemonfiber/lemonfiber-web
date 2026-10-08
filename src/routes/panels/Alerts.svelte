@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
@@ -29,7 +30,7 @@
 -->
 <Panel title={m.panel_alerts()} {freshness} flush>
   <div class="scope">
-    <p>{m.alerts_prose()}</p>
+    <p><Said text={m.alerts_prose()} /></p>
     {#if told === undefined && problem !== undefined}
       <Value state="unknown" absent={problem} />
     {:else if told === undefined}
@@ -39,7 +40,7 @@
         <p>{line}</p>
       {/each}
       {#if told.exceptions.length === 0}
-        <p>{m.alerts_none()}</p>
+        <p><Said text={m.alerts_none()} /></p>
       {/if}
     {/if}
   </div>
@@ -47,7 +48,7 @@
   {#if told !== undefined && told.exceptions.length > 0}
     <ul class="exceptions" aria-label={m.alerts_said()}>
       {#each told.exceptions as exception (exception.kind)}
-        <li><span class="word">{exceptionLine(exception)}</span></li>
+        <li><Said text={exceptionLine(exception)} /></li>
       {/each}
     </ul>
   {/if}
@@ -81,10 +82,5 @@
     font-size: var(--text-prose);
     color: var(--muted);
     overflow-wrap: anywhere;
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

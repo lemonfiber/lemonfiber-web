@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Value from "../../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
@@ -27,7 +28,7 @@
 -->
 <Panel title={m.panel_clients()} {freshness} flush>
   <div class="scope">
-    <p>{m.clients_prose()}</p>
+    <p><Said text={m.clients_prose()} /></p>
     {#if clients.ok}
       {@const straining = clients.value.straining}
       {#if straining !== undefined && straining !== null}
@@ -51,7 +52,7 @@
             <h4>{device.device}</h4>
             <ul class="lines">
               {#each deviceLines(device) as line, at (at)}
-                <li><span class="word">{line}</span></li>
+                <li><Said text={line} /></li>
               {/each}
             </ul>
           </li>
@@ -68,7 +69,7 @@
             {#each trouble.causes as cause, which (which)}
               <ul class="lines">
                 {#each causeLines(cause) as line, at (at)}
-                  <li><span class="word">{line}</span></li>
+                  <li><Said text={line} /></li>
                 {/each}
               </ul>
             {/each}
@@ -133,10 +134,5 @@
   .lines li {
     font-size: var(--text-prose);
     color: var(--muted);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

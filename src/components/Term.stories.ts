@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Term from "./Term.svelte";
-import type { Explaining } from "../api/explaining";
+import type { Explaining } from "../lib/wire";
 import { explained } from "../routes/fixture";
 import * as m from "../paraglide/messages.js";
 

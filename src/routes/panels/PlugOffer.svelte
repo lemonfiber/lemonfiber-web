@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Switch from "../../components/Switch.svelte";
   import {
@@ -106,14 +107,16 @@
 -->
 <section class="offer" aria-labelledby={titleId}>
   <h3 id={titleId}>{m.plug_offer_title()}</h3>
-  <p class="prose">{m.plug_offer_prose({ offer: offered.offer })}</p>
+  <p class="prose">
+    <Said text={m.plug_offer_prose({ offer: offered.offer })} />
+  </p>
 
   {#each sections as section (section.title)}
     <div class="part">
       <h4>{section.title}</h4>
       <ul class="lines">
         {#each section.lines as line, at (at)}
-          <li><span class="word">{line}</span></li>
+          <li><Said text={line} /></li>
         {/each}
       </ul>
     </div>
@@ -127,7 +130,7 @@
           <h5>{recipe.title}</h5>
           <ul class="lines">
             {#each recipeLines(recipe) as line, at (at)}
-              <li><span class="word">{line}</span></li>
+              <li><Said text={line} /></li>
             {/each}
           </ul>
           <ul class="pairs">
@@ -135,7 +138,7 @@
               <li>
                 <ul class="lines">
                   {#each pairLines(pair) as line, place (place)}
-                    <li><span class="word">{line}</span></li>
+                    <li><Said text={line} /></li>
                   {/each}
                 </ul>
                 {#if pair.approval !== undefined}
@@ -153,7 +156,7 @@
           </ul>
         </div>
       {:else}
-        <p class="prose">{m.plug_recipes_none()}</p>
+        <p class="prose"><Said text={m.plug_recipes_none()} /></p>
       {/each}
     </div>
   {/if}
@@ -229,10 +232,5 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--sp-2);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

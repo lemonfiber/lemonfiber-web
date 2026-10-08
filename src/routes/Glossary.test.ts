@@ -1,9 +1,11 @@
 import { render, screen, within } from "@testing-library/svelte";
 import type { Reading } from "@lemonfiber/sdk-ts";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import Settings from "./Settings.svelte";
 import { seed, vocabulary } from "../api/vocabularies";
 import type { Freshness } from "../lib/freshness";
+import { Explained, explainedIn } from "../lib/explained.svelte";
 import { entryLines, type Vocabulary } from "../lib/glossary";
 import * as m from "../paraglide/messages.js";
 
@@ -47,5 +49,41 @@ describe("the words lemonfiber explains, on the settings screen", () => {
   it("says why they could not be read", () => {
     reading({ ok: false, problem: { kind: "refused", message: "No." } });
     expect(within(panel()).getByText("No.")).toBeVisible();
+  });
+});
+
+describe("turning explanations off and on, on the settings screen", () => {
+  /** The settings screen drawn inside a console that explains terms. */
+  function explaining(explained: Explained): void {
+    render(Settings, {
+      props: {
+        quality: undefined,
+        freshness: answered,
+        glossary: { ok: true, value: vocabulary },
+      },
+      context: explainedIn(explained),
+    });
+  }
+
+  it("is a switch here only where the console explains terms", () => {
+    reading({ ok: true, value: vocabulary });
+    expect(
+      screen.queryByRole("button", { name: m.glossary_explain() }),
+    ).toBeNull();
+  });
+
+  it("turns explaining off for this browser, and on again", async () => {
+    const explained = new Explained();
+    explained.hold({ ok: true, value: vocabulary });
+    explaining(explained);
+    const toggle = screen.getByRole("button", { name: m.glossary_explain() });
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+
+    await userEvent.click(toggle);
+    expect(explained.on).toBe(false);
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+
+    await userEvent.click(toggle);
+    expect(explained.on).toBe(true);
   });
 });

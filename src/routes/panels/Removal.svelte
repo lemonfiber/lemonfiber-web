@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -59,7 +60,7 @@
 -->
 <Panel title={m.panel_removal()} {freshness} flush>
   <div class="scope">
-    <p>{m.removal_prose()}</p>
+    <p><Said text={m.removal_prose()} /></p>
   </div>
 
   <div class="controls">
@@ -104,7 +105,7 @@
     {#if forgetting !== undefined}
       <section class="plan" aria-labelledby={`${forgetId}-forget`}>
         <h3 id={`${forgetId}-forget`}>{m.forget_plan_title()}</h3>
-        <p class="prose">{m.forget_plan_prose()}</p>
+        <p class="prose"><Said text={m.forget_plan_prose()} /></p>
         <div class="acts">
           <Action
             label={m.action_forget_yes()}
@@ -131,7 +132,7 @@
         <h3 id={`${forgetId}-remove`}>
           {m.remove_plan_title({ tier: labelOfTier(survey.tier) })}
         </h3>
-        <p class="prose">{m.remove_plan_prose()}</p>
+        <p class="prose"><Said text={m.remove_plan_prose()} /></p>
         {#if survey.tier === "media"}
           <p class="prose">
             {m.remove_media_prose({ size: bytes(survey.bytes) })}
@@ -139,7 +140,7 @@
         {/if}
         {#if survey.coming.length > 0}
           <div class="choice">
-            <p class="prose">{m.remove_wait()}</p>
+            <p class="prose"><Said text={m.remove_wait()} /></p>
             <Switch
               on={wait}
               label={m.remove_wait()}

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -51,13 +52,13 @@
 -->
 <Panel title={m.panel_room()} {freshness} flush>
   <div class="scope">
-    <p>{m.reclaim_prose()}</p>
+    <p><Said text={m.reclaim_prose()} /></p>
     {#if reckoned === undefined && problem !== undefined}
       <Value state="unknown" absent={problem} />
     {:else if reckoned === undefined}
       <Skeleton width="18rem" label={m.waiting_answer()} />
     {:else if reckoned.reclaimable.length === 0}
-      <p>{m.reclaim_none()}</p>
+      <p><Said text={m.reclaim_none()} /></p>
     {/if}
   </div>
 
@@ -67,11 +68,11 @@
     <div class="parts">
       <ul class="lines" aria-label={m.reclaim_said()}>
         {#each reckoned.reclaimable as part, at (at)}
-          <li><span class="word">{partLine(part)}</span></li>
+          <li><Said text={partLine(part)} /></li>
         {/each}
       </ul>
       {#if free > 0}
-        <p>{m.reclaim_offer()}</p>
+        <p><Said text={m.reclaim_offer()} /></p>
         <Action
           label={m.action_reclaim_yes({ size: bytes(free) })}
           weight="firm"
@@ -82,7 +83,7 @@
           }}
         />
       {:else}
-        <p>{m.reclaim_free_none()}</p>
+        <p><Said text={m.reclaim_free_none()} /></p>
       {/if}
     </div>
   {/if}
@@ -154,11 +155,6 @@
   .lines li {
     font-size: var(--text-prose);
     color: var(--muted);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 
   /* The rule appears only when there is something under it, so a panel nobody

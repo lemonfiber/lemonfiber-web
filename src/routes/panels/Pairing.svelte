@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -44,7 +45,7 @@
 -->
 <Panel title={m.panel_pairing()} {freshness} flush>
   <div class="scope">
-    <p>{m.pairing_prose()}</p>
+    <p><Said text={m.pairing_prose()} /></p>
   </div>
 
   <div class="controls">
@@ -70,9 +71,9 @@
     {#if standing !== undefined}
       <section class="material" aria-labelledby={materialId}>
         <h3 id={materialId}>{m.pairing_title()}</h3>
-        <p class="prose">{m.pairing_written()}</p>
+        <p class="prose"><Said text={m.pairing_written()} /></p>
         <code class="written">{standing.written}</code>
-        <p class="prose">{m.pairing_compare()}</p>
+        <p class="prose"><Said text={m.pairing_compare()} /></p>
         <code class="form">{standing.compare}</code>
       </section>
     {/if}

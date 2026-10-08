@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
@@ -48,7 +49,7 @@
 -->
 <Panel title={m.panel_copy()} {freshness} flush>
   <div class="scope">
-    <p>{m.copy_prose()}</p>
+    <p><Said text={m.copy_prose()} /></p>
   </div>
 
   <section class="part" aria-labelledby={versionsId}>
@@ -56,7 +57,7 @@
     {#if versionsSaid !== undefined}
       <ul class="lines">
         {#each versionsSaid as line, at (at)}
-          <li><span class="word">{line}</span></li>
+          <li><Said text={line} /></li>
         {/each}
       </ul>
     {:else if versionsProblem !== undefined}
@@ -71,7 +72,7 @@
     {#if standingSaid !== undefined}
       <ul class="lines">
         {#each standingSaid as line, at (at)}
-          <li><span class="word">{line}</span></li>
+          <li><Said text={line} /></li>
         {/each}
       </ul>
     {:else if standingProblem !== undefined}
@@ -119,10 +120,5 @@
   .lines li {
     font-size: var(--text-prose);
     color: var(--muted);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

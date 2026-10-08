@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Value from "../../components/Value.svelte";
   import Moving from "./Moving.svelte";
@@ -36,15 +37,15 @@
 -->
 <Panel title={m.panel_survey()} {freshness} flush>
   <div class="scope">
-    <p>{m.survey_prose()}</p>
+    <p><Said text={m.survey_prose()} /></p>
     {#if !survey.ok}
       <Value state="unknown" absent={survey.problem.message} />
     {/if}
     {#if survey.ok && !survey.value.read}
-      <p>{m.survey_unread()}</p>
+      <p><Said text={m.survey_unread()} /></p>
     {/if}
     {#if survey.ok && survey.value.read && survey.value.standing.length === 0}
-      <p>{m.survey_none()}</p>
+      <p><Said text={m.survey_none()} /></p>
     {/if}
   </div>
 
@@ -56,7 +57,7 @@
           <li>
             <ul class="lines">
               {#each entry as line, said (said)}
-                <li><span class="word">{line}</span></li>
+                <li><Said text={line} /></li>
               {/each}
             </ul>
           </li>
@@ -117,10 +118,5 @@
   .lines li {
     font-size: var(--text-prose);
     color: var(--muted);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

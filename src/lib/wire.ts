@@ -16,7 +16,7 @@
  * reading here says so rather than falling off the end of its switch, which is
  * an `undefined` handed on as a word.
  */
-import type { ByKind } from "@lemonfiber/sdk-ts";
+import type { ByKind, Reading } from "@lemonfiber/sdk-ts";
 import type { State, Tone } from "./state";
 import * as m from "../paraglide/messages.js";
 
@@ -70,6 +70,9 @@ export type Logged = ByKind["log"]["data"];
 
 /** One of this product's own words, as the read that explains one answers. */
 export type Word = ByKind["word"]["data"];
+
+/** Asking what one word means. */
+export type Explaining = (word: string) => Promise<Reading<Word>>;
 
 /** What the household has asked for, member by member. */
 export type Household = ByKind["household"]["data"];

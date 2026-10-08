@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
@@ -57,12 +58,12 @@
   {/if}
   {#if open && shelf?.ok === true}
     {#each shelfLines(shelf.value) as line, at (at)}
-      <p><span class="word">{line}</span></p>
+      <p><Said text={line} /></p>
     {/each}
     {#if shelf.value.holdings.length > 0}
       <ul class="lines" aria-label={m.watch_said({ name })}>
         {#each shelf.value.holdings as holding (holding.id)}
-          <li><span class="word">{holdingLine(holding)}</span></li>
+          <li><Said text={holdingLine(holding)} /></li>
         {/each}
       </ul>
     {/if}
@@ -102,10 +103,5 @@
   .lines li {
     font-size: var(--text-prose);
     color: var(--muted);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

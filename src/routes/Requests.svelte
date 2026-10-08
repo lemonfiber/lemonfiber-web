@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../components/Said.svelte";
   import Board from "./Board.svelte";
   import DataTable from "../components/DataTable.svelte";
   import Panel from "../components/Panel.svelte";
@@ -199,7 +200,7 @@
     <Panel title={m.panel_unread()} {freshness}>
       <ul class="unread">
         {#each unread as finding, at (at)}
-          <li><span class="word">{finding}</span></li>
+          <li><Said text={finding} /></li>
         {/each}
       </ul>
     </Panel>
@@ -226,10 +227,5 @@
     font-size: var(--text-prose);
     color: var(--muted);
     overflow-wrap: anywhere;
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

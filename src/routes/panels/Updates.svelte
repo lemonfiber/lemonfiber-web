@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -47,7 +48,7 @@
 -->
 <Panel title={m.panel_updates()} {freshness} flush>
   <div class="scope">
-    <p>{m.updates_prose()}</p>
+    <p><Said text={m.updates_prose()} /></p>
   </div>
 
   <div class="controls">
@@ -73,15 +74,15 @@
     {#if plan !== undefined}
       <section class="plan" aria-labelledby={planId}>
         <h3 id={planId}>{m.update_plan_title()}</h3>
-        <p class="prose">{m.update_plan_prose()}</p>
+        <p class="prose"><Said text={m.update_plan_prose()} /></p>
         <ul class="steps">
           {#each plan.steps as step (step.service)}
-            <li><span class="word">{stepLine(step)}</span></li>
+            <li><Said text={stepLine(step)} /></li>
           {/each}
         </ul>
         {#if plan.inFlight.length > 0}
           <div class="choice">
-            <p class="prose">{m.update_wait()}</p>
+            <p class="prose"><Said text={m.update_wait()} /></p>
             <Switch
               on={wait}
               label={m.update_wait()}
@@ -193,11 +194,6 @@
 
   li {
     font-size: var(--text-prose);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 
   .choice {

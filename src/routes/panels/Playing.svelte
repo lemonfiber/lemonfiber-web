@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Value from "../../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
@@ -25,9 +26,9 @@
   <div class="scope">
     {#if playing.ok}
       {#if !playing.value.available}
-        <p>{m.playing_unasked()}</p>
+        <p><Said text={m.playing_unasked()} /></p>
       {:else if playing.value.sessions.length === 0}
-        <p>{m.playing_none()}</p>
+        <p><Said text={m.playing_none()} /></p>
       {/if}
       {#each playing.value.findings as finding, at (at)}
         <p>{finding}</p>

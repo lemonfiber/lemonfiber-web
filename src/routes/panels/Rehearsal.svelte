@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
@@ -78,7 +79,9 @@
     <Value state="unknown" absent={m.rehearsal_choose()} />
   {:else if plan !== undefined}
     {@const figure = estimate(plan)}
-    <p class="lead">{m.rehearsal_lead({ form: named(plan.forms) })}</p>
+    <p class="lead">
+      <Said text={m.rehearsal_lead({ form: named(plan.forms) })} />
+    </p>
 
     <p class="eyebrow">{m.rehearsal_would_start()}</p>
     {#if plan.services.length > 0}
@@ -88,7 +91,7 @@
         {/each}
       </ul>
     {:else}
-      <p class="prose">{m.rehearsal_nothing_starts()}</p>
+      <p class="prose"><Said text={m.rehearsal_nothing_starts()} /></p>
     {/if}
 
     {#if plan.filtered.length > 0}
@@ -109,7 +112,7 @@
     <p class="eyebrow">{m.rehearsal_memory()}</p>
     <p class="prose">{figure ?? m.rehearsal_no_estimate()}</p>
     {#if plan.footprint.unestimated.length > 0}
-      <p class="prose">{m.rehearsal_unestimated()}</p>
+      <p class="prose"><Said text={m.rehearsal_unestimated()} /></p>
       <ul class="listed">
         {#each namesOf(plan.footprint.unestimated, services) as name, at (at)}
           <li><span class="named">{name}</span></li>

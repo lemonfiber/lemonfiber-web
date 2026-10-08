@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -69,7 +70,7 @@
 -->
 <Panel title={m.panel_quality()} {freshness} flush>
   <div class="scope">
-    <p>{m.quality_prose()}</p>
+    <p><Said text={m.quality_prose()} /></p>
   </div>
 
   {#if read !== undefined}
@@ -88,7 +89,7 @@
             })}
           </p>
           {#if choice.needs_transcoding_here}
-            <p class="note">{m.quality_transcodes_here()}</p>
+            <p class="note"><Said text={m.quality_transcodes_here()} /></p>
           {/if}
         </li>
       {/each}
@@ -110,7 +111,7 @@
     </ul>
     {#if read.customised}
       <div class="scope">
-        <p>{m.quality_customised()}</p>
+        <p><Said text={m.quality_customised()} /></p>
       </div>
     {/if}
   {:else}
@@ -184,7 +185,7 @@
       {#if standing !== undefined}
         <section class="cost" aria-labelledby={costId}>
           <h3 id={costId}>{m.quality_cost_title()}</h3>
-          <p class="prose">{m.quality_cost_prose()}</p>
+          <p class="prose"><Said text={m.quality_cost_prose()} /></p>
           <div class="controls">
             <Action
               label={m.action_upgrade_yes()}

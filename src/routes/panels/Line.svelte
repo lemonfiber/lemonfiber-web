@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Field from "../../components/Field.svelte";
   import Item from "../../components/Item.svelte";
@@ -90,7 +91,7 @@
     {#if said !== undefined}
       <ul class="standing" aria-label={m.line_said()}>
         {#each said as one, at (at)}
-          <li><span class="word">{one}</span></li>
+          <li><Said text={one} /></li>
         {/each}
       </ul>
     {:else if problem !== undefined}
@@ -273,11 +274,6 @@
     font-size: var(--text-prose);
     color: var(--muted);
     overflow-wrap: anywhere;
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 
   .form {

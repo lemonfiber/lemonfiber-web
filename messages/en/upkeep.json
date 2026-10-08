@@ -140,6 +140,8 @@
   "wiring_by_name": "It is kept to {service} by name: {why}",
   "wiring_nothing_fills": "{by} asks for {capability}, and nothing does it.",
   "glossary_prose": "Every word lemonfiber explains, in the order you meet them: what each is for, and what it costs or gains.",
+  "glossary_explain": "Explain terms",
+  "glossary_explain_prose": "Mark every term this table explains wherever it appears, in this console's words and in lemonfiber's, so pressing it says what it means. This browser keeps the choice; no other browser and nothing in the stack sees it.",
   "glossary_said": "Words",
   "glossary_none": "lemonfiber explains no words.",
   "glossary_also": "Other services in this stack call it {words}.",

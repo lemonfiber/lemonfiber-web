@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import DataTable from "../../components/DataTable.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
@@ -109,10 +110,10 @@
       </p>
 
       {#if caution !== undefined}
-        <p class="caution"><span class="word">{caution}</span></p>
+        <p class="caution"><Said text={caution} /></p>
       {/if}
 
-      <p class="prose"><span class="word">{shown.meaning}</span></p>
+      <p class="prose"><Said text={shown.meaning} /></p>
       <p class="quiet">
         <span class="word">{saidOfChosen(shown.chosen)}</span>
       </p>

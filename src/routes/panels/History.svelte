@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Value from "../../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
@@ -24,11 +25,11 @@
 -->
 <Panel title={m.panel_history()} {freshness} flush>
   <div class="scope">
-    <p>{m.history_prose()}</p>
+    <p><Said text={m.history_prose()} /></p>
     {#if history.ok}
       <p>{history.value.horizon}</p>
       {#if history.value.changes.length === 0}
-        <p>{m.history_none()}</p>
+        <p><Said text={m.history_none()} /></p>
       {/if}
     {/if}
     {#if !history.ok}
@@ -43,7 +44,7 @@
           <h3>{change.did}</h3>
           <ul class="lines">
             {#each changeLines(change) as line, at (at)}
-              <li><span class="word">{line}</span></li>
+              <li><Said text={line} /></li>
             {/each}
           </ul>
         </li>
@@ -98,10 +99,5 @@
   .lines li {
     font-size: var(--text-prose);
     color: var(--muted);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

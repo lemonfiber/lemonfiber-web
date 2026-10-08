@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Field from "../../components/Field.svelte";
   import Item from "../../components/Item.svelte";
@@ -85,7 +86,7 @@
 -->
 <Panel title={m.panel_config()} {freshness} flush>
   <div class="scope">
-    <p>{m.config_prose()}</p>
+    <p><Said text={m.config_prose()} /></p>
   </div>
 
   {#if listed !== undefined}
@@ -169,10 +170,10 @@
       {#if standing !== undefined}
         <section class="review" aria-labelledby={reviewId}>
           <h3 id={reviewId}>{m.config_review_title({ key: standing.key })}</h3>
-          <p class="prose">{m.config_review_prose()}</p>
+          <p class="prose"><Said text={m.config_review_prose()} /></p>
           {#if standing.interrupts}
             <div class="choice">
-              <p class="prose">{m.config_wait()}</p>
+              <p class="prose"><Said text={m.config_wait()} /></p>
               <Switch
                 on={wait}
                 label={m.config_wait()}

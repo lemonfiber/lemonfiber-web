@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Field from "../../components/Field.svelte";
   import Item from "../../components/Item.svelte";
@@ -51,7 +52,7 @@
 -->
 <Panel title={m.panel_walk()} {freshness} flush>
   <div class="scope">
-    <p>{m.walk_prose()}</p>
+    <p><Said text={m.walk_prose()} /></p>
   </div>
 
   <div class="form">

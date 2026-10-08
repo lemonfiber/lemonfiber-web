@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "./Said.svelte";
   import type { Snippet } from "svelte";
   import Port from "./Port.svelte";
   import StateMark from "./StateMark.svelte";
@@ -50,11 +51,11 @@
       <span class="word">{eyebrow}</span>
     </p>
     <h3>{title}</h3>
-    <p class="prose">{prose}</p>
+    <p class="prose"><Said text={prose} /></p>
     {#if lines !== undefined}
       <ul class="lines" aria-label={lines.named}>
         {#each lines.said as line, at (at)}
-          <li>{line}</li>
+          <li><Said text={line} /></li>
         {/each}
       </ul>
     {/if}
