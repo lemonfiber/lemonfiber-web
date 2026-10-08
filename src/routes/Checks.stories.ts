@@ -4,6 +4,7 @@ import { allWell, attributed, diagnosis } from "./findings";
 import { keeper, readBundle } from "./keeping";
 import { mender, offered, putBack } from "./mended";
 import { changed } from "../api/histories";
+import { survey, unread } from "../api/surveys";
 
 const answered = { kind: "answered", secondsAgo: 6 } as const;
 const never = { kind: "never" } as const;
@@ -147,4 +148,19 @@ export const WhatABundleWouldHold: Story = {
  */
 export const WhatLemonfiberChanged: Story = {
   args: { history: { ok: true, value: changed } },
+};
+
+/**
+ * What is already on this machine: a project with a Sonarr lemonfiber could
+ * take over and a helper it could not, the port they both want, two services
+ * taken over at different versions, a layout that cannot hold a hardlink,
+ * what may be done, and what is named and not carried.
+ */
+export const AlreadyOnThisMachine: Story = {
+  args: { survey: { ok: true, value: survey } },
+};
+
+/** A survey that could not ask the container engine. */
+export const TheEngineDidNotAnswer: Story = {
+  args: { survey: { ok: true, value: unread } },
 };

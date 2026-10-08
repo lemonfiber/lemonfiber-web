@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 48 of them.
+The client carries 72 kinds of answer, and this console reads 49 of them.
 Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 22 kinds and 17
+them. 2 kinds and 1 request are offered elsewhere by rule, and 21 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -73,6 +73,7 @@ where it answers with a kind the contract did not have before.
 | `job`          | each record of work handed to the runtime                                                                                                                                                                                                                                                  |
 | `lifecycle`    | what a start, stop, switch, restart or fetch came to, under its record                                                                                                                                                                                                                     |
 | `log`          | the logs                                                                                                                                                                                                                                                                                   |
+| `migration`    | the checks: every project on this machine that is not lemonfiber's and its containers, the ports in the way, what taking each over would come to, what the layout costs, what may be done, and what is not carried                                                                         |
 | `outbound`     | the settings: every request lemonfiber makes on its own account, where it goes, what travels, whether it is allowed, the setting that switches it off and what that costs; and every request the stack's services make, with whose it is                                                   |
 | `pairing`      | the settings: the line a phone's code carries, the short form of the certificate's fingerprint to check on the phone, and what would make a paired phone refuse this machine                                                                                                               |
 | `pausing`      | the settings: what pausing or resuming every download came to, each download client with what it was doing and what it read back                                                                                                                                                           |
@@ -123,7 +124,6 @@ where it answers with a kind the contract did not have before.
 | `held`         | D8       | Parental controls: what one member can watch                                                             |
 | `import`       | A5       | Migration: copying an operator's records across                                                          |
 | `keys`         | C10      | Integration keys: every key, with no secret                                                              |
-| `migration`    | A5       | Migration: what is already on this machine                                                               |
 | `minted-key`   | C10      | Integration keys: one key just minted, its secret shown this once                                        |
 | `music`        | D2       | Quality presets: the music format                                                                        |
 | `news`         | N27      | What's new: the newest of each kind, from the stream                                                     |
