@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
@@ -46,13 +47,13 @@
 -->
 <Panel title={m.panel_plugins()} {freshness} flush>
   <div class="scope">
-    <p>{m.plugin_prose()}</p>
+    <p><Said text={m.plugin_prose()} /></p>
     {#if held === undefined && problem !== undefined}
       <Value state="unknown" absent={problem} />
     {:else if held === undefined}
       <Skeleton width="18rem" label={m.waiting_answer()} />
     {:else if held.installed.length === 0}
-      <p>{m.plugin_none()}</p>
+      <p><Said text={m.plugin_none()} /></p>
     {/if}
   </div>
 
@@ -63,7 +64,7 @@
           <h3>{nameOf(plugin)}</h3>
           <ul class="lines">
             {#each installedLines(plugin, sources) as line, at (at)}
-              <li><span class="word">{line}</span></li>
+              <li><Said text={line} /></li>
             {/each}
           </ul>
           {#if plugger !== undefined}
@@ -101,7 +102,7 @@
       <h3 id={substitutedId}>{m.plugin_substituted_said()}</h3>
       <ul class="lines">
         {#each substituted as one, at (at)}
-          <li><span class="word">{substitutedLine(one)}</span></li>
+          <li><Said text={substitutedLine(one)} /></li>
         {/each}
       </ul>
     </section>
@@ -165,10 +166,5 @@
     flex-wrap: wrap;
     gap: var(--sp-2);
     margin-top: var(--sp-2);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

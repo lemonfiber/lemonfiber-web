@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
@@ -39,13 +40,13 @@
 -->
 <Panel title={m.panel_wiring()} {freshness} flush>
   <div class="scope">
-    <p>{m.wiring_prose()}</p>
+    <p><Said text={m.wiring_prose()} /></p>
     {#if wired === undefined && problem !== undefined}
       <Value state="unknown" absent={problem} />
     {:else if wired === undefined}
       <Skeleton width="18rem" label={m.waiting_answer()} />
     {:else if wired.wired.length === 0}
-      <p>{m.wiring_none()}</p>
+      <p><Said text={m.wiring_none()} /></p>
     {/if}
   </div>
 
@@ -56,7 +57,7 @@
           <h3>{link.by}</h3>
           <ul class="lines">
             {#each linkLines(link) as line, at (at)}
-              <li><span class="word">{line}</span></li>
+              <li><Said text={line} /></li>
             {/each}
           </ul>
         </li>
@@ -69,7 +70,7 @@
       <h3 id={unfilledId}>{m.wiring_unfilled_said()}</h3>
       <ul class="lines">
         {#each wired.unfilled as one, at (at)}
-          <li><span class="word">{unfilledLine(one)}</span></li>
+          <li><Said text={unfilledLine(one)} /></li>
         {/each}
       </ul>
     </section>
@@ -127,10 +128,5 @@
   .lines li {
     font-size: var(--text-prose);
     color: var(--muted);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

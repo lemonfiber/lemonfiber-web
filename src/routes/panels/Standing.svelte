@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import BigFigure from "../../components/BigFigure.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
@@ -116,7 +117,7 @@
               <p class="eyebrow">{m.finding_to_do()}</p>
               <ul class="listed">
                 {#each one.remedies as action, which (which)}
-                  <li><span class="word">{action}</span></li>
+                  <li><Said text={action} /></li>
                 {/each}
               </ul>
             {/if}
@@ -216,10 +217,5 @@
     list-style: none;
     max-width: 76ch;
     font-size: var(--text-prose);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

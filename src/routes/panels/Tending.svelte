@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Field from "../../components/Field.svelte";
   import Item from "../../components/Item.svelte";
@@ -78,7 +79,7 @@
 -->
 <Panel title={m.panel_tending()} {freshness} flush>
   <div class="scope">
-    <p>{m.tending_prose()}</p>
+    <p><Said text={m.tending_prose()} /></p>
   </div>
 
   <div class="controls" role="group" aria-label={m.tending_controls()}>
@@ -119,7 +120,7 @@
       />
       {#if terms?.ageLimit !== undefined}
         <div class="choice">
-          <p class="prose">{m.invite_unrated()}</p>
+          <p class="prose"><Said text={m.invite_unrated()} /></p>
           <Switch
             on={holdUnrated}
             label={m.invite_unrated()}
@@ -209,7 +210,7 @@
     {#if standing !== undefined}
       <section class="offer" aria-labelledby={offerId}>
         <h3 id={offerId}>{m.invite_offer_title({ name: standing.name })}</h3>
-        <p class="prose">{m.invite_offer_prose()}</p>
+        <p class="prose"><Said text={m.invite_offer_prose()} /></p>
         <div class="acts">
           <Action
             label={m.action_invite_yes({ name: standing.name })}

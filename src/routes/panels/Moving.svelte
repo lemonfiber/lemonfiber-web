@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Item from "../../components/Item.svelte";
   import { linesOf } from "../../lib/came";
@@ -75,7 +76,7 @@
             : m.move_plan_prose()}
         </p>
         {#if standing.doing === "migrate-adopt" || standing.doing === "migrate-import"}
-          <p class="prose">{m.move_plan_backed_up()}</p>
+          <p class="prose"><Said text={m.move_plan_backed_up()} /></p>
         {/if}
         <div class="acts">
           <Action

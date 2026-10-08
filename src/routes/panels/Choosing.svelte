@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Field from "../../components/Field.svelte";
   import Item from "../../components/Item.svelte";
@@ -64,7 +65,7 @@
   offer's name, so what is written is what was read or lemonfiber refuses.
 -->
 <section class="choosing" aria-label={m.fill_said()}>
-  <p class="prose">{m.fill_prose()}</p>
+  <p class="prose"><Said text={m.fill_prose()} /></p>
   {#each choices as one (one.capability)}
     {@const service = pickedFor(one)}
     <div class="choice">
@@ -116,7 +117,7 @@
     {#if offer !== undefined}
       <section class="plan" aria-labelledby={offerId}>
         <h3 id={offerId}>{m.fill_plan_title({ service: offer.service })}</h3>
-        <p class="prose">{m.fill_plan_prose()}</p>
+        <p class="prose"><Said text={m.fill_plan_prose()} /></p>
         <div class="acts">
           <Action
             label={m.action_fill_yes()}

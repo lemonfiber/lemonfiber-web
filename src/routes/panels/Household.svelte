@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import DataTable from "../../components/DataTable.svelte";
   import Panel from "../../components/Panel.svelte";
   import PersonRow from "../../components/PersonRow.svelte";
@@ -129,7 +130,7 @@
         </p>
       {/if}
       {#if filtering !== undefined}
-        <p class="quiet"><span class="word">{filtering}</span></p>
+        <p class="quiet"><Said text={filtering} /></p>
       {/if}
     </div>
 
@@ -175,7 +176,7 @@
       <p class="eyebrow"><span class="word">{m.panel_unread()}</span></p>
       <ul class="unread">
         {#each shown.findings as finding, at (at)}
-          <li><span class="word">{finding}</span></li>
+          <li><Said text={finding} /></li>
         {/each}
       </ul>
     {/if}

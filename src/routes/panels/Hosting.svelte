@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -67,7 +68,7 @@
 -->
 <Panel title={m.panel_hosting()} {freshness} flush>
   <div class="scope">
-    <p>{m.hosting_prose()}</p>
+    <p><Said text={m.hosting_prose()} /></p>
     {#if report !== undefined}
       {#each [report.caveat, report.instruction] as said, at (at)}
         {#if said !== undefined && said !== null}
@@ -89,11 +90,11 @@
           <h3>{command.name}</h3>
           <ul class="lines">
             {#each commandLines(command) as line, at (at)}
-              <li><span class="word">{line}</span></li>
+              <li><Said text={line} /></li>
             {/each}
           </ul>
           {#if act === "hosting-install" && unguarded(command)}
-            <p class="hint">{m.hosting_choose_forms()}</p>
+            <p class="hint"><Said text={m.hosting_choose_forms()} /></p>
             <Action label={m.action_host({ name: command.name })} off />
           {:else if act === "hosting-install"}
             <Action
@@ -228,11 +229,6 @@
     font-size: var(--text-prose);
     color: var(--muted);
     overflow-wrap: anywhere;
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 
   /* The rule appears only when there is something under it, so a panel nobody

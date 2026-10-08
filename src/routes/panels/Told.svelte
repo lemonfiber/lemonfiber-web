@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Port from "../../components/Port.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
@@ -20,7 +21,7 @@
   let { alerts, freshness }: Props = $props();
 
   /** One interruption, and everything the row sets out for it. */
-  interface Said {
+  interface Reading {
     /** Which way it went, in one word. */
     readonly way: string;
     /** How much it matters, in one word. */
@@ -41,7 +42,7 @@
   const listed = $derived(said !== undefined && said.length > 0);
 
   /** What one interruption sets out. */
-  function read(alert: Alert): Said {
+  function read(alert: Alert): Reading {
     return {
       way: wordOfWay(alert.moment),
       weight: wordOfSeverity(alert.severity),
@@ -91,7 +92,7 @@
             <p class="eyebrow">{m.finding_to_do()}</p>
             <ul class="listed">
               {#each one.remedies as action, which (which)}
-                <li><span class="word">{action}</span></li>
+                <li><Said text={action} /></li>
               {/each}
             </ul>
           {/if}
@@ -193,10 +194,5 @@
   .alarm .eyebrow,
   .alarm .check {
     color: var(--muted);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

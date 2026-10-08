@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
@@ -46,13 +47,13 @@
 -->
 <Panel title={m.panel_catalogue()} {freshness} flush>
   <div class="scope">
-    <p>{m.catalogue_prose()}</p>
+    <p><Said text={m.catalogue_prose()} /></p>
     {#if held === undefined && problem !== undefined}
       <Value state="unknown" absent={problem} />
     {:else if held === undefined}
       <Skeleton width="18rem" label={m.waiting_answer()} />
     {:else if held.services.length === 0}
-      <p>{m.catalogue_none()}</p>
+      <p><Said text={m.catalogue_none()} /></p>
     {/if}
     {#if originsProblem !== undefined}
       <Value state="unknown" absent={originsProblem} />
@@ -66,7 +67,7 @@
           <h3>{service.name}</h3>
           <ul class="lines">
             {#each serviceLines(service, origins) as line, at (at)}
-              <li><span class="word">{line}</span></li>
+              <li><Said text={line} /></li>
             {/each}
           </ul>
         </li>
@@ -79,7 +80,7 @@
       <h3 id={droppedId}>{m.catalogue_dropped_said()}</h3>
       <ul class="lines">
         {#each held.removed as dropped, at (at)}
-          <li><span class="word">{droppedLine(dropped)}</span></li>
+          <li><Said text={droppedLine(dropped)} /></li>
         {/each}
       </ul>
     </section>
@@ -133,10 +134,5 @@
   .lines li {
     font-size: var(--text-prose);
     color: var(--muted);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

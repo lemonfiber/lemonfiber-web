@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Field from "../../components/Field.svelte";
   import Item from "../../components/Item.svelte";
@@ -47,7 +48,7 @@
 -->
 <section class="plugging" aria-labelledby={sourceId}>
   <h3 id={sourceId}>{m.plug_install_title()}</h3>
-  <p class="prose">{m.plug_install_prose()}</p>
+  <p class="prose"><Said text={m.plug_install_prose()} /></p>
   <Field
     label={m.plug_source()}
     value={source}

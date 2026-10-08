@@ -1,6 +1,7 @@
 <script lang="ts">
   import Skeleton from "./Skeleton.svelte";
-  import type { Explaining } from "../api/explaining";
+  import type { Explaining } from "../lib/wire";
+  import { deeperOf } from "../lib/glossary";
   import type { Word } from "../lib/wire";
   import * as m from "../paraglide/messages.js";
 
@@ -28,6 +29,7 @@
   const noEntry = m.word_no_entry();
 
   let open = $state(false);
+  let deeper = $state(false);
   let asking = $state(false);
   let said = $state<Word | undefined>(undefined);
   let none = $state(false);
@@ -72,6 +74,10 @@
   to come. One of them is worth pressing again and the other never will be, and a
   reader told the same sentence for both has no way to know which they met.
 
+  The short answer comes first. Where the table says more, that waits behind
+  its own button, so the longer explanation is there for a reader who wants it
+  and in the way of nobody who does not.
+
   A term already read keeps its underline in the line colour. It still explains
   itself; it just stops asking to be pressed.
 -->
@@ -86,12 +92,25 @@
     onkeydown={(event) => {
       if (event.key === "Escape") open = false;
     }}>{term}</button
-  >
-  {#if open}
+  >{#if open}
     <span class="pop" id={popId} role="note">
       {#if said !== undefined}
         <span class="pop-name">{said.word}</span>
         <span class="pop-meaning">{said.short}</span>
+        {@const deep = deeperOf(said)}
+        {#if deep !== undefined}
+          {#if deeper}
+            <span class="pop-meaning">{deep}</span>
+          {:else}
+            <button
+              type="button"
+              class="more"
+              onclick={() => {
+                deeper = true;
+              }}>{m.word_more()}</button
+            >
+          {/if}
+        {/if}
       {:else if asking}
         <Skeleton width="14rem" label={waiting} />
       {:else if none}
@@ -100,8 +119,8 @@
         <span class="pop-meaning">{unanswered}</span>
       {/if}
     </span>
-  {/if}
-</span>
+  {/if}</span
+>
 
 <style>
   .wrap {
@@ -152,5 +171,16 @@
 
   .pop-meaning {
     color: var(--muted);
+  }
+
+  .more {
+    align-self: start;
+    padding: 0;
+    border: none;
+    border-bottom: 1px solid currentColor;
+    font: inherit;
+    color: var(--ink);
+    background: none;
+    cursor: pointer;
   }
 </style>

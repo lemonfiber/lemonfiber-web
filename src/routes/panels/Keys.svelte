@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Field from "../../components/Field.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -76,13 +77,13 @@
 -->
 <Panel title={m.panel_keys()} {freshness} flush>
   <div class="scope">
-    <p>{m.keys_prose()}</p>
+    <p><Said text={m.keys_prose()} /></p>
     {#if listing === undefined && problem !== undefined}
       <Value state="unknown" absent={problem} />
     {:else if listing === undefined}
       <Skeleton width="18rem" label={m.waiting_answer()} />
     {:else if listing.keys.length === 0}
-      <p>{m.keys_none()}</p>
+      <p><Said text={m.keys_none()} /></p>
     {/if}
     {#if listing !== undefined}
       <p>{listing.purposes}</p>
@@ -103,13 +104,13 @@
   {#if keyer.minted !== undefined}
     <section class="made" aria-labelledby={madeId}>
       <h3 id={madeId}>{m.keys_made_title({ name: keyer.minted.name })}</h3>
-      <p>{m.keys_made_prose()}</p>
+      <p><Said text={m.keys_made_prose()} /></p>
       <p class="secret">
         <Value state="known" figure={keyer.minted.secret} />
       </p>
       <ul class="lines">
         {#each mintedLines(keyer.minted) as line, at (at)}
-          <li><span class="word">{line}</span></li>
+          <li><Said text={line} /></li>
         {/each}
       </ul>
       <div class="acts">
@@ -125,7 +126,7 @@
           <h3>{key.name}</h3>
           <ul class="lines">
             {#each keyLines(key) as line, at (at)}
-              <li><span class="word">{line}</span></li>
+              <li><Said text={line} /></li>
             {/each}
           </ul>
           {#if key.state === "active" && revoking !== key.name}
@@ -140,7 +141,7 @@
             </div>
           {/if}
           {#if revoking === key.name}
-            <p>{m.keys_revoke_prose({ name: key.name })}</p>
+            <p><Said text={m.keys_revoke_prose({ name: key.name })} /></p>
             <div class="acts">
               <Action
                 label={m.action_keys_revoke_yes({ name: key.name })}
@@ -300,10 +301,5 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--sp-2);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

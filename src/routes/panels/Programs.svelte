@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import DataTable from "../../components/DataTable.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
@@ -111,7 +112,7 @@
           {/each}
         </ul>
       {:else}
-        <p class="none">{m.programs_forms_none()}</p>
+        <p class="none"><Said text={m.programs_forms_none()} /></p>
       {/if}
     </div>
   {/if}
@@ -152,7 +153,7 @@
   {#if left.length > 0}
     <div class="aside">
       <p class="eyebrow">{m.programs_left_out()}</p>
-      <p class="prose">{m.programs_left_out_prose()}</p>
+      <p class="prose"><Said text={m.programs_left_out_prose()} /></p>
       <ul class="listed">
         {#each left as one (one.id)}
           <li>

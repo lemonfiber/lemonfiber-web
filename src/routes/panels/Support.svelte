@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Field from "../../components/Field.svelte";
   import Item from "../../components/Item.svelte";
@@ -77,7 +78,7 @@
 -->
 <Panel title={m.panel_support()} {freshness} flush>
   <div class="scope">
-    <p>{m.support_prose()}</p>
+    <p><Said text={m.support_prose()} /></p>
   </div>
 
   <div class="terms">
@@ -92,7 +93,7 @@
       }}
     />
     <div class="choice">
-      <p class="prose">{m.support_filenames()}</p>
+      <p class="prose"><Said text={m.support_filenames()} /></p>
       <Switch
         on={filenames}
         label={m.support_filenames()}
@@ -140,7 +141,7 @@
     {#if standing !== undefined}
       <section class="bundle" aria-labelledby={bundleId}>
         <h3 id={bundleId}>{m.support_bundle_title()}</h3>
-        <p class="prose">{m.support_bundle_prose()}</p>
+        <p class="prose"><Said text={m.support_bundle_prose()} /></p>
         <ul class="pieces">
           {#each standing.pieces as piece (piece.name)}
             <li>

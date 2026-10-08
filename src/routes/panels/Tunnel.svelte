@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Tag from "../../components/Tag.svelte";
@@ -81,7 +82,7 @@
           >{matches ? m.tunnel_leaving_from() : m.tunnel_mismatch()}</span
         >
       </p>
-      <p class="quiet"><span class="word">{port(shown)}</span></p>
+      <p class="quiet"><Said text={port(shown)} /></p>
     </div>
   {:else}
     <Skeleton width="12rem" label={m.waiting_answer()} />

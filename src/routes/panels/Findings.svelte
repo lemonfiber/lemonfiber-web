@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Port from "../../components/Port.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
@@ -223,7 +224,7 @@
       </article>
     {/each}
     {#if anyMarked(shown)}
-      <p class="legend">{m.findings_marked()}</p>
+      <p class="legend"><Said text={m.findings_marked()} /></p>
     {/if}
   {:else if shown !== undefined}
     <Value state="known" {absent} />

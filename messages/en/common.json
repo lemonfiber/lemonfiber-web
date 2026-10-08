@@ -151,6 +151,7 @@
   "term_hardlink": "linking",
   "word_unanswered": "lemonfiber hasn't said what this word means.",
   "word_no_entry": "lemonfiber has no entry for this word.",
+  "word_more": "Say more",
   "nav_console": "Screens",
   "nav_storage": "The disk",
   "nav_requests": "Requests",

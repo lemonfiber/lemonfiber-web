@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
@@ -35,13 +36,13 @@
 -->
 <Panel title={m.panel_credentials()} {freshness} flush>
   <div class="scope">
-    <p>{m.credential_prose()}</p>
+    <p><Said text={m.credential_prose()} /></p>
     {#if inventory === undefined && problem !== undefined}
       <Value state="unknown" absent={problem} />
     {:else if inventory === undefined}
       <Skeleton width="18rem" label={m.waiting_answer()} />
     {:else if inventory.held.length === 0}
-      <p>{m.credential_none()}</p>
+      <p><Said text={m.credential_none()} /></p>
     {/if}
   </div>
 
@@ -53,7 +54,7 @@
             <h3>{one.name}</h3>
             <ul class="lines">
               {#each heldLines(one) as line, at (at)}
-                <li><span class="word">{line}</span></li>
+                <li><Said text={line} /></li>
               {/each}
             </ul>
           </li>
@@ -64,16 +65,16 @@
     <section class="protection" aria-labelledby={protectionId}>
       <h3 id={protectionId}>{m.credential_protection()}</h3>
       <p>{inventory.protection.summary}</p>
-      <p>{m.credential_against()}</p>
+      <p><Said text={m.credential_against()} /></p>
       <ul class="lines">
         {#each inventory.protection.against as said, at (at)}
-          <li><span class="word">{said}</span></li>
+          <li><Said text={said} /></li>
         {/each}
       </ul>
-      <p>{m.credential_not_against()}</p>
+      <p><Said text={m.credential_not_against()} /></p>
       <ul class="lines">
         {#each inventory.protection.not_against as said, at (at)}
-          <li><span class="word">{said}</span></li>
+          <li><Said text={said} /></li>
         {/each}
       </ul>
     </section>
@@ -127,10 +128,5 @@
   .lines li {
     font-size: var(--text-prose);
     color: var(--muted);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

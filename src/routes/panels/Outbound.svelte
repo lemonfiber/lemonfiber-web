@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
@@ -34,7 +35,7 @@
 -->
 <Panel title={m.panel_outbound()} {freshness} flush>
   <div class="scope">
-    <p>{m.outbound_prose()}</p>
+    <p><Said text={m.outbound_prose()} /></p>
     {#if leaving === undefined && problem !== undefined}
       <Value state="unknown" absent={problem} />
     {:else if leaving === undefined}
@@ -46,7 +47,7 @@
     <section class="account" aria-labelledby={oursId}>
       <h3 id={oursId}>{m.outbound_ours()}</h3>
       {#if leaving.ours.length === 0}
-        <p>{m.outbound_none()}</p>
+        <p><Said text={m.outbound_none()} /></p>
       {/if}
       <ul class="requests">
         {#each leaving.ours as one (one.reach)}
@@ -54,7 +55,7 @@
             <h4>{one.purpose}</h4>
             <ul class="lines">
               {#each oursLines(one) as line, at (at)}
-                <li><span class="word">{line}</span></li>
+                <li><Said text={line} /></li>
               {/each}
             </ul>
           </li>
@@ -65,7 +66,7 @@
     <section class="account" aria-labelledby={theirsId}>
       <h3 id={theirsId}>{m.outbound_theirs()}</h3>
       {#if leaving.theirs.length === 0}
-        <p>{m.outbound_none()}</p>
+        <p><Said text={m.outbound_none()} /></p>
       {/if}
       <ul class="requests">
         {#each leaving.theirs as one, at (at)}
@@ -73,7 +74,7 @@
             <h4>{one.service}</h4>
             <ul class="lines">
               {#each theirsLines(one) as line, said (said)}
-                <li><span class="word">{line}</span></li>
+                <li><Said text={line} /></li>
               {/each}
             </ul>
           </li>
@@ -136,10 +137,5 @@
   .lines li {
     font-size: var(--text-prose);
     color: var(--muted);
-  }
-
-  .word {
-    /* Its own element so the interpolation is this node's only content. */
-    display: contents;
   }
 </style>

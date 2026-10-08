@@ -21,11 +21,18 @@ export type Vocabulary = ByKind["glossary"]["data"];
 /** One word, and what it means. */
 export type Entry = Vocabulary["words"][number];
 
+/** What the table says beyond the one sentence, where it says more. */
+export function deeperOf(entry: Entry): string | undefined {
+  const { deep } = entry;
+  return deep === undefined || deep === null || deep === "" ? undefined : deep;
+}
+
 /** One word, line by line. */
 export function entryLines(entry: Entry): readonly string[] {
-  const { deep, also_called: also, forms } = entry;
+  const { also_called: also, forms } = entry;
+  const deep = deeperOf(entry);
   const lines = [entry.short];
-  if (deep !== undefined && deep !== null && deep !== "") lines.push(deep);
+  if (deep !== undefined) lines.push(deep);
   if (also.length > 0) lines.push(m.glossary_also({ words: listed(also) }));
   if (forms.length > 0) lines.push(m.glossary_forms({ forms: listed(forms) }));
   return lines;

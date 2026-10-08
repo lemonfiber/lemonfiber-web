@@ -9,6 +9,11 @@
   import Storage from "./Storage.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import { asked, scrollback, turnedAway, type Reaching } from "../api/asking";
+  import {
+    browserKeeping,
+    Explained,
+    handExplained,
+  } from "../lib/explained.svelte";
   import { pausing as waiting, type Pausing } from "../api/redeeming";
   import { Asked, Desk } from "./desk.svelte";
   import { Saving } from "./saving.svelte";
@@ -109,6 +114,10 @@
 
   /** The live connection, and what it last carried. */
   const stream = new Listening(() => reaching);
+
+  /** How terms are explained where they stand, kept per browser. */
+  const explained = new Explained(browserKeeping());
+  handExplained(explained);
 
   /** Whether this screen is still being looked at. */
   let here = true;
@@ -423,6 +432,10 @@
 
     globalThis.addEventListener("popstate", back);
     void askFor(place);
+    void asked(reaching, "explain", "glossary").then((read) => {
+      explained.hold(read);
+      if (turnedAway(read)) onrefused();
+    });
     stream.listen();
     const clock = globalThis.setInterval(() => {
       now = Date.now();
@@ -519,7 +532,7 @@
       alerts={setup?.alerts}
       wiring={setup?.wiring}
       plugins={setup?.plugins}
-      glossary={setup?.glossary}
+      glossary={explained.glossary}
       freshness={stamped}
       tuner={tuneAsks.asker}
       filler={fillAsks.asker}

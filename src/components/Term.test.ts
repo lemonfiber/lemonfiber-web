@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import Term from "./Term.svelte";
-import type { Explaining } from "../api/explaining";
+import type { Explaining } from "../lib/wire";
 import type { Word } from "../lib/wire";
 import { explained } from "../routes/fixture";
 import * as m from "../paraglide/messages.js";
@@ -207,5 +207,26 @@ describe("Term", () => {
   it("asks to be pressed until then", () => {
     const { container } = render(Term, given(known()));
     expect(container.querySelector("button")).not.toHaveClass("read");
+  });
+
+  it("says more only once the reader asks for it", async () => {
+    render(Term, given(known()));
+    await userEvent.click(pressing());
+    const note = await screen.findByRole("note");
+    expect(note).not.toHaveTextContent(explained.deep ?? "");
+
+    await userEvent.click(screen.getByRole("button", { name: m.word_more() }));
+    expect(note).toHaveTextContent(explained.deep ?? "");
+    expect(screen.queryByRole("button", { name: m.word_more() })).toBeNull();
+  });
+
+  it("offers no more where the table says it all in one sentence", async () => {
+    render(
+      Term,
+      given(answering({ ok: true, value: { ...explained, deep: null } })),
+    );
+    await userEvent.click(pressing());
+    await screen.findByRole("note");
+    expect(screen.queryByRole("button", { name: m.word_more() })).toBeNull();
   });
 });
