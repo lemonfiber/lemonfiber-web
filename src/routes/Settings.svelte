@@ -9,6 +9,7 @@
   import Outbound from "./panels/Outbound.svelte";
   import Pairing from "./panels/Pairing.svelte";
   import Plugins from "./panels/Plugins.svelte";
+  import Glossary from "./panels/Glossary.svelte";
   import Quality from "./panels/Quality.svelte";
   import Updates from "./panels/Updates.svelte";
   import Wiring from "./panels/Wiring.svelte";
@@ -29,6 +30,7 @@
   import type { Updater } from "../lib/updating";
   import type { Wiring as Wired } from "../lib/wiring";
   import type { Plugins as Installs } from "../lib/plugins";
+  import type { Vocabulary } from "../lib/glossary";
 
   interface Props {
     /** The quality choice in force, or why it could not be read. */
@@ -55,6 +57,8 @@
     wiring?: Reading<Wired> | undefined;
     /** The plugins on this machine, or why they could not be read. */
     plugins?: Reading<Installs> | undefined;
+    /** Every word lemonfiber explains, or why they could not be read. */
+    glossary?: Reading<Vocabulary> | undefined;
     /** When this screen's sources last answered. */
     freshness: Freshness;
     /**
@@ -85,6 +89,7 @@
     alerts,
     wiring,
     plugins,
+    glossary,
     freshness,
     tuner,
     configurer,
@@ -100,8 +105,8 @@
   is shared, everything that leaves this machine, what the operator is told
   about, every credential the stack holds, the versions the stack stands on,
   what the stack holds and where each service comes from, what it wires to
-  what, the plugins on this machine, this copy of lemonfiber, and pairing the
-  companion app.
+  what, the plugins on this machine, this copy of lemonfiber, pairing the
+  companion app, and every word lemonfiber explains.
 
   The readings are asked for together on the way in, and stamped together.
   The line is drawn where it was read or can be declared.
@@ -129,4 +134,5 @@
   {#if pairer !== undefined}
     <Pairing {pairer} {freshness} />
   {/if}
+  <Glossary {glossary} {freshness} />
 </Board>

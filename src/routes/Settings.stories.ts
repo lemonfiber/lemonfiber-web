@@ -6,6 +6,7 @@ import { made, pairer } from "./paired";
 import { alerts } from "../api/alerting";
 import { wiring } from "../api/wirings";
 import { plugins } from "../api/installs";
+import { vocabulary } from "../api/vocabularies";
 import { catalogue, provenance } from "../api/catalogues";
 import { behind, versions } from "../api/copies";
 import { inventory } from "../api/credentials";
@@ -169,4 +170,12 @@ export const WhatIsWiredToWhat: Story = {
  */
 export const ThePlugins: Story = {
   args: { plugins: { ok: true, value: plugins } },
+};
+
+/**
+ * The words lemonfiber explains: one with more to it, other services' words
+ * for it and its own forms, and one said in a sentence.
+ */
+export const TheWordsExplained: Story = {
+  args: { glossary: { ok: true, value: vocabulary } },
 };
