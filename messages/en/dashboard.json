@@ -139,6 +139,7 @@
   "told_none": "Nothing has interrupted.",
   "told_onset": "Started",
   "told_resolved": "Over",
+  "told_live_lead": "{way}: {summary}",
   "told_unrecognised": "A turn this page has no word for",
   "told_speaks_for": "The checks this is about",
   "programs_less": "These run like any other, and lemonfiber can do less with them",

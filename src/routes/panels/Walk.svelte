@@ -7,7 +7,8 @@
   import { linesOf } from "../../lib/came";
   import { questionOfFind, type Finder } from "../../lib/finding";
   import type { Freshness } from "../../lib/freshness";
-  import { readingOf, titleOfDoing } from "../../lib/work";
+  import { walkingLines, type Heard } from "../../lib/stepping";
+  import { readingOf, titleOfDoing, type Work } from "../../lib/work";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -15,9 +16,11 @@
     finder: Finder;
     /** When this panel's source last answered. */
     freshness: Freshness;
+    /** Each step the stream has said a walk took, by the walk's job. */
+    walking?: Heard | undefined;
   }
 
-  let { finder, freshness }: Props = $props();
+  let { finder, freshness, walking = {} }: Props = $props();
 
   /** The region a row sits in, bound as soon as the panel draws one. */
   let asked!: HTMLDivElement;
@@ -40,6 +43,19 @@
     asking === undefined ? undefined : questionOfFind(asking),
   );
   const silent = $derived(finder.busy || finder.asked !== undefined);
+
+  /** What a walk's row lists: what it came to, or the steps heard while it goes. */
+  function listedFor(
+    one: Work,
+  ): { named: string; said: readonly string[] } | undefined {
+    if (one.at === "done")
+      return { named: m.came_heading(), said: linesOf(one.came) };
+    if (one.at !== "under-way") return undefined;
+    const said = walkingLines(walking, one.job);
+    return said.length === 0
+      ? undefined
+      : { named: m.walk_steps_heard(), said };
+  }
   const parted = $derived(question !== undefined || work.length > 0);
 </script>
 
@@ -48,7 +64,9 @@
 
   Nothing comes back to read before a walk starts, and it fetches something, so
   what it does is asked before it is sent. Naming nothing asks lemonfiber for
-  something likely to work. The steps it took are in the record once it ends.
+  something likely to work. While a walk goes, each step the stream says it
+  took is listed under it as it happens; once it ends, the record says what it
+  came to.
 -->
 <Panel title={m.panel_walk()} {freshness} flush>
   <div class="scope">
@@ -132,9 +150,7 @@
         eyebrow={said.eyebrow}
         title={titleOfDoing(one.doing, one.scoped)}
         prose={said.prose}
-        lines={one.at === "done"
-          ? { named: m.came_heading(), said: linesOf(one.came) }
-          : undefined}
+        lines={listedFor(one)}
         actions={dropping}
       />
     {/each}

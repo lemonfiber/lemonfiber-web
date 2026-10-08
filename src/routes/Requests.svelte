@@ -11,6 +11,7 @@
   import Tending from "./panels/Tending.svelte";
   import Trace from "./panels/Trace.svelte";
   import Walk from "./panels/Walk.svelte";
+  import type { Heard } from "../lib/stepping";
   import type { Tracer } from "./tracing.svelte";
   import type { Shelving } from "./shelving";
   import type { Reading } from "@lemonfiber/sdk-ts";
@@ -44,6 +45,8 @@
      * Left out where nothing answers it.
      */
     finder?: Finder | undefined;
+    /** Each step the stream has said a walk took, by the walk's job. */
+    walking?: Heard | undefined;
     /** Where one item is, and how to look one up. */
     tracer?: Tracer | undefined;
     /** How what one member can watch is asked. Left out where nothing answers it. */
@@ -65,6 +68,7 @@
     freshness,
     tender,
     finder,
+    walking,
     tracer,
     shelving,
     stuck,
@@ -186,7 +190,7 @@
   {/if}
 
   {#if finder !== undefined}
-    <Walk {finder} {freshness} />
+    <Walk {finder} {freshness} {walking} />
     {#if tracer !== undefined}
       <Trace {tracer} {finder} {freshness} />
     {/if}

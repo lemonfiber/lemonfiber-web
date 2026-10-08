@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Checks from "./Checks.svelte";
+  import Raised from "./Raised.svelte";
   import Dashboard from "./Dashboard.svelte";
   import Logs from "./Logs.svelte";
   import Requests from "./Requests.svelte";
@@ -9,11 +10,7 @@
   import Storage from "./Storage.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import { asked, scrollback, turnedAway, type Reaching } from "../api/asking";
-  import {
-    browserKeeping,
-    Explained,
-    handExplained,
-  } from "../lib/explained.svelte";
+  import { Explained, handExplained } from "../lib/explained.svelte";
   import { pausing as waiting, type Pausing } from "../api/redeeming";
   import { Asked, Desk } from "./desk.svelte";
   import { Saving } from "./saving.svelte";
@@ -116,8 +113,7 @@
   const stream = new Listening(() => reaching);
 
   /** How terms are explained where they stand, kept per browser. */
-  const explained = new Explained(browserKeeping());
-  handExplained(explained);
+  const explained = handExplained(new Explained());
 
   /** Whether this screen is still being looked at. */
   let here = true;
@@ -432,10 +428,7 @@
 
     globalThis.addEventListener("popstate", back);
     void askFor(place);
-    void asked(reaching, "explain", "glossary").then((read) => {
-      explained.hold(read);
-      if (turnedAway(read)) onrefused();
-    });
+    explained.read(reaching, onrefused);
     stream.listen();
     const clock = globalThis.setInterval(() => {
       now = Date.now();
@@ -466,6 +459,14 @@
   asked for together.
 -->
 <Shell {place} menu={consoleMenu} ongo={go}>
+  {#if stream.told !== undefined}
+    <Raised
+      told={stream.told}
+      ondismiss={() => {
+        stream.dismiss();
+      }}
+    />
+  {/if}
   {#if place === "overview"}
     <Dashboard
       {stack}
@@ -513,6 +514,7 @@
       freshness={stamped}
       {tender}
       {finder}
+      walking={stream.steps}
       {tracer}
       shelving={shelves}
       {stuck}

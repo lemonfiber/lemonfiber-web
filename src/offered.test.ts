@@ -62,7 +62,6 @@ type Feature =
   | "C10"
   | "D1"
   | "D2"
-  | "D3"
   | "D5"
   | "D6"
   | "D7"
@@ -82,8 +81,7 @@ type Feature =
   | "N1"
   | "N27"
   | "ARCH-R78"
-  | "ARCH-R156"
-  | "ARCH-R162";
+  | "ARCH-R156";
 
 /**
  * Every request another surface can make of the stack.
@@ -339,6 +337,7 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
 const OFFERED_KINDS: readonly Kind[] = [
   "admission",
   "adoption",
+  "alert",
   "alerts",
   "archives",
   "backup",
@@ -384,6 +383,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "status",
   "stop-seeding",
   "stored",
+  "step",
   "stuck",
   "substitution",
   "trace",
@@ -420,7 +420,6 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
 
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
-  alert: "ARCH-R162",
   capabilities: "ARCH-R78",
   certificate: "N1",
   "front-door": "G5",
@@ -429,7 +428,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   "news-items": "N27",
   removal: "D6",
   reset: "C9",
-  step: "D3",
   wizard: "A2",
   word: "G2",
 };

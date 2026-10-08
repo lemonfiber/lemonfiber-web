@@ -373,6 +373,7 @@
   "walk_item": "What to add",
   "walk_item_hint": "Leave it empty for something likely to work.",
   "walk_asked": "Walkthrough results",
+  "walk_steps_heard": "Steps so far",
   "trace_prose": "Name something to see how far it got, why it stopped, and what happened to it.",
   "trace_term": "Title",
   "trace_season": "Season",
