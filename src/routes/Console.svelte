@@ -23,6 +23,7 @@
   } from "./readings";
   import type { Flow } from "../lib/flow";
   import type { History } from "../lib/history";
+  import type { Survey } from "../lib/survey";
   import type { Playing } from "../lib/playing";
   import type { Stuck } from "../lib/stuck";
   import type { Guidance } from "../lib/clients";
@@ -89,6 +90,7 @@
   let diagnosis = $state<Reading<Diagnosis> | undefined>(undefined);
   let disk = $state<StorageRead | undefined>(undefined);
   let history = $state<Reading<History> | undefined>(undefined);
+  let survey = $state<Reading<Survey> | undefined>(undefined);
   let stuck = $state<Reading<Stuck> | undefined>(undefined);
   let clients = $state<Reading<Guidance> | undefined>(undefined);
   let lines = $state<Reading<readonly Logged[]> | undefined>(undefined);
@@ -174,12 +176,14 @@
         await ask();
         return;
       case "checks": {
-        const [found, changed] = await Promise.all([
+        const [found, changed, already] = await Promise.all([
           asked(reaching, "checks", "doctor"),
           asked(reaching, "history", "history"),
+          asked(reaching, "migration", "migration"),
         ]);
         diagnosis = noted(where, found);
         history = noted(where, changed);
+        survey = noted(where, already);
         return;
       }
       case "storage":
@@ -454,6 +458,7 @@
     <Checks
       {diagnosis}
       {history}
+      {survey}
       freshness={stamped}
       {mender}
       {keeper}

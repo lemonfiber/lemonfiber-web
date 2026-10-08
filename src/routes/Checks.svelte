@@ -5,10 +5,12 @@
   import History from "./panels/History.svelte";
   import Mend from "./panels/Mend.svelte";
   import Support from "./panels/Support.svelte";
+  import Survey from "./panels/Survey.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
   import type { History as Changes } from "../lib/history";
   import type { Mender } from "../lib/mending";
+  import type { Survey as Found } from "../lib/survey";
   import type { Tone } from "../lib/state";
   import type { Keeper, Saver } from "../lib/upkeep";
   import { gradingOf, toneOfOverall, type Grading } from "../lib/verdict";
@@ -26,6 +28,11 @@
      */
     history?: Reading<Changes> | undefined;
     /**
+     * What is already on this machine that is not lemonfiber's, or why it
+     * could not be read. Left out until it answers.
+     */
+    survey?: Reading<Found> | undefined;
+    /**
      * What can be asked about what the checks found. Left out where nothing
      * answers it, which draws the findings alone.
      */
@@ -39,7 +46,7 @@
     saver?: Saver | undefined;
   }
 
-  let { diagnosis, freshness, history, mender, keeper, saver }: Props =
+  let { diagnosis, freshness, history, survey, mender, keeper, saver }: Props =
     $props();
 
   /** The run's own grading, and how loudly it is drawn. */
@@ -65,7 +72,8 @@
   one would be a claim about a run that has not happened.
 
   What can be done about the findings stands under them, so what is on offer is
-  read after what it is for, and everything lemonfiber changed after that.
+  read after what it is for, and everything lemonfiber changed after that, then
+  what else is on this machine.
   Gathering what somebody helping would need comes last, being what is left
   when nothing here puts it right.
 -->
@@ -87,6 +95,9 @@
 
   {#if history !== undefined}
     <History {history} {freshness} />
+  {/if}
+  {#if survey !== undefined}
+    <Survey {survey} {freshness} />
   {/if}
   {#if keeper !== undefined}
     <Support {keeper} {freshness} {saver} />
