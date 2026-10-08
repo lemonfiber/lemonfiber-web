@@ -23,6 +23,7 @@
   } from "./readings";
   import type { Flow } from "../lib/flow";
   import type { History } from "../lib/history";
+  import type { Playing } from "../lib/playing";
   import type { Stuck } from "../lib/stuck";
   import { mending, type Mend, type Mender } from "../lib/mending";
   import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
@@ -80,6 +81,7 @@
   let programs = $state<Reading<Stack> | undefined>(undefined);
   let forms = $state<Reading<Forms> | undefined>(undefined);
   let hosted = $state<Reading<Hosted> | undefined>(undefined);
+  let playing = $state<Reading<Playing> | undefined>(undefined);
   let chosen = $state<readonly string[]>([]);
   let preview = $state<Reading<Preview> | undefined>(undefined);
   let previewedAt = $state<number | undefined>(undefined);
@@ -224,27 +226,30 @@
   /**
    * Ask every reading at once.
    *
-   * Four endpoints, asked together: the whole stack's condition, each service
-   * in it, the forms the stack declares, and what this machine keeps running.
+   * Five endpoints, asked together: the whole stack's condition, each service
+   * in it, the forms the stack declares, what this machine keeps running, and
+   * what the media server is playing now.
    * The forms are what the controls act on and are not something this page
    * can hold in advance, so they are asked for with the rest rather than when
    * a control is first pressed.
    */
   async function ask(): Promise<void> {
-    const [whole, each, declared, kept] = await Promise.all([
+    const [whole, each, declared, kept, watched] = await Promise.all([
       asked(reaching, "status", "status"),
       asked(reaching, "services", "status"),
       asked(reaching, "forms", "forms"),
       asked(reaching, "hosting", "hosting"),
+      asked(reaching, "playing", "playing"),
     ]);
 
     stack = whole;
     programs = each;
     forms = declared;
     hosted = kept;
+    playing = watched;
     readAt = Date.now();
 
-    if (turnedAway(whole, each, declared, kept)) onrefused();
+    if (turnedAway(whole, each, declared, kept, watched)) onrefused();
   }
 
   /**
@@ -434,6 +439,7 @@
       {live}
       {controls}
       hosting={{ hoster: hostAsks.asker, hosted }}
+      {playing}
       onretry={stream.listening
         ? undefined
         : () => {
