@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 40 of them.
+The client carries 72 kinds of answer, and this console reads 41 of them.
 Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 30 kinds and 17
+them. 2 kinds and 1 request are offered elsewhere by rule, and 29 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -84,6 +84,7 @@ where it answers with a kind the contract did not have before.
 | `status`       | how the stack stands, and each program in it                                                                                                                                                                                                                                               |
 | `stop-seeding` | the disk: what letting one download go would cost and what goes with it, and what the client let go                                                                                                                                                                                        |
 | `stored`       | the disk: everything lemonfiber keeps, where and why, what is beside it, and what forgetting it removed or left                                                                                                                                                                            |
+| `stuck`        | the requests: every item whose download is stuck, the service holding it and the stage it stopped at, each followed to where it is on a press, under what may be missing from the list                                                                                                     |
 | `trace`        | the requests: how far one item got, why it stopped, how sure the trace is, and what happened to it                                                                                                                                                                                         |
 | `undo`         | the checks: what putting back the last repair came to                                                                                                                                                                                                                                      |
 | `uninstall`    | the disk: every line a removal reaches, going or kept, with its size, what is coming down, what lemonfiber cannot remove and how to by hand, and what went                                                                                                                                 |
@@ -130,7 +131,6 @@ where it answers with a kind the contract did not have before.
 | `replacement`  | A5        | Migration: standing in place of a setup already here                                                     |
 | `reset`        | C9        | Drift: what a full reset would revert                                                                    |
 | `step`         | D3        | First content: one step of a walkthrough, from the stream                                                |
-| `stuck`        | C7        | Queue health, asked for on its own                                                                       |
 | `substitution` | F4        | Capabilities: which service fills one                                                                    |
 | `wiring`       | D1        | Auto-wiring: what is wired to what                                                                       |
 | `wizard`       | A2        | Setup: where setup stands                                                                                |

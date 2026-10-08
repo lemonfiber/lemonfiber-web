@@ -4,6 +4,7 @@
   import Panel from "../components/Panel.svelte";
   import Skeleton from "../components/Skeleton.svelte";
   import Value from "../components/Value.svelte";
+  import Stuck from "./panels/Stuck.svelte";
   import Tended from "./panels/Tended.svelte";
   import Tending from "./panels/Tending.svelte";
   import Trace from "./panels/Trace.svelte";
@@ -11,6 +12,7 @@
   import type { Tracer } from "./tracing.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
+  import type { Stuck as Stalled } from "../lib/stuck";
   import {
     askingWasRead,
     kindOfRequest,
@@ -40,9 +42,14 @@
     finder?: Finder | undefined;
     /** Where one item is, and how to look one up. */
     tracer?: Tracer | undefined;
+    /**
+     * The items whose downloads are stuck, or why they could not be read.
+     * Left out until it answers.
+     */
+    stuck?: Reading<Stalled> | undefined;
   }
 
-  let { household, freshness, tender, finder, tracer }: Props = $props();
+  let { household, freshness, tender, finder, tracer, stuck }: Props = $props();
 
   const columns: readonly Column[] = [
     { head: m.head_asked_for() },
@@ -152,6 +159,10 @@
     <Panel title={m.nav_requests()} {freshness}>
       <Skeleton width="16rem" label={m.waiting_answer()} />
     </Panel>
+  {/if}
+
+  {#if stuck !== undefined}
+    <Stuck {stuck} {tracer} {freshness} />
   {/if}
 
   {#if finder !== undefined}

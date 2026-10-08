@@ -3,6 +3,7 @@ import Requests from "./Requests.svelte";
 import { household, unasked, unread } from "./house";
 import { letThrough, madeOffer, readOffer, tender } from "./tended";
 import { finder, searchedRecord, traced, tracer, walkedRecord } from "./finds";
+import { stalled } from "../api/stalls";
 
 const answered = { kind: "answered", secondsAgo: 8 } as const;
 const never = { kind: "never" } as const;
@@ -133,4 +134,13 @@ export const FindingThings: Story = {
     finder: { ...finder, work: [walkedRecord, searchedRecord] },
     tracer: { ...tracer, reading: { ok: true, value: traced } },
   },
+};
+
+/**
+ * Two stuck downloads, each with the service holding it, the stage it stopped
+ * at and a control that follows it, under a note that one queue could not be
+ * read.
+ */
+export const StuckDownloads: Story = {
+  args: { stuck: { ok: true, value: stalled }, finder, tracer },
 };
