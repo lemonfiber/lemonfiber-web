@@ -13,6 +13,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { bytes } from "./figures";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** The backups this machine keeps, by the names they were written under. */
@@ -32,11 +33,6 @@ export type Relocation = NonNullable<Restored["would"]["relocation"]>;
 
 /** How much of the stack an archive covers. */
 type Scope = Backed["scope"];
-
-/** Names, as a reader is given a list of them. */
-function listed(names: readonly string[]): string {
-  return names.join(", ");
-}
 
 /** What an archive covers, in a few words. */
 export function scopeWords(scope: Scope): string {

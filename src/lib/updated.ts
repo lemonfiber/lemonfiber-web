@@ -12,6 +12,7 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** Where the stack stands against its pins, and what moving would come to. */
@@ -116,7 +117,7 @@ export function updateLines(report: Updated): readonly string[] {
     }
   }
   if (report.in_flight.length > 0) {
-    lines.push(m.came_update_in_flight({ names: report.in_flight.join(", ") }));
+    lines.push(m.came_update_in_flight({ names: listed(report.in_flight) }));
   }
   for (const edit of report.stack_edits) {
     lines.push(m.came_edited({ path: edit.path }));

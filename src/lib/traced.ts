@@ -13,6 +13,7 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** Where one item is in the pipeline. */
@@ -169,7 +170,7 @@ export function walkthroughLines(report: Walked): readonly string[] {
     lines.push(...stopped.logs, stopped.remedy);
   }
   if (report.suggestions.length > 0) {
-    lines.push(m.walk_suggestions({ names: report.suggestions.join(", ") }));
+    lines.push(m.walk_suggestions({ names: listed(report.suggestions) }));
   }
   if (handover !== undefined && handover !== null) {
     lines.push(...handover.next.map(wordOfNext));
@@ -181,7 +182,7 @@ export function walkthroughLines(report: Walked): readonly string[] {
 export function guardLines(report: Guarded): readonly string[] {
   const lines: string[] = [report.reason];
   if (report.forms.length > 0) {
-    const names = report.forms.join(", ");
+    const names = listed(report.forms);
     lines.push(
       report.stopped
         ? m.guard_stopped({ names })

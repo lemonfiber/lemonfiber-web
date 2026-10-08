@@ -67,6 +67,7 @@ import {
   type Invited,
 } from "./invited";
 import { gradingOf } from "./verdict";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** What a start, stop, switch, restart or fetch came to. */
@@ -133,11 +134,6 @@ const STILL_STARTING = new Set<string>(["starting"]);
 
 /** A service doing what it is for. */
 const UP = new Set<string>(["running", "healthy", "host-managed"]);
-
-/** Names, as a reader is given a list of them. */
-function listed(names: readonly string[]): string {
-  return names.join(", ");
-}
 
 /** What a start, stop, switch, restart or fetch left behind, line by line. */
 function lifecycleLines(report: Lifecycle): readonly string[] {

@@ -13,6 +13,7 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** The versions in play. */
@@ -30,7 +31,7 @@ export function versionLines(versions: Versions): readonly string[] {
     compose === undefined || compose === null
       ? m.copy_engine_unasked()
       : m.copy_engine({ version: compose }),
-    m.copy_schemas({ schemas: versions.supported_schema.join(", ") }),
+    m.copy_schemas({ schemas: listed(versions.supported_schema.map(String)) }),
   ];
 }
 

@@ -14,6 +14,7 @@
  * unchanged. The words around them live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** Every setting asked about, or what changing one came to. */
@@ -30,11 +31,6 @@ type Findings = NonNullable<Review["findings"]>;
 
 /** What proving a replacement credential came to. */
 type Proof = NonNullable<Review["proof"]>;
-
-/** Names, as a reader is given a list of them. */
-function listed(names: readonly string[]): string {
-  return names.join(", ");
-}
 
 /** Where a setting's value came from, in a few words. */
 export function originWords(origin: Setting["origin"]): string {
