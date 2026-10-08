@@ -1,10 +1,11 @@
 # AGENTS.md — lemonfiber-web
 
-Orientation for a focused session in this repo.
-
-> **Common rules for every lemonfiber repo** live in the spec repo, at
-> [50-governance/ai-contributors.md](https://github.com/lemonfiber/spec/blob/main/50-governance/ai-contributors.md).
-> This file is the web-repo-specific header; the shared rules are canonical there.
+> **Start at the roadmap and board on [lemonfiber.app](https://lemonfiber.app),
+> rendered from the report of where every unreleased version stands. Then the
+> rules** every repository shares:
+> [working in the repositories](https://github.com/lemonfiber/spec/blob/main/50-governance/working-in-the-repositories.md)
+> and [the rules for agents](https://github.com/lemonfiber/spec/blob/main/50-governance/ai-contributors.md).
+> This file holds only what is true of this repository.
 
 ## What this repo is
 
@@ -30,13 +31,9 @@ in both, in the same change; the suite fails until they agree.
 **Everything visual comes from a token.** `src/app.css` is the only file that may
 name a `--lf-*` brand token; it maps them to the names this interface uses. A
 component that writes a raw colour, font-size, spacing step or radius is a defect.
-`app.css` also carries the element reset — the `<button>` rule, since most controls
-here are buttons and undoing the user agent's styling once beats undoing it in each
-of them — and the `.said` class for text a screen reader is given where a drawing is
-what a sighted reader gets. The two controls that are not buttons undo it in their
-own style block: the `<input>` in `Field.svelte` and the `<a>` in `MenuItem.svelte`.
-Structural geometry — a border width, an `aspect-ratio`, a `stroke-width` — is not
-a token and stays literal.
+`app.css` also carries the `<button>` reset and the `.said` class for text a screen
+reader is given in place of a drawing. Structural geometry — a border width, an
+`aspect-ratio`, a `stroke-width` — is not a token and stays literal.
 
 **Every word a person reads comes from `messages/`.** Add a key to the file in
 `messages/en/` that holds the other keys with its prefix, run `npm run messages`,
@@ -50,26 +47,15 @@ across files, and a file the settings do not name.
 
 **This ecosystem's own words are not among them.** _Indexer, hardlink, retention,
 ratio_ live in one table compiled into the binary and served at `/api/explain`.
-`Term.svelte` asks for one when a reader presses it; a message here saying what one
-of them means is a second explanation to keep in step with the first, and
-`scripts/words.mjs` refuses it.
-
-**Citations never appear in a comment.** Not a requirement ID, not an ADR number,
-not a spec path. They go in the commit trailer and the pull request body.
-`scripts/guards.mjs` fails the build on one.
+`Term.svelte` asks for one when a reader presses it; `scripts/words.mjs` refuses a
+message here that explains one of them again.
 
 **Accessibility is a gate, not an aspiration.** A Svelte `a11y_*` compiler
-warning stops the compile rather than being printed beside it — `onwarn` in
-`svelte.config.js` refuses the whole family, and `scripts/guards.mjs` refuses it
-again over every component, including one nothing imports yet. `npm run a11y` serves
-`storybook-static` and drives it in a browser. Every story is rendered five ways —
-the light theme, the explicit dark theme, the system preference a reader who never
-touched the toggle gets, a request for more contrast, and forced colours — and axe
-is run over each at WCAG 2.2 AA. Three more passes run once per story: tabbing
-right through it to catch a keyboard trap, reading at every place focus lands
-whether it draws a ring there; reading every declared animation and transition to
-catch one that repeats fast enough to flash, or that a reduced-motion preference
-does not stop; and measuring the page at 320 pixels to catch sideways scroll.
+warning stops the compile (`onwarn` in `svelte.config.js`, and again in
+`scripts/guards.mjs`). `npm run a11y` renders every story in five themes and
+contrast modes and runs axe over each at WCAG 2.2 AA, then checks each story for
+keyboard traps, missing focus rings, flashing or unstoppable motion, and sideways
+scroll at 320 pixels.
 
 ## Two Svelte traps the coverage gate will not forgive
 
@@ -101,35 +87,23 @@ dependency-cruiser · vitest at **100% statements, branches, functions and lines
 app build · Storybook build · the accessibility sweep. All of it, green.
 
 Every component gets a `.test.ts` and a `.stories.ts` beside it. Tests query by
-role and accessible name and assert what a reader can observe, not that an element
-exists. Stories are `Foundations/<Name>` for atoms and `Surfaces/<Name>` for
-composites. A screen with more to test than one file holds is tested in one file
-per concern beside it (`Dashboard.test.ts`, `DashboardDoor.test.ts`, …). Helpers
-those files share live in a `.testing.ts` module (`Dashboard.testing.ts`). It may
-use the test tools and is outside the coverage gate, so dependency-cruiser refuses
-an import of it from anything but a suite, a story or another `.testing.ts`.
-
-Commit with `git commit -s`, and carry a `Spec:` trailer naming an identifier that
-exists in the spec repo — grep for it before citing it.
+role and accessible name and assert what a reader can observe. Stories are
+`Foundations/<Name>` for atoms and `Surfaces/<Name>` for composites. A large screen
+is tested in one file per concern (`Dashboard.test.ts`, `DashboardDoor.test.ts`),
+sharing helpers through a `.testing.ts` module that only suites, stories and other
+`.testing.ts` files may import.
 
 ## Layout
 
 ```
 src/components/   one component per file, with its test and its stories
-src/lib/          the vocabulary the interface speaks — states, severities,
-                  freshness, weights, icon names, places. No rendering.
-src/api/          the one place a request is made, all of it through
-                  @lemonfiber/sdk-ts. Where the per-run key is kept.
-src/routes/       the screens, the chrome they sit in, and the panels a screen
-                  is composed of. A screen is handed what it draws.
-src/app.css       brand tokens mapped to this interface's names, the element
-                  reset, and the one `.said` utility every component would
-                  otherwise restate
+src/lib/          the interface's vocabulary: states, severities, icons. No rendering
+src/api/          the one place a request is made, through @lemonfiber/sdk-ts
+src/routes/       the screens, their chrome and panels; a screen is handed what it draws
+src/app.css       brand tokens mapped to this interface's names, the reset, `.said`
 messages/en/      every word a person reads, one file per area
 docs/             what the console offers, and what it does not yet
-scripts/          the gate's own tooling: structural guards, the accessibility
-                  sweep, the compiler warnings the build refuses, the built
-                  app's wire-version declaration
+scripts/          the gate's tooling: guards, words, the accessibility sweep
 .storybook/       preview, and the helpers that put real components in a snippet
 ```
 
@@ -141,10 +115,6 @@ ask and follow; every screen and panel below them is handed what it draws, which
 what lets the same screen be drawn from a fixture in a story and swept by
 `npm run a11y`.
 
-## Running several agents at once
-
-Two actors editing one working copy has broken this repo repeatedly. Give each one
-its own git worktree with its own `node_modules` (`cp -c -R` is a near-free clone
-on APFS), let it run the gate there, and collect the files afterwards. Shared
-files — `messages/en/*.json`, `src/app.css`, `.storybook/snippets.ts` — are merged by
-whoever is coordinating, not by the agents.
+Shared files — `messages/en/*.json`, `src/app.css`, `.storybook/snippets.ts` — are
+merged by whoever is coordinating parallel work, not by each agent. A worktree's
+own `node_modules` is a near-free `cp -c -R` on APFS.
