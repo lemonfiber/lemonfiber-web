@@ -67,6 +67,26 @@ function keysNaming(attribute) {
   );
 }
 
+/** The keys one element or component takes its own name from. */
+function ownNames(node) {
+  if (!Array.isArray(node.attributes) || STATES.has(node.name)) return [];
+  return node.attributes.flatMap((attribute) => keysNaming(attribute));
+}
+
+/** Whether a node is a heading, or sits inside one. */
+function headed(node, inHeading) {
+  return (
+    inHeading || (node.type === "RegularElement" && HEADING.test(node.name))
+  );
+}
+
+/** Every node a node holds, apart from its attributes and the compiler's notes. */
+function childrenOf(node) {
+  return Object.entries(node)
+    .filter(([key]) => key !== "attributes" && key !== "metadata")
+    .map(([, child]) => child);
+}
+
 /**
  * Every key a parsed template takes a name from: the naming attributes of
  * every element and component, and every expression inside a heading.
@@ -84,27 +104,36 @@ export function namingKeys(tree) {
       if (inHeading) found.push(...keysOf(node.expression));
       return;
     }
-    if (Array.isArray(node.attributes) && !STATES.has(node.name)) {
-      for (const attribute of node.attributes)
-        found.push(...keysNaming(attribute));
-    }
-    const heading =
-      inHeading || (node.type === "RegularElement" && HEADING.test(node.name));
-    for (const [key, child] of Object.entries(node)) {
-      if (key !== "attributes" && key !== "metadata") visit(child, heading);
-    }
+    found.push(...ownNames(node));
+    const heading = headed(node, inHeading);
+    for (const child of childrenOf(node)) visit(child, heading);
   };
   visit(tree, false);
   return found;
 }
 
-/** The words a message holds, each placeholder counted as one. */
+/**
+ * The words a message holds, each placeholder counted as one.
+ *
+ * Read a character at a time: a word is a run of anything but space, and a
+ * placeholder runs from its brace to the brace that closes it, spaces and all.
+ */
 export function wordsOf(message) {
-  return message
-    .replaceAll(/\{[^}]*\}/gu, "X")
-    .trim()
-    .split(/\s+/u)
-    .filter((word) => word !== "");
+  const words = [];
+  let word = "";
+  let depth = 0;
+  for (const character of message) {
+    if (character === "{") depth += 1;
+    else if (character === "}") depth = Math.max(0, depth - 1);
+    if (depth === 0 && /\s/u.test(character)) {
+      if (word !== "") words.push(word);
+      word = "";
+    } else {
+      word += character;
+    }
+  }
+  if (word !== "") words.push(word);
+  return words;
 }
 
 /** Every name among these keys that runs past a few words, as a finding. */
