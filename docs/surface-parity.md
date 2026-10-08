@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 43 of them.
+The client carries 72 kinds of answer, and this console reads 44 of them.
 Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 27 kinds and 17
+them. 2 kinds and 1 request are offered elsewhere by rule, and 26 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -54,6 +54,7 @@ where it answers with a kind the contract did not have before.
 | Kind           | Where it is drawn                                                                                                                                                                                                                                                                          |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `admission`    | the door a password opens                                                                                                                                                                                                                                                                  |
+| `alerts`       | the settings: the preset in force for what the operator is told about and what it means, and each kind of event set apart from it                                                                                                                                                          |
 | `archives`     | the disk: the backups this machine keeps                                                                                                                                                                                                                                                   |
 | `backup`       | the disk: where a backup was written, and what it covers, under its record                                                                                                                                                                                                                 |
 | `bandwidth`    | the settings: where the line stands, what that means, each limit, and what each download client is doing about it                                                                                                                                                                          |
@@ -109,7 +110,6 @@ where it answers with a kind the contract did not have before.
 | Kind           | Feature   | What it is                                                                                               |
 | -------------- | --------- | -------------------------------------------------------------------------------------------------------- |
 | `adoption`     | A5        | Migration: what taking over a setup already here came to                                                 |
-| `alerts`       | B5        | Notifications: what the operator is told about                                                           |
 | `beside`       | A5        | Migration: standing beside a setup already here                                                          |
 | `capabilities` | ARCH-R78  | What this copy of lemonfiber can do, each named by the path it is served at                              |
 | `certificate`  | N1        | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |

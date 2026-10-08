@@ -3,6 +3,7 @@ import Settings from "./Settings.svelte";
 import { configurer, everySetting, stagedChange } from "./configured";
 import { inForce, putQualityBack, readCost, tuner } from "./tuned";
 import { made, pairer } from "./paired";
+import { alerts } from "../api/alerting";
 import { catalogue, provenance } from "../api/catalogues";
 import { behind, versions } from "../api/copies";
 import { inventory } from "../api/credentials";
@@ -140,4 +141,12 @@ export const WhatTheStackHolds: Story = {
     catalogue: { ok: true, value: catalogue },
     provenance: { ok: true, value: provenance },
   },
+};
+
+/**
+ * What the operator is told about: the quiet preset and what it means, one kind
+ * of event always told and one never told.
+ */
+export const WhatYouAreToldAbout: Story = {
+  args: { alerts: { ok: true, value: alerts } },
 };

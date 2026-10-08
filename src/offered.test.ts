@@ -311,6 +311,7 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
 /** Kinds something the page imports reads. */
 const OFFERED_KINDS: readonly Kind[] = [
   "admission",
+  "alerts",
   "archives",
   "backup",
   "bandwidth",
@@ -378,7 +379,6 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   adoption: "A5",
-  alerts: "B5",
   beside: "A5",
   capabilities: "ARCH-R78",
   certificate: "N1",
