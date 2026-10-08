@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 41 of them.
+The client carries 72 kinds of answer, and this console reads 43 of them.
 Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 29 kinds and 17
+them. 2 kinds and 1 request are offered elsewhere by rule, and 27 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -58,6 +58,7 @@ where it answers with a kind the contract did not have before.
 | `backup`       | the disk: where a backup was written, and what it covers, under its record                                                                                                                                                                                                                 |
 | `bandwidth`    | the settings: where the line stands, what that means, each limit, and what each download client is doing about it                                                                                                                                                                          |
 | `bundle`       | the checks: what a support bundle would hold, in full, or where it was written                                                                                                                                                                                                             |
+| `catalogue`    | the settings: every service the stack holds, what it does, what going without it costs and how much that matters, and every service the stack dropped with why and what took its place                                                                                                     |
 | `config`       | the settings: every setting, where each value came from, and what changing one came to                                                                                                                                                                                                     |
 | `credentials`  | the settings: every credential the stack holds, where it stands, who made it, whose it is, where its value lives, the setting it is recorded under and what signs in with it, with no value; and what keeping them in files protects against and what it does not                          |
 | `dashboard`    | the overview, from the stream                                                                                                                                                                                                                                                              |
@@ -74,6 +75,7 @@ where it answers with a kind the contract did not have before.
 | `pairing`      | the settings: the line a phone's code carries, the short form of the certificate's fingerprint to check on the phone, and what would make a paired phone refuse this machine                                                                                                               |
 | `pausing`      | the settings: what pausing or resuming every download came to, each download client with what it was doing and what it read back                                                                                                                                                           |
 | `preview`      | what starting the forms chosen would come to                                                                                                                                                                                                                                               |
+| `provenance`   | the settings: where each service comes from, beside what it is for: the image, the tag and digest it is pinned at, its licence and the project it is built from                                                                                                                            |
 | `quality`      | the settings: the quality new media is fetched at, and what putting the recorded preset back came to                                                                                                                                                                                       |
 | `repair`       | the checks: what can be put right, chosen from, and what putting it right came to                                                                                                                                                                                                          |
 | `restore`      | the disk: what an archive holds and what putting it back would overwrite, or what it put back                                                                                                                                                                                              |
@@ -110,7 +112,6 @@ where it answers with a kind the contract did not have before.
 | `alerts`       | B5        | Notifications: what the operator is told about                                                           |
 | `beside`       | A5        | Migration: standing beside a setup already here                                                          |
 | `capabilities` | ARCH-R78  | What this copy of lemonfiber can do, each named by the path it is served at                              |
-| `catalogue`    | F2        | Service catalogue: what each service is for                                                              |
 | `certificate`  | N1        | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |
 | `clients`      | G6        | Client apps: which app to watch on                                                                       |
 | `front-door`   | G5        | The front door, asked for on its own                                                                     |
@@ -126,7 +127,6 @@ where it answers with a kind the contract did not have before.
 | `news-items`   | N27       | What's new: everything newer than what was last seen, asked for                                          |
 | `playing`      | ARCH-R156 | What the media server is playing now, for the house or one member                                        |
 | `plugins`      | F6        | Plugin lifecycle: every plugin installed, and what installing, updating or removing one came to          |
-| `provenance`   | F2        | Service catalogue: where each service comes from                                                         |
 | `removal`      | D6        | Household identity: somebody taken out of the household                                                  |
 | `replacement`  | A5        | Migration: standing in place of a setup already here                                                     |
 | `reset`        | C9        | Drift: what a full reset would revert                                                                    |

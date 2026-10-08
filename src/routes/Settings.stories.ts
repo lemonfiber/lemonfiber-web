@@ -3,6 +3,7 @@ import Settings from "./Settings.svelte";
 import { configurer, everySetting, stagedChange } from "./configured";
 import { inForce, putQualityBack, readCost, tuner } from "./tuned";
 import { made, pairer } from "./paired";
+import { catalogue, provenance } from "../api/catalogues";
 import { behind, versions } from "../api/copies";
 import { inventory } from "../api/credentials";
 import { leaving } from "../api/leavings";
@@ -126,5 +127,17 @@ export const ANewerReleaseIsOut: Story = {
   args: {
     versions: { ok: true, value: versions },
     standing: { ok: true, value: behind },
+  },
+};
+
+/**
+ * What the stack holds: each service with what it is for, what going without
+ * it costs and where it comes from, one the record of origins does not name,
+ * and the services the stack dropped.
+ */
+export const WhatTheStackHolds: Story = {
+  args: {
+    catalogue: { ok: true, value: catalogue },
+    provenance: { ok: true, value: provenance },
   },
 };

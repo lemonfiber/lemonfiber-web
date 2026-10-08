@@ -8,6 +8,7 @@
  */
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { asked, turnedAway, type Reaching } from "../api/asking";
+import type { Catalogue, Provenance } from "../lib/catalogue";
 import type { Configured } from "../lib/configured";
 import type { Standing, Versions } from "../lib/copy";
 import type { Inventory } from "../lib/credentials";
@@ -44,6 +45,10 @@ export interface SettingsRead {
   readonly versions: Reading<Versions>;
   /** Where this copy of lemonfiber stands against the newest release. */
   readonly standing: Reading<Standing>;
+  /** What each service is for, and what the stack has dropped. */
+  readonly catalogue: Reading<Catalogue>;
+  /** Where each service comes from. */
+  readonly provenance: Reading<Provenance>;
 }
 
 /** A screen's readings, and whether any of them was turned away. */
@@ -81,9 +86,20 @@ export async function readSettings(
     asked(reaching, "credentials", "credentials"),
     asked(reaching, "version", "version"),
     asked(reaching, "update", "self-update", { what: "self" }),
+    asked(reaching, "catalogue", "catalogue"),
+    asked(reaching, "provenance", "provenance"),
   ]);
-  const [quality, settings, line, outbound, credentials, versions, standing] =
-    read;
+  const [
+    quality,
+    settings,
+    line,
+    outbound,
+    credentials,
+    versions,
+    standing,
+    catalogue,
+    provenance,
+  ] = read;
   return {
     read: {
       quality,
@@ -93,6 +109,8 @@ export async function readSettings(
       credentials,
       versions,
       standing,
+      catalogue,
+      provenance,
     },
     refused: turnedAway(...read),
   };
