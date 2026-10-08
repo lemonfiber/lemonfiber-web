@@ -31,6 +31,7 @@ import { everyPairing } from "./lib/pairing";
 import { everyReclaiming } from "./lib/reclaiming";
 import { everyFilling } from "./lib/filling";
 import { everyMoving } from "./lib/moving";
+import { everyKeying } from "./routes/keying.svelte";
 import { everyRemoving } from "./lib/removing";
 import { everySeeding } from "./lib/seeding";
 import { everySharing } from "./lib/sharing";
@@ -250,6 +251,11 @@ const WALKED: readonly {
     named: "everyMoving",
     by: ["src/routes/panels/Moving.svelte"],
   },
+  {
+    list: everyKeying,
+    named: "everyKeying",
+    by: ["src/routes/panels/Keys.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -295,6 +301,9 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "migrate-import",
   "migrate-beside",
   "migrate-replace",
+  "key-list",
+  "key-mint",
+  "key-revoke",
 ];
 
 /**
@@ -316,9 +325,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "plugin-install": "F6",
   "plugin-update": "F6",
   "plugin-remove": "F6",
-  "key-mint": "C10",
-  "key-list": "C10",
-  "key-revoke": "C10",
 };
 
 /** Kinds something the page imports reads. */
@@ -346,9 +352,11 @@ const OFFERED_KINDS: readonly Kind[] = [
   "import",
   "invitation",
   "job",
+  "keys",
   "lifecycle",
   "log",
   "migration",
+  "minted-key",
   "outbound",
   "pairing",
   "pausing",
@@ -408,8 +416,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   certificate: "N1",
   "front-door": "G5",
   handoff: "G9",
-  keys: "C10",
-  "minted-key": "C10",
   music: "D2",
   news: "N27",
   "news-items": "N27",
