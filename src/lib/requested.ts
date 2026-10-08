@@ -63,7 +63,8 @@ export type Tending =
   | "reissue"
   | "household-allow"
   | "household-approve"
-  | "household-decline";
+  | "household-decline"
+  | "household-handoff";
 
 /**
  * Something the pairing panel can ask for, named as the endpoint names it.

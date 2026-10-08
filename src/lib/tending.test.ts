@@ -9,12 +9,14 @@ import {
   questionOfTend,
   quotaTyped,
   sameTend,
+  standingHandoff,
   standingInvitation,
   termsTyped,
   type Terms,
 } from "./tending";
 import type { Work } from "./work";
 import { offered, reissued, wouldOffer } from "../api/invitations";
+import { connectedSam, readyForSam } from "../api/handoffs";
 import * as m from "../paraglide/messages.js";
 
 /** A record of one asking, answered at once with what it came to. */
@@ -133,6 +135,12 @@ describe("what each asking sends", () => {
       unrated: "block",
       confirm: true,
     });
+  });
+
+  it("names the person a device is handed to", () => {
+    expect(
+      givenForTend({ doing: "household-handoff", name: "Sam" }),
+    ).toStrictEqual({ name: "Sam" });
   });
 
   it("names the person a new password is for", () => {
@@ -310,5 +318,57 @@ describe("the offer standing on the screen", () => {
       doing: "reissue",
     };
     expect(standingInvitation([reset])).toBeUndefined();
+  });
+});
+
+describe("the hand-off standing under one person", () => {
+  /** A hand-off asked for one person, answered with where it stands. */
+  const handed = (
+    id: string,
+    name: string,
+    came: Extract<Work, { at: "done" }>["came"],
+  ): Work => ({
+    ...answered(id, { name }, came),
+    doing: "household-handoff",
+  });
+
+  it("is the newest one answered for them", () => {
+    const first = handed("1", "Sam", { kind: "handoff", report: readyForSam });
+    const later = handed("2", "Sam", {
+      kind: "handoff",
+      report: connectedSam,
+    });
+    expect(standingHandoff([later, first], "Sam")).toBe(connectedSam);
+  });
+
+  it("passes over somebody else's, and anything else asked", () => {
+    const kit = handed("3", "Kit", { kind: "handoff", report: readyForSam });
+    const sam = handed("4", "Sam", { kind: "handoff", report: readyForSam });
+    const reset: Work = {
+      ...answered(
+        "5",
+        { name: "Sam" },
+        { kind: "invitation", report: reissued },
+      ),
+      doing: "reissue",
+    };
+    expect(standingHandoff([kit, reset, sam], "Sam")).toBe(readyForSam);
+    expect(standingHandoff([kit], "Sam")).toBeUndefined();
+    expect(standingHandoff([], "Sam")).toBeUndefined();
+  });
+
+  it("is nothing while the newest is under way, or came to no hand-off", () => {
+    const sam = handed("6", "Sam", { kind: "handoff", report: readyForSam });
+    const going: Work = {
+      id: "7",
+      doing: "household-handoff",
+      scoped: false,
+      given: { name: "Sam" },
+      at: "under-way",
+      job: "5c63",
+    };
+    const unread = handed("8", "Sam", { kind: "unread" });
+    expect(standingHandoff([going, sam], "Sam")).toBeUndefined();
+    expect(standingHandoff([unread, sam], "Sam")).toBeUndefined();
   });
 });
