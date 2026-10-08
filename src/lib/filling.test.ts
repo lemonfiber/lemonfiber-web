@@ -8,8 +8,27 @@ import {
   standingFill,
 } from "./filling";
 import { contested, chosen, outright, wiring } from "../api/wirings";
-import { filled, fillMade, fillOffer, wouldFill } from "../routes/fillings";
+import { filled, wouldFill } from "../api/substitutions";
+import type { Work } from "./work";
 import { reclaimedRoom } from "../api/spaces";
+
+/** A record of what choosing Jellyseerr for requests would come to. */
+const fillOffer: Work = {
+  id: "97",
+  doing: "wiring-fill",
+  scoped: false,
+  given: { capability: "requests", service: "jellyseerr", dry_run: true },
+  at: "done",
+  job: undefined,
+  came: { kind: "substitution", report: wouldFill },
+};
+
+/** A record of that choice, written. */
+const fillMade: Work = {
+  ...fillOffer,
+  id: "98",
+  came: { kind: "substitution", report: filled },
+};
 
 describe("choosing which service fills a capability", () => {
   it("is the wiring panel's request, and only that", () => {
