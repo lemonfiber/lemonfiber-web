@@ -355,6 +355,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "version",
   "walkthrough",
   "watch",
+  "wiring",
 ];
 
 /**
@@ -401,7 +402,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   reset: "C9",
   step: "D3",
   substitution: "F4",
-  wiring: "D1",
   wizard: "A2",
   word: "G2",
 };

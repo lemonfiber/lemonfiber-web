@@ -19,6 +19,7 @@ import type { Reckoned } from "../lib/letting";
 import type { Shared } from "../lib/shared";
 import type { Tuned } from "../lib/tuned";
 import type { Diagnosis } from "../lib/wire";
+import type { Wiring } from "../lib/wiring";
 
 /** What the disk screen is drawn from, beside the figures the stream carries. */
 export interface StorageRead {
@@ -52,6 +53,8 @@ export interface SettingsRead {
   readonly provenance: Reading<Provenance>;
   /** What the operator is told about. */
   readonly alerts: Reading<Alerts>;
+  /** What the stack wires to what. */
+  readonly wiring: Reading<Wiring>;
 }
 
 /** A screen's readings, and whether any of them was turned away. */
@@ -92,6 +95,7 @@ export async function readSettings(
     asked(reaching, "catalogue", "catalogue"),
     asked(reaching, "provenance", "provenance"),
     asked(reaching, "alerts", "alerts"),
+    asked(reaching, "wiring", "wiring"),
   ]);
   const [
     quality,
@@ -104,6 +108,7 @@ export async function readSettings(
     catalogue,
     provenance,
     alerts,
+    wiring,
   ] = read;
   return {
     read: {
@@ -117,6 +122,7 @@ export async function readSettings(
       catalogue,
       provenance,
       alerts,
+      wiring,
     },
     refused: turnedAway(...read),
   };

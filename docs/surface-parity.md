@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 46 of them.
+The client carries 72 kinds of answer, and this console reads 47 of them.
 Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 24 kinds and 17
+them. 2 kinds and 1 request are offered elsewhere by rule, and 23 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -98,6 +98,7 @@ where it answers with a kind the contract did not have before.
 | `version`      | the settings: the running program, the stack it operates, what the container engine reports and the manifest schemas it reads; the changelog is not drawn yet                                                                                                                              |
 | `walkthrough`  | the requests: what walking one thing through proved, every step it took, and where it stopped or what to do next                                                                                                                                                                           |
 | `watch`        | the overview: why a guard over the data location ended, and the forms it stopped                                                                                                                                                                                                           |
+| `wiring`       | the settings: every link under the service it runs from, what it asks for and how that was settled, a claimant a plugin brought, a link kept to a named service and why, and every ask nothing fills                                                                                       |
 | `error`        | every refusal, read by the client and handed over as a sentence                                                                                                                                                                                                                            |
 
 ## Kinds served by no endpoint
@@ -132,7 +133,6 @@ where it answers with a kind the contract did not have before.
 | `reset`        | C9       | Drift: what a full reset would revert                                                                    |
 | `step`         | D3       | First content: one step of a walkthrough, from the stream                                                |
 | `substitution` | F4       | Capabilities: which service fills one                                                                    |
-| `wiring`       | D1       | Auto-wiring: what is wired to what                                                                       |
 | `wizard`       | A2       | Setup: where setup stands                                                                                |
 | `word`         | G2       | Plain language: what one word means; `Term` asks for it, and no screen draws a `Term`                    |
 
