@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@lemonfiber/brand": "github:lemonfiber/brand#566e04f5a6c514b67034ccd8ef5a3e935fb706e3",
-    "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#c63bedccc55cca3abd238f2168ca63adad428bd2",
+    "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#2eca147a7645a24072d2450b2737b98c6cceb5a1",
     "qrcode-generator": "2.0.4"
   },
   "devDependencies": {
