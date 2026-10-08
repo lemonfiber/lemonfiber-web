@@ -5,6 +5,7 @@ import { inForce, putQualityBack, readCost, tuner } from "./tuned";
 import { made, pairer } from "./paired";
 import { alerts } from "../api/alerting";
 import { wiring } from "../api/wirings";
+import { plugins } from "../api/installs";
 import { catalogue, provenance } from "../api/catalogues";
 import { behind, versions } from "../api/copies";
 import { inventory } from "../api/credentials";
@@ -159,4 +160,13 @@ export const WhatYouAreToldAbout: Story = {
  */
 export const WhatIsWiredToWhat: Story = {
   args: { wiring: { ok: true, value: wiring } },
+};
+
+/**
+ * The plugins: one named, signed and from a source that still answers,
+ * filling a capability in place of the stack's own; one its record says
+ * little about.
+ */
+export const ThePlugins: Story = {
+  args: { plugins: { ok: true, value: plugins } },
 };

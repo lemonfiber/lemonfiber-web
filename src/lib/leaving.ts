@@ -13,6 +13,7 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** Everything that leaves this machine. */
@@ -29,7 +30,7 @@ export function oursLines(one: Ours): readonly string[] {
   return [
     one.destination.length === 0
       ? m.outbound_ours_nowhere()
-      : m.outbound_ours_goes({ destination: one.destination.join(", ") }),
+      : m.outbound_ours_goes({ destination: listed(one.destination) }),
     m.outbound_sends({ sends: one.sends }),
     one.allowed
       ? m.outbound_allowed({ setting: one.switch })

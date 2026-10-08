@@ -13,6 +13,7 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** Every credential, and what storing them protects against. */
@@ -82,7 +83,7 @@ export function heldLines(one: Held): readonly string[] {
     m.credential_setting({ setting: one.setting }),
     one.consumers.length === 0
       ? m.credential_unused()
-      : m.credential_consumers({ consumers: one.consumers.join(", ") }),
+      : m.credential_consumers({ consumers: listed(one.consumers) }),
   ];
   const { fingerprint, advisory } = one;
   if (fingerprint !== undefined && fingerprint !== null) {

@@ -14,6 +14,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { bytes } from "./figures";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** Everything lemonfiber keeps on this machine, or what forgetting it did. */
@@ -78,12 +79,12 @@ function removalLines(removal: Uninstalled["removal"]): readonly string[] {
       return [m.remove_confirmed()];
     case "complete":
       return [
-        m.remove_gone({ names: removal.gone.join(", ") }),
+        m.remove_gone({ names: listed(removal.gone) }),
         ...removal.credentials.map((one) => m.remove_credential({ what: one })),
       ];
     case "partial":
       return [
-        m.remove_gone({ names: removal.gone.join(", ") }),
+        m.remove_gone({ names: listed(removal.gone) }),
         ...removal.credentials.map((one) => m.remove_credential({ what: one })),
         ...removal.left.map((one) =>
           m.remove_left({ name: one.name, why: one.why, by_hand: one.by_hand }),
@@ -147,7 +148,7 @@ function forgottenLines(removal: Stored["removal"]): readonly string[] {
       return [m.forget_unconfirmed()];
     case "done":
       return [
-        m.forget_gone({ at: removal.gone.join(", ") }),
+        m.forget_gone({ at: listed(removal.gone) }),
         ...removal.left.map((one) =>
           m.forget_left({ at: one.at, why: one.why }),
         ),

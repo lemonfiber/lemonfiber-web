@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 47 of them.
+The client carries 72 kinds of answer, and this console reads 48 of them.
 Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 23 kinds and 17
+them. 2 kinds and 1 request are offered elsewhere by rule, and 22 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -77,6 +77,7 @@ where it answers with a kind the contract did not have before.
 | `pairing`      | the settings: the line a phone's code carries, the short form of the certificate's fingerprint to check on the phone, and what would make a paired phone refuse this machine                                                                                                               |
 | `pausing`      | the settings: what pausing or resuming every download came to, each download client with what it was doing and what it read back                                                                                                                                                           |
 | `playing`      | the overview: every session the media server is playing now, who is watching what on which device and whether it is paused, or that the media server could not be asked                                                                                                                    |
+| `plugins`      | the settings: every plugin under its name, what it does, its version, where it came from and what signed it, what it runs and fills, whether its source answers, and what one fills in place of the stack's own                                                                            |
 | `preview`      | what starting the forms chosen would come to                                                                                                                                                                                                                                               |
 | `provenance`   | the settings: where each service comes from, beside what it is for: the image, the tag and digest it is pinned at, its licence and the project it is built from                                                                                                                            |
 | `quality`      | the settings: the quality new media is fetched at, and what putting the recorded preset back came to                                                                                                                                                                                       |
@@ -127,7 +128,6 @@ where it answers with a kind the contract did not have before.
 | `music`        | D2       | Quality presets: the music format                                                                        |
 | `news`         | N27      | What's new: the newest of each kind, from the stream                                                     |
 | `news-items`   | N27      | What's new: everything newer than what was last seen, asked for                                          |
-| `plugins`      | F6       | Plugin lifecycle: every plugin installed, and what installing, updating or removing one came to          |
 | `removal`      | D6       | Household identity: somebody taken out of the household                                                  |
 | `replacement`  | A5       | Migration: standing in place of a setup already here                                                     |
 | `reset`        | C9       | Drift: what a full reset would revert                                                                    |

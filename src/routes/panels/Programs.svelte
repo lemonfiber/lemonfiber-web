@@ -15,6 +15,7 @@
     type Forms,
     type Stack,
   } from "../../lib/wire";
+  import { listed } from "../../lib/listed";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -49,12 +50,12 @@
   const problem = $derived(
     programs?.ok === false ? programs.problem.message : undefined,
   );
-  const listed = $derived(services !== undefined && services.length > 0);
+  const anyServed = $derived(services !== undefined && services.length > 0);
   const cannot = $derived(reading?.unsupported ?? []);
 
   /** The names of the forms named here, as one run of words. */
   function named(ids: readonly string[]): string {
-    return namesOf(ids, declared).join(", ");
+    return listed(namesOf(ids, declared));
   }
 </script>
 
@@ -99,9 +100,9 @@
   <StateTag state="part" />
 {/snippet}
 
-<Panel title={m.panel_programs()} {freshness} flush={listed}>
+<Panel title={m.panel_programs()} {freshness} flush={anyServed}>
   {#if running !== undefined}
-    <div class="running" class:inset={!listed}>
+    <div class="running" class:inset={!anyServed}>
       <p class="eyebrow">{m.programs_forms_running()}</p>
       {#if running.length > 0}
         <ul class="forms">
@@ -115,7 +116,7 @@
     </div>
   {/if}
 
-  {#if services !== undefined && listed}
+  {#if services !== undefined && anyServed}
     <DataTable
       label={m.panel_programs()}
       {columns}

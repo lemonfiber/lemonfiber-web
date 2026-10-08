@@ -13,6 +13,7 @@
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import type { Access, Allowance, Request } from "./wire";
 import { getLocale } from "../paraglide/runtime.js";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** What one member can watch, as the shelf read answers it for them. */
@@ -122,12 +123,10 @@ export function watchOf(access: Access): readonly string[] {
 
   if (rated !== undefined) {
     if (rated.allows.length > 0)
-      said.push(
-        m.member_watch_allows({ certificates: rated.allows.join(", ") }),
-      );
+      said.push(m.member_watch_allows({ certificates: listed(rated.allows) }));
     if (rated.holds_back.length > 0)
       said.push(
-        m.member_watch_holds({ certificates: rated.holds_back.join(", ") }),
+        m.member_watch_holds({ certificates: listed(rated.holds_back) }),
       );
   } else if (age !== undefined) {
     said.push(m.member_watch_age({ age }));
@@ -135,7 +134,7 @@ export function watchOf(access: Access): readonly string[] {
 
   if (access.restriction !== "unrestricted") said.push(unratedOf(access));
   if (!access.every_library && access.libraries.length > 0)
-    said.push(m.member_watch_in({ libraries: access.libraries.join(", ") }));
+    said.push(m.member_watch_in({ libraries: listed(access.libraries) }));
 
   return said;
 }

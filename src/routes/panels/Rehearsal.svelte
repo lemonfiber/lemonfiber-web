@@ -12,6 +12,7 @@
     type Preview,
     type Stack,
   } from "../../lib/wire";
+  import { listed } from "../../lib/listed";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -43,7 +44,7 @@
 
   /** The names of the forms named here, as one run of words. */
   function named(ids: readonly string[]): string {
-    return namesOf(ids, declared).join(", ");
+    return listed(namesOf(ids, declared));
   }
 
   /** What the estimate says, where the stack declared any of it. */

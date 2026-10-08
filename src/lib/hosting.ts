@@ -19,6 +19,7 @@ import type { Asker, Family } from "./asker";
 import type { Came } from "./came";
 import type { Hosted } from "./removed";
 import type { Hosting, Question, Requested } from "./work";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** Every request the hosting panel makes. */
@@ -107,7 +108,7 @@ export function questionOfHost(host: Host): Question {
       ? m.confirm_host_prose_forms({
           guarantees,
           command,
-          forms: host.forms.join(", "),
+          forms: listed(host.forms),
         })
       : m.confirm_host_prose({ guarantees, command }),
     yes: m.action_host_yes(),

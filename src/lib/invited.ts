@@ -16,6 +16,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { saidOfPolicy, wordOfUnrated } from "./household";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** An account offered to somebody, or what offering one would make. */
@@ -29,11 +30,6 @@ type Standing = Invited["standing"];
 
 /** Whether the request service knows about somebody. */
 type Linked = Invited["linked"];
-
-/** Names, as a reader is given a list of them. */
-function listed(names: readonly string[]): string {
-  return names.join(", ");
-}
 
 /** What was found where an offer was going, in one line. */
 function standingWords(name: string, standing: Standing): string {

@@ -8,6 +8,7 @@
   import Line from "./panels/Line.svelte";
   import Outbound from "./panels/Outbound.svelte";
   import Pairing from "./panels/Pairing.svelte";
+  import Plugins from "./panels/Plugins.svelte";
   import Quality from "./panels/Quality.svelte";
   import Updates from "./panels/Updates.svelte";
   import Wiring from "./panels/Wiring.svelte";
@@ -27,6 +28,7 @@
   import type { Tuner } from "../lib/tuning";
   import type { Updater } from "../lib/updating";
   import type { Wiring as Wired } from "../lib/wiring";
+  import type { Plugins as Installs } from "../lib/plugins";
 
   interface Props {
     /** The quality choice in force, or why it could not be read. */
@@ -51,6 +53,8 @@
     alerts?: Reading<Told> | undefined;
     /** What the stack wires to what, or why it could not be read. */
     wiring?: Reading<Wired> | undefined;
+    /** The plugins on this machine, or why they could not be read. */
+    plugins?: Reading<Installs> | undefined;
     /** When this screen's sources last answered. */
     freshness: Freshness;
     /**
@@ -80,6 +84,7 @@
     provenance,
     alerts,
     wiring,
+    plugins,
     freshness,
     tuner,
     configurer,
@@ -95,7 +100,8 @@
   is shared, everything that leaves this machine, what the operator is told
   about, every credential the stack holds, the versions the stack stands on,
   what the stack holds and where each service comes from, what it wires to
-  what, this copy of lemonfiber, and pairing the companion app.
+  what, the plugins on this machine, this copy of lemonfiber, and pairing the
+  companion app.
 
   The readings are asked for together on the way in, and stamped together.
   The line is drawn where it was read or can be declared.
@@ -118,6 +124,7 @@
 
   <Catalogue {catalogue} {provenance} {freshness} />
   <Wiring {wiring} {freshness} />
+  <Plugins {plugins} {freshness} />
   <Copy {versions} {standing} {freshness} />
   {#if pairer !== undefined}
     <Pairing {pairer} {freshness} />

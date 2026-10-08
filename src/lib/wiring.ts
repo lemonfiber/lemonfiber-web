@@ -13,6 +13,7 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** What the stack wires to what, and what nothing fills. */
@@ -26,11 +27,6 @@ export type Unfilled = Wiring["unfilled"][number];
 
 /** An ask for a capability, and how it was settled. */
 type Asked = Extract<Link["reaches"], { how: "asked" }>;
-
-/** Names, as a reader is given a list of them. */
-function listed(names: readonly string[]): string {
-  return names.join(", ");
-}
 
 /** How an ask was settled, in a sentence. */
 function settledLine(asked: Asked): string {
