@@ -254,6 +254,7 @@
   "doing_pause_title": "Pausing every download",
   "doing_resume_title": "Resuming every download",
   "doing_reclaim_title": "Taking back what costs nothing",
+  "doing_fill_title": "Choosing what fills a capability",
   "doing_update_title": "Moving onto this build's versions",
   "came_update_current": "Every service stands on the version this build pins.",
   "came_update_available": "Newer versions are pinned than what is running, and nothing has moved yet.",
@@ -325,6 +326,8 @@
   "doing_let_go_title": "Letting one download go",
   "action_let_go_cost": "Let {name} go?",
   "action_let_go_yes": "Let it go",
+  "action_fill_preview": "Preview {capability} choice",
+  "action_fill_yes": "Make the choice",
   "action_reclaim_yes": "Take back {size}",
   "action_stuck_follow": "Follow {title}"
 }

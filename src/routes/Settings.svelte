@@ -27,6 +27,7 @@
   import type { Sharer } from "../lib/sharing";
   import type { Tuned } from "../lib/tuned";
   import type { Tuner } from "../lib/tuning";
+  import type { Filler } from "../lib/filling";
   import type { Updater } from "../lib/updating";
   import type { Wiring as Wired } from "../lib/wiring";
   import type { Plugins as Installs } from "../lib/plugins";
@@ -70,6 +71,11 @@
     configurer?: Configurer | undefined;
     /** What declaring the line asks for. Left out where nothing answers it. */
     sharer?: Sharer | undefined;
+    /**
+     * What choosing which service fills a capability asks for. Left out where
+     * nothing answers it.
+     */
+    filler?: Filler | undefined;
     /** What updating the stack asks for. Left out where nothing answers it. */
     updater?: Updater | undefined;
     /** What pairing a phone asks for. Left out where nothing answers it. */
@@ -92,6 +98,7 @@
     glossary,
     freshness,
     tuner,
+    filler,
     configurer,
     sharer,
     updater,
@@ -128,7 +135,7 @@
   {/if}
 
   <Catalogue {catalogue} {provenance} {freshness} />
-  <Wiring {wiring} {freshness} />
+  <Wiring {wiring} {freshness} {filler} />
   <Plugins {plugins} {freshness} />
   <Copy {versions} {standing} {freshness} />
   {#if pairer !== undefined}

@@ -20,7 +20,8 @@
  * `./updated`, where one item is, a walk through and a guard in
  * `./traced`, what this machine keeps running, what lemonfiber keeps and
  * taking it off the machine in `./removed`, letting a download go in
- * `./letting`, and taking back the room that costs nothing in `./reclaimed`.
+ * `./letting`, taking back the room that costs nothing in `./reclaimed`, and
+ * choosing which service fills a capability in `./substituted`.
  * Anything else arrives as an outcome nobody here reads, which is said rather
  * than drawn as nothing.
  *
@@ -60,6 +61,7 @@ import {
 } from "./removed";
 import { lettingLines, type Let, type Reckoned } from "./letting";
 import { reclaimedLines } from "./reclaimed";
+import { substitutedLines, type Substituted } from "./substituted";
 import {
   householdLines,
   invitationLines,
@@ -127,6 +129,7 @@ export type Came =
   | { readonly kind: "uninstall"; readonly report: Uninstalled }
   | { readonly kind: "stop-seeding"; readonly report: Let }
   | { readonly kind: "space"; readonly report: Reckoned }
+  | { readonly kind: "substitution"; readonly report: Substituted }
   | { readonly kind: "unread" };
 
 /** A service still doing what the action asked of it. */
@@ -497,6 +500,8 @@ export function linesOf(came: Came): readonly string[] {
       return lettingLines(came.report);
     case "space":
       return reclaimedLines(came.report);
+    case "substitution":
+      return substitutedLines(came.report);
     case "unread":
       return [m.came_unread()];
   }

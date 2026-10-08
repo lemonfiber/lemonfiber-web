@@ -85,6 +85,9 @@ function ofWhatIsKept(envelope: Envelope): Came | undefined {
   if (isKind(envelope, "space")) {
     return { kind: "space", report: envelope.data };
   }
+  if (isKind(envelope, "substitution")) {
+    return { kind: "substitution", report: envelope.data };
+  }
   return undefined;
 }
 

@@ -114,6 +114,12 @@ export interface Arguments {
   readonly tier?: string;
   /** The completed download to let go, by the name the client gives it. */
   readonly download?: string;
+  /** The capability whose filler is being chosen. */
+  readonly capability?: string;
+  /** The service chosen to fill it. */
+  readonly service?: string;
+  /** Whether to say what would happen and write nothing. */
+  readonly dry_run?: boolean;
 }
 
 /**

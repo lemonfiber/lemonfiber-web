@@ -2,7 +2,9 @@
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
+  import Choosing from "./Choosing.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
+  import { choosable, type Filler } from "../../lib/filling";
   import type { Freshness } from "../../lib/freshness";
   import { linkLines, unfilledLine, type Wiring } from "../../lib/wiring";
   import * as m from "../../paraglide/messages.js";
@@ -12,9 +14,14 @@
     wiring: Reading<Wiring> | undefined;
     /** When this panel's source last answered. */
     freshness: Freshness;
+    /**
+     * What choosing a filler asks for. Left out where nothing answers it,
+     * which offers no choice.
+     */
+    filler?: Filler | undefined;
   }
 
-  let { wiring, freshness }: Props = $props();
+  let { wiring, freshness, filler }: Props = $props();
 
   const unfilledId = $props.id();
 
@@ -27,8 +34,8 @@
 <!--
   What each service in the stack is wired to: each link under the service it
   runs from, with what it asks for and how that was settled, and every ask
-  nothing fills under them. Choosing between services that all claim one is not
-  offered here yet.
+  nothing fills under them; then, where several services claim one, choosing
+  which fills it.
 -->
 <Panel title={m.panel_wiring()} {freshness} flush>
   <div class="scope">
@@ -66,6 +73,10 @@
         {/each}
       </ul>
     </section>
+  {/if}
+
+  {#if filler !== undefined && wired !== undefined && (choosable(wired).length > 0 || filler.work.length > 0)}
+    <Choosing wiring={wired} {filler} />
   {/if}
 </Panel>
 
