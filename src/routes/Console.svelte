@@ -494,6 +494,7 @@
       catalogue={setup?.catalogue}
       provenance={setup?.provenance}
       alerts={setup?.alerts}
+      wiring={setup?.wiring}
       freshness={stamped}
       tuner={tuneAsks.asker}
       configurer={changeAsks.asker}

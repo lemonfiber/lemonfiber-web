@@ -4,6 +4,7 @@ import { configurer, everySetting, stagedChange } from "./configured";
 import { inForce, putQualityBack, readCost, tuner } from "./tuned";
 import { made, pairer } from "./paired";
 import { alerts } from "../api/alerting";
+import { wiring } from "../api/wirings";
 import { catalogue, provenance } from "../api/catalogues";
 import { behind, versions } from "../api/copies";
 import { inventory } from "../api/credentials";
@@ -149,4 +150,13 @@ export const WhatTheStackHolds: Story = {
  */
 export const WhatYouAreToldAbout: Story = {
   args: { alerts: { ok: true, value: alerts } },
+};
+
+/**
+ * What is wired to what: one ask filled outright, one reaching every
+ * claimant, a contest nobody has settled, a choice made with a reason, a link
+ * kept to a named service, and an ask nothing fills.
+ */
+export const WhatIsWiredToWhat: Story = {
+  args: { wiring: { ok: true, value: wiring } },
 };

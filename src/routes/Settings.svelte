@@ -10,6 +10,7 @@
   import Pairing from "./panels/Pairing.svelte";
   import Quality from "./panels/Quality.svelte";
   import Updates from "./panels/Updates.svelte";
+  import Wiring from "./panels/Wiring.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Configured } from "../lib/configured";
   import type { Configurer } from "../lib/configuring";
@@ -25,6 +26,7 @@
   import type { Tuned } from "../lib/tuned";
   import type { Tuner } from "../lib/tuning";
   import type { Updater } from "../lib/updating";
+  import type { Wiring as Wired } from "../lib/wiring";
 
   interface Props {
     /** The quality choice in force, or why it could not be read. */
@@ -47,6 +49,8 @@
     provenance?: Reading<Provenance> | undefined;
     /** What the operator is told about, or why it could not be read. */
     alerts?: Reading<Told> | undefined;
+    /** What the stack wires to what, or why it could not be read. */
+    wiring?: Reading<Wired> | undefined;
     /** When this screen's sources last answered. */
     freshness: Freshness;
     /**
@@ -75,6 +79,7 @@
     catalogue,
     provenance,
     alerts,
+    wiring,
     freshness,
     tuner,
     configurer,
@@ -89,8 +94,8 @@
   quality new media is fetched at, every setting lemonfiber keeps, how the line
   is shared, everything that leaves this machine, what the operator is told
   about, every credential the stack holds, the versions the stack stands on,
-  what the stack holds and where each service comes from, this copy of
-  lemonfiber, and pairing the companion app.
+  what the stack holds and where each service comes from, what it wires to
+  what, this copy of lemonfiber, and pairing the companion app.
 
   The readings are asked for together on the way in, and stamped together.
   The line is drawn where it was read or can be declared.
@@ -112,6 +117,7 @@
   {/if}
 
   <Catalogue {catalogue} {provenance} {freshness} />
+  <Wiring {wiring} {freshness} />
   <Copy {versions} {standing} {freshness} />
   {#if pairer !== undefined}
     <Pairing {pairer} {freshness} />
