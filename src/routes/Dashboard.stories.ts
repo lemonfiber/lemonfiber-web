@@ -18,6 +18,7 @@ import {
   wouldNot,
 } from "./fixture";
 import { doorNumbered, frontDoor, house, unaskedHouse } from "./house";
+import { playing } from "../api/playings";
 import { everyFlow } from "../lib/flow";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
@@ -529,4 +530,12 @@ export const NobodysRequestsWereRead: Story = {
       household: { panel: "ready", data: unaskedHouse },
     },
   },
+};
+
+/**
+ * What the media server is playing now: a film in the living room, and an
+ * episode paused on a phone.
+ */
+export const WhatIsPlaying: Story = {
+  args: { playing: { ok: true, value: playing } },
 };

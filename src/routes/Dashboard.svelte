@@ -7,6 +7,7 @@
   import Forms from "./panels/Forms.svelte";
   import Hosting from "./panels/Hosting.svelte";
   import Household from "./panels/Household.svelte";
+  import Playing from "./panels/Playing.svelte";
   import Programs from "./panels/Programs.svelte";
   import Rehearsal from "./panels/Rehearsal.svelte";
   import Running from "./panels/Running.svelte";
@@ -26,6 +27,7 @@
   } from "../lib/flow";
   import type { Freshness } from "../lib/freshness";
   import type { Hoster } from "../lib/hosting";
+  import type { Playing as Watched } from "../lib/playing";
   import type { Hosted } from "../lib/removed";
   import type { Moment, Stack } from "../lib/wire";
   import type { Controls } from "../lib/work";
@@ -57,6 +59,11 @@
         }
       | undefined;
     /**
+     * What the media server is playing now, or why it could not be read. Left
+     * out until it answers.
+     */
+    playing?: Reading<Watched> | undefined;
+    /**
      * What asking for the live connection again does. Omitted while something
      * is still opening it, which is a connection with nothing to press.
      */
@@ -72,6 +79,7 @@
     live,
     controls,
     hosting,
+    playing,
     onretry,
   }: Props = $props();
 
@@ -178,6 +186,10 @@
   />
 
   <Running {...controls} freshness={live} />
+
+  {#if playing !== undefined}
+    <Playing {playing} freshness={read} />
+  {/if}
 
   {#if hosting !== undefined}
     <Hosting

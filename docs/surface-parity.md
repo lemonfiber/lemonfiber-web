@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 44 of them.
+The client carries 72 kinds of answer, and this console reads 45 of them.
 Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 26 kinds and 17
+them. 2 kinds and 1 request are offered elsewhere by rule, and 25 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -75,6 +75,7 @@ where it answers with a kind the contract did not have before.
 | `outbound`     | the settings: every request lemonfiber makes on its own account, where it goes, what travels, whether it is allowed, the setting that switches it off and what that costs; and every request the stack's services make, with whose it is                                                   |
 | `pairing`      | the settings: the line a phone's code carries, the short form of the certificate's fingerprint to check on the phone, and what would make a paired phone refuse this machine                                                                                                               |
 | `pausing`      | the settings: what pausing or resuming every download came to, each download client with what it was doing and what it read back                                                                                                                                                           |
+| `playing`      | the overview: every session the media server is playing now, who is watching what on which device and whether it is paused, or that the media server could not be asked                                                                                                                    |
 | `preview`      | what starting the forms chosen would come to                                                                                                                                                                                                                                               |
 | `provenance`   | the settings: where each service comes from, beside what it is for: the image, the tag and digest it is pinned at, its licence and the project it is built from                                                                                                                            |
 | `quality`      | the settings: the quality new media is fetched at, and what putting the recorded preset back came to                                                                                                                                                                                       |
@@ -107,34 +108,33 @@ where it answers with a kind the contract did not have before.
 
 ## Kinds not read yet
 
-| Kind           | Feature   | What it is                                                                                               |
-| -------------- | --------- | -------------------------------------------------------------------------------------------------------- |
-| `adoption`     | A5        | Migration: what taking over a setup already here came to                                                 |
-| `beside`       | A5        | Migration: standing beside a setup already here                                                          |
-| `capabilities` | ARCH-R78  | What this copy of lemonfiber can do, each named by the path it is served at                              |
-| `certificate`  | N1        | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |
-| `clients`      | G6        | Client apps: which app to watch on                                                                       |
-| `front-door`   | G5        | The front door, asked for on its own                                                                     |
-| `glossary`     | G2        | Plain language: every word there is to ask about                                                         |
-| `handoff`      | G9        | Mobile handoff: where getting one person's phone onto the media server stands                            |
-| `held`         | D8        | Parental controls: what one member can watch                                                             |
-| `import`       | A5        | Migration: copying an operator's records across                                                          |
-| `keys`         | C10       | Integration keys: every key, with no secret                                                              |
-| `migration`    | A5        | Migration: what is already on this machine                                                               |
-| `minted-key`   | C10       | Integration keys: one key just minted, its secret shown this once                                        |
-| `music`        | D2        | Quality presets: the music format                                                                        |
-| `news`         | N27       | What's new: the newest of each kind, from the stream                                                     |
-| `news-items`   | N27       | What's new: everything newer than what was last seen, asked for                                          |
-| `playing`      | ARCH-R156 | What the media server is playing now, for the house or one member                                        |
-| `plugins`      | F6        | Plugin lifecycle: every plugin installed, and what installing, updating or removing one came to          |
-| `removal`      | D6        | Household identity: somebody taken out of the household                                                  |
-| `replacement`  | A5        | Migration: standing in place of a setup already here                                                     |
-| `reset`        | C9        | Drift: what a full reset would revert                                                                    |
-| `step`         | D3        | First content: one step of a walkthrough, from the stream                                                |
-| `substitution` | F4        | Capabilities: which service fills one                                                                    |
-| `wiring`       | D1        | Auto-wiring: what is wired to what                                                                       |
-| `wizard`       | A2        | Setup: where setup stands                                                                                |
-| `word`         | G2        | Plain language: what one word means; `Term` asks for it, and no screen draws a `Term`                    |
+| Kind           | Feature  | What it is                                                                                               |
+| -------------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| `adoption`     | A5       | Migration: what taking over a setup already here came to                                                 |
+| `beside`       | A5       | Migration: standing beside a setup already here                                                          |
+| `capabilities` | ARCH-R78 | What this copy of lemonfiber can do, each named by the path it is served at                              |
+| `certificate`  | N1       | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |
+| `clients`      | G6       | Client apps: which app to watch on                                                                       |
+| `front-door`   | G5       | The front door, asked for on its own                                                                     |
+| `glossary`     | G2       | Plain language: every word there is to ask about                                                         |
+| `handoff`      | G9       | Mobile handoff: where getting one person's phone onto the media server stands                            |
+| `held`         | D8       | Parental controls: what one member can watch                                                             |
+| `import`       | A5       | Migration: copying an operator's records across                                                          |
+| `keys`         | C10      | Integration keys: every key, with no secret                                                              |
+| `migration`    | A5       | Migration: what is already on this machine                                                               |
+| `minted-key`   | C10      | Integration keys: one key just minted, its secret shown this once                                        |
+| `music`        | D2       | Quality presets: the music format                                                                        |
+| `news`         | N27      | What's new: the newest of each kind, from the stream                                                     |
+| `news-items`   | N27      | What's new: everything newer than what was last seen, asked for                                          |
+| `plugins`      | F6       | Plugin lifecycle: every plugin installed, and what installing, updating or removing one came to          |
+| `removal`      | D6       | Household identity: somebody taken out of the household                                                  |
+| `replacement`  | A5       | Migration: standing in place of a setup already here                                                     |
+| `reset`        | C9       | Drift: what a full reset would revert                                                                    |
+| `step`         | D3       | First content: one step of a walkthrough, from the stream                                                |
+| `substitution` | F4       | Capabilities: which service fills one                                                                    |
+| `wiring`       | D1       | Auto-wiring: what is wired to what                                                                       |
+| `wizard`       | A2       | Setup: where setup stands                                                                                |
+| `word`         | G2       | Plain language: what one word means; `Term` asks for it, and no screen draws a `Term`                    |
 
 One of these waits on lemonfiber rather than on this surface: no endpoint
 answers with `certificate`, so nothing here could read it.
