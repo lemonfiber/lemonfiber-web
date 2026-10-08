@@ -3,9 +3,10 @@
  *
  * A screen is drawn from what it is handed, so a story and a test both hand it
  * this. The reports inside each record are the ones a suite stands in for a
- * running lemonfiber, in `../api/invitations` and `./house`.
+ * running lemonfiber, in `../api/invitations`, `../api/handoffs` and `./house`.
  */
 import { offered, wouldOffer } from "../api/invitations";
+import { connectedSam, readyForSam } from "../api/handoffs";
 import { household } from "./house";
 import type { Tender } from "../lib/tending";
 import type { Work } from "../lib/work";
@@ -40,6 +41,35 @@ export const letThrough: Work = {
   at: "done",
   job: undefined,
   came: { kind: "household", report: household },
+};
+
+/** A record of a code issued for Kit's device, with the steps to sign in. */
+export const handedKit: Work = {
+  id: "54",
+  doing: "household-handoff",
+  scoped: false,
+  given: { name: "Kit" },
+  at: "done",
+  job: undefined,
+  came: {
+    kind: "handoff",
+    report: {
+      ...readyForSam,
+      name: "Kit",
+      steps: [
+        "Install the app on the device.",
+        "Scan the code, or type the address.",
+        "Sign in as Kit.",
+      ],
+    },
+  },
+};
+
+/** A record of Kit's devices signed in, with nothing left to do. */
+export const signedInKit: Work = {
+  ...handedKit,
+  id: "55",
+  came: { kind: "handoff", report: { ...connectedSam, name: "Kit" } },
 };
 
 /** What pressing anything asks for, where nothing answers it. */

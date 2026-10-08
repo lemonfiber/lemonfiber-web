@@ -1,7 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Requests from "./Requests.svelte";
 import { household, unasked, unread } from "./house";
-import { letThrough, madeOffer, readOffer, tender } from "./tended";
+import {
+  handedKit,
+  letThrough,
+  madeOffer,
+  readOffer,
+  signedInKit,
+  tender,
+} from "./tended";
 import { finder, searchedRecord, traced, tracer, walkedRecord } from "./finds";
 import { guidance } from "../api/apps";
 import { stalled } from "../api/stalls";
@@ -125,6 +132,19 @@ export const WhatRunningItCameTo: Story = {
  */
 export const BeforeANewPassword: Story = {
   args: { tender: { ...tender, asked: { doing: "reissue", name: "Kit" } } },
+};
+
+/**
+ * A code issued for Kit's device: one for each app, with the steps to sign in
+ * and a control to ask again how far the sign-in has got.
+ */
+export const ADeviceHandedOver: Story = {
+  args: { tender: { ...tender, work: [handedKit] } },
+};
+
+/** Kit's devices signed in, with nothing left to do. */
+export const ADeviceSignedIn: Story = {
+  args: { tender: { ...tender, work: [signedInKit] } },
 };
 
 /**

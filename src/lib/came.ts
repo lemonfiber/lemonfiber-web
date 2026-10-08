@@ -64,6 +64,7 @@ import { lettingLines, type Let, type Reckoned } from "./letting";
 import { reclaimedLines } from "./reclaimed";
 import { substitutedLines, type Substituted } from "./substituted";
 import { movedLines, type Moved } from "./moved";
+import { handoffLines, type Handoff } from "./handoff";
 import {
   householdLines,
   invitationLines,
@@ -118,6 +119,7 @@ export type Came =
   | { readonly kind: "upgrade"; readonly report: Upgraded }
   | { readonly kind: "config"; readonly report: Configured }
   | { readonly kind: "invitation"; readonly report: Invited }
+  | { readonly kind: "handoff"; readonly report: Handoff }
   | { readonly kind: "household"; readonly report: Housed }
   | { readonly kind: "pairing"; readonly report: Paired }
   | { readonly kind: "bandwidth"; readonly report: Shared }
@@ -477,6 +479,8 @@ export function linesOf(came: Came): readonly string[] {
       return configLines(came.report);
     case "invitation":
       return invitationLines(came.report);
+    case "handoff":
+      return handoffLines(came.report);
     case "household":
       return householdLines(came.report);
     case "pairing":
