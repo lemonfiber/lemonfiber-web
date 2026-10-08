@@ -33,6 +33,7 @@ requirement = [
   { id = "G7-R7", state = "partial", evidence = ["src/routes/DashboardStanding.test.ts::expands to each thing wrong and what to do about it"] },
   { id = "G10-R1", state = "done", evidence = ["src/App.svelte", "src/App.test.ts::opens a member's own surface whatever address they signed in at", "src/App.test.ts::opens the console where lemonfiber said the operator signed in"] },
   { id = "G10-R2", state = "done", evidence = ["src/App.svelte", "src/routes/Shell.test.ts::leads a household member to their own rooms and to nothing of the console's"] },
+  { id = "G10-R3", state = "done", evidence = ["src/routes/Member.svelte", "src/routes/Member.test.ts::asks lemonfiber the read the address is drawn from, and shows its refusal in its words", "src/routes/Member.test.ts::shows an address that is not theirs in lemonfiber's words, and stays"] },
   { id = "G10-R5", state = "done", evidence = ["src/routes/Asked.svelte", "src/routes/Asked.test.ts::says whether asking needs approval and what is left, first"] },
   { id = "G10-R6", state = "done", evidence = ["src/routes/Shelf.svelte", "src/routes/Shelf.test.ts::draws every title the media server showed them, and nothing more"] },
   { id = "G10-R9", state = "done", evidence = ["src/routes/Member.svelte", "src/routes/Asked.test.ts::shows none of what the operator is told about the household", "src/routes/Member.test.ts::leads nowhere the console does, and offers nothing to start or stop"] },
