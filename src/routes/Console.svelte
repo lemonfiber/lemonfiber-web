@@ -480,6 +480,8 @@
       credentials={setup?.credentials}
       versions={setup?.versions}
       standing={setup?.standing}
+      catalogue={setup?.catalogue}
+      provenance={setup?.provenance}
       freshness={stamped}
       tuner={tuneAsks.asker}
       configurer={changeAsks.asker}
