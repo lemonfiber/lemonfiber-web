@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 51 of them.
-Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 19 kinds and 17
+The client carries 72 kinds of answer, and this console reads 52 of them.
+Another surface can make 54 requests of the stack, and this console offers 37 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 18 kinds and 16
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -94,6 +94,7 @@ where it answers with a kind the contract did not have before.
 | `stop-seeding` | the disk: what letting one download go would cost and what goes with it, and what the client let go                                                                                                                                                                                        |
 | `stored`       | the disk: everything lemonfiber keeps, where and why, what is beside it, and what forgetting it removed or left                                                                                                                                                                            |
 | `stuck`        | the requests: every item whose download is stuck, the service holding it and the stage it stopped at, each followed to where it is on a press, under what may be missing from the list                                                                                                     |
+| `substitution` | the settings: what choosing a service to fill a capability would come to, what fills it now, what asks for it, the setting it writes, the reason given and anything it would leave unfilled, then what it came to                                                                          |
 | `trace`        | the requests: how far one item got, why it stopped, how sure the trace is, and what happened to it                                                                                                                                                                                         |
 | `undo`         | the checks: what putting back the last repair came to                                                                                                                                                                                                                                      |
 | `uninstall`    | the disk: every line a removal reaches, going or kept, with its size, what is coming down, what lemonfiber cannot remove and how to by hand, and what went                                                                                                                                 |
@@ -132,7 +133,6 @@ where it answers with a kind the contract did not have before.
 | `replacement`  | A5       | Migration: standing in place of a setup already here                                                     |
 | `reset`        | C9       | Drift: what a full reset would revert                                                                    |
 | `step`         | D3       | First content: one step of a walkthrough, from the stream                                                |
-| `substitution` | F4       | Capabilities: which service fills one                                                                    |
 | `wizard`       | A2       | Setup: where setup stands                                                                                |
 | `word`         | G2       | Plain language: what one word means; `Term` asks for it, and no screen draws a `Term`                    |
 
@@ -179,6 +179,7 @@ answers with `certificate`, so nothing here could read it.
 | `uninstall`         | the disk: one of four removals listed first, then carried out on a yes naming that listing, letting downloads finish first where asked |
 | `stop-seeding`      | the disk: one download still being shared, its cost read first, then let go on a yes naming that offer                                 |
 | `space`             | the disk: what costs nothing to get back, taken on a yes naming the accounting it was read in                                          |
+| `wiring-fill`       | the settings: which service fills a capability several claim, rehearsed first, then written on a yes naming that offer                 |
 
 Eight of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
@@ -218,7 +219,6 @@ carries while it runs (`step`) are not drawn yet.
 | `household-handoff`     | G9      | Mobile handoff: issue one person a code pointing an app at the media server, and check a device signed in      |
 | `setup`                 | A2      | Setup wizard, walked in a browser                                                                              |
 | `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only       |
-| `wiring-fill`           | F4      | Capabilities: choose which service fills one, from the offer read first                                        |
 | `plugin-install`        | F6      | Plugin lifecycle: install one, from the offer read first                                                       |
 | `plugin-update`         | F6      | Plugin lifecycle: update one, from the offer read first                                                        |
 | `plugin-remove`         | F6      | Plugin lifecycle: remove one, from the offer read first                                                        |

@@ -5,6 +5,7 @@ import { inForce, putQualityBack, readCost, tuner } from "./tuned";
 import { made, pairer } from "./paired";
 import { alerts } from "../api/alerting";
 import { wiring } from "../api/wirings";
+import { filler, fillOffer } from "./fillings";
 import { plugins } from "../api/installs";
 import { vocabulary } from "../api/vocabularies";
 import { catalogue, provenance } from "../api/catalogues";
@@ -178,4 +179,15 @@ export const ThePlugins: Story = {
  */
 export const TheWordsExplained: Story = {
   args: { glossary: { ok: true, value: vocabulary } },
+};
+
+/**
+ * Choosing what fills a capability: the choices there are to make, and what
+ * choosing Jellyseerr for requests would come to, its yes standing under it.
+ */
+export const ChoosingWhatFills: Story = {
+  args: {
+    wiring: { ok: true, value: wiring },
+    filler: { ...filler, work: [fillOffer] },
+  },
 };

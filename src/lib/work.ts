@@ -52,6 +52,7 @@ export type {
   Removing,
   Seeding,
   Reclaiming,
+  Filling,
   Requested,
 } from "./requested";
 
@@ -268,6 +269,8 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_let_go_title();
     case "space":
       return m.doing_reclaim_title();
+    case "wiring-fill":
+      return m.doing_fill_title();
   }
 }
 

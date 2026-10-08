@@ -37,6 +37,7 @@
   import { updating } from "../lib/updating";
   import { tending } from "../lib/tending";
   import { tuning } from "../lib/tuning";
+  import { filling } from "../lib/filling";
   import { upkeep } from "../lib/upkeep";
   import { hosting } from "../lib/hosting";
   import type { Hosted } from "../lib/removed";
@@ -333,6 +334,7 @@
   const mendAsks = new Asked(desk, mending);
   const keepAsks = new Asked(desk, upkeep);
   const tuneAsks = new Asked(desk, tuning);
+  const fillAsks = new Asked(desk, filling);
   const changeAsks = new Asked(desk, configuring);
   const tendAsks = new Asked(desk, tending);
   const pairAsks = new Asked(desk, pairing);
@@ -507,6 +509,7 @@
       glossary={setup?.glossary}
       freshness={stamped}
       tuner={tuneAsks.asker}
+      filler={fillAsks.asker}
       configurer={changeAsks.asker}
       pairer={pairAsks.asker}
       sharer={shareAsks.asker}

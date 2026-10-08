@@ -113,6 +113,12 @@ export type Seeding = "stop-seeding";
  */
 export type Reclaiming = "space";
 
+/**
+ * Something the wiring panel can ask for, named as the endpoint names it. What
+ * it takes and how it is asked about is in `./filling`.
+ */
+export type Filling = "wiring-fill";
+
 /** Anything a record can be of. */
 export type Requested =
   | Doing
@@ -128,4 +134,5 @@ export type Requested =
   | Hosting
   | Removing
   | Seeding
-  | Reclaiming;
+  | Reclaiming
+  | Filling;

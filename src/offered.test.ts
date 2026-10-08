@@ -29,6 +29,7 @@ import { everyHosting } from "./lib/hosting";
 import { everyMending } from "./lib/mending";
 import { everyPairing } from "./lib/pairing";
 import { everyReclaiming } from "./lib/reclaiming";
+import { everyFilling } from "./lib/filling";
 import { everyRemoving } from "./lib/removing";
 import { everySeeding } from "./lib/seeding";
 import { everySharing } from "./lib/sharing";
@@ -237,6 +238,11 @@ const WALKED: readonly {
     named: "everyReclaiming",
     by: ["src/routes/panels/Reclaim.svelte"],
   },
+  {
+    list: everyFilling,
+    named: "everyFilling",
+    by: ["src/routes/panels/Choosing.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -277,6 +283,7 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "uninstall",
   "stop-seeding",
   "space",
+  "wiring-fill",
 ];
 
 /**
@@ -299,7 +306,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "household-handoff": "G9",
   setup: "A2",
   "companion-certificate": "N1",
-  "wiring-fill": "F4",
   "plugin-install": "F6",
   "plugin-update": "F6",
   "plugin-remove": "F6",
@@ -351,6 +357,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "stop-seeding",
   "stored",
   "stuck",
+  "substitution",
   "trace",
   "undo",
   "uninstall",
@@ -401,7 +408,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   replacement: "A5",
   reset: "C9",
   step: "D3",
-  substitution: "F4",
   wizard: "A2",
   word: "G2",
 };
