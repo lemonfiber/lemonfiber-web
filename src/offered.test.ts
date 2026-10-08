@@ -30,6 +30,7 @@ import { everyMending } from "./lib/mending";
 import { everyPairing } from "./lib/pairing";
 import { everyReclaiming } from "./lib/reclaiming";
 import { everyFilling } from "./lib/filling";
+import { everyMoving } from "./lib/moving";
 import { everyRemoving } from "./lib/removing";
 import { everySeeding } from "./lib/seeding";
 import { everySharing } from "./lib/sharing";
@@ -243,6 +244,11 @@ const WALKED: readonly {
     named: "everyFilling",
     by: ["src/routes/panels/Choosing.svelte"],
   },
+  {
+    list: everyMoving,
+    named: "everyMoving",
+    by: ["src/routes/panels/Moving.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -284,6 +290,10 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "stop-seeding",
   "space",
   "wiring-fill",
+  "migrate-adopt",
+  "migrate-import",
+  "migrate-beside",
+  "migrate-replace",
 ];
 
 /**
@@ -297,10 +307,6 @@ const ELSEWHERE_REQUESTS: Partial<Record<Request, string>> = {
 /** Requests nobody has offered here yet, each with the feature it belongs to. */
 const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "quality-set": "D2",
-  "migrate-adopt": "A5",
-  "migrate-beside": "A5",
-  "migrate-replace": "A5",
-  "migrate-import": "A5",
   reset: "C9",
   remove: "D6",
   "household-handoff": "G9",
@@ -317,10 +323,12 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
 /** Kinds something the page imports reads. */
 const OFFERED_KINDS: readonly Kind[] = [
   "admission",
+  "adoption",
   "alerts",
   "archives",
   "backup",
   "bandwidth",
+  "beside",
   "bundle",
   "clients",
   "catalogue",
@@ -334,6 +342,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "history",
   "hosting",
   "household",
+  "import",
   "invitation",
   "job",
   "lifecycle",
@@ -348,6 +357,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "provenance",
   "quality",
   "repair",
+  "replacement",
   "restore",
   "seed",
   "self-update",
@@ -392,20 +402,16 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
 
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
-  adoption: "A5",
-  beside: "A5",
   capabilities: "ARCH-R78",
   certificate: "N1",
   "front-door": "G5",
   handoff: "G9",
-  import: "A5",
   keys: "C10",
   "minted-key": "C10",
   music: "D2",
   news: "N27",
   "news-items": "N27",
   removal: "D6",
-  replacement: "A5",
   reset: "C9",
   step: "D3",
   wizard: "A2",

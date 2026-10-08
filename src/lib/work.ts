@@ -24,6 +24,7 @@
  * The words live in `messages/`, so no screen holds one. The words a record
  * carries from lemonfiber are lemonfiber's own and are passed through unchanged.
  */
+import { titleOfMove } from "./moved";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import type { Acted, Arguments } from "../api/acting";
 import type { Redeemed } from "../api/redeeming";
@@ -53,6 +54,7 @@ export type {
   Seeding,
   Reclaiming,
   Filling,
+  Moving,
   Requested,
 } from "./requested";
 
@@ -271,6 +273,11 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_reclaim_title();
     case "wiring-fill":
       return m.doing_fill_title();
+    case "migrate-adopt":
+    case "migrate-import":
+    case "migrate-beside":
+    case "migrate-replace":
+      return titleOfMove(doing);
   }
 }
 

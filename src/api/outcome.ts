@@ -88,6 +88,23 @@ function ofWhatIsKept(envelope: Envelope): Came | undefined {
   if (isKind(envelope, "substitution")) {
     return { kind: "substitution", report: envelope.data };
   }
+  return ofAMove(envelope);
+}
+
+/** What an act on a setup already here came to, where the envelope is one. */
+function ofAMove(envelope: Envelope): Came | undefined {
+  if (isKind(envelope, "adoption")) {
+    return { kind: "adoption", report: envelope.data };
+  }
+  if (isKind(envelope, "beside")) {
+    return { kind: "beside", report: envelope.data };
+  }
+  if (isKind(envelope, "import")) {
+    return { kind: "import", report: envelope.data };
+  }
+  if (isKind(envelope, "replacement")) {
+    return { kind: "replacement", report: envelope.data };
+  }
   return undefined;
 }
 

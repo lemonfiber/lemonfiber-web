@@ -255,6 +255,10 @@
   "doing_resume_title": "Resuming every download",
   "doing_reclaim_title": "Taking back what costs nothing",
   "doing_fill_title": "Choosing what fills a capability",
+  "doing_migrate_adopt_title": "Adopting what is here",
+  "doing_migrate_import_title": "Importing records",
+  "doing_migrate_beside_title": "Standing beside it",
+  "doing_migrate_replace_title": "Replacing what is here",
   "doing_update_title": "Moving onto this build's versions",
   "came_update_current": "Every service stands on the version this build pins.",
   "came_update_available": "Newer versions are pinned than what is running, and nothing has moved yet.",
@@ -328,6 +332,8 @@
   "action_let_go_yes": "Let it go",
   "action_fill_preview": "Preview {capability} choice",
   "action_fill_yes": "Make the choice",
+  "action_move_preview": "Preview {mode}",
+  "action_move_yes": "Yes, {mode}",
   "action_reclaim_yes": "Take back {size}",
   "action_stuck_follow": "Follow {title}"
 }

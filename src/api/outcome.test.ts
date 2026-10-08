@@ -9,6 +9,12 @@ import { material } from "./pairings";
 import { hosted, stored, surveyed } from "./removals";
 import { letOffer, reclaimedRoom } from "./spaces";
 import { wouldFill } from "./substitutions";
+import {
+  wouldAdopt,
+  wouldImport,
+  wouldReplace,
+  wouldStandBeside,
+} from "./moves";
 import { household } from "../routes/house";
 import { outcomeOf } from "./outcome";
 import { costed, reapplied } from "./qualities";
@@ -179,6 +185,22 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("substitution", wouldFill))).toStrictEqual({
       kind: "substitution",
       report: wouldFill,
+    });
+    expect(outcomeOf(sealed("adoption", wouldAdopt))).toStrictEqual({
+      kind: "adoption",
+      report: wouldAdopt,
+    });
+    expect(outcomeOf(sealed("beside", wouldStandBeside))).toStrictEqual({
+      kind: "beside",
+      report: wouldStandBeside,
+    });
+    expect(outcomeOf(sealed("import", wouldImport))).toStrictEqual({
+      kind: "import",
+      report: wouldImport,
+    });
+    expect(outcomeOf(sealed("replacement", wouldReplace))).toStrictEqual({
+      kind: "replacement",
+      report: wouldReplace,
     });
   });
 

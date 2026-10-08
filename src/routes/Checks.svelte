@@ -11,6 +11,7 @@
   import type { History as Changes } from "../lib/history";
   import type { Mender } from "../lib/mending";
   import type { Survey as Found } from "../lib/survey";
+  import type { Mover } from "../lib/moving";
   import type { Tone } from "../lib/state";
   import type { Keeper, Saver } from "../lib/upkeep";
   import { gradingOf, toneOfOverall, type Grading } from "../lib/verdict";
@@ -33,6 +34,11 @@
      */
     survey?: Reading<Found> | undefined;
     /**
+     * What acting on what is already here asks for. Left out where nothing
+     * answers it.
+     */
+    mover?: Mover | undefined;
+    /**
      * What can be asked about what the checks found. Left out where nothing
      * answers it, which draws the findings alone.
      */
@@ -46,8 +52,16 @@
     saver?: Saver | undefined;
   }
 
-  let { diagnosis, freshness, history, survey, mender, keeper, saver }: Props =
-    $props();
+  let {
+    diagnosis,
+    freshness,
+    history,
+    survey,
+    mover,
+    mender,
+    keeper,
+    saver,
+  }: Props = $props();
 
   /** The run's own grading, and how loudly it is drawn. */
   const graded = $derived(
@@ -97,7 +111,7 @@
     <History {history} {freshness} />
   {/if}
   {#if survey !== undefined}
-    <Survey {survey} {freshness} />
+    <Survey {survey} {freshness} {mover} />
   {/if}
   {#if keeper !== undefined}
     <Support {keeper} {freshness} {saver} />
