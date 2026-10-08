@@ -4,6 +4,7 @@ import { backed, described, listing } from "./archived";
 import { staged } from "./configs";
 import { offered } from "./invitations";
 import { readyForSam } from "./handoffs";
+import { readInstall } from "./plugs";
 import { guarded, traced, walked } from "./found";
 import { declared, paused, plan } from "./lines";
 import { material } from "./pairings";
@@ -126,6 +127,13 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("handoff", readyForSam))).toStrictEqual({
       kind: "handoff",
       report: readyForSam,
+    });
+  });
+
+  it("reads what acting on a plugin came to", () => {
+    expect(outcomeOf(sealed("plugins", readInstall))).toStrictEqual({
+      kind: "plugins",
+      report: readInstall,
     });
   });
 

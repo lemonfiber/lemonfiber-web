@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Action from "../../components/Action.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
@@ -10,6 +11,8 @@
     substitutedLine,
     type Plugins,
   } from "../../lib/plugins";
+  import type { Plugger } from "../../lib/plugging";
+  import Plugging from "./Plugging.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -17,9 +20,11 @@
     plugins: Reading<Plugins> | undefined;
     /** When this panel's source last answered. */
     freshness: Freshness;
+    /** What acting on a plugin asks for, where this page may act. */
+    plugger?: Plugger | undefined;
   }
 
-  let { plugins, freshness }: Props = $props();
+  let { plugins, freshness, plugger }: Props = $props();
 
   const substitutedId = $props.id();
 
@@ -35,8 +40,9 @@
   Every plugin on this machine: each under its name, with what it does, the
   version installed, where it came from, what it runs and fills, and whether
   its source still answers where that was asked; and every capability a
-  plugin's service fills in place of the stack's own. Installing, updating and
-  removing a plugin are not offered here yet.
+  plugin's service fills in place of the stack's own. Where acting is given,
+  each plugin can be updated or removed and another installed, each read
+  first and agreed to under the name its reading gave itself.
 -->
 <Panel title={m.panel_plugins()} {freshness} flush>
   <div class="scope">
@@ -60,6 +66,31 @@
               <li><span class="word">{line}</span></li>
             {/each}
           </ul>
+          {#if plugger !== undefined}
+            {@const acting = plugger}
+            <div class="acts">
+              <Action
+                label={m.action_plug_update({ name: nameOf(plugin) })}
+                off={acting.busy}
+                onclick={() => {
+                  acting.onask({
+                    doing: "plugin-update",
+                    plugin: plugin.plugin,
+                  });
+                }}
+              />
+              <Action
+                label={m.action_plug_remove({ name: nameOf(plugin) })}
+                off={acting.busy}
+                onclick={() => {
+                  acting.onask({
+                    doing: "plugin-remove",
+                    plugin: plugin.plugin,
+                  });
+                }}
+              />
+            </div>
+          {/if}
         </li>
       {/each}
     </ul>
@@ -74,6 +105,9 @@
         {/each}
       </ul>
     </section>
+  {/if}
+  {#if plugger !== undefined}
+    <Plugging {plugger} />
   {/if}
 </Panel>
 
@@ -124,6 +158,13 @@
   .lines li {
     font-size: var(--text-prose);
     color: var(--muted);
+  }
+
+  .acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin-top: var(--sp-2);
   }
 
   .word {

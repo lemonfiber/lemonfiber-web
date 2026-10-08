@@ -8,6 +8,13 @@ import { wiring } from "../api/wirings";
 import { filler, fillOffer } from "./fillings";
 import { keyer, made as justMinted } from "./keyings";
 import { plugins } from "../api/installs";
+import {
+  installMade,
+  installRead,
+  plugger,
+  removeRead,
+  updateRead,
+} from "./pluggings";
 import { vocabulary } from "../api/vocabularies";
 import { catalogue, provenance } from "../api/catalogues";
 import { behind, versions } from "../api/copies";
@@ -201,4 +208,39 @@ export const IntegrationKeys: Story = {
 /** A key just minted, its secret shown once with its pin and address. */
 export const AKeyJustMinted: Story = {
   args: { keyer: { ...keyer, minted: justMinted } },
+};
+
+/**
+ * Installing a plugin, read whole before its yes: what it writes and reaches,
+ * how it is proved, and a released value approved on its own switch.
+ */
+export const APluginRead: Story = {
+  args: {
+    plugins: { ok: true, value: plugins },
+    plugger: { ...plugger, work: [installRead] },
+  },
+};
+
+/** An update read as one account, under the plugin it updates. */
+export const AnUpdateRead: Story = {
+  args: {
+    plugins: { ok: true, value: plugins },
+    plugger: { ...plugger, work: [updateRead] },
+  },
+};
+
+/** A removal read: what stops, and what it leaves with nothing filling it. */
+export const ARemovalRead: Story = {
+  args: {
+    plugins: { ok: true, value: plugins },
+    plugger: { ...plugger, work: [removeRead] },
+  },
+};
+
+/** A plugin installed under its reading, every proof held. */
+export const APluginInstalled: Story = {
+  args: {
+    plugins: { ok: true, value: plugins },
+    plugger: { ...plugger, work: [installMade] },
+  },
 };

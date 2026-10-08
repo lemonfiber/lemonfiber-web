@@ -65,6 +65,10 @@ import { reclaimedLines } from "./reclaimed";
 import { substitutedLines, type Substituted } from "./substituted";
 import { movedLines, type Moved } from "./moved";
 import { handoffLines, type Handoff } from "./handoff";
+import { undoLines, type Undone } from "./undone";
+import { pluggedLines, type Plugs } from "./plugged";
+
+export type { Undone } from "./undone";
 import {
   householdLines,
   invitationLines,
@@ -99,12 +103,6 @@ export type Offered = Repaired["offered"][number];
 /** One repair carried out, and how the check read afterwards. */
 type Mended = Repaired["mended"][number];
 
-/** What putting back a run of changes came to. */
-export type Undone = ByKind["undo"]["data"];
-
-/** One change put back, and what putting it back did. */
-type Reversal = Undone["reversed"][number]["action"]["does"];
-
 /** What one piece of finished work came to, as far as this page reads it. */
 export type Came =
   | { readonly kind: "lifecycle"; readonly report: Lifecycle }
@@ -125,6 +123,7 @@ export type Came =
   | { readonly kind: "bandwidth"; readonly report: Shared }
   | { readonly kind: "pausing"; readonly report: Paused }
   | { readonly kind: "update"; readonly report: Updated }
+  | { readonly kind: "plugins"; readonly report: Plugs }
   | { readonly kind: "trace"; readonly report: Traced }
   | { readonly kind: "walkthrough"; readonly report: Walked }
   | { readonly kind: "watch"; readonly report: Guarded }
@@ -399,54 +398,6 @@ function repairLines(report: Repaired): readonly string[] {
   return lines;
 }
 
-/** What putting one change back did, in a few words. */
-function reversalWords(does: Reversal): string {
-  switch (does) {
-    case "remove":
-      return m.came_undo_remove();
-    case "restore":
-      return m.came_undo_restore();
-    case "delete":
-      return m.came_undo_delete();
-    case "withdraw":
-      return m.came_undo_withdraw();
-    case "repin":
-      return m.came_undo_repin();
-    case "reconfigure":
-      return m.came_undo_reconfigure();
-    case "rewind":
-      return m.came_undo_rewind();
-    case "revoke":
-      return m.came_undo_revoke();
-    case "reinstate":
-      return m.came_undo_reinstate();
-    default:
-      return m.came_undo_other();
-  }
-}
-
-/** What putting a run of changes back came to, line by line. */
-function undoLines(report: Undone): readonly string[] {
-  const lines: string[] = [];
-  if (report.rehearsed) lines.push(m.came_rehearsed());
-  for (const one of report.reversed) {
-    lines.push(
-      m.came_undo_reversed({
-        target: one.target,
-        does: reversalWords(one.action.does),
-      }),
-    );
-  }
-  for (const one of report.left) {
-    lines.push(m.came_undo_left({ target: one.target, because: one.because }));
-  }
-  for (const one of report.noted ?? []) {
-    lines.push(m.came_undo_noted({ target: one.target, because: one.because }));
-  }
-  if (lines.length === 0) lines.push(m.came_undo_nothing());
-  return lines;
-}
-
 /**
  * What a record of finished work says it came to, line by line.
  *
@@ -491,6 +442,8 @@ export function linesOf(came: Came): readonly string[] {
       return pausingLines(came.report);
     case "update":
       return updateLines(came.report);
+    case "plugins":
+      return pluggedLines(came.report);
     case "trace":
       return traceLines(came.report);
     case "walkthrough":

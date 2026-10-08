@@ -343,5 +343,14 @@
   "action_move_preview": "Preview {mode}",
   "action_move_yes": "Yes, {mode}",
   "action_reclaim_yes": "Take back {size}",
-  "action_stuck_follow": "Follow {title}"
+  "action_stuck_follow": "Follow {title}",
+  "doing_plug_install_title": "Installing a plugin",
+  "doing_plug_update_title": "Updating a plugin",
+  "doing_plug_remove_title": "Removing a plugin",
+  "action_plug_read": "Read the install",
+  "action_plug_update": "Update {name}",
+  "action_plug_remove": "Remove {name}",
+  "action_plug_install_yes": "Install as {offer}",
+  "action_plug_update_yes": "Update as {offer}",
+  "action_plug_remove_yes": "Remove as {offer}"
 }

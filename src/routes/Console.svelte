@@ -39,6 +39,7 @@
   import { tending } from "../lib/tending";
   import { tuning } from "../lib/tuning";
   import { filling } from "../lib/filling";
+  import { plugging } from "../lib/plugging";
   import { moving } from "../lib/moving";
   import { upkeep } from "../lib/upkeep";
   import { hosting } from "../lib/hosting";
@@ -342,6 +343,7 @@
   const keepAsks = new Asked(desk, upkeep);
   const tuneAsks = new Asked(desk, tuning);
   const fillAsks = new Asked(desk, filling);
+  const plugAsks = new Asked(desk, plugging);
   const moveAsks = new Asked(desk, moving);
   const changeAsks = new Asked(desk, configuring);
   const tendAsks = new Asked(desk, tending);
@@ -521,6 +523,7 @@
       freshness={stamped}
       tuner={tuneAsks.asker}
       filler={fillAsks.asker}
+      plugger={plugAsks.asker}
       {keyer}
       configurer={changeAsks.asker}
       pairer={pairAsks.asker}

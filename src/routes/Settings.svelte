@@ -30,6 +30,7 @@
   import type { Tuned } from "../lib/tuned";
   import type { Tuner } from "../lib/tuning";
   import type { Filler } from "../lib/filling";
+  import type { Plugger } from "../lib/plugging";
   import type { Updater } from "../lib/updating";
   import type { Wiring as Wired } from "../lib/wiring";
   import type { Plugins as Installs } from "../lib/plugins";
@@ -78,6 +79,8 @@
      * nothing answers it.
      */
     filler?: Filler | undefined;
+    /** What acting on a plugin asks for, and what came of it. */
+    plugger?: Plugger | undefined;
     /** What keeping integration keys asks for. Left out where nothing answers it. */
     keyer?: Keyer | undefined;
     /** What updating the stack asks for. Left out where nothing answers it. */
@@ -103,6 +106,7 @@
     freshness,
     tuner,
     filler,
+    plugger,
     keyer,
     configurer,
     sharer,
@@ -141,7 +145,7 @@
 
   <Catalogue {catalogue} {provenance} {freshness} />
   <Wiring {wiring} {freshness} {filler} />
-  <Plugins {plugins} {freshness} />
+  <Plugins {plugins} {freshness} {plugger} />
   <Copy {versions} {standing} {freshness} />
   {#if pairer !== undefined}
     <Pairing {pairer} {freshness} />
