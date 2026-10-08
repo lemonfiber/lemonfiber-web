@@ -360,6 +360,65 @@ function explanations(said, key) {
   return key.startsWith("term_") && prose.length > A_LABEL ? [key] : [];
 }
 
+/**
+ * Every key a catalogue file writes at its top level, in the order written,
+ * the ones written twice included.
+ *
+ * Read from the text rather than from what `JSON.parse` returns, which keeps
+ * the last of two equal keys and says nothing of the first.
+ */
+function keysWritten(text) {
+  const keys = [];
+  let depth = 0;
+  let at = 0;
+  while (at < text.length) {
+    const character = text[at];
+    if (character === '"') {
+      const end = closingQuote(text, at);
+      if (depth === 1 && text[nextWritten(text, end + 1)] === ":") {
+        keys.push(JSON.parse(text.slice(at, end + 1)));
+      }
+      at = end;
+    } else {
+      depth += OPENS.has(character) ? 1 : 0;
+      depth -= CLOSES.has(character) ? 1 : 0;
+    }
+    at += 1;
+  }
+  return keys;
+}
+
+/** What opens a level of a document, and what closes one. */
+const OPENS = new Set(["{", "["]);
+const CLOSES = new Set(["}", "]"]);
+
+/** Where the string that opens at `at` closes, stepping over each escape. */
+function closingQuote(text, at) {
+  let end = at + 1;
+  while (end < text.length && text[end] !== '"') {
+    end += text[end] === "\\" ? 2 : 1;
+  }
+  return end;
+}
+
+/** Where the next character that is not space stands, from `from` on. */
+function nextWritten(text, from) {
+  let at = from;
+  while (at < text.length && /\s/u.test(text[at])) at += 1;
+  return at;
+}
+
+/** Every key a catalogue file writes more than once. */
+function keptTwice(text) {
+  const seen = new Set();
+  const twice = new Set();
+  for (const key of keysWritten(text)) {
+    if (seen.has(key)) twice.add(key);
+    seen.add(key);
+  }
+  return [...twice];
+}
+
 // ── Every rule, shown refusing before it is relied on ────────────────────
 
 /**
@@ -374,6 +433,18 @@ function explanations(said, key) {
  * both. The key a bare message is proved under names nothing and is filed nowhere.
  */
 const PROVEN = [
+  {
+    rule: "a key kept twice in one file",
+    find: keptTwice,
+    refuses: [
+      '{ "panel_a": "One", "panel_a": "Two" }',
+      String.raw`{ "a_b": "x", "c_d": "y \" with a quote", "a_b": "z" }`,
+    ],
+    allows: [
+      '{ "panel_a": "One", "panel_b": "One" }',
+      String.raw`{ "a_b": "it says \"a_b\": twice in its text" }`,
+    ],
+  },
   {
     rule: "idiom",
     find: idioms,
@@ -505,7 +576,13 @@ const keptIn = new Map();
 const areaIn = new Map();
 for (const path of CORPUS) {
   const file = relative(ROOT, path);
-  const messages = Object.entries(JSON.parse(readFileSync(path, "utf8")));
+  const text = readFileSync(path, "utf8");
+  for (const key of keptTwice(text))
+    fail(
+      `${file}  ${key}`,
+      "is kept twice in this file — the compiler keeps the last and drops the first without a word",
+    );
+  const messages = Object.entries(JSON.parse(text));
   for (const [key, message] of messages) {
     if (key === SCHEMA) continue;
     const before = keptIn.get(key);
