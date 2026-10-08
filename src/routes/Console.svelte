@@ -526,6 +526,7 @@
       settings={setup?.settings}
       line={setup?.line}
       outbound={setup?.outbound}
+      credentials={setup?.credentials}
       freshness={stamped}
       tuner={tuneAsks.asker}
       configurer={changeAsks.asker}

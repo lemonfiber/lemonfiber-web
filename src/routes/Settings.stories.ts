@@ -3,6 +3,7 @@ import Settings from "./Settings.svelte";
 import { configurer, everySetting, stagedChange } from "./configured";
 import { inForce, putQualityBack, readCost, tuner } from "./tuned";
 import { made, pairer } from "./paired";
+import { inventory } from "../api/credentials";
 import { leaving } from "../api/leavings";
 import { pausedRecord, planRecord, shared, sharer, updater } from "./lined";
 
@@ -106,4 +107,12 @@ export const EveryDownloadPaused: Story = {
  */
 export const WhatLeavesThisMachine: Story = {
   args: { outbound: { ok: true, value: leaving } },
+};
+
+/**
+ * Every credential the stack holds, with no value among them, and what keeping
+ * them in files protects against and what it does not.
+ */
+export const EveryCredential: Story = {
+  args: { credentials: { ok: true, value: inventory } },
 };

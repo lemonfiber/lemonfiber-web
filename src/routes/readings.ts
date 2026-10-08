@@ -9,6 +9,7 @@
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { asked, turnedAway, type Reaching } from "../api/asking";
 import type { Configured } from "../lib/configured";
+import type { Inventory } from "../lib/credentials";
 import type { Archives } from "../lib/kept";
 import type { Leaving } from "../lib/leaving";
 import type { Reckoned } from "../lib/letting";
@@ -36,6 +37,8 @@ export interface SettingsRead {
   readonly line: Reading<Shared>;
   /** Everything that leaves this machine. */
   readonly outbound: Reading<Leaving>;
+  /** Every credential the stack holds, without values. */
+  readonly credentials: Reading<Inventory>;
 }
 
 /** A screen's readings, and whether any of them was turned away. */
@@ -65,14 +68,15 @@ export async function readStorage(
 export async function readSettings(
   reaching: Reaching,
 ): Promise<Answered<SettingsRead>> {
-  const [quality, settings, line, outbound] = await Promise.all([
+  const [quality, settings, line, outbound, credentials] = await Promise.all([
     asked(reaching, "quality", "quality"),
     asked(reaching, "config", "config"),
     asked(reaching, "bandwidth", "bandwidth"),
     asked(reaching, "outbound", "outbound"),
+    asked(reaching, "credentials", "credentials"),
   ]);
   return {
-    read: { quality, settings, line, outbound },
-    refused: turnedAway(quality, settings, line, outbound),
+    read: { quality, settings, line, outbound, credentials },
+    refused: turnedAway(quality, settings, line, outbound, credentials),
   };
 }
