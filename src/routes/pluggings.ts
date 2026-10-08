@@ -6,6 +6,7 @@
  * running lemonfiber, in `../api/plugs`.
  */
 import {
+  installOffer,
   madeInstall,
   readInstall,
   wouldRemove,
@@ -31,7 +32,7 @@ export const installRead: Work = {
 export const installMade: Work = {
   ...installRead,
   id: "62",
-  given: { source: "subtitle-fetch", offer: readInstall.agreement ?? "" },
+  given: { source: "subtitle-fetch", offer: installOffer },
   came: { kind: "plugins", report: madeInstall },
 };
 

@@ -182,6 +182,12 @@ describe("acting on a plugin, on the settings screen", () => {
     expect(asked()).toHaveFocus();
   });
 
+  it("asks nothing of a page where nothing answers", async () => {
+    drawn({ ...plugger, work: [installRead] });
+    await press(m.action_plug_install_yes({ offer: installOffer }));
+    expect(asked()).toHaveFocus();
+  });
+
   it("stands no yes once the act ran, and says what it came to", () => {
     drawn({ ...plugger, work: [installMade] });
     expect(
