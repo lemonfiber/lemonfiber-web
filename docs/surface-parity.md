@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 73 kinds of answer, and this console reads 61 of them.
-Another surface can make 54 requests of the stack, and this console offers 48 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 10 kinds and 5
+The client carries 73 kinds of answer, and this console reads 62 of them.
+Another surface can make 54 requests of the stack, and this console offers 49 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 9 kinds and 4
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -113,6 +113,7 @@ where it answers with a kind the contract did not have before.
 | `walkthrough`  | the requests: what walking one thing through proved, every step it took, and where it stopped or what to do next                                                                                                                                                                                                                                     |
 | `watch`        | the overview: why a guard over the data location ended, and the forms it stopped                                                                                                                                                                                                                                                                     |
 | `wiring`       | the settings: every link under the service it runs from, what it asks for and how that was settled, a claimant a plugin brought, a link kept to a named service and why, and every ask nothing fills                                                                                                                                                 |
+| `wizard`       | first-run setup, in place of the console on a machine with nothing configured: each step, what it asks, the review of what will be written, and the way out of an apply that stopped part-way                                                                                                                                                        |
 | `error`        | every refusal, read by the client and handed over as a sentence                                                                                                                                                                                                                                                                                      |
 
 ## Kinds served by no endpoint
@@ -134,7 +135,6 @@ where it answers with a kind the contract did not have before.
 | `news-items`   | N27      | What's new: everything newer than what was last seen, asked for                                                                                     |
 | `removal`      | D6       | Household identity: somebody taken out of the household                                                                                             |
 | `reset`        | C9       | Drift: what a full reset would revert                                                                                                               |
-| `wizard`       | A2       | Setup: where setup stands                                                                                                                           |
 | `word`         | G2       | Plain language: what one word means, asked alone; the console explains every term from the glossary it reads whole, so it asks about no single word |
 
 One of these waits on lemonfiber rather than on this surface: no endpoint
@@ -192,6 +192,7 @@ answers with `certificate`, so nothing here could read it.
 | `plugin-install`    | the settings: a plugin read from the source typed, drawn whole, then installed on a yes naming that reading, with each value its recipes would carry elsewhere approved on its own |
 | `plugin-update`     | the settings, under each plugin: the update read as one account, then made on a yes naming that reading                                                                            |
 | `plugin-remove`     | the settings, under each plugin: what stops and what is left unfilled, then the removal on a yes naming that reading                                                               |
+| `setup`             | first-run setup, in place of the console until setup is written: each answer, on, back, apply and the way out of a stopped apply, then starting and connecting the stack           |
 
 Nine of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
@@ -227,5 +228,4 @@ asks for any, naming it.
 | `quality-set`           | D2      | Quality presets: choose one; the reading names no presets to choose from                                       |
 | `reset`                 | C9      | Drift: revert every edit to lemonfiber's own state                                                             |
 | `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes |
-| `setup`                 | A2      | Setup wizard, walked in a browser                                                                              |
 | `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only       |

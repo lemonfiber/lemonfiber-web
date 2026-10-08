@@ -353,5 +353,19 @@
   "action_plug_install_yes": "Install as {offer}",
   "action_plug_update_yes": "Update as {offer}",
   "action_plug_remove_yes": "Remove as {offer}",
-  "action_told_dismiss": "Put away"
+  "action_told_dismiss": "Put away",
+  "action_wizard_continue": "Continue",
+  "action_wizard_back": "Back",
+  "action_wizard_again": "Enter it again",
+  "action_wizard_check": "Check it",
+  "action_wizard_none_yet": "None yet",
+  "action_wizard_write": "Write setup",
+  "action_wizard_resume": "Carry on",
+  "action_wizard_roll_back": "Roll back",
+  "action_wizard_start_over": "Start over",
+  "action_wizard_start_over_yes": "Yes, start over",
+  "action_wizard_start": "Start the stack",
+  "action_wizard_connect": "Connect services",
+  "action_wizard_open": "Open the console",
+  "action_wizard_ask_again": "Ask again"
 }

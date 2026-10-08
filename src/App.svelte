@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from "svelte";
-  import Console from "./routes/Console.svelte";
+  import Setup from "./routes/Setup.svelte";
   import Member from "./routes/Member.svelte";
   import Unlock from "./routes/Unlock.svelte";
   import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
@@ -78,7 +78,7 @@
     }}
   />
 {:else if member === undefined}
-  <Console reaching={{ at, token, sending, fetching }} onrefused={turnedAway} />
+  <Setup reaching={{ at, token, sending, fetching }} onrefused={turnedAway} />
 {:else}
   <Member
     reaching={{ at, token, sending, fetching }}

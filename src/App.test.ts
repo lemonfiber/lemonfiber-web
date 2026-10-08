@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App.svelte";
 import { memberOf, remember, remembered } from "./api/token";
 import { stack, worstService } from "./routes/fixture";
+import { setUp } from "./api/setups";
 import { kitsId, kitsShelf, yours } from "./routes/mine";
 import { nameOfRoom } from "./lib/rooms";
 import { nameOf } from "./lib/route";
@@ -18,11 +19,17 @@ const here = "http://127.0.0.1:7777";
 const enveloped = (kind: string, data: unknown): string =>
   JSON.stringify({ api_version: API_VERSION, kind, data });
 
-const answering: Sending = () =>
+/** What a set-up machine answers a read with: setup's standing, or the stack. */
+const readOf = (url: string): string =>
+  url.endsWith("/api/setup")
+    ? enveloped("wizard", setUp)
+    : enveloped("status", stack);
+
+const answering: Sending = (url) =>
   Promise.resolve({
     ok: true,
     status: 200,
-    text: () => Promise.resolve(enveloped("status", stack)),
+    text: () => Promise.resolve(readOf(url)),
   });
 
 /** A run that admits one password and answers every read from the fixture. */
@@ -37,7 +44,7 @@ const admitting: Sending = (url) =>
               token: session,
               until: "2026-09-19T21:00:00Z",
             })
-          : enveloped("status", stack),
+          : readOf(url),
       ),
   });
 
