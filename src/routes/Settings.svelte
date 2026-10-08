@@ -1,6 +1,7 @@
 <script lang="ts">
   import Board from "./Board.svelte";
   import Configuration from "./panels/Configuration.svelte";
+  import Copy from "./panels/Copy.svelte";
   import Credentials from "./panels/Credentials.svelte";
   import Line from "./panels/Line.svelte";
   import Outbound from "./panels/Outbound.svelte";
@@ -10,6 +11,7 @@
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Configured } from "../lib/configured";
   import type { Configurer } from "../lib/configuring";
+  import type { Standing, Versions } from "../lib/copy";
   import type { Inventory } from "../lib/credentials";
   import type { Freshness } from "../lib/freshness";
   import type { Leaving } from "../lib/leaving";
@@ -31,6 +33,10 @@
     outbound?: Reading<Leaving> | undefined;
     /** Every credential the stack holds, or why they could not be read. */
     credentials?: Reading<Inventory> | undefined;
+    /** The versions in play, or why they could not be read. */
+    versions?: Reading<Versions> | undefined;
+    /** Where this copy stands against the newest release, or why it could not be read. */
+    standing?: Reading<Standing> | undefined;
     /** When this screen's sources last answered. */
     freshness: Freshness;
     /**
@@ -54,6 +60,8 @@
     line,
     outbound,
     credentials,
+    versions,
+    standing,
     freshness,
     tuner,
     configurer,
@@ -67,7 +75,8 @@
   How the stack is set up, and what can be changed about it from here: the
   quality new media is fetched at, every setting lemonfiber keeps, how the line
   is shared, everything that leaves this machine, every credential the stack
-  holds, the versions the stack stands on, and pairing the companion app.
+  holds, the versions the stack stands on, this copy of lemonfiber, and pairing
+  the companion app.
 
   The readings are asked for together on the way in, and stamped together.
   The line is drawn where it was read or can be declared.
@@ -87,6 +96,7 @@
     <Updates {updater} {freshness} />
   {/if}
 
+  <Copy {versions} {standing} {freshness} />
   {#if pairer !== undefined}
     <Pairing {pairer} {freshness} />
   {/if}
