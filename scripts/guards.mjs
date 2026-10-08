@@ -4,10 +4,34 @@ import { readdir, readFile } from "node:fs/promises";
 import { join, extname, relative } from "node:path";
 import { compile, parse } from "svelte/compiler";
 import { refuses, refusal } from "./warned.mjs";
+import { namingKeys, tooLong } from "./named.mjs";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const SRC = join(ROOT, "src");
 const LINE_CAP = 550;
+
+/** Every message the base locale ships, by key, as the compiler is told to read them. */
+const SETTINGS = JSON.parse(
+  await readFile(join(ROOT, "project.inlang", "settings.json"), "utf8"),
+);
+const CATALOGUE = new Map(
+  (
+    await Promise.all(
+      [SETTINGS["plugin.inlang.messageFormat"].pathPattern]
+        .flat()
+        .map(async (pattern) =>
+          Object.entries(
+            JSON.parse(
+              await readFile(
+                join(ROOT, pattern.replace("{locale}", SETTINGS.baseLocale)),
+                "utf8",
+              ),
+            ),
+          ),
+        ),
+    )
+  ).flat(),
+);
 
 /** Every file under `dir`, recursively. */
 async function walk(dir) {
@@ -409,6 +433,33 @@ const REFUSES = [
     ],
   },
   {
+    rule: "a name that runs to a sentence",
+    find: (markup) =>
+      tooLong(
+        namingKeys(parse(markup, { modern: true }).fragment),
+        new Map([
+          ["long", "Who is in the house, and what they asked for"],
+          ["short", "Household"],
+          ["named", "Set {name}'s limits"],
+          ["waiting", "Waiting for lemonfiber to answer"],
+        ]),
+      ),
+    refuses: [
+      "<Panel title={m.long()} />",
+      "<h3>{m.long()}</h3>",
+      "<h2><span>{m.long()}</span></h2>",
+      "<Action label={open ? m.short() : m.long()} />",
+      "<ul aria-label={m.long()}></ul>",
+    ],
+    allows: [
+      "<Panel title={m.short()} />",
+      "<Action label={m.named({ name })} />",
+      "<p>{m.long()}</p>",
+      "<Skeleton label={m.waiting()} />",
+      "<Tag label={m.long()} />",
+    ],
+  },
+  {
     rule: "a line that carries a comment",
     find: (line) => (comments(line) ? [line] : []),
     refuses: [
@@ -623,6 +674,11 @@ for (const [file, text] of sources) {
         `prose in the template ("${found.slice(0, 44)}…") — move it to messages/`,
       );
     }
+
+    // A heading, a title and a control's name say what they open or do in a
+    // few words, and a sentence explains beside them.
+    const names = tree === undefined ? [] : namingKeys(tree.fragment);
+    for (const found of tooLong(names, CATALOGUE)) fail(file, null, found);
 
     // Colour, type, spacing and radius come from tokens, so an absolute length
     // in a style block is a measure stated twice — and one that stands still
