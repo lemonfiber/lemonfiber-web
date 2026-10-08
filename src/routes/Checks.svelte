@@ -2,10 +2,12 @@
   import Banner from "../components/Banner.svelte";
   import Board from "./Board.svelte";
   import Findings from "./panels/Findings.svelte";
+  import History from "./panels/History.svelte";
   import Mend from "./panels/Mend.svelte";
   import Support from "./panels/Support.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
+  import type { History as Changes } from "../lib/history";
   import type { Mender } from "../lib/mending";
   import type { Tone } from "../lib/state";
   import type { Keeper, Saver } from "../lib/upkeep";
@@ -18,6 +20,11 @@
     diagnosis: Reading<Diagnosis> | undefined;
     /** When this screen's source last answered. */
     freshness: Freshness;
+    /**
+     * Everything lemonfiber changed, or why it could not be read. Left out
+     * until it answers.
+     */
+    history?: Reading<Changes> | undefined;
     /**
      * What can be asked about what the checks found. Left out where nothing
      * answers it, which draws the findings alone.
@@ -32,7 +39,8 @@
     saver?: Saver | undefined;
   }
 
-  let { diagnosis, freshness, mender, keeper, saver }: Props = $props();
+  let { diagnosis, freshness, history, mender, keeper, saver }: Props =
+    $props();
 
   /** The run's own grading, and how loudly it is drawn. */
   const graded = $derived(
@@ -57,8 +65,9 @@
   one would be a claim about a run that has not happened.
 
   What can be done about the findings stands under them, so what is on offer is
-  read after what it is for. Gathering what somebody helping would need comes
-  last, being what is left when nothing here puts it right.
+  read after what it is for, and everything lemonfiber changed after that.
+  Gathering what somebody helping would need comes last, being what is left
+  when nothing here puts it right.
 -->
 <Board>
   {#if graded !== undefined}
@@ -76,6 +85,9 @@
     <Mend {mender} {diagnosis} {freshness} />
   {/if}
 
+  {#if history !== undefined}
+    <History {history} {freshness} />
+  {/if}
   {#if keeper !== undefined}
     <Support {keeper} {freshness} {saver} />
   {/if}

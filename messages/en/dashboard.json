@@ -54,6 +54,7 @@
   "running_scope_none": "Nothing is chosen above, so starting and stopping act on your whole stack. The other three need something chosen first.",
   "running_scope_some": "These act on what you chose above, and nothing else.",
   "panel_findings": "What was checked",
+  "panel_history": "What lemonfiber changed",
   "checks_none": "No check has reported in.",
   "overall_healthy_lead": "Everything that ran passed.",
   "overall_healthy_prose": "Nothing below needs you. Each line says what was checked and what was seen.",

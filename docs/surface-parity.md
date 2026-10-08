@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 37 of them.
+The client carries 72 kinds of answer, and this console reads 38 of them.
 Another surface can make 54 requests of the stack, and this console offers 36 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 33 kinds and 17
+them. 2 kinds and 1 request are offered elsewhere by rule, and 32 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -63,6 +63,7 @@ where it answers with a kind the contract did not have before.
 | `dashboard`    | the overview, from the stream                                                                                                                                                                                                                                                              |
 | `doctor`       | the checks, and the checks about the disk                                                                                                                                                                                                                                                  |
 | `forms`        | the forms the controls act on                                                                                                                                                                                                                                                              |
+| `history`      | the checks: everything lemonfiber changed, newest first, with what made each change, when, how far it could be put back and what goes with it, under how far back the record goes                                                                                                          |
 | `hosting`      | the overview: every command this machine can keep running, what each does, the command it runs and where it stands, and what keeping one or taking it back changed                                                                                                                         |
 | `household`    | the requests, and what running the household left it as                                                                                                                                                                                                                                    |
 | `invitation`   | the requests: what offering somebody an account, or a new password, would make or made                                                                                                                                                                                                     |
@@ -113,7 +114,6 @@ where it answers with a kind the contract did not have before.
 | `glossary`     | G2        | Plain language: every word there is to ask about                                                         |
 | `handoff`      | G9        | Mobile handoff: where getting one person's phone onto the media server stands                            |
 | `held`         | D8        | Parental controls: what one member can watch                                                             |
-| `history`      | E4        | Rollback: everything lemonfiber changed                                                                  |
 | `import`       | A5        | Migration: copying an operator's records across                                                          |
 | `keys`         | C10       | Integration keys: every key, with no secret                                                              |
 | `migration`    | A5        | Migration: what is already on this machine                                                               |

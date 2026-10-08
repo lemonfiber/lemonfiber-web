@@ -7,18 +7,12 @@
   import Settings from "./Settings.svelte";
   import Shell from "./Shell.svelte";
   import Storage from "./Storage.svelte";
-  import type { Kind, Reading } from "@lemonfiber/sdk-ts";
-  import {
-    asked,
-    carrying,
-    scrollback,
-    turnedAway,
-    watching,
-    type Reaching,
-  } from "../api/asking";
+  import type { Reading } from "@lemonfiber/sdk-ts";
+  import { asked, scrollback, turnedAway, type Reaching } from "../api/asking";
   import { pausing as waiting, type Pausing } from "../api/redeeming";
   import { Asked, Desk } from "./desk.svelte";
   import { Saving } from "./saving.svelte";
+  import { Listening } from "./listening.svelte";
   import { Tracing } from "./tracing.svelte";
   import {
     readSettings,
@@ -28,6 +22,7 @@
     type StorageRead,
   } from "./readings";
   import type { Flow } from "../lib/flow";
+  import type { History } from "../lib/history";
   import { mending, type Mend, type Mender } from "../lib/mending";
   import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
   import { configuring } from "../lib/configuring";
@@ -50,7 +45,6 @@
     Forms,
     Household,
     Logged,
-    Moment,
     Preview,
     Stack,
   } from "../lib/wire";
@@ -74,12 +68,6 @@
 
   let { reaching, onrefused, pausing = waiting }: Props = $props();
 
-  /** What the stream calls the payload this screen is drawn from. */
-  const MOMENTS = "dashboard" satisfies Kind;
-
-  /** What the stream calls a line said while a wait is still waiting. */
-  const WAITING = "start" satisfies Kind;
-
   /** How often every stamp on the screen is worked out again. */
   const A_TICK = 1000;
 
@@ -96,22 +84,18 @@
   let previewedAt = $state<number | undefined>(undefined);
   let diagnosis = $state<Reading<Diagnosis> | undefined>(undefined);
   let disk = $state<StorageRead | undefined>(undefined);
+  let history = $state<Reading<History> | undefined>(undefined);
   let lines = $state<Reading<readonly Logged[]> | undefined>(undefined);
   let household = $state<Reading<Household> | undefined>(undefined);
   let setup = $state<SettingsRead | undefined>(undefined);
   let stampedAt = $state<number | undefined>(undefined);
-  let moment = $state<Moment | undefined>(undefined);
-  let flow = $state<Flow>("opening");
   let readAt = $state<number | undefined>(undefined);
-  let carriedAt = $state<number | undefined>(undefined);
   let now = $state(Date.now());
-  let waitingSaid = $state<string | undefined>(undefined);
   let confirming = $state<Doing | undefined>(undefined);
   let picked = $state<readonly string[]>([]);
-  let listening = $state(false);
 
-  /** What ends the listening there is, for as long as there is one. */
-  let gate = new AbortController();
+  /** The live connection, and what it last carried. */
+  const stream = new Listening(() => reaching);
 
   /** Whether this screen is still being looked at. */
   let here = true;
@@ -142,7 +126,7 @@
   const read = $derived(
     readAt === undefined ? UNSTAMPED : answeredAt(readAt, now),
   );
-  const live = $derived(dated(carriedAt, flow, now));
+  const live = $derived(dated(stream.carriedAt, stream.flow, now));
   const previewed = $derived(
     previewedAt === undefined ? UNSTAMPED : answeredAt(previewedAt, now),
   );
@@ -183,9 +167,15 @@
       case "overview":
         await ask();
         return;
-      case "checks":
-        diagnosis = noted(where, await asked(reaching, "checks", "doctor"));
+      case "checks": {
+        const [found, changed] = await Promise.all([
+          asked(reaching, "checks", "doctor"),
+          asked(reaching, "history", "history"),
+        ]);
+        diagnosis = noted(where, found);
+        history = noted(where, changed);
         return;
+      }
       case "storage":
         disk = all(where, await readStorage(reaching));
         return;
@@ -272,68 +262,6 @@
     preview = answer;
     previewedAt = Date.now();
     if (turnedAway(answer)) onrefused();
-  }
-
-  /**
-   * Listen to the stream until this screen is put away.
-   *
-   * Whether anything is still listening is held, so the screen can say so. A
-   * stream that opened and broke is reopened a few times; one that never opened
-   * is tried once, and a stream that has given up looks from here exactly like
-   * one that is still trying.
-   */
-  function listen(): void {
-    const opening = new AbortController();
-    gate = opening;
-    const opened = watching(reaching, opening.signal);
-    if (!opened.ok) {
-      flow = "lost";
-      return;
-    }
-
-    listening = true;
-    void (async () => {
-      for await (const arrival of opened.arrivals) {
-        if (opening.signal.aborted) break;
-        if (arrival.at === "lost") {
-          lost();
-        } else if (carrying(arrival, MOMENTS)) {
-          moment = arrival.data;
-          if (arrival.at === "live") {
-            flow = "live";
-            carriedAt = Date.now();
-          } else {
-            flow = "stale";
-            carriedAt = Date.now() - arrival.quietForMs;
-          }
-        } else if (carrying(arrival, WAITING)) {
-          waitingSaid = arrival.data;
-        }
-      }
-      listening = false;
-    })();
-  }
-
-  /**
-   * Open the stream again, for a connection nothing is opening on its own.
-   *
-   * Reopening is what a stream that carried and broke is given; a first opening
-   * that failed is not one of those and is tried once. So the asking is the
-   * operator's to make, and it is made from the banner that says so.
-   */
-  function reopen(): void {
-    gate.abort();
-    flow = "opening";
-    listen();
-  }
-
-  /**
-   * A connection that carried figures and stopped leaves them on the screen and
-   * says how long ago they were true. One that never carried any has nothing to
-   * date.
-   */
-  function lost(): void {
-    flow = moment === undefined ? "lost" : "stale";
   }
 
   /**
@@ -427,7 +355,7 @@
     preview,
     previewed,
     work: desk.of(isDoing),
-    waiting: waitingSaid,
+    waiting: stream.waitingSaid,
     confirming,
     busy: desk.busy,
     onchoose: (form: string) => {
@@ -450,7 +378,7 @@
       desk.drop(id);
     },
     onhush: () => {
-      waitingSaid = undefined;
+      stream.waitingSaid = undefined;
     },
   });
 
@@ -461,7 +389,7 @@
 
     globalThis.addEventListener("popstate", back);
     void askFor(place);
-    listen();
+    stream.listen();
     const clock = globalThis.setInterval(() => {
       now = Date.now();
     }, A_TICK);
@@ -470,7 +398,7 @@
       here = false;
       globalThis.clearInterval(clock);
       globalThis.removeEventListener("popstate", back);
-      gate.abort();
+      stream.stop();
     };
   });
 </script>
@@ -495,19 +423,30 @@
     <Dashboard
       {stack}
       {programs}
-      {moment}
-      {flow}
+      moment={stream.moment}
+      flow={stream.flow}
       {read}
       {live}
       {controls}
       hosting={{ hoster: hostAsks.asker, hosted }}
-      onretry={listening ? undefined : reopen}
+      onretry={stream.listening
+        ? undefined
+        : () => {
+            stream.reopen();
+          }}
     />
   {:else if place === "checks"}
-    <Checks {diagnosis} freshness={stamped} {mender} {keeper} {saver} />
+    <Checks
+      {diagnosis}
+      {history}
+      freshness={stamped}
+      {mender}
+      {keeper}
+      {saver}
+    />
   {:else if place === "storage"}
     <Storage
-      disk={moment?.storage}
+      disk={stream.moment?.storage}
       {live}
       diagnosis={disk?.diagnosis}
       read={stamped}

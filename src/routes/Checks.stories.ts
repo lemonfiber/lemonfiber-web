@@ -3,6 +3,7 @@ import Checks from "./Checks.svelte";
 import { allWell, attributed, diagnosis } from "./findings";
 import { keeper, readBundle } from "./keeping";
 import { mender, offered, putBack } from "./mended";
+import { changed } from "../api/histories";
 
 const answered = { kind: "answered", secondsAgo: 6 } as const;
 const never = { kind: "never" } as const;
@@ -137,4 +138,13 @@ export const WhatPuttingBackCameTo: Story = {
  */
 export const WhatABundleWouldHold: Story = {
   args: { keeper: { ...keeper, work: [readBundle] } },
+};
+
+/**
+ * Everything lemonfiber changed, newest first: a setting that can be put back
+ * whole, and a fix made with two others, stamped while the clock would not
+ * answer, that goes back only in part.
+ */
+export const WhatLemonfiberChanged: Story = {
+  args: { history: { ok: true, value: changed } },
 };
