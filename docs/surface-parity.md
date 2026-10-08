@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 72 kinds of answer, and this console reads 56 of them.
+The client carries 73 kinds of answer, and this console reads 56 of them.
 Another surface can make 54 requests of the stack, and this console offers 41 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 14 kinds and 12
+them. 2 kinds and 1 request are offered elsewhere by rule, and 15 kinds and 12
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -119,22 +119,23 @@ where it answers with a kind the contract did not have before.
 
 ## Kinds not read yet
 
-| Kind           | Feature  | What it is                                                                                               |
-| -------------- | -------- | -------------------------------------------------------------------------------------------------------- |
-| `capabilities` | ARCH-R78 | What this copy of lemonfiber can do, each named by the path it is served at                              |
-| `certificate`  | N1       | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint |
-| `front-door`   | G5       | The front door, asked for on its own                                                                     |
-| `handoff`      | G9       | Mobile handoff: where getting one person's phone onto the media server stands                            |
-| `keys`         | C10      | Integration keys: every key, with no secret                                                              |
-| `minted-key`   | C10      | Integration keys: one key just minted, its secret shown this once                                        |
-| `music`        | D2       | Quality presets: the music format                                                                        |
-| `news`         | N27      | What's new: the newest of each kind, from the stream                                                     |
-| `news-items`   | N27      | What's new: everything newer than what was last seen, asked for                                          |
-| `removal`      | D6       | Household identity: somebody taken out of the household                                                  |
-| `reset`        | C9       | Drift: what a full reset would revert                                                                    |
-| `step`         | D3       | First content: one step of a walkthrough, from the stream                                                |
-| `wizard`       | A2       | Setup: where setup stands                                                                                |
-| `word`         | G2       | Plain language: what one word means; `Term` asks for it, and no screen draws a `Term`                    |
+| Kind           | Feature   | What it is                                                                                                     |
+| -------------- | --------- | -------------------------------------------------------------------------------------------------------------- |
+| `alert`        | ARCH-R162 | Live alerts: one alert as it starts and resolves, from the stream; the overview draws the dashboard's own list |
+| `capabilities` | ARCH-R78  | What this copy of lemonfiber can do, each named by the path it is served at                                    |
+| `certificate`  | N1        | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint       |
+| `front-door`   | G5        | The front door, asked for on its own                                                                           |
+| `handoff`      | G9        | Mobile handoff: where getting one person's phone onto the media server stands                                  |
+| `keys`         | C10       | Integration keys: every key, with no secret                                                                    |
+| `minted-key`   | C10       | Integration keys: one key just minted, its secret shown this once                                              |
+| `music`        | D2        | Quality presets: the music format                                                                              |
+| `news`         | N27       | What's new: the newest of each kind, from the stream                                                           |
+| `news-items`   | N27       | What's new: everything newer than what was last seen, asked for                                                |
+| `removal`      | D6        | Household identity: somebody taken out of the household                                                        |
+| `reset`        | C9        | Drift: what a full reset would revert                                                                          |
+| `step`         | D3        | First content: one step of a walkthrough, from the stream                                                      |
+| `wizard`       | A2        | Setup: where setup stands                                                                                      |
+| `word`         | G2        | Plain language: what one word means; `Term` asks for it, and no screen draws a `Term`                          |
 
 One of these waits on lemonfiber rather than on this surface: no endpoint
 answers with `certificate`, so nothing here could read it.

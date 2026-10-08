@@ -82,7 +82,8 @@ type Feature =
   | "N1"
   | "N27"
   | "ARCH-R78"
-  | "ARCH-R156";
+  | "ARCH-R156"
+  | "ARCH-R162";
 
 /**
  * Every request another surface can make of the stack.
@@ -402,6 +403,7 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
 
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
+  alert: "ARCH-R162",
   capabilities: "ARCH-R78",
   certificate: "N1",
   "front-door": "G5",
