@@ -23,6 +23,7 @@
   } from "./readings";
   import type { Flow } from "../lib/flow";
   import type { History } from "../lib/history";
+  import type { Stuck } from "../lib/stuck";
   import { mending, type Mend, type Mender } from "../lib/mending";
   import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
   import { configuring } from "../lib/configuring";
@@ -85,6 +86,7 @@
   let diagnosis = $state<Reading<Diagnosis> | undefined>(undefined);
   let disk = $state<StorageRead | undefined>(undefined);
   let history = $state<Reading<History> | undefined>(undefined);
+  let stuck = $state<Reading<Stuck> | undefined>(undefined);
   let lines = $state<Reading<readonly Logged[]> | undefined>(undefined);
   let household = $state<Reading<Household> | undefined>(undefined);
   let setup = $state<SettingsRead | undefined>(undefined);
@@ -182,12 +184,15 @@
       case "logs":
         lines = noted(where, await scrollback(reaching));
         return;
-      case "requests":
-        household = noted(
-          where,
-          await asked(reaching, "requests", "household"),
-        );
+      case "requests": {
+        const [house, held] = await Promise.all([
+          asked(reaching, "requests", "household"),
+          asked(reaching, "stuck", "stuck"),
+        ]);
+        household = noted(where, house);
+        stuck = noted(where, held);
         return;
+      }
       case "settings":
         setup = all(where, await readSettings(reaching));
         return;
@@ -458,7 +463,14 @@
   {:else if place === "logs"}
     <Logs scrollback={lines} freshness={stamped} />
   {:else if place === "requests"}
-    <Requests {household} freshness={stamped} {tender} {finder} {tracer} />
+    <Requests
+      {household}
+      freshness={stamped}
+      {tender}
+      {finder}
+      {tracer}
+      {stuck}
+    />
   {:else}
     <Settings
       quality={setup?.quality}

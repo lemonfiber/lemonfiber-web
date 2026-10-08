@@ -323,5 +323,6 @@
   "doing_let_go_title": "Letting one download go",
   "action_let_go_cost": "What letting {name} go would cost",
   "action_let_go_yes": "Yes, let it go",
-  "action_reclaim_yes": "Yes, take back {size}"
+  "action_reclaim_yes": "Yes, take back {size}",
+  "action_stuck_follow": "Follow {title}"
 }

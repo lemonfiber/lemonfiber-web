@@ -42,7 +42,7 @@ function stageLine(passed: Passed): string {
 type Moment = Traced["history"][number];
 
 /** A stage, in the words a reader is given. */
-function wordOfStage(stage: Stage): string {
+export function wordOfStage(stage: Stage): string {
   switch (stage) {
     case "not-monitored":
       return m.stage_not_monitored();
