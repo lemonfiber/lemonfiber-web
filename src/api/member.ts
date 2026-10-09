@@ -49,10 +49,17 @@ export type Artwork = "poster" | "backdrop";
  * lemonfiber serves a member's artwork from the console's address rather than
  * from the media server's door, so the page asks nothing of another origin and
  * the browser need not trust the door's certificate. It answers the member's
- * own shelf only, and nothing where a title has no picture.
+ * own shelf only, and nothing where a title has no picture. Like the title it
+ * belongs to, it is read as the member the door named, since a read naming
+ * nobody is refused.
  */
-export function artworkAt(id: string, picture: Artwork): string {
-  return `held/${encodeURIComponent(id)}/${picture}`;
+export function artworkAt(
+  member: string,
+  id: string,
+  picture: Artwork,
+): string {
+  const whose = new URLSearchParams({ member }).toString();
+  return `held/${encodeURIComponent(id)}/${picture}?${whose}`;
 }
 
 /** What a picture is served as: an image, and nothing else is drawn. */
@@ -65,6 +72,7 @@ const IMAGE = "image/";
  */
 export async function takingArtwork(
   reaching: Reaching,
+  member: string,
   id: string,
   picture: Artwork,
 ): Promise<Blob | undefined> {
@@ -74,7 +82,7 @@ export async function takingArtwork(
     sending: reaching.sending,
   });
   if (!opened.ok) return undefined;
-  const handed = await opened.client.take(artworkAt(id, picture));
+  const handed = await opened.client.take(artworkAt(member, id, picture));
   return handed.ok && handed.value.type.startsWith(IMAGE)
     ? handed.value
     : undefined;
