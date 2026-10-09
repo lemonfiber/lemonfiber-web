@@ -10,6 +10,7 @@
     knocked,
     REQUESTS,
     shelfOf,
+    takingArtwork,
     type Answer,
     type Heard,
   } from "../api/member";
@@ -237,6 +238,7 @@
       {watched}
       {shelf}
       freshness={stocked}
+      posters={(id: string) => takingArtwork(reaching, id, "poster")}
       onretry={() => {
         void ask(where);
       }}

@@ -16,7 +16,14 @@ import {
   proxyPage,
   replying,
 } from "./bodies";
-import { artworkAt, heard, knocked, REQUESTS, shelfOf } from "./member";
+import {
+  artworkAt,
+  heard,
+  knocked,
+  REQUESTS,
+  shelfOf,
+  takingArtwork,
+} from "./member";
 import { kitsId, kitsShelf, yours } from "../routes/mine";
 
 /** Built rather than written, so no scanner reads it as a real one. */
@@ -264,8 +271,50 @@ describe("the shelf", () => {
 });
 
 describe("where a title's pictures are read", () => {
-  it("names this page's own address, with the title's id kept whole", () => {
-    expect(artworkAt("f01", "poster")).toBe("/api/held/f01/poster");
-    expect(artworkAt("a/b c", "backdrop")).toBe("/api/held/a%2Fb%20c/backdrop");
+  it("names a place under this page's own address, with the title's id kept whole", () => {
+    expect(artworkAt("f01", "poster")).toBe("held/f01/poster");
+    expect(artworkAt("a/b c", "backdrop")).toBe("held/a%2Fb%20c/backdrop");
+  });
+});
+
+describe("taking a title's picture", () => {
+  /** A reply handing over these bytes. */
+  const handing = (bytes: Blob): Sending =>
+    vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        text: () => Promise.resolve(""),
+        blob: () => Promise.resolve(bytes),
+      }),
+    );
+
+  it("asks at the picture's own address with the session's key, and hands an image over", async () => {
+    const poster = new Blob(["x"], { type: "image/jpeg" });
+    const sending = handing(poster);
+
+    expect(await takingArtwork(reaching(sending), "f01", "poster")).toBe(
+      poster,
+    );
+    const [url, init] = vi.mocked(sending).mock.calls[0] ?? [];
+    expect(url).toBe(`${here}/api/held/f01/poster`);
+    expect(init?.headers[TOKEN_HEADER]).toBe(session);
+  });
+
+  it("hands nothing over that is not an image, that was refused, or where it could not ask", async () => {
+    const page = new Blob(["<html>"], { type: "text/html" });
+    expect(
+      await takingArtwork(reaching(handing(page)), "f01", "poster"),
+    ).toBeUndefined();
+    expect(
+      await takingArtwork(
+        reaching(saying(404, refusedAs("ELSEWHERE", "No picture."))),
+        "f01",
+        "poster",
+      ),
+    ).toBeUndefined();
+    expect(
+      await takingArtwork(reaching(handing(page), elsewhere), "f01", "poster"),
+    ).toBeUndefined();
   });
 });

@@ -241,6 +241,37 @@ describe("what the household holds, for the member signed in", () => {
     expect(await screen.findByText("Arrival", read)).toBeInTheDocument();
   });
 
+  // A poster is asked for with the session's key, at the console's own address.
+  it("asks for each poster on screen at this page's own address", async () => {
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        readonly #told: (entries: { isIntersecting: boolean }[]) => void;
+        constructor(told: (entries: { isIntersecting: boolean }[]) => void) {
+          this.#told = told;
+        }
+        observe(): undefined {
+          this.#told([{ isIntersecting: true }]);
+          return undefined;
+        }
+        disconnect(): undefined {
+          return undefined;
+        }
+      },
+    );
+    globalThis.history.replaceState(undefined, "", "/held");
+    const sending = answering(answers());
+    signedIn(sending);
+    await screen.findByText("Arrival", read);
+
+    await waitFor(() => {
+      expect(asked(sending).map((url) => url.pathname)).toContain(
+        `/api/held/${kitsShelf.holdings[0]?.id ?? ""}/poster`,
+      );
+    });
+    vi.unstubAllGlobals();
+  });
+
   it("opens on the shelf where the address names it", async () => {
     globalThis.history.replaceState(undefined, "", "/held");
     signedIn(answering(answers()));
