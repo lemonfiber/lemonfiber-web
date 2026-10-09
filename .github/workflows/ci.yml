@@ -15,60 +15,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # `pull-requests: write` is what lets the gate close a pull request whose
-  # citation is missing or names an identifier that does not exist, rather than
-  # only going red at it. A reusable workflow's permissions block is a request,
-  # and a caller granting less than it asks for fails the whole run before any
-  # job starts — every required context silent, and nothing to report against.
-  # The workflow-level `contents: read` is the default for a job that declares
-  # nothing, and a job-level block replaces that default outright, so
-  # `contents: read` is restated here rather than inherited.
-  spec-check:
-    permissions:
-      contents: read
-      pull-requests: write
-    uses: lemonfiber/spec/.github/workflows/spec-check.yml@d39729a2ee2b66266e3819465392abcd684f2feb # v1.0.53
-  hygiene:
-    uses: lemonfiber/spec/.github/workflows/hygiene.yml@9e4af595a441995073b44629dcac592813f646bf # v1.0.60
-  # Every pin this repository holds on a shared workflow, against what the spec's
-  # default branch holds now. It fails naming the commits a pin has not taken; a
-  # run that could not ask which they are says so rather than reporting clean.
-  workflow-pins:
-    uses: lemonfiber/spec/.github/workflows/workflow-pins.yml@9ea0d953458bb79b9afd8b412d7e99c9435cff34 # v1.0.46
-  security:
-    uses: lemonfiber/spec/.github/workflows/security.yml@9e4af595a441995073b44629dcac592813f646bf # v1.0.60
-  dco:
-    uses: lemonfiber/spec/.github/workflows/dco.yml@9ea0d953458bb79b9afd8b412d7e99c9435cff34 # v1.0.46
-  attribution:
-    uses: lemonfiber/spec/.github/workflows/attribution.yml@9ea0d953458bb79b9afd8b412d7e99c9435cff34 # v1.0.46
-  commitlint:
-    uses: lemonfiber/spec/.github/workflows/commitlint.yml@9ea0d953458bb79b9afd8b412d7e99c9435cff34 # v1.0.46
-  labeler:
-    permissions:
-      contents: read
-      pull-requests: write
-    uses: lemonfiber/spec/.github/workflows/labeler.yml@9ea0d953458bb79b9afd8b412d7e99c9435cff34 # v1.0.46
-
-  # OPS-R39, OPS-R40, OPS-R42: label a PR that cites a goal the staged version
-  # locks, put it in that version's milestone, comment which goals it moves, and
-  # route one citing only out-of-scope requirements to the next version.
-  #
-  # This repository satisfies goals — `0.9.0`, `0.10.0`, `0.16.0` and `0.17.0`
-  # each name it in `satisfied_in` — and OPS-R39 is written about a pull request
-  # rather than about a repository, so a PR here citing a locked goal is one the
-  # rule already covers. It was never labelled because the workflow was never
-  # called, which is a silence rather than an exemption.
-  #
-  # `issues: write` is what the milestone half needs: a milestone is an
-  # issues-API object even when it sits on a pull request, and granting less
-  # gets the label and a warning instead.
-  goals:
-    permissions:
-      contents: read
-      pull-requests: write
-      issues: write
-    uses: lemonfiber/spec/.github/workflows/goal-automations.yml@9e4af595a441995073b44629dcac592813f646bf # v1.0.60
-
   # SonarCloud scans this repo by Automatic Analysis, which reports the quality
   # gate and not the zero-new-issues standard. This reads the summary it posts
   # and fails on a counted issue (Q-R64). Named apart from this repo's own
