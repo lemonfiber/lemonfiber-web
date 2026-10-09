@@ -137,8 +137,11 @@ describe("where one item is", () => {
   it("looks up the item named, narrowed to the season typed", async () => {
     const onlook = vi.fn();
     finding({}, { onlook });
+    // While nothing is typed, the page says what pressing needs.
+    expect(screen.getByText(m.trace_missing())).toBeVisible();
 
     await typeInto(m.trace_term(), "The Expanse");
+    expect(screen.queryByText(m.trace_missing())).toBeNull();
     await typeInto(m.trace_season(), "2");
     await press(m.action_trace());
 
