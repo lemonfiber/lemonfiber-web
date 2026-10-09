@@ -23,6 +23,7 @@ describe("one title a member can watch", () => {
 
   it("has a word for every kind, and for one it does not know", () => {
     expect(wordOfKind("other")).toBe(m.watch_other());
+    expect(wordOfKind("episode")).toBe(m.watch_episode());
     expect(wordOfKind("music" as Medium)).toBe(m.watch_kind_other());
   });
 });

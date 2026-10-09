@@ -8,6 +8,7 @@
  */
 import { household } from "./house";
 import type { Household, Member } from "../lib/wire";
+import type { Told } from "../lib/title";
 import type { Shelf } from "../lib/yours";
 
 /** The id the media server files the member signed in under. */
@@ -127,4 +128,66 @@ export const kitsUnreadShelf: Shelf = {
   id: kitsId,
   member: "Kit",
   holdings: [],
+};
+
+/** A film on Kit's shelf, as the title read answers it. */
+export const arrival: Told = {
+  rehearsed: false,
+  id: "f01",
+  member: "Kit",
+  title: {
+    id: "f01",
+    medium: "film",
+    title: "Arrival",
+    year: 2016,
+    minutes: 116,
+    certificate: "12",
+    genres: ["Drama", "Science Fiction"],
+    overview:
+      "A linguist is asked to read what the visitors are saying before anybody else decides what it means.",
+    seasons: [],
+    // Where it streams from is the server's, and is never drawn for a member.
+    stream_from: ["https:", "", "door.example", "f01"].join("/"),
+    unlocated: null,
+  },
+};
+
+/** A series on Kit's shelf, with a season of episodes. */
+export const expanse: Told = {
+  rehearsed: false,
+  id: "s01",
+  member: "Kit",
+  title: {
+    id: "s01",
+    medium: "series",
+    title: "The Expanse",
+    genres: [],
+    seasons: [
+      {
+        id: "s01-1",
+        name: "Season 1",
+        number: 1,
+        episodes: [
+          {
+            id: "s01-1-1",
+            medium: "series",
+            title: "Dulcinea",
+            number: 1,
+            minutes: 44,
+            overview: "A distress call reaches an ice hauler.",
+          },
+          { id: "s01-1-2", medium: "series", title: "The Big Empty" },
+        ],
+      },
+      { id: "s01-0", name: "Specials", episodes: [] },
+    ],
+  },
+};
+
+/** A title that has left Kit's shelf since it was drawn. */
+export const goneFromTheShelf: Told = {
+  rehearsed: false,
+  id: "o01",
+  member: "Kit",
+  title: null,
 };

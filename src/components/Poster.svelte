@@ -15,6 +15,11 @@
     note?: string | undefined;
     /** Draws the frame as an outline, for a poster standing for nothing yet. */
     outline?: boolean | undefined;
+    /**
+     * What pressing the poster does. Given, the name is a button that the whole
+     * poster presses.
+     */
+    onopen?: (() => void) | undefined;
   }
 
   // The state prop is read as `standing`: a variable named `state` beside the
@@ -26,6 +31,7 @@
     label,
     note,
     outline = false,
+    onopen,
   }: Props = $props();
 
   /** Whether the picture failed to load, which draws the lettering instead. */
@@ -39,6 +45,9 @@
   the name is text under it, and the frame — whether it holds a picture or the
   lettering that stands in for one — is hidden from a screen reader, which
   would otherwise be read the same words twice.
+
+  A poster that opens something is pressed anywhere on it, and is one button
+  named by its title, so it is announced and reached once.
 
   A picture that fails to load is replaced by the lettering, so a wall whose
   pictures cannot be reached is still a wall of titles. It is asked for with no
@@ -60,7 +69,11 @@
       }}
     />
   {/if}
-  <div class="t">{title}</div>
+  {#if onopen === undefined}
+    <div class="t">{title}</div>
+  {:else}
+    <button type="button" class="t open" onclick={onopen}>{title}</button>
+  {/if}
   {#if standing !== undefined}
     <StateTag state={standing} {label} wraps />
   {/if}
@@ -71,6 +84,7 @@
 
 <style>
   .poster {
+    position: relative;
     display: grid;
     gap: var(--sp-2);
     min-width: 0;
@@ -111,6 +125,25 @@
     font-weight: 600;
     line-height: 1.3;
     overflow-wrap: anywhere;
+  }
+
+  /* The name is the button; the whole poster is where it is pressed. */
+  .open {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .open::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--r-sm);
   }
 
   .sub {

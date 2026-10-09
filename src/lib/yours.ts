@@ -176,6 +176,8 @@ export function mediumOf(medium: Medium): string {
       return m.member_medium_film();
     case "series":
       return m.member_medium_series();
+    case "episode":
+      return m.member_medium_episode();
     case "other":
       return m.member_medium_other();
     default:

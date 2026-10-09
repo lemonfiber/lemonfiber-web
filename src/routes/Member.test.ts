@@ -5,7 +5,7 @@ import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Member from "./Member.svelte";
 import { enveloped, refusedAs, replying } from "../api/bodies";
-import { kit, kitsId, kitsShelf, yours } from "./mine";
+import { arrival, kit, kitsId, kitsShelf, yours } from "./mine";
 import { household } from "./house";
 import { nameOfRoom } from "../lib/rooms";
 import { everyPlace, nameOf } from "../lib/route";
@@ -351,6 +351,137 @@ describe("what the household holds, for the member signed in", () => {
 
     expect(screen.getByText(m.member_watch_both())).toBeInTheDocument();
     expect(screen.queryByText(m.member_watch_unrestricted())).toBeNull();
+  });
+});
+
+describe("one title, opened over the shelf", () => {
+  beforeEach(() => {
+    globalThis.history.replaceState(undefined, "", "/held");
+  });
+
+  /** The shelf answered, Arrival read with `title`, and the rest as usual. */
+  const withTitle =
+    (title: (url: URL) => Said) =>
+    (url: URL): Said =>
+      url.pathname.startsWith("/api/held/") ? title(url) : answers()(url);
+
+  const opening = async (): Promise<void> => {
+    await userEvent.click(
+      await screen.findByRole("button", { name: "Arrival" }),
+    );
+  };
+
+  it("reads what it is when it is opened, for the member the door named", async () => {
+    const sending = answering(
+      withTitle(() => ({ status: 200, body: enveloped("title", arrival) })),
+    );
+    signedIn(sending);
+    await opening();
+
+    const card = await screen.findByRole("dialog", { name: "Arrival" });
+    expect(
+      await within(card).findByText(arrival.title?.overview ?? ""),
+    ).toBeInTheDocument();
+    const read = asked(sending).find((url) => url.pathname === "/api/held/f01");
+    expect(read?.searchParams.getAll("member")).toEqual([kitsId]);
+    expect(card).not.toHaveTextContent("door.example");
+  });
+
+  it("is put away when closed, and asks nothing more", async () => {
+    const sending = answering(
+      withTitle(() => ({ status: 200, body: enveloped("title", arrival) })),
+    );
+    signedIn(sending);
+    await opening();
+    const card = await screen.findByRole("dialog", { name: "Arrival" });
+
+    await userEvent.click(
+      within(card).getByRole("button", { name: m.member_title_close() }),
+    );
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("says it could not be read, and reads it again when asked", async () => {
+    let answering_ = false;
+    signedIn(
+      answering(
+        withTitle(() =>
+          answering_
+            ? { status: 200, body: enveloped("title", arrival) }
+            : "nothing",
+        ),
+      ),
+    );
+    await opening();
+    const card = await screen.findByRole("dialog", { name: "Arrival" });
+    expect(
+      await within(card).findByText(m.member_title_unread()),
+    ).toBeInTheDocument();
+
+    answering_ = true;
+    await userEvent.click(
+      within(card).getByRole("button", { name: m.action_try_again() }),
+    );
+
+    expect(
+      await within(card).findByText(arrival.title?.overview ?? ""),
+    ).toBeInTheDocument();
+  });
+
+  it("signs out a session no longer admitted, in lemonfiber's words", async () => {
+    const { onrefused } = signedIn(
+      answering(withTitle(() => ({ status: 403, body: nobody }))),
+    );
+    await opening();
+
+    await waitFor(() => {
+      expect(onrefused).toHaveBeenCalledWith(nobody);
+    });
+  });
+
+  // Closed before it answered and opened again, so the first answer dates
+  // nothing on the card now open.
+  it("draws nothing from a reading of a title since closed", async () => {
+    type Reply = ReturnType<typeof replying>;
+    let settle: ((reply: Reply) => void) | undefined;
+    const late = new Promise<Reply>((settled) => {
+      settle = settled;
+    });
+    let readings = 0;
+    const sending: Sending = vi.fn((url: string) => {
+      const where = new URL(url);
+      if (where.pathname === "/api/held/f01") {
+        readings += 1;
+        if (readings === 1) return late;
+        return Promise.reject(new Error("closed"));
+      }
+      const said = answers()(where);
+      return said === "nothing"
+        ? Promise.reject(new Error("closed"))
+        : Promise.resolve(replying(said.status, said.body));
+    });
+    signedIn(sending);
+    await opening();
+    const card = await screen.findByRole("dialog", { name: "Arrival" });
+    await userEvent.click(
+      within(card).getByRole("button", { name: m.member_title_close() }),
+    );
+    await opening();
+    const again = await screen.findByRole("dialog", { name: "Arrival" });
+    expect(
+      await within(again).findByText(m.member_title_unread()),
+    ).toBeInTheDocument();
+
+    settle?.(replying(200, enveloped("title", arrival)));
+    await late;
+    await new Promise((settled) => setTimeout(settled, 0));
+    await tick();
+
+    expect(
+      within(again).getByText(m.member_title_unread()),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(arrival.title?.overview ?? "")).toBeNull();
   });
 });
 

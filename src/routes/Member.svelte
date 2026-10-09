@@ -11,6 +11,7 @@
     REQUESTS,
     shelfOf,
     takingArtwork,
+    titleOf,
     type Answer,
     type Heard,
   } from "../api/member";
@@ -25,7 +26,8 @@
   } from "../lib/rooms";
   import { ours } from "../lib/route";
   import type { Access, Household } from "../lib/wire";
-  import type { Shelf as Held } from "../lib/yours";
+  import type { Told } from "../lib/title";
+  import type { Holding, Shelf as Held } from "../lib/yours";
   import * as m from "../paraglide/messages.js";
 
   interface Props {
@@ -52,10 +54,15 @@
   let shelf = $state<Heard<Held> | undefined>(undefined);
   let shelfAt = $state<number | undefined>(undefined);
   let away = $state<Answer<string> | undefined>(undefined);
+  let opened = $state<Holding | undefined>(undefined);
+  let told = $state<Heard<Told> | undefined>(undefined);
   let now = $state(Date.now());
 
   /** How many askings this screen has made, which is what tells the latest. */
   let asking = 0;
+
+  /** How many titles have been opened, which is what tells the latest. */
+  let opening = 0;
 
   /**
    * Whether the latest asking about them went unanswered, or was refused with the
@@ -122,7 +129,36 @@
     shelf = undefined;
     shelfAt = undefined;
     away = undefined;
+    close();
     void ask(to);
+  }
+
+  /**
+   * Open one title over the shelf, and read what it is.
+   *
+   * It is read each time it is opened, so what it says is what lemonfiber
+   * answered then. An answer for a title since closed, or opened again, dates
+   * nothing and is dropped. Turned away, the session no longer stands.
+   */
+  async function open(holding: Holding): Promise<void> {
+    opening += 1;
+    const latest = opening;
+    opened = holding;
+    told = undefined;
+    const where = titleOf(member, holding.id);
+    const answer = await heard(reaching, where, "title");
+    if (answer.at === "refused") {
+      turned(answer.said);
+      return;
+    }
+    if (latest === opening) told = answer;
+  }
+
+  /** Put the opened title away. */
+  function close(): void {
+    opening += 1;
+    opened = undefined;
+    told = undefined;
   }
 
   /**
@@ -239,6 +275,12 @@
       {shelf}
       freshness={stocked}
       posters={(id: string) => takingArtwork(reaching, id, "poster")}
+      {opened}
+      {told}
+      onopen={(holding: Holding) => {
+        void open(holding);
+      }}
+      onclose={close}
       onretry={() => {
         void ask(where);
       }}

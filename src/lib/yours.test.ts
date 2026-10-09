@@ -243,6 +243,7 @@ describe("what kind of thing a holding is", () => {
   it.each([
     ["film", m.member_medium_film()],
     ["series", m.member_medium_series()],
+    ["episode", m.member_medium_episode()],
     ["other", m.member_medium_other()],
   ] satisfies [Medium, string][])(
     "says %s in the household's words",

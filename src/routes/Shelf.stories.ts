@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Shelf from "./Shelf.svelte";
-import { kit, kitsEmptyShelf, kitsShelf, kitsUnreadShelf } from "./mine";
+import {
+  arrival,
+  kit,
+  kitsEmptyShelf,
+  kitsShelf,
+  kitsUnreadShelf,
+} from "./mine";
 
 const answered = { kind: "answered", secondsAgo: 8 } as const;
 const never = { kind: "never" } as const;
@@ -21,6 +27,8 @@ const meta = {
     watched: answered,
     shelf: { at: "answered", value: kitsShelf },
     freshness: answered,
+    onopen: () => undefined,
+    onclose: () => undefined,
   },
 } satisfies Meta<typeof Shelf>;
 
@@ -33,6 +41,14 @@ type Story = StoryObj<typeof meta>;
  * hide is not on the shelf to begin with.
  */
 export const WhatIsHere: Story = {};
+
+/** One title opened over the shelf, read when it was opened. */
+export const OneTitleOpened: Story = {
+  args: {
+    opened: kitsShelf.holdings[0],
+    told: { at: "answered", value: arrival },
+  },
+};
 
 /** The shelf was read, and holds nothing they can watch yet. */
 export const NothingHereYet: Story = {

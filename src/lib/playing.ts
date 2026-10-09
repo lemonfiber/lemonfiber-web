@@ -44,6 +44,8 @@ export function wordOfMedium(medium: Session["medium"]): string {
       return m.playing_film();
     case "series":
       return m.playing_series();
+    case "episode":
+      return m.playing_an_episode();
     case "other":
       return m.playing_other();
     default:

@@ -67,6 +67,7 @@ type Feature =
   | "D8"
   | "D9"
   | "D10"
+  | "D11"
   | "E1"
   | "E2"
   | "E3"
@@ -125,6 +126,8 @@ const EVERY_REQUEST = [
   "household-approve",
   "household-decline",
   "household-handoff",
+  "grant",
+  "watched",
   "support",
   "restore",
   "watch",
@@ -334,6 +337,8 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "quality-set": "D2",
   reset: "C9",
   remove: "D6",
+  grant: "D11",
+  watched: "D11",
   "companion-certificate": "N1",
 };
 
@@ -390,6 +395,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "step",
   "stuck",
   "substitution",
+  "title",
   "trace",
   "undo",
   "uninstall",
@@ -428,11 +434,14 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   capabilities: "ARCH-R78",
   certificate: "N1",
   "front-door": "G5",
+  grant: "D11",
   music: "D2",
   news: "N27",
   "news-items": "N27",
+  "part-way": "D11",
   removal: "D6",
   reset: "C9",
+  watched: "D11",
   word: "G2",
 };
 
@@ -506,6 +515,7 @@ function reachedFrom(start: string): ReadonlySet<string> {
 /** The places a kind is read: asked for, recognised, or listened for. */
 const READERS = [
   /\basked\(\s*[^,]+,\s*[^,]+,\s*"([a-z-]+)"/g,
+  /\bheard\(\s*[^,]+,\s*[^,]+,\s*"([a-z-]+)"/g,
   /\bisKind\(\s*[^,]+,\s*"([a-z-]+)"\)/g,
   /"([a-z-]+)" satisfies Kind\b/g,
 ];

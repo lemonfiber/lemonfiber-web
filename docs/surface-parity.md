@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 73 kinds of answer, and this console reads 62 of them.
-Another surface can make 54 requests of the stack, and this console offers 49 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 9 kinds and 4
+The client carries 77 kinds of answer, and this console reads 63 of them.
+Another surface can make 56 requests of the stack, and this console offers 49 of
+them. 2 kinds and 1 request are offered elsewhere by rule, and 12 kinds and 6
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -104,6 +104,7 @@ where it answers with a kind the contract did not have before.
 | `step`         | the requests: each step a walk takes, listed under the walk as the stream says it, tied to the walk by its job                                                                                                                                                                                                                                       |
 | `stuck`        | the requests: every item whose download is stuck, the service holding it and the stage it stopped at, each followed to where it is on a press, under what may be missing from the list                                                                                                                                                               |
 | `substitution` | the settings: what choosing a service to fill a capability would come to, what fills it now, what asks for it, the setting it writes, the reason given and anything it would leave unfilled, then what it came to                                                                                                                                    |
+| `title`        | the member's shelf: one title a member opens over it, read when it is opened: what it is, what it is filed under, what it is about, and a series' seasons and episodes; where it streams from is not drawn                                                                                                                                           |
 | `trace`        | the requests: how far one item got, why it stopped, how sure the trace is, and what happened to it                                                                                                                                                                                                                                                   |
 | `undo`         | the checks: what putting back the last repair came to                                                                                                                                                                                                                                                                                                |
 | `uninstall`    | the disk: every line a removal reaches, going or kept, with its size, what is coming down, what lemonfiber cannot remove and how to by hand, and what went                                                                                                                                                                                           |
@@ -130,11 +131,14 @@ where it answers with a kind the contract did not have before.
 | `capabilities` | ARCH-R78 | What this copy of lemonfiber can do, each named by the path it is served at                                                                         |
 | `certificate`  | N1       | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint                                            |
 | `front-door`   | G5       | The front door, asked for on its own                                                                                                                |
+| `grant`        | D11      | Watching what the house holds: a grant to play on the member's own account, which a member's paired client asks for the device it plays on          |
 | `music`        | D2       | Quality presets: the music format                                                                                                                   |
 | `news`         | N27      | What's new: the newest of each kind, from the stream                                                                                                |
 | `news-items`   | N27      | What's new: everything newer than what was last seen, asked for                                                                                     |
+| `part-way`     | D11      | Watching what the house holds: what a member was part-way through, and how far                                                                      |
 | `removal`      | D6       | Household identity: somebody taken out of the household                                                                                             |
 | `reset`        | C9       | Drift: what a full reset would revert                                                                                                               |
+| `watched`      | D11      | Watching what the house holds: what handing a member's progress through a title to the media server came to                                         |
 | `word`         | G2       | Plain language: what one word means, asked alone; the console explains every term from the glossary it reads whole, so it asks about no single word |
 
 One of these waits on lemonfiber rather than on this surface: no endpoint
@@ -223,9 +227,11 @@ asks for any, naming it.
 
 ## Requests not offered yet
 
-| Request                 | Feature | What it is                                                                                                     |
-| ----------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
-| `quality-set`           | D2      | Quality presets: choose one; the reading names no presets to choose from                                       |
-| `reset`                 | C9      | Drift: revert every edit to lemonfiber's own state                                                             |
-| `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes |
-| `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only       |
+| Request                 | Feature | What it is                                                                                                          |
+| ----------------------- | ------- | ------------------------------------------------------------------------------------------------------------------- |
+| `quality-set`           | D2      | Quality presets: choose one; the reading names no presets to choose from                                            |
+| `reset`                 | C9      | Drift: revert every edit to lemonfiber's own state                                                                  |
+| `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes      |
+| `grant`                 | D11     | Watching what the house holds: a grant to play, which a member's paired client asks for the device it plays on      |
+| `watched`               | D11     | Watching what the house holds: how far through a title a member is, handed to the media server from a paired client |
+| `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only            |

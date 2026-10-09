@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import Poster from "./Poster.svelte";
 import { wordFor } from "../lib/state";
 
@@ -112,5 +112,22 @@ describe("when artwork arrives for a poster already on screen", () => {
     expect(container.querySelector(".blank")).toBeNull();
     expect(container.querySelector("img")).toHaveAttribute("src", artwork);
     expect(container.querySelector(".t")).toHaveTextContent(dune.title);
+  });
+});
+
+describe("a poster that opens something", () => {
+  it("is one button, named by its title, that opens it", async () => {
+    const onopen = vi.fn();
+    render(Poster, { ...dune, onopen });
+
+    await fireEvent.click(screen.getByRole("button", { name: dune.title }));
+
+    expect(onopen).toHaveBeenCalledOnce();
+    expect(screen.getAllByRole("button")).toHaveLength(1);
+  });
+
+  it("is no button where it opens nothing", () => {
+    render(Poster, dune);
+    expect(screen.queryByRole("button")).toBeNull();
   });
 });

@@ -128,6 +128,17 @@ export function shelfOf(member: string): string {
 }
 
 /**
+ * Where one title on that member's shelf is read: what it is, and a series'
+ * seasons and episodes.
+ *
+ * The identifier is escaped, so it stays one segment of the path whatever it
+ * holds. lemonfiber answers the member's own shelf only.
+ */
+export function titleOf(member: string, id: string): string {
+  return `${HELD}/${encodeURIComponent(id)}?${new URLSearchParams({ member }).toString()}`;
+}
+
+/**
  * Ask for one address, and read no further than whether it was answered.
  */
 export async function knocked(
