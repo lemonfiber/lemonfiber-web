@@ -17,7 +17,7 @@
  *
  * Each list is held to being true, in both directions. A kind claimed offered is
  * one something the page imports reads; a request claimed offered is on a list a
- * screen the console draws walks; and nothing read or walked is still waiting in
+ * screen the page draws walks; and nothing read or walked is still waiting in
  * another list. `docs/surface-parity.md` states the counts these lists come to
  * and names every one still waiting, and is held to both.
  */
@@ -45,7 +45,6 @@ import written from "../docs/surface-parity.md?raw";
 
 /** A feature of the spec, which is what a request still waiting belongs to. */
 type Feature =
-  | "A2"
   | "A4"
   | "A5"
   | "A6"
@@ -254,6 +253,11 @@ const WALKED: readonly {
     by: ["src/routes/panels/Keys.svelte"],
   },
   {
+    list: ["setup"],
+    named: "movedBy",
+    by: ["src/routes/setting.svelte.ts", "src/routes/Setup.svelte"],
+  },
+  {
     list: everyPlugging,
     named: "everyPlugging",
     by: [
@@ -314,6 +318,7 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "plugin-install",
   "plugin-update",
   "plugin-remove",
+  "setup",
 ];
 
 /**
@@ -329,7 +334,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "quality-set": "D2",
   reset: "C9",
   remove: "D6",
-  setup: "A2",
   "companion-certificate": "N1",
 };
 
@@ -395,6 +399,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "walkthrough",
   "watch",
   "wiring",
+  "wizard",
 ];
 
 /**
@@ -428,7 +433,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   "news-items": "N27",
   removal: "D6",
   reset: "C9",
-  wizard: "A2",
   word: "G2",
 };
 
@@ -651,8 +655,8 @@ describe("every request another surface can make", () => {
     expect(without(walked, OFFERED_REQUESTS)).toEqual([]);
   });
 
-  it("is walked by a screen the console draws", () => {
-    const drawn = reachedFrom("src/routes/Console.svelte");
+  it("is walked by a screen the page draws", () => {
+    const drawn = reachedFrom("src/main.ts");
     for (const { list, named: listed, by } of WALKED) {
       for (const screen of by) expect(drawn).toContain(screen);
       const sources = by.map(read);
