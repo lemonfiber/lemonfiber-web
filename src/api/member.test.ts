@@ -16,7 +16,7 @@ import {
   proxyPage,
   replying,
 } from "./bodies";
-import { heard, knocked, REQUESTS, shelfOf } from "./member";
+import { artworkAt, heard, knocked, REQUESTS, shelfOf } from "./member";
 import { kitsId, kitsShelf, yours } from "../routes/mine";
 
 /** Built rather than written, so no scanner reads it as a real one. */
@@ -260,5 +260,12 @@ describe("the shelf", () => {
 
   it("stands in for no refusal the contract does not list", () => {
     expect(() => codeNamed("NOT_A_REFUSAL")).toThrow("NOT_A_REFUSAL");
+  });
+});
+
+describe("where a title's pictures are read", () => {
+  it("names this page's own address, with the title's id kept whole", () => {
+    expect(artworkAt("f01", "poster")).toBe("/api/held/f01/poster");
+    expect(artworkAt("a/b c", "backdrop")).toBe("/api/held/a%2Fb%20c/backdrop");
   });
 });

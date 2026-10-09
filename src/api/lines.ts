@@ -66,6 +66,7 @@ export const unreached = "Connection refused at sabnzbd:8080.";
 export const paused: Paused = {
   asked: "pause",
   rehearsed: false,
+  offer: "pause:qbittorrent=fetching,sabnzbd=unreached",
   clients: [
     { client: "qbittorrent", was: "fetching", now: "stopped" },
     { client: "sabnzbd", unreached },
@@ -80,6 +81,7 @@ export const capped =
 export const resumed: Paused = {
   asked: "resume",
   rehearsed: false,
+  offer: "resume:qbittorrent=stopped",
   caution: capped,
   clients: [{ client: "qbittorrent", was: "stopped", now: "fetching" }],
 };
@@ -87,6 +89,7 @@ export const resumed: Paused = {
 /** A steps plan: two services behind their pins, one of them a one-way step. */
 export const plan: Updated = {
   rehearsed: false,
+  offer: "update:sonarr,radarr",
   applied: [],
   changelog: { releases: [], requirements: {}, state: "current" },
   changes: [

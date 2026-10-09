@@ -1,10 +1,12 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Value from "../../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import { causeLines, deviceLines, type Guidance } from "../../lib/clients";
   import type { Freshness } from "../../lib/freshness";
+  import { SHORT_DETAILED, Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -18,6 +20,12 @@
 
   const devicesId = $props.id();
   const troubleId = `${devicesId}-trouble`;
+
+  /** Whether every device is listed, or only the first few. */
+  const shortDevices = new Shortening(SHORT_DETAILED);
+
+  /** Whether every trouble is listed, or only the first few. */
+  const shortTrouble = new Shortening(SHORT_DETAILED);
 </script>
 
 <!--
@@ -47,7 +55,7 @@
     <section class="part" aria-labelledby={devicesId}>
       <h3 id={devicesId}>{m.clients_devices()}</h3>
       <ul class="entries">
-        {#each clients.value.devices as device, place (place)}
+        {#each shortDevices.of(clients.value.devices) as device, place (place)}
           <li>
             <h4>{device.device}</h4>
             <ul class="lines">
@@ -58,12 +66,17 @@
           </li>
         {/each}
       </ul>
+      <ShowAll
+        items={clients.value.devices}
+        shortening={shortDevices}
+        inset={false}
+      />
     </section>
 
     <section class="part" aria-labelledby={troubleId}>
       <h3 id={troubleId}>{m.clients_trouble()}</h3>
       <ul class="entries">
-        {#each clients.value.trouble as trouble, place (place)}
+        {#each shortTrouble.of(clients.value.trouble) as trouble, place (place)}
           <li>
             <h4>{trouble.symptom}</h4>
             {#each trouble.causes as cause, which (which)}
@@ -76,6 +89,11 @@
           </li>
         {/each}
       </ul>
+      <ShowAll
+        items={clients.value.trouble}
+        shortening={shortTrouble}
+        inset={false}
+      />
     </section>
   {/if}
 </Panel>

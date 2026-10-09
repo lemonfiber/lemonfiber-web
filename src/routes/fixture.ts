@@ -180,6 +180,13 @@ export const cleared: Alert = {
 export const moment: Moment = {
   alerts: [raised, cleared],
   door: { panel: "ready", data: frontDoor },
+  downloaders: {
+    panel: "ready",
+    data: [
+      { client: "qbittorrent", state: "fetching" },
+      { client: "sabnzbd", state: "paused" },
+    ],
+  },
   health: {
     // Two root causes, counted once each. The nine imports the first of them
     // stopped are under it rather than beside it, which is what keeps the list
@@ -226,6 +233,7 @@ export const moment: Moment = {
     panel: "ready",
     data: {
       free: { reading: "known", value: FREE },
+      config_free: { reading: "known", value: FREE },
       hardlink: "linking",
       exhaustion: null,
     },

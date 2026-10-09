@@ -5,7 +5,7 @@
   import Panel from "../components/Panel.svelte";
   import Skeleton from "../components/Skeleton.svelte";
   import Value from "../components/Value.svelte";
-  import type { Heard } from "../api/member";
+  import { artworkAt, type Heard } from "../api/member";
   import type { Freshness } from "../lib/freshness";
   import type { Access } from "../lib/wire";
   import { captionOf, watchOf, type Shelf } from "../lib/yours";
@@ -43,7 +43,9 @@
   What a household member can watch, and what the household holds that they can.
 
   The shelf comes first, drawn as posters, each with its title as text beneath
-  it, and a title with no poster is drawn lettered with its name. What the
+  it. Each poster is read from this page's own address, never from the media
+  server's door, and a title with no poster, or one that cannot be read, is
+  drawn lettered with its name. What the
   member is held to follows it.
 
   Both are what lemonfiber answered this time and nothing else. The shelf is
@@ -62,7 +64,11 @@
       <ul class="posters" aria-label={m.member_shelf_title()}>
         {#each held.holdings as holding (holding.id)}
           <li>
-            <Poster title={holding.title} note={captionOf(holding)} />
+            <Poster
+              title={holding.title}
+              artwork={artworkAt(holding.id, "poster")}
+              note={captionOf(holding)}
+            />
           </li>
         {/each}
       </ul>

@@ -170,6 +170,7 @@ describe("the disk", () => {
           panel: "ready",
           data: {
             free: { reading: "known", value: 1024 },
+            config_free: { reading: "known", value: 1024 },
             hardlink: "copying",
             exhaustion: { secs: 7200, nanos: 0 },
           },
@@ -186,7 +187,11 @@ describe("the disk", () => {
       moment: changed({
         storage: {
           panel: "ready",
-          data: { free: { reading: "unknown" }, hardlink: "unknown" },
+          data: {
+            free: { reading: "unknown" },
+            config_free: { reading: "unknown" },
+            hardlink: "unknown",
+          },
         },
       }),
       flow: "live",
@@ -201,6 +206,7 @@ describe("the disk", () => {
           panel: "ready",
           data: {
             free: { reading: "stale", value: 1024 },
+            config_free: { reading: "stale", value: 1024 },
             hardlink: "linking",
             exhaustion: null,
           },
