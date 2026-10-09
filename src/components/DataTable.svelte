@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import Value from "./Value.svelte";
+  import { reachable } from "../lib/reachable";
   import type { Cell, Column, Emphasis, Row } from "../lib/table";
   import * as m from "../paraglide/messages.js";
 
@@ -102,8 +103,12 @@
 
   The table is named by a caption rather than by the panel around it: a reader
   who lands inside the table is told what it is a table of.
+
+  A table wider than a phone scrolls sideways inside its wrapper, so the
+  wrapper is one a keyboard can reach and scroll while it does; the caption
+  inside it says what is being scrolled.
 -->
-<div class="tbl-wrap">
+<div class="tbl-wrap" {@attach reachable}>
   <table>
     <caption class="said">{label}</caption>
     <colgroup>

@@ -32,7 +32,6 @@ describe("where this copy stands", () => {
       m.copy_installed_by({ tool: "Homebrew" }),
       m.copy_at({ at: "/opt/homebrew/bin/lemonfiber" }),
       m.copy_command({ command: "brew upgrade lemonfiber" }),
-      behind.changed,
       behind.carries,
       behind.afterwards,
     ]);

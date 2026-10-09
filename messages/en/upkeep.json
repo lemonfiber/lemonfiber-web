@@ -294,6 +294,7 @@
   "copy_prose": "The versions this machine runs, and whether a newer lemonfiber is released. Moving this copy is done by the tool that installed it.",
   "copy_versions": "What is running",
   "copy_moving": "A newer release",
+  "copy_changed": "What it changes",
   "copy_binary": "lemonfiber {version} is running.",
   "copy_stack": "It operates stack version {version}.",
   "copy_engine": "The container engine reports {version}.",

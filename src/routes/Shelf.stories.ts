@@ -41,10 +41,14 @@ export const NothingHereYet: Story = {
 
 /**
  * The media server would not give up the shelf. Said as unread, not as empty,
- * and without the account of why, which is the operator's.
+ * and without the account of why, which is the operator's, with a way to ask
+ * again.
  */
 export const TheShelfCouldNotBeRead: Story = {
-  args: { shelf: { at: "answered", value: kitsUnreadShelf } },
+  args: {
+    shelf: { at: "answered", value: kitsUnreadShelf },
+    onretry: () => undefined,
+  },
 };
 
 /**

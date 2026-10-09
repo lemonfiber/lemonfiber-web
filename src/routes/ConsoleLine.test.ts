@@ -104,7 +104,14 @@ describe("the line, from the settings screen", () => {
     await press(m.action_line_declare());
 
     const asked = screen.getByRole("status", { name: m.line_asked() });
-    expect(await within(asked).findByText(unread)).toBeInTheDocument();
+    // The setting lemonfiber names between backticks is set as code.
+    expect(
+      await within(asked).findByText(
+        (_, element) =>
+          element?.textContent === unread.replaceAll("`", "") &&
+          element.querySelector("code")?.textContent === "fast",
+      ),
+    ).toBeInTheDocument();
     expect(within(asked).getByText(m.eyebrow_refused())).toBeInTheDocument();
   });
 });

@@ -16,12 +16,15 @@
     /** Sets the value in the figure face, and narrows the box to fit one. */
     figure?: boolean | undefined;
     /**
-     * What the box is for, where whatever keeps the reader's passwords can fill
-     * it in. A secret is hidden as it is typed. A box for anything else is left
-     * alone: an address, a port and a count are this machine's, and offering
-     * them to a password keeper is offering it the wrong thing.
+     * What the box is for. A name and a secret are offered to whatever keeps
+     * the reader's passwords, and a secret is hidden as it is typed. A key is
+     * hidden too and kept by nothing: it opens this run alone, and a browser
+     * that remembered it would hand it to whoever sits here next. An address
+     * and a path are typed as written, with no capital and no correction, and
+     * an address brings up the keyboard for one. A box with no purpose, such as
+     * a port or a count, is left alone.
      */
-    purpose?: "who" | "secret" | undefined;
+    purpose?: "who" | "secret" | "key" | "address" | "path" | undefined;
     /** What typing in it asks for. */
     oninput?: ((value: string) => void) | undefined;
   }
@@ -36,9 +39,21 @@
     oninput,
   }: Props = $props();
 
-  const FILLS = { who: "username", secret: "current-password" } as const;
+  const FILLS = {
+    who: "username",
+    secret: "current-password",
+    key: "off",
+    address: "off",
+    path: "off",
+  } as const;
 
   const fills = $derived(purpose === undefined ? undefined : FILLS[purpose]);
+
+  /** Whether the box hides what is typed in it. */
+  const hidden = $derived(purpose === "secret" || purpose === "key");
+
+  /** Whether what is typed is a name or a place, kept exactly as typed. */
+  const literal = $derived(purpose !== undefined && purpose !== "secret");
 
   const uid = $props.id();
   const boxId = `${uid}-box`;
@@ -73,8 +88,10 @@
   <input
     id={boxId}
     class:figure
-    type={purpose === "secret" ? "password" : "text"}
+    type={hidden ? "password" : "text"}
     autocomplete={fills}
+    autocapitalize={literal ? "none" : undefined}
+    inputmode={purpose === "address" ? "url" : undefined}
     spellcheck="false"
     {value}
     aria-describedby={described}
@@ -97,6 +114,7 @@
     display: grid;
     gap: var(--sp-2);
     margin-bottom: var(--sp-5);
+    width: 100%;
     max-width: 30rem;
   }
 

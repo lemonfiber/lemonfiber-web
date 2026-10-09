@@ -1,7 +1,13 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import StateMark from "./StateMark.svelte";
-  import { type Freshness, stampFor, stateFor } from "../lib/freshness";
+  import {
+    type Freshness,
+    deadStampFor,
+    deadStateFor,
+    stampFor,
+    stateFor,
+  } from "../lib/freshness";
 
   interface Props {
     /** The heading, and the panel's accessible name. */
@@ -17,29 +23,50 @@
     dead?: Snippet | undefined;
     /** Drops the body's padding, for rows and tables that meet the border. */
     flush?: boolean | undefined;
+    /**
+     * When the freshness stamp is drawn: always, or only once the source has
+     * gone quiet. A household member's screens take the second. How recently
+     * a source answered is the operator's concern, while an answer that may no
+     * longer hold is everybody's.
+     */
+    stamped?: "always" | "quiet" | undefined;
   }
 
-  let { title, freshness, children, dead, flush = false }: Props = $props();
+  let {
+    title,
+    freshness,
+    children,
+    dead,
+    flush = false,
+    stamped = "always",
+  }: Props = $props();
 
   const headingId = $props.id();
   const isDead = $derived(dead !== undefined);
-  const state = $derived(stateFor(freshness));
-  const stamp = $derived(stampFor(freshness));
+  const state = $derived(
+    isDead ? deadStateFor(freshness) : stateFor(freshness),
+  );
+  const stamp = $derived(
+    isDead ? deadStampFor(freshness) : stampFor(freshness),
+  );
 </script>
 
 <!--
   Each panel stamps its own freshness. A screen is drawn from several sources,
   and one of them falling silent makes that panel's figures untrustworthy and
   nothing else's — so the stamp sits on the panel, and a dead panel says so
-  inside its own border while the rest of the screen carries on.
+  inside its own border while the rest of the screen carries on. A dead panel's
+  stamp says when it was asked, not that it was checked, and carries no tick.
 -->
 <section class="panel" class:is-dead={isDead} aria-labelledby={headingId}>
   <header>
     <h2 id={headingId}>{title}</h2>
-    <span class="stamp" class:is-dead={isDead}>
-      <StateMark {state} />
-      <span class="age">{stamp}</span>
-    </span>
+    {#if stamped === "always" || freshness.kind !== "answered"}
+      <span class="stamp" class:is-dead={isDead}>
+        <StateMark {state} />
+        <span class="age">{stamp}</span>
+      </span>
+    {/if}
   </header>
   <div class="body" class:flush>
     {#if dead === undefined}

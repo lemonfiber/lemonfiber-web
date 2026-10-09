@@ -12,6 +12,7 @@
   "fresh_answered": "Checked {span} ago",
   "fresh_silent": "Quiet for {span}",
   "fresh_never": "Never checked",
+  "fresh_unread": "Unread, asked {span} ago",
   "value_last_known": "Last known",
   "value_not_known": "Not known",
   "value_cannot_say": "Can't say",

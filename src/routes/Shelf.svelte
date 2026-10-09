@@ -1,5 +1,6 @@
 <script lang="ts">
   import Board from "./Board.svelte";
+  import Action from "../components/Action.svelte";
   import DataTable from "../components/DataTable.svelte";
   import Panel from "../components/Panel.svelte";
   import Skeleton from "../components/Skeleton.svelte";
@@ -20,9 +21,11 @@
     shelf: Heard<Shelf> | undefined;
     /** When the shelf was answered. */
     freshness: Freshness;
+    /** Ask again, where something could not be read. */
+    onretry?: (() => void) | undefined;
   }
 
-  let { access, watched, shelf, freshness }: Props = $props();
+  let { access, watched, shelf, freshness, onretry }: Props = $props();
 
   const columns: readonly Column[] = [
     { head: m.member_head_title() },
@@ -72,10 +75,11 @@
 
   Neither is kept past the answer it came in. A shelf or a limit from before an
   asking that went unanswered would be a second copy of what somebody may watch,
-  so an unanswered asking is said as unread and nothing from earlier stands in.
+  so an unanswered asking is said as unread and nothing from earlier stands in,
+  with a way to ask again.
 -->
 <Board>
-  <Panel title={m.member_watch_title()} freshness={watched}>
+  <Panel stamped="quiet" title={m.member_watch_title()} freshness={watched}>
     {#if limits !== undefined}
       {#each limits as one, at (at)}
         {#each watchOf(one) as line, said (said)}
@@ -91,10 +95,16 @@
           ? access.said
           : m.member_watch_unread()}
       />
+      {#if onretry !== undefined}
+        <div class="again">
+          <Action label={m.action_try_again()} onclick={onretry} />
+        </div>
+      {/if}
     {/if}
   </Panel>
 
   <Panel
+    stamped="quiet"
     title={m.member_shelf_title()}
     {freshness}
     flush={held !== undefined && held.holdings.length > 0}
@@ -114,6 +124,11 @@
         state="unknown"
         absent={shelf.at === "declined" ? shelf.said : m.member_shelf_unread()}
       />
+      {#if onretry !== undefined}
+        <div class="again">
+          <Action label={m.action_try_again()} onclick={onretry} />
+        </div>
+      {/if}
     {/if}
   </Panel>
 </Board>
@@ -128,6 +143,10 @@
 
   .line + .line {
     margin-top: var(--sp-2);
+  }
+
+  .again {
+    margin-top: var(--sp-3);
   }
 
   .word {

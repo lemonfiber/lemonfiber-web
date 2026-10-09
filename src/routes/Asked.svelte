@@ -120,7 +120,7 @@
   {/if}
 
   {#if household === undefined}
-    <Panel title={m.room_asked()} {freshness}>
+    <Panel stamped="quiet" title={m.room_asked()} {freshness}>
       {#if quiet}
         <Value state="unknown" absent={m.member_asked_unread()} />
       {:else}
@@ -128,13 +128,13 @@
       {/if}
     </Panel>
   {:else if unread}
-    <Panel title={m.room_asked()} {freshness}>
+    <Panel stamped="quiet" title={m.room_asked()} {freshness}>
       <Value state="unknown" absent={m.member_asked_unread()} />
     </Panel>
   {:else}
     {#each household.members as member, at (at)}
       {@const asked = member.requests.length > 0}
-      <Panel title={m.member_asking_title()} {freshness}>
+      <Panel stamped="quiet" title={m.member_asking_title()} {freshness}>
         {#if quiet}
           <p class="line">
             <span class="word">{m.member_asking_declined()}</span>
@@ -145,7 +145,7 @@
           {/each}
         {/if}
       </Panel>
-      <Panel title={m.room_asked()} {freshness} flush={asked}>
+      <Panel stamped="quiet" title={m.room_asked()} {freshness} flush={asked}>
         {#if asked}
           <DataTable label={m.room_asked()} {columns} rows={rows(member)} />
         {:else if read}

@@ -65,3 +65,36 @@ describe("finding the terms in a line", () => {
     ]);
   });
 });
+
+describe("code, and names that are not words", () => {
+  it("hands code between backticks back as code, with no term found in it", () => {
+    expect(piecesOf("Run `lemonfiber seed` to seed.", finder)).toStrictEqual([
+      { text: "Run " },
+      { text: "lemonfiber seed", code: true },
+      { text: " to " },
+      { text: "seed", word: "seed" },
+      { text: "." },
+    ]);
+  });
+
+  it("marks code even with explaining off, and leaves the rest as written", () => {
+    expect(piecesOf("`seed` it", undefined)).toStrictEqual([
+      { text: "seed", code: true },
+      { text: " it" },
+    ]);
+    expect(piecesOf("seed", undefined)).toStrictEqual([{ text: "seed" }]);
+    expect(piecesOf("run `up`", undefined)).toStrictEqual([
+      { text: "run " },
+      { text: "up", code: true },
+    ]);
+  });
+
+  it("finds no term inside a setting's name, a path or an address", () => {
+    expect(
+      piecesOf("LEMONFIBER_REACH_SEED and docs/d1-seed/ then seed", finder),
+    ).toStrictEqual([
+      { text: "LEMONFIBER_REACH_SEED and docs/d1-seed/ then " },
+      { text: "seed", word: "seed" },
+    ]);
+  });
+});

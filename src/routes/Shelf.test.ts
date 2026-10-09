@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/svelte";
+import userEvent from "@testing-library/user-event";
 import { unreachable } from "@lemonfiber/sdk-ts";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import Shelf from "./Shelf.svelte";
 import { kit, kitsEmptyShelf, kitsShelf, kitsUnreadShelf } from "./mine";
 import type { Heard } from "../api/member";
@@ -116,5 +117,52 @@ describe("what a member can watch", () => {
     expect(panel(m.member_watch_title())).toHaveTextContent(
       m.member_watch_unread(),
     );
+  });
+});
+
+describe("asking again, where something could not be read", () => {
+  it("offers to ask again under each panel that could not be read", async () => {
+    const onretry = vi.fn();
+    render(Shelf, {
+      access: { at: "unanswered", problem: unreachable() },
+      watched: never,
+      shelf: { at: "unanswered", problem: unreachable() },
+      freshness: never,
+      onretry,
+    });
+    const again = screen.getAllByRole("button", { name: m.action_try_again() });
+    expect(again).toHaveLength(2);
+
+    await userEvent.click(again[0] ?? document.body);
+
+    expect(onretry).toHaveBeenCalledOnce();
+  });
+
+  it("offers nothing to press where nobody can ask again, or nothing went unread", () => {
+    drawn({ at: "unanswered", problem: unreachable() });
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+});
+
+describe("the stamp a member is shown", () => {
+  it("is none while the answers hold, and says how long a quiet one has been quiet", () => {
+    const { unmount } = render(Shelf, {
+      access: theirs,
+      watched: answered,
+      shelf: { at: "answered", value: kitsShelf },
+      freshness: answered,
+    });
+    expect(screen.queryByText(/Checked/u)).toBeNull();
+    unmount();
+
+    render(Shelf, {
+      access: theirs,
+      watched: answered,
+      shelf: { at: "answered", value: kitsShelf },
+      freshness: { kind: "silent", secondsAgo: 300 },
+    });
+    expect(
+      screen.getByText(m.fresh_silent({ span: m.span_minutes({ count: 5 }) })),
+    ).toBeVisible();
   });
 });

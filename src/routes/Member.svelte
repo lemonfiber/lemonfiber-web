@@ -232,7 +232,15 @@
   {#if "away" in where}
     <Away answer={away} />
   {:else if where.room === "held"}
-    <Shelf {access} {watched} {shelf} freshness={stocked} />
+    <Shelf
+      {access}
+      {watched}
+      {shelf}
+      freshness={stocked}
+      onretry={() => {
+        void ask(where);
+      }}
+    />
   {:else}
     <Asked
       household={kept}

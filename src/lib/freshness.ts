@@ -86,3 +86,19 @@ export function stampFor(freshness: Freshness): string {
       return m.fresh_never();
   }
 }
+
+/**
+ * The mark on the stamp of a panel whose source answered and could not be
+ * read: the answer came, so it is not silence, but nothing in it can be stood
+ * behind, so it is not a tick either.
+ */
+export function deadStateFor(freshness: Freshness): State {
+  return freshness.kind === "answered" ? "stopped" : stateFor(freshness);
+}
+
+/** The words on the stamp of a panel whose source could not be read. */
+export function deadStampFor(freshness: Freshness): string {
+  return freshness.kind === "answered"
+    ? m.fresh_unread({ span: spanFor(freshness.secondsAgo) })
+    : stampFor(freshness);
+}
