@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Switch from "../../components/Switch.svelte";
@@ -7,6 +8,7 @@
   import type { Freshness } from "../../lib/freshness";
   import { explainedHere } from "../../lib/explained.svelte";
   import { entryLines, type Vocabulary } from "../../lib/glossary";
+  import { SHORT_DETAILED, Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -24,6 +26,9 @@
   const problem = $derived(
     glossary?.ok === false ? glossary.problem.message : undefined,
   );
+
+  /** Whether the list is shown whole. */
+  const short = new Shortening(SHORT_DETAILED);
 </script>
 
 <!--
@@ -62,7 +67,7 @@
 
   {#if words !== undefined && words.words.length > 0}
     <ul class="entries" aria-label={m.glossary_said()}>
-      {#each words.words as entry (entry.word)}
+      {#each short.of(words.words) as entry (entry.word)}
         <li>
           <h3>{entry.word}</h3>
           <ul class="lines">
@@ -73,6 +78,7 @@
         </li>
       {/each}
     </ul>
+    <ShowAll items={words.words} shortening={short} />
   {/if}
 </Panel>
 

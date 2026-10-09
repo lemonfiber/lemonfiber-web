@@ -1,3 +1,4 @@
+import userEvent from "@testing-library/user-event";
 import { render, screen, within } from "@testing-library/svelte";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
@@ -69,9 +70,18 @@ describe("the run's own grading", () => {
   });
 });
 
+/** Show every finding, where the list is shortened to its first few. */
+const showAll = (): Promise<void> =>
+  userEvent.click(
+    screen.getByRole("button", {
+      name: m.action_show_all({ count: diagnosis.findings.length }),
+    }),
+  );
+
 describe("each finding", () => {
-  it("says how every check turned out, in the server's own word", () => {
+  it("says how every check turned out, in the server's own word, once shown whole", async () => {
     checks({ ok: true, value: diagnosis });
+    await showAll();
     for (const outcome of [
       "pass",
       "warn",
@@ -314,8 +324,10 @@ describe("where each check came from", () => {
     );
   });
 
-  it("says it on a run where only a later row is marked", () => {
+  it("says it on a run where only a later row is marked, once that row is shown", async () => {
     checks({ ok: true, value: diagnosis });
+    expect(screen.queryByText(m.findings_marked())).toBeNull();
+    await showAll();
 
     expect(screen.getByText(m.findings_marked())).toBeInTheDocument();
     expect(

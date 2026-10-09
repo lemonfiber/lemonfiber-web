@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
@@ -11,6 +12,7 @@
     type Provenance,
   } from "../../lib/catalogue";
   import type { Freshness } from "../../lib/freshness";
+  import { SHORT_DETAILED, Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -36,6 +38,9 @@
   const originsProblem = $derived(
     provenance?.ok === false ? provenance.problem.message : undefined,
   );
+
+  /** Whether the list is shown whole. */
+  const short = new Shortening(SHORT_DETAILED);
 </script>
 
 <!--
@@ -62,7 +67,7 @@
 
   {#if held !== undefined && held.services.length > 0}
     <ul class="entries" aria-label={m.catalogue_said()}>
-      {#each held.services as service (service.id)}
+      {#each short.of(held.services) as service (service.id)}
         <li>
           <h3>{service.name}</h3>
           <ul class="lines">
@@ -73,6 +78,7 @@
         </li>
       {/each}
     </ul>
+    <ShowAll items={held.services} shortening={short} />
   {/if}
 
   {#if held !== undefined && held.removed.length > 0}

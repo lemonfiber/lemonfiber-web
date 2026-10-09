@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
@@ -6,6 +7,7 @@
   import type { Reading } from "@lemonfiber/sdk-ts";
   import { heldLines, type Inventory } from "../../lib/credentials";
   import type { Freshness } from "../../lib/freshness";
+  import { SHORT_DETAILED, Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -25,6 +27,9 @@
   const problem = $derived(
     credentials?.ok === false ? credentials.problem.message : undefined,
   );
+
+  /** Whether the list is shown whole. */
+  const short = new Shortening(SHORT_DETAILED);
 </script>
 
 <!--
@@ -49,7 +54,7 @@
   {#if inventory !== undefined}
     {#if inventory.held.length > 0}
       <ul class="held" aria-label={m.credential_said()}>
-        {#each inventory.held as one, place (place)}
+        {#each short.of(inventory.held) as one, place (place)}
           <li>
             <h3>{one.name}</h3>
             <ul class="lines">
@@ -60,6 +65,7 @@
           </li>
         {/each}
       </ul>
+      <ShowAll items={inventory.held} shortening={short} />
     {/if}
 
     <section class="protection" aria-labelledby={protectionId}>

@@ -263,13 +263,23 @@ async function walkStory(tabbing, id) {
   // leaves one in — a radio group is meant to be entered once and moved
   // through by arrow. Counting the others as places to land would read
   // correct behaviour as a trap.
+  //
+  // A control inside a closed disclosure is not a place to land until the
+  // disclosure is opened: only its summary is, and the browser lays out what
+  // the summary holds while passing it over.
   const places = await tabbing.evaluate((selector) => {
+    /** Whether an element is folded away inside a closed disclosure. */
+    const folded = (element) => {
+      const closed = element.closest("details:not([open])");
+      return closed !== null && element.parentElement !== closed;
+    };
     const spots = [...document.querySelectorAll(selector)].filter(
       (element) =>
         element instanceof HTMLElement &&
         element.getClientRects().length > 0 &&
         getComputedStyle(element).visibility !== "hidden" &&
-        element.getAttribute("tabindex") !== "-1",
+        element.getAttribute("tabindex") !== "-1" &&
+        !folded(element),
     );
     spots.forEach((element, index) => {
       const style = getComputedStyle(element);

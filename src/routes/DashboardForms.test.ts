@@ -10,6 +10,7 @@ import {
   rehearsed,
 } from "./fixture";
 import { bytes } from "../lib/figures";
+import { SHORT } from "../lib/shortening.svelte";
 import { namesItsForms, takesForms, wordOfDoing } from "../lib/work";
 import * as m from "../paraglide/messages.js";
 import { answered, read, board } from "./Dashboard.testing";
@@ -266,5 +267,40 @@ describe("the forms the stack declares", () => {
     });
 
     expect(screen.getByText(notAnswering)).toBeInTheDocument();
+  });
+});
+
+describe("a long list of forms", () => {
+  /** As many forms as are shown before the rest is asked for, and three more. */
+  const many = Array.from({ length: SHORT + 3 }, (_, at) => ({
+    id: `form-${String(at)}`,
+    name: `Form ${String(at)}`,
+    description: "One more form.",
+    composable: true,
+  }));
+  const panel = (): HTMLElement =>
+    screen.getByRole("region", { name: m.panel_forms() });
+
+  it("lists the first few and any chosen further down, the rest one press away", async () => {
+    const chosen = many.at(-1)?.id ?? "";
+    board({
+      controls: {
+        ...controls,
+        forms: { ok: true, value: { forms: many } },
+        chosen: [chosen],
+      },
+    });
+    expect(
+      within(panel()).getByText(`Form ${String(SHORT + 2)}`),
+    ).toBeVisible();
+    expect(within(panel()).queryByText(`Form ${String(SHORT)}`)).toBeNull();
+
+    await userEvent.click(
+      within(panel()).getByRole("button", {
+        name: m.action_show_all({ count: many.length }),
+      }),
+    );
+
+    expect(within(panel()).getByText(`Form ${String(SHORT)}`)).toBeVisible();
   });
 });

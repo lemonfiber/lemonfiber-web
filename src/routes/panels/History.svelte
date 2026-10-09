@@ -1,10 +1,12 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Value from "../../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../../lib/freshness";
   import { changeLines, type History } from "../../lib/history";
+  import { Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -15,6 +17,9 @@
   }
 
   let { history, freshness }: Props = $props();
+
+  /** Whether the list is shown whole. */
+  const short = new Shortening();
 </script>
 
 <!--
@@ -39,7 +44,7 @@
 
   {#if history.ok && history.value.changes.length > 0}
     <ol class="changes" aria-label={m.history_said()}>
-      {#each history.value.changes as change, place (place)}
+      {#each short.of(history.value.changes) as change, place (place)}
         <li>
           <h3>{change.did}</h3>
           <ul class="lines">
@@ -50,6 +55,7 @@
         </li>
       {/each}
     </ol>
+    <ShowAll items={history.value.changes} shortening={short} />
   {/if}
 </Panel>
 

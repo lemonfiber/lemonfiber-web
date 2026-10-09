@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
@@ -8,6 +9,7 @@
   import { choosable, type Filler } from "../../lib/filling";
   import type { Freshness } from "../../lib/freshness";
   import { linkLines, unfilledLine, type Wiring } from "../../lib/wiring";
+  import { SHORT_DETAILED, Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -30,6 +32,9 @@
   const problem = $derived(
     wiring?.ok === false ? wiring.problem.message : undefined,
   );
+
+  /** Whether the list is shown whole. */
+  const short = new Shortening(SHORT_DETAILED);
 </script>
 
 <!--
@@ -52,7 +57,7 @@
 
   {#if wired !== undefined && wired.wired.length > 0}
     <ul class="entries" aria-label={m.wiring_said()}>
-      {#each wired.wired as link, place (place)}
+      {#each short.of(wired.wired) as link, place (place)}
         <li>
           <h3>{link.by}</h3>
           <ul class="lines">
@@ -63,6 +68,7 @@
         </li>
       {/each}
     </ul>
+    <ShowAll items={wired.wired} shortening={short} />
   {/if}
 
   {#if wired !== undefined && wired.unfilled.length > 0}

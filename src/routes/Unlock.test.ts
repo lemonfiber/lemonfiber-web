@@ -43,6 +43,32 @@ describe("the screen that opens lemonfiber", () => {
     ).toBeInTheDocument();
   });
 
+  // A household member signs in and never meets the terminal's key unless
+  // they ask for it; the operator at the terminal is one press away from it.
+  it("folds the terminal's key behind its question while a password is taken", async () => {
+    doorway();
+    expect(screen.getByText(m.unlock_prose_signin())).toBeVisible();
+    expect(screen.getByLabelText(m.unlock_label())).not.toBeVisible();
+
+    await userEvent.click(screen.getByText(m.wayin_key_open()));
+
+    expect(screen.getByLabelText(m.unlock_label())).toBeVisible();
+  });
+
+  it("asks for the key first where nothing takes a password, or the key held was turned away", () => {
+    const { unmount } = render(Unlock, { onopen: vi.fn() });
+    expect(screen.getByText(m.unlock_prose())).toBeVisible();
+    expect(screen.getByLabelText(m.unlock_label())).toBeVisible();
+    unmount();
+
+    render(Unlock, {
+      onopen: vi.fn(),
+      onsignin: answering(admitted),
+      refused: true,
+    });
+    expect(screen.getByLabelText(m.unlock_label())).toBeVisible();
+  });
+
   // One form, both kinds of person. Nothing on this screen picks between them.
   it("offers no choice of which kind of person is signing in", () => {
     doorway();

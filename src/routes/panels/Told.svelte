@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Port from "../../components/Port.svelte";
@@ -9,6 +10,7 @@
   import type { Tone } from "../../lib/state";
   import { toneOfAlert, wordOfSeverity, wordOfWay } from "../../lib/trouble";
   import type { Alert } from "../../lib/wire";
+  import { Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -53,6 +55,9 @@
       grouped: alert.affected.length > 1 ? alert.affected : [],
     };
   }
+
+  /** Whether the list is shown whole. */
+  const short = new Shortening();
 </script>
 
 <!--
@@ -78,7 +83,7 @@
 -->
 <Panel title={m.panel_told()} {freshness} flush={listed}>
   {#if said !== undefined && listed}
-    {#each said as one, at (at)}
+    {#each short.of(said) as one, at (at)}
       <article class="told" class:alarm={one.tone === "alarm"}>
         <Port tone={one.tone} />
         <div class="what">
@@ -107,6 +112,7 @@
         </div>
       </article>
     {/each}
+    <ShowAll items={said} shortening={short} />
   {:else if said !== undefined}
     <Value state="known" absent={m.told_none()} />
   {:else}

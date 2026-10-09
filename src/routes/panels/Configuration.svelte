@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Field from "../../components/Field.svelte";
@@ -17,6 +18,7 @@
   import { standingChange, type Configurer } from "../../lib/configuring";
   import type { Freshness } from "../../lib/freshness";
   import { readingOf, titleOfDoing } from "../../lib/work";
+  import { Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -68,6 +70,9 @@
   const standing = $derived(standingChange(work));
   const silent = $derived(configurer?.busy === true);
   const parted = $derived(standing !== undefined || work.length > 0);
+
+  /** Whether the list is shown whole. */
+  const short = new Shortening();
 </script>
 
 <!--
@@ -91,7 +96,7 @@
 
   {#if listed !== undefined}
     <ul class="settings" aria-label={m.config_settings()}>
-      {#each listed as setting (setting.key)}
+      {#each short.of(listed) as setting (setting.key)}
         <li class="setting">
           <div class="row">
             <div class="words">
@@ -148,6 +153,7 @@
         </li>
       {/each}
     </ul>
+    <ShowAll items={listed} shortening={short} />
   {:else}
     <div class="settings">
       {#if problem !== undefined}
