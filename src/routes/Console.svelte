@@ -49,6 +49,7 @@
   import { removing } from "../lib/removing";
   import { reclaiming } from "../lib/reclaiming";
   import { lettingGo } from "../lib/seeding";
+  import { agreedRestart, type Offered } from "../lib/restarting";
   import { placeChangedBy } from "../lib/rereading";
   import { consoleMenu, ours, pathOf, placeAt, type Place } from "../lib/route";
   import type {
@@ -251,10 +252,9 @@
    *
    * Five endpoints, asked together: the whole stack's condition, each service
    * in it, the forms the stack declares, what this machine keeps running, and
-   * what the media server is playing now.
-   * The forms are what the controls act on and are not something this page
-   * can hold in advance, so they are asked for with the rest rather than when
-   * a control is first pressed.
+   * what the media server is playing now. The forms are what the controls act
+   * on and are not something this page can hold in advance, so they are asked
+   * for with the rest rather than when a control is first pressed.
    */
   async function ask(): Promise<void> {
     const [whole, each, declared, kept, watched] = await Promise.all([
@@ -298,12 +298,9 @@
   }
 
   /**
-   * Ask lemonfiber for something, having asked about it first where it costs.
-   *
-   * Only the arguments the action's command takes are sent. One it has nowhere
-   * to put is refused rather than dropped, and a request that was refused for
-   * carrying something nobody meant to send is a request the operator has to
-   * make twice.
+   * Ask lemonfiber for something, having asked about it first where it costs,
+   * sending only what the action's command takes: lemonfiber refuses anything
+   * else rather than dropping it.
    */
   async function press(doing: Doing): Promise<void> {
     if (costly(doing) && confirming !== doing) {
@@ -418,6 +415,9 @@
     },
     onhush: () => {
       stream.waitingSaid = undefined;
+    },
+    onrestart: (offered: Offered) => {
+      void desk.answer(offered, "restart", agreedRestart(offered));
     },
   });
 

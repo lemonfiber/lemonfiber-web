@@ -151,7 +151,7 @@ answers with `certificate`, so nothing here could read it.
 | `up`                | the overview, against the forms chosen or all                                                                                                                                      |
 | `down`              | the overview, against the forms chosen or all                                                                                                                                      |
 | `switch`            | the overview, against the forms chosen                                                                                                                                             |
-| `restart`           | the overview, against the forms chosen                                                                                                                                             |
+| `restart`           | the overview, against the forms chosen: every program it would restart read first, then restarted on a yes carrying back the offer it was read under                               |
 | `pull`              | the overview, against the forms chosen                                                                                                                                             |
 | `seed`              | the overview, for the whole stack                                                                                                                                                  |
 | `adopt`             | the overview, for the whole stack                                                                                                                                                  |

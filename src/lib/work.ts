@@ -26,6 +26,7 @@
  */
 import { titleOfMove } from "./moved";
 import { titleOfPlug } from "./plugged";
+import { rehearsingRestart, type Offered } from "./restarting";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import type { Acted, Arguments } from "../api/acting";
 import type { Redeemed } from "../api/redeeming";
@@ -107,9 +108,10 @@ export const namesItsForms: readonly Doing[] = [
  *
  * The carrier is the one the request is made with rather than a second shape of
  * the same fields: what an action takes is one fact, and stating it twice is
- * where the two come to disagree.
+ * where the two come to disagree. A restart is rehearsed first (`./restarting`).
  */
 export function givenFor(doing: Doing, chosen: readonly string[]): Arguments {
+  if (doing === "restart") return rehearsingRestart(chosen);
   return takesForms.includes(doing) ? { forms: chosen } : {};
 }
 
@@ -541,4 +543,6 @@ export interface Controls {
   readonly ondrop: (id: string) => void;
   /** What putting the wait's newest line away asks for. */
   readonly onhush: () => void;
+  /** What the yes to a rehearsed restart asks for. */
+  readonly onrestart: (offered: Offered) => void;
 }

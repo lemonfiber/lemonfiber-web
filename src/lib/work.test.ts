@@ -98,9 +98,17 @@ describe("what an action is asked for with", () => {
   // An argument a command has nowhere to put is refused rather than dropped,
   // so a body carrying one is a request that will not be carried out at all.
   it("sends the chosen forms to the actions whose command holds them", () => {
-    for (const doing of takesForms) {
+    for (const doing of takesForms.filter((one) => one !== "restart")) {
       expect(givenFor(doing, chosen)).toStrictEqual({ forms: chosen });
     }
+  });
+
+  // A restart cuts off whoever is using what it reaches, so it is read first.
+  it("rehearses a restart of the chosen forms rather than making it", () => {
+    expect(givenFor("restart", chosen)).toStrictEqual({
+      forms: chosen,
+      dry_run: true,
+    });
   });
 
   it("sends nothing at all to the actions that take no forms", () => {

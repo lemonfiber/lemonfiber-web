@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { chosenForm, declared, job } from "./fixture";
+import { chosenForm, declared, job, restartOffered } from "./fixture";
 import { titleOfDoing, wordOfDoing } from "../lib/work";
 import * as m from "../paraglide/messages.js";
 import { enveloped } from "./served";
@@ -13,6 +13,15 @@ import {
   press,
   choose,
 } from "./Console.testing";
+
+/** A restart rehearsed, as asking about its work answers once it is done. */
+const rehearsed = {
+  status: 200,
+  body:
+    restartOffered.at === "done" && restartOffered.came.kind === "lifecycle"
+      ? enveloped("lifecycle", restartOffered.came.report)
+      : "",
+};
 
 describe("asking lemonfiber to do something", () => {
   beforeEach(() => {
@@ -45,10 +54,32 @@ describe("asking lemonfiber to do something", () => {
     await screen.findByText(declared[0]?.description ?? "");
 
     await choose(chosenForm);
-    await press(wordOfDoing("restart", true));
+    await press(wordOfDoing("pull", true));
 
     expect(sent.bodies).toStrictEqual([
       JSON.stringify({ forms: [chosenForm] }),
+    ]);
+  });
+
+  // Restarting cuts off whoever is using what it reaches, so what it reaches
+  // is read first, and the yes carries back the offer it was read under.
+  it("rehearses a restart, then restarts what was read on the yes", async () => {
+    const sent: Sent = { bodies: [], redeemed: [] };
+    console_({ sending: acting(accepted, sent, [rehearsed]) });
+    await screen.findByText(declared[0]?.description ?? "");
+
+    await choose(chosenForm);
+    await press(wordOfDoing("restart", true));
+    expect(
+      await screen.findByText(m.confirm_restart_title()),
+    ).toBeInTheDocument();
+    expect(screen.getByText("sonarr")).toBeInTheDocument();
+
+    await press(m.action_restart_these());
+
+    expect(sent.bodies).toStrictEqual([
+      JSON.stringify({ forms: [chosenForm], dry_run: true }),
+      JSON.stringify({ forms: [chosenForm], offer: "restart:gluetun,sonarr" }),
     ]);
   });
 

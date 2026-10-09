@@ -9,6 +9,7 @@
  * A panel's asking awaiting a yes is the panel's own. It is withdrawn by the
  * answer no, and spent by the answer yes.
  */
+import type { Arguments } from "../api/acting";
 import type { Asker, Asking, Family } from "../lib/asker";
 import type { Work } from "../lib/work";
 import { errands, type Holding, type Sender } from "./errands";
@@ -46,6 +47,20 @@ export class Desk {
   /** Put one record away. */
   drop(id: string): void {
     this.work = this.work.filter((one) => one.id !== id);
+  }
+
+  /**
+   * Answer the offer one record stands for: put it away, and send the yes,
+   * named as the asking it answers was, which is the record of what came of it
+   * from then on.
+   */
+  async answer(
+    record: Pick<Work, "id" | "scoped">,
+    doing: Work["doing"],
+    given: Arguments,
+  ): Promise<void> {
+    this.drop(record.id);
+    await this.send(doing, record.scoped, given);
   }
 
   /** The records one family of requests owns. */

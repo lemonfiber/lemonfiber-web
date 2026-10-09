@@ -4,6 +4,7 @@
   import Panel from "../../components/Panel.svelte";
   import { linesOf } from "../../lib/came";
   import type { Freshness } from "../../lib/freshness";
+  import { offeredRestart } from "../../lib/restarting";
   import {
     askable,
     askingOf,
@@ -31,6 +32,7 @@
     onleave,
     ondrop,
     onhush,
+    onrestart,
     freshness,
   }: Props = $props();
 
@@ -89,6 +91,11 @@
 
   The stamp is the stream's. A record is this tab's own and has no source to be
   fresh against; the wait's line is the one thing here that came from one.
+
+  A restart is read before it is made: pressing it rehearses it, and the row
+  that comes back names every program it would restart, with the yes beside
+  them. The yes carries back the offer they were read under, so what restarts
+  is what was read, or nothing where that has changed.
 
   What puts a row away names what it puts away. A reader listing the controls on
   a screen is given the names and nothing around them, and four of one name is
@@ -183,6 +190,27 @@
 
     {#each work as one (one.id)}
       {@const read = readingOf(one)}
+      {@const offered = offeredRestart(one)}
+      {#snippet restarting()}
+        {#if offered !== undefined && offered.services.length > 0}
+          <Action
+            label={m.action_restart_these()}
+            weight="firm"
+            off={busy}
+            onclick={() => {
+              onrestart(offered);
+              landing();
+            }}
+          />
+        {/if}
+        <Action
+          label={m.action_leave_running()}
+          onclick={() => {
+            ondrop(one.id);
+            landing();
+          }}
+        />
+      {/snippet}
       {#snippet dropping()}
         <Action
           label={m.action_hide_record()}
@@ -192,16 +220,34 @@
           }}
         />
       {/snippet}
-      <Item
-        state={read.state}
-        eyebrow={read.eyebrow}
-        title={titleOfDoing(one.doing, one.scoped)}
-        prose={read.prose}
-        lines={one.at === "done"
-          ? { named: m.came_heading(), said: linesOf(one.came) }
-          : undefined}
-        actions={dropping}
-      />
+      {#if offered === undefined}
+        <Item
+          state={read.state}
+          eyebrow={read.eyebrow}
+          title={one.given.dry_run === true
+            ? m.doing_restart_reading()
+            : titleOfDoing(one.doing, one.scoped)}
+          prose={read.prose}
+          lines={one.at === "done"
+            ? { named: m.came_heading(), said: linesOf(one.came) }
+            : undefined}
+          actions={dropping}
+        />
+      {:else}
+        <Item
+          state="stopped"
+          eyebrow={m.confirm_restart_eyebrow()}
+          title={m.confirm_restart_title()}
+          prose={offered.services.length > 0
+            ? m.confirm_restart_prose()
+            : m.confirm_restart_nothing()}
+          lines={{
+            named: m.confirm_restart_heading(),
+            said: offered.services,
+          }}
+          actions={restarting}
+        />
+      {/if}
     {/each}
   </div>
 </Panel>

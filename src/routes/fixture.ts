@@ -334,6 +334,7 @@ export const controls: Controls = {
   onleave: () => undefined,
   ondrop: () => undefined,
   onhush: () => undefined,
+  onrestart: () => undefined,
 };
 
 /** The name lemonfiber gave work it took on. */
@@ -399,6 +400,30 @@ export const finished: Work = {
   at: "done",
   job,
   came: { kind: "lifecycle", report: ran },
+};
+
+/**
+ * A restart of the chosen form, rehearsed: the services it would restart, under
+ * the offer that names them.
+ */
+export const restartOffered: Work = {
+  id: "7",
+  doing: "restart",
+  scoped: true,
+  given: { forms: [chosenForm], dry_run: true },
+  at: "done",
+  job,
+  came: {
+    kind: "lifecycle",
+    report: {
+      ...ran,
+      action: "restart",
+      plan: { ...ran.plan, forms: [chosenForm] },
+      rehearsed: true,
+      services: [],
+      offer: "restart:gluetun,sonarr",
+    },
+  },
 };
 
 /** What lemonfiber said about work that ran and stopped. */

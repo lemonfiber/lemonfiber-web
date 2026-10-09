@@ -8,6 +8,7 @@ import {
   finished,
   forgotten,
   notAnswering,
+  restartOffered,
   started,
   stillWaiting,
   stopped,
@@ -323,5 +324,105 @@ describe("a screen drawn from a fixture, with nothing wired to it", () => {
     }
 
     expect(screen.getByText(m.confirm_stop_title())).toBeInTheDocument();
+  });
+});
+
+describe("a restart, read before it is made", () => {
+  it("names every program it would restart, beside the yes", () => {
+    board({ controls: { ...controls, work: [restartOffered] } });
+    expect(screen.getByText(m.confirm_restart_prose())).toBeInTheDocument();
+    expect(screen.getByText("gluetun")).toBeInTheDocument();
+    expect(screen.getByText("sonarr")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: m.action_restart_these() }),
+    ).toBeInTheDocument();
+  });
+
+  // The yes takes its own row away, so focus goes to the region it was in.
+  it("hands focus to the region the question stood in, once answered", async () => {
+    board({ controls: { ...controls, work: [restartOffered] } });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: m.action_restart_these() }),
+    );
+
+    expect(document.activeElement).toBe(
+      screen.getByRole("status", { name: m.running_asked() }),
+    );
+  });
+
+  it("restarts what was read on a yes", async () => {
+    const onrestart = vi.fn();
+    board({ controls: { ...controls, work: [restartOffered], onrestart } });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: m.action_restart_these() }),
+    );
+
+    expect(onrestart).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "7", offer: "restart:gluetun,sonarr" }),
+    );
+  });
+
+  it("leaves everything running, and puts the question away, on a no", async () => {
+    const ondrop = vi.fn();
+    board({ controls: { ...controls, work: [restartOffered], ondrop } });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: m.action_leave_running() }),
+    );
+
+    expect(ondrop).toHaveBeenCalledWith("7");
+  });
+
+  // Pressing restart reads first, so the row says it is reading rather than
+  // that anything is restarting.
+  it("says it is reading what would restart while the rehearsal runs", () => {
+    board({
+      controls: {
+        ...controls,
+        work: [
+          {
+            id: "8",
+            doing: "restart",
+            scoped: true,
+            given: { forms: ["media"], dry_run: true },
+            at: "under-way",
+            job: "5c63",
+          },
+        ],
+      },
+    });
+    expect(screen.getByText(m.doing_restart_reading())).toBeInTheDocument();
+    expect(screen.queryByText(m.doing_restart_title())).toBeNull();
+  });
+
+  it("offers no yes where nothing would restart", () => {
+    const nothing =
+      restartOffered.at === "done" && restartOffered.came.kind === "lifecycle"
+        ? {
+            ...restartOffered,
+            came: {
+              ...restartOffered.came,
+              report: {
+                ...restartOffered.came.report,
+                plan: { ...restartOffered.came.report.plan, services: [] },
+              },
+            },
+          }
+        : restartOffered;
+    board({ controls: { ...controls, work: [nothing] } });
+
+    expect(screen.getByText(m.confirm_restart_nothing())).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: m.action_restart_these() }),
+    ).toBeNull();
+  });
+
+  it("silences the yes while a request is in flight", () => {
+    board({ controls: { ...controls, work: [restartOffered], busy: true } });
+    expect(
+      screen.getByRole("button", { name: m.action_restart_these() }),
+    ).toHaveAttribute("aria-disabled", "true");
   });
 });
