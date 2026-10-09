@@ -75,11 +75,14 @@ export function finderOf(vocabulary: Vocabulary): Finder {
 /** Code between backticks. */
 const CODE = /`[^`]+`/gu;
 
+/** A run of text with no space in it. */
+const RUN = /\S+/gu;
+
 /**
- * A run of text that names something rather than saying a word: an address, a
- * path, or a name joined by underscores.
+ * Whether a run of text names something rather than saying a word: an
+ * address, a path, or a name joined by underscores.
  */
-const NAMED = /\S*[/_]\S*/gu;
+const names = (run: string): boolean => run.includes("/") || run.includes("_");
 
 /** A line cut into its plain runs and its code, before any term is looked for. */
 function codeOf(text: string): readonly Piece[] {
@@ -99,9 +102,9 @@ function codeOf(text: string): readonly Piece[] {
 
 /** Where the runs that name something sit in a stretch of text. */
 function namedIn(text: string): readonly (readonly [number, number])[] {
-  return [...text.matchAll(NAMED)].map(
-    (found) => [found.index, found.index + found[0].length] as const,
-  );
+  return [...text.matchAll(RUN)]
+    .filter((found) => names(found[0]))
+    .map((found) => [found.index, found.index + found[0].length] as const);
 }
 
 /** One stretch of plain text cut at its terms. */

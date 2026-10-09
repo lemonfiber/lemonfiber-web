@@ -15,8 +15,29 @@ export type Note =
   | { readonly kind: "item"; readonly text: string }
   | { readonly kind: "line"; readonly text: string };
 
-/** A link's words, without its address. */
-const LINK = /\[([^\]]*)\]\([^)]*\)/gu;
+/**
+ * A line with every link read as its words, without its address. Read by hand
+ * rather than by an expression, which would go back over a line with many
+ * brackets once for every one of them.
+ */
+function unlinked(line: string): string {
+  let read = "";
+  let from = 0;
+  for (;;) {
+    const open = line.indexOf("[", from);
+    const shut = open === -1 ? -1 : line.indexOf("]", open);
+    if (shut === -1) return read + line.slice(from);
+    const address = line.startsWith("(", shut + 1)
+      ? line.indexOf(")", shut)
+      : -1;
+    if (address === -1) {
+      read += line.slice(from, shut + 1);
+    } else {
+      read += line.slice(from, open) + line.slice(open + 1, shut);
+    }
+    from = address === -1 ? shut + 1 : address + 1;
+  }
+}
 
 /** A heading's marks. */
 const HEADING = /^#{1,6}\s+/u;
@@ -33,7 +54,7 @@ export function notesOf(
 ): readonly Note[] | undefined {
   const notes: Note[] = [];
   for (const raw of (markdown ?? "").split("\n")) {
-    const line = raw.trim().replaceAll(LINK, "$1");
+    const line = unlinked(raw.trim());
     if (line === "") continue;
     if (HEADING.test(line)) {
       notes.push({ kind: "heading", text: line.replace(HEADING, "") });

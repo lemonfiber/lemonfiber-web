@@ -35,6 +35,17 @@ describe("reading release notes", () => {
     ]);
   });
 
+  it("leaves brackets that are not a link as written", () => {
+    expect(
+      notesOf("- see [the list] and (this), then [a link](x) and [a](b"),
+    ).toStrictEqual([
+      {
+        kind: "item",
+        text: "see [the list] and (this), then a link and [a](b",
+      },
+    ]);
+  });
+
   it("reads notes with no markup as one line", () => {
     expect(notesOf("Adds the household view.")).toStrictEqual([
       { kind: "line", text: "Adds the household view." },
