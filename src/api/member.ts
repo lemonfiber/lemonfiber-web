@@ -36,6 +36,21 @@ export const REQUESTS = "/api/requests";
 /** What one member can watch. */
 const HELD = "/api/held";
 
+/** A picture of a title on the shelf: its poster, or the wide one behind it. */
+export type Artwork = "poster" | "backdrop";
+
+/**
+ * Where a title's picture is read, at this page's own address.
+ *
+ * lemonfiber serves a member's artwork from the console's address rather than
+ * from the media server's door, so the page asks nothing of another origin and
+ * the browser need not trust the door's certificate. It answers the member's
+ * own shelf only, and nothing where a title has no picture.
+ */
+export function artworkAt(id: string, picture: Artwork): string {
+  return `${HELD}/${encodeURIComponent(id)}/${picture}`;
+}
+
 /** The statuses lemonfiber, or a proxy in front of it, turns a request away with. */
 const TURNED_AWAY: ReadonlySet<number> = new Set([401, 403]);
 

@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/svelte";
+import { fireEvent, render, screen, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { unreachable } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
@@ -50,6 +50,25 @@ describe("what the household holds that a member can watch", () => {
         0,
       );
     }
+  });
+
+  // Pictures come from this page's own address, never the media server's door,
+  // and a picture that cannot be read leaves the title lettered in its place.
+  it("asks this page's own address for each poster, and letters a title whose poster is not there", async () => {
+    drawn({ at: "answered", value: kitsShelf });
+    const shelf = within(panel(m.member_shelf_title())).getByRole("list", {
+      name: m.member_shelf_title(),
+    });
+    const pictures = shelf.querySelectorAll("img");
+    expect([...pictures].map((one) => one.getAttribute("src"))).toStrictEqual(
+      kitsShelf.holdings.map((one) => `/api/held/${one.id}/poster`),
+    );
+
+    await fireEvent.error(pictures[0] ?? document.body);
+
+    expect(shelf.querySelectorAll("img")).toHaveLength(
+      kitsShelf.holdings.length - 1,
+    );
   });
 
   it("says what kind of thing each is, and the year where the server knows one", () => {
