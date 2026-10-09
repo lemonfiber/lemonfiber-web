@@ -38,18 +38,27 @@ describe("what the household holds that a member can watch", () => {
   // is drawn and none is held back here.
   it("draws every title the media server showed them, and nothing more", () => {
     drawn({ at: "answered", value: kitsShelf });
-    const table = within(panel(m.member_shelf_title())).getByRole("table");
-    const rows = within(table).getAllByRole("row");
+    const shelf = within(panel(m.member_shelf_title())).getByRole("list", {
+      name: m.member_shelf_title(),
+    });
 
-    expect(rows).toHaveLength(kitsShelf.holdings.length + 1);
+    expect(within(shelf).getAllByRole("listitem")).toHaveLength(
+      kitsShelf.holdings.length,
+    );
     for (const holding of kitsShelf.holdings) {
-      expect(within(table).getByText(holding.title)).toBeInTheDocument();
+      expect(within(shelf).getAllByText(holding.title).length).toBeGreaterThan(
+        0,
+      );
     }
   });
 
   it("says what kind of thing each is, and the year where the server knows one", () => {
     drawn({ at: "answered", value: kitsShelf });
-    expect(screen.getByText("2016")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        m.member_shelf_caption({ kind: mediumOf("film"), year: 2016 }),
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByText(mediumOf("series"))).toBeInTheDocument();
     expect(screen.getByText(mediumOf("other"))).toBeInTheDocument();
   });

@@ -75,3 +75,16 @@ export const WithArtwork: Story = {
     label: m.poster_ready_to_watch(),
   },
 };
+
+/**
+ * Artwork named and not reachable — a door the browser does not trust yet, or
+ * a picture the server would not give. The lettering stands in, as it does
+ * where no artwork was named at all.
+ */
+export const ArtworkThatFailsToLoad: Story = {
+  args: {
+    title: "Arrival",
+    artwork: "data:image/png;base64,bm90IGEgcGljdHVyZQ==",
+    note: "Film · 2016",
+  },
+};

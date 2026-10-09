@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/svelte";
+import { fireEvent, render, screen } from "@testing-library/svelte";
 import { describe, expect, it } from "vitest";
 import Poster from "./Poster.svelte";
 import { wordFor } from "../lib/state";
@@ -20,6 +20,16 @@ describe("Poster", () => {
     const { container } = render(Poster, dune);
     expect(container.querySelector(".blank")).toHaveTextContent(dune.title);
     expect(container.querySelector("img")).toBeNull();
+  });
+
+  // A picture that cannot be reached leaves a wall of titles, not of holes.
+  it("stands the title in for artwork that fails to load", async () => {
+    const { container } = render(Poster, { ...dune, artwork });
+    const picture = container.querySelector("img");
+    expect(picture).toHaveAttribute("referrerpolicy", "no-referrer");
+    await fireEvent.error(picture ?? document.body);
+    expect(container.querySelector("img")).toBeNull();
+    expect(container.querySelector(".blank")).toHaveTextContent(dune.title);
   });
 
   it("shows the artwork where there is some", () => {

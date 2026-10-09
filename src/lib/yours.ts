@@ -200,3 +200,10 @@ export function besideOf(request: Request): string | undefined {
   const days = request.waiting_days ?? undefined;
   return days === undefined ? undefined : m.waiting_days({ days });
 }
+
+/** What a title on the shelf is and when it came out, in a few words. */
+export function captionOf(holding: Holding): string {
+  const kind = mediumOf(holding.medium);
+  const year = holding.year ?? undefined;
+  return year === undefined ? kind : m.member_shelf_caption({ kind, year });
+}

@@ -1,15 +1,14 @@
 <script lang="ts">
   import Board from "./Board.svelte";
   import Action from "../components/Action.svelte";
-  import DataTable from "../components/DataTable.svelte";
+  import Poster from "../components/Poster.svelte";
   import Panel from "../components/Panel.svelte";
   import Skeleton from "../components/Skeleton.svelte";
   import Value from "../components/Value.svelte";
   import type { Heard } from "../api/member";
   import type { Freshness } from "../lib/freshness";
-  import type { Column, Row } from "../lib/table";
   import type { Access } from "../lib/wire";
-  import { mediumOf, watchOf, type Holding, type Shelf } from "../lib/yours";
+  import { captionOf, watchOf, type Shelf } from "../lib/yours";
   import * as m from "../paraglide/messages.js";
 
   interface Props {
@@ -27,11 +26,6 @@
 
   let { access, watched, shelf, freshness, onretry }: Props = $props();
 
-  const columns: readonly Column[] = [
-    { head: m.member_head_title() },
-    { head: m.member_head_kind() },
-  ];
-
   /** What they may watch, where it was answered and says anything. */
   const limits = $derived(
     access?.at === "answered" && access.value.length > 0
@@ -43,30 +37,14 @@
   const held = $derived(
     shelf?.at === "answered" && shelf.value.available ? shelf.value : undefined,
   );
-
-  /** Everything on the shelf, as the table's rows. */
-  function rows(holdings: readonly Holding[]): readonly Row[] {
-    return holdings.map((holding): Row => {
-      const year = holding.year ?? undefined;
-      return {
-        kind: "answered",
-        key: holding.id,
-        cells: [
-          {
-            kind: "words",
-            text: holding.title,
-            caption: year === undefined ? undefined : String(year),
-            emphasis: "lead",
-          },
-          { kind: "words", text: mediumOf(holding.medium) },
-        ],
-      };
-    });
-  }
 </script>
 
 <!--
   What a household member can watch, and what the household holds that they can.
+
+  The shelf comes first, drawn as posters, each with its title as text beneath
+  it, and a title with no poster is drawn lettered with its name. What the
+  member is held to follows it.
 
   Both are what lemonfiber answered this time and nothing else. The shelf is
   what the media server shows this member, with their limits already applied by
@@ -79,6 +57,32 @@
   with a way to ask again.
 -->
 <Board>
+  <Panel stamped="quiet" title={m.member_shelf_title()} {freshness}>
+    {#if held !== undefined && held.holdings.length > 0}
+      <ul class="posters" aria-label={m.member_shelf_title()}>
+        {#each held.holdings as holding (holding.id)}
+          <li>
+            <Poster title={holding.title} note={captionOf(holding)} />
+          </li>
+        {/each}
+      </ul>
+    {:else if held !== undefined}
+      <Value state="known" absent={m.member_shelf_empty()} />
+    {:else if shelf === undefined}
+      <Skeleton width="16rem" label={m.waiting_answer()} />
+    {:else}
+      <Value
+        state="unknown"
+        absent={shelf.at === "declined" ? shelf.said : m.member_shelf_unread()}
+      />
+      {#if onretry !== undefined}
+        <div class="again">
+          <Action label={m.action_try_again()} onclick={onretry} />
+        </div>
+      {/if}
+    {/if}
+  </Panel>
+
   <Panel stamped="quiet" title={m.member_watch_title()} freshness={watched}>
     {#if limits !== undefined}
       {#each limits as one, at (at)}
@@ -102,35 +106,6 @@
       {/if}
     {/if}
   </Panel>
-
-  <Panel
-    stamped="quiet"
-    title={m.member_shelf_title()}
-    {freshness}
-    flush={held !== undefined && held.holdings.length > 0}
-  >
-    {#if held !== undefined && held.holdings.length > 0}
-      <DataTable
-        label={m.member_shelf_title()}
-        {columns}
-        rows={rows(held.holdings)}
-      />
-    {:else if held !== undefined}
-      <Value state="known" absent={m.member_shelf_empty()} />
-    {:else if shelf === undefined}
-      <Skeleton width="16rem" label={m.waiting_answer()} />
-    {:else}
-      <Value
-        state="unknown"
-        absent={shelf.at === "declined" ? shelf.said : m.member_shelf_unread()}
-      />
-      {#if onretry !== undefined}
-        <div class="again">
-          <Action label={m.action_try_again()} onclick={onretry} />
-        </div>
-      {/if}
-    {/if}
-  </Panel>
 </Board>
 
 <style>
@@ -143,6 +118,17 @@
 
   .line + .line {
     margin-top: var(--sp-2);
+  }
+
+  /* As many posters to a row as fit at a width a title can still be read at,
+     so a phone shows two and a wide screen shows a shelf. */
+  .posters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    gap: var(--sp-5) var(--sp-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   .again {

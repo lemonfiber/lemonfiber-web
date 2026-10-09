@@ -65,6 +65,12 @@ function signedIn(sending: Sending): { onrefused: ReturnType<typeof vi.fn> } {
   return { onrefused };
 }
 
+/**
+ * Text as it is read, passing over a poster's lettering, which repeats the
+ * title beneath it and is hidden from a screen reader for that reason.
+ */
+const read = { ignore: "[aria-hidden='true'], script, style" };
+
 /** Every address the transport was asked for. */
 const asked = (sending: Sending): readonly URL[] =>
   vi.mocked(sending).mock.calls.map(([url]) => new URL(url));
@@ -175,7 +181,7 @@ describe("what the household holds, for the member signed in", () => {
 
     await room(nameOfRoom("held"));
 
-    expect(await screen.findByText("Arrival")).toBeInTheDocument();
+    expect(await screen.findByText("Arrival", read)).toBeInTheDocument();
     const shelf = asked(sending).find((url) => url.pathname === "/api/held");
     expect(shelf?.searchParams.getAll("member")).toEqual([kitsId]);
     expect([...(shelf?.searchParams.keys() ?? [])]).toEqual(["member"]);
@@ -203,7 +209,7 @@ describe("what the household holds, for the member signed in", () => {
     );
     await screen.findByText("Andor");
     await room(nameOfRoom("held"));
-    await screen.findByText("Arrival");
+    await screen.findByText("Arrival", read);
 
     await room(nameOfRoom("asked"));
     answering_ = false;
@@ -212,7 +218,7 @@ describe("what the household holds, for the member signed in", () => {
     expect(
       await screen.findByText(m.member_shelf_unread()),
     ).toBeInTheDocument();
-    expect(screen.queryByText("Arrival")).toBeNull();
+    expect(screen.queryByText("Arrival", read)).toBeNull();
   });
 
   it("asks again for the shelf when told, and draws it once it answers", async () => {
@@ -232,20 +238,20 @@ describe("what the household holds, for the member signed in", () => {
 
     await userEvent.click(again[0] ?? document.body);
 
-    expect(await screen.findByText("Arrival")).toBeInTheDocument();
+    expect(await screen.findByText("Arrival", read)).toBeInTheDocument();
   });
 
   it("opens on the shelf where the address names it", async () => {
     globalThis.history.replaceState(undefined, "", "/held");
     signedIn(answering(answers()));
-    expect(await screen.findByText("Arrival")).toBeInTheDocument();
+    expect(await screen.findByText("Arrival", read)).toBeInTheDocument();
   });
 
   it("follows the back button", async () => {
     signedIn(answering(answers()));
     await screen.findByText("Andor");
     await room(nameOfRoom("held"));
-    await screen.findByText("Arrival");
+    await screen.findByText("Arrival", read);
 
     globalThis.history.replaceState(undefined, "", "/");
     globalThis.dispatchEvent(new PopStateEvent("popstate"));
