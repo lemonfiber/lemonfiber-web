@@ -66,6 +66,7 @@ describe("updating the stack from the settings screen", () => {
       doing: "update",
       confirm: true,
       wait: true,
+      offer: plan.offer,
     });
   });
 

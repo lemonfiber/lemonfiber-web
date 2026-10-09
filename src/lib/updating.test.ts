@@ -34,8 +34,13 @@ describe("what the updates panel asks for", () => {
     expect(updating.question({ doing: "update" })).toBeUndefined();
     expect(givenForUpdate({ doing: "update" })).toStrictEqual({});
     expect(
-      givenForUpdate({ doing: "update", confirm: true, wait: true }),
-    ).toStrictEqual({ confirm: true, wait: true });
+      givenForUpdate({
+        doing: "update",
+        confirm: true,
+        wait: true,
+        offer: "update-offer-1",
+      }),
+    ).toStrictEqual({ confirm: true, wait: true, offer: "update-offer-1" });
   });
 });
 
@@ -47,6 +52,7 @@ describe("the plan standing on the screen", () => {
       id: "7",
       steps: plan.changes,
       inFlight: plan.in_flight,
+      offer: plan.offer,
     });
   });
 

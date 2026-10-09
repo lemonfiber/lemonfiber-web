@@ -42,9 +42,10 @@
 
   What updating would change is read first: unconfirmed, it moves nothing and
   answers with every step, how large each is, whether anything walks it back
-  and what it means. The yes under that is the same request, confirmed. Where
-  the download clients are still working on something, the yes carries whether
-  it is let finish first.
+  and what it means. The yes under that is the same request, confirmed, and
+  carries back the offer the steps were read under, so lemonfiber takes those
+  steps or refuses where they have moved since. Where the download clients are
+  still working on something, the yes carries whether it is let finish first.
 -->
 <Panel title={m.panel_updates()} {freshness} flush>
   <div class="scope">
@@ -98,7 +99,12 @@
             weight="firm"
             off={updater.busy}
             onclick={() => {
-              updater.onask({ doing: "update", confirm: true, wait });
+              updater.onask({
+                doing: "update",
+                confirm: true,
+                wait,
+                offer: plan.offer,
+              });
               landing();
             }}
           />
