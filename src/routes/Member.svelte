@@ -12,6 +12,7 @@
     shelfOf,
     takingArtwork,
     titleOf,
+    watchingOf,
     type Answer,
     type Heard,
   } from "../api/member";
@@ -26,6 +27,7 @@
   } from "../lib/rooms";
   import { ours } from "../lib/route";
   import type { Access, Household } from "../lib/wire";
+  import type { PartWays } from "../lib/partway";
   import type { Told } from "../lib/title";
   import type { Holding, Shelf as Held } from "../lib/yours";
   import * as m from "../paraglide/messages.js";
@@ -53,6 +55,7 @@
   let keptAt = $state<number | undefined>(undefined);
   let shelf = $state<Heard<Held> | undefined>(undefined);
   let shelfAt = $state<number | undefined>(undefined);
+  let watching = $state<Heard<PartWays> | undefined>(undefined);
   let away = $state<Answer<string> | undefined>(undefined);
   let opened = $state<Holding | undefined>(undefined);
   let told = $state<Heard<Told> | undefined>(undefined);
@@ -128,6 +131,7 @@
     own = undefined;
     shelf = undefined;
     shelfAt = undefined;
+    watching = undefined;
     away = undefined;
     close();
     void ask(to);
@@ -189,17 +193,23 @@
       return;
     }
 
-    const [mine, held] = await Promise.all([
+    const [mine, held, partWay] = await Promise.all([
       theirs,
       heard(reaching, shelfOf(member), "held"),
+      heard(reaching, watchingOf(member), "part-way"),
     ]);
     if (!settled(latest, mine)) return;
     if (held.at === "refused") {
       turned(held.said);
       return;
     }
+    if (partWay.at === "refused") {
+      turned(partWay.said);
+      return;
+    }
     shelf = held;
     shelfAt = held.at === "answered" ? Date.now() : undefined;
+    watching = partWay;
   }
 
   /**
@@ -273,6 +283,7 @@
       {access}
       {watched}
       {shelf}
+      {watching}
       freshness={stocked}
       posters={(id: string) => takingArtwork(reaching, id, "poster")}
       {opened}

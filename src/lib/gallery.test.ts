@@ -75,7 +75,6 @@ describe("the pictures on a shelf", () => {
     const { taking, asked, answer } = held();
     const gallery = new Gallery(taking);
     gallery.want("t0");
-    gallery.want("t0");
     await answer("t0", picture);
 
     gallery.release("t0");
@@ -84,6 +83,25 @@ describe("the pictures on a shelf", () => {
 
     gallery.want("t0");
     expect(asked).toStrictEqual(["t0", "t0"]);
+  });
+
+  // A title on the shelf and in what a member was part-way through is shown
+  // twice, and asked for once.
+  it("asks once for a title shown in two places, and lets it go once neither shows it", async () => {
+    const { taking, asked, answer } = held();
+    const gallery = new Gallery(taking);
+    gallery.want("t0");
+    gallery.want("t0");
+    await answer("t0", picture);
+    expect(asked).toStrictEqual(["t0"]);
+
+    gallery.release("t0");
+    expect(gallery.drawnFrom("t0")).toBe("blob:poster-0");
+    expect(revoked).toStrictEqual([]);
+
+    gallery.release("t0");
+    expect(gallery.drawnFrom("t0")).toBeUndefined();
+    expect(revoked).toStrictEqual(["blob:poster-0"]);
   });
 
   it("draws nothing for a title that left before its picture arrived, or was never waited on", async () => {

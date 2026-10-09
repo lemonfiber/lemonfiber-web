@@ -5,7 +5,15 @@ import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Member from "./Member.svelte";
 import { enveloped, refusedAs, replying } from "../api/bodies";
-import { arrival, kit, kitsId, kitsShelf, yours } from "./mine";
+import {
+  arrival,
+  kit,
+  kitsId,
+  kitsNothingPartWay,
+  kitsPartWay,
+  kitsShelf,
+  yours,
+} from "./mine";
 import { household } from "./house";
 import { nameOfRoom } from "../lib/rooms";
 import { everyPlace, nameOf } from "../lib/route";
@@ -47,6 +55,8 @@ const answers =
       return { status: 200, body: enveloped("household", theirs) };
     if (url.pathname === "/api/held")
       return { status: 200, body: enveloped("held", kitsShelf) };
+    if (url.pathname === "/api/watching")
+      return { status: 200, body: enveloped("part-way", kitsNothingPartWay) };
     return { status: 403, body: notYours };
   };
 
@@ -186,6 +196,26 @@ describe("what the household holds, for the member signed in", () => {
     expect(shelf?.searchParams.getAll("member")).toEqual([kitsId]);
     expect([...(shelf?.searchParams.keys() ?? [])]).toEqual(["member"]);
     expect(globalThis.location.pathname).toBe("/held");
+  });
+
+  it("asks what they were part-way through, for the member the door named", async () => {
+    const sending = answering((url) =>
+      url.pathname === "/api/watching"
+        ? { status: 200, body: enveloped("part-way", kitsPartWay) }
+        : answers()(url),
+    );
+    signedIn(sending);
+    await screen.findByText("Andor");
+
+    await room(nameOfRoom("held"));
+
+    expect(
+      await screen.findByRole("region", { name: m.member_partway_title() }),
+    ).toBeInTheDocument();
+    const watching = asked(sending).find(
+      (url) => url.pathname === "/api/watching",
+    );
+    expect(watching?.searchParams.getAll("member")).toEqual([kitsId]);
   });
 
   it("says what they are held to, as lemonfiber answered it", async () => {
@@ -603,10 +633,13 @@ describe("a member lemonfiber stops taking", () => {
     });
   });
 
-  it("is signed out where the shelf alone is refused", async () => {
+  it.each([
+    ["the shelf", "/api/held"],
+    ["what they were part-way through", "/api/watching"],
+  ])("is signed out where %s alone is refused", async (_what, refused) => {
     const { onrefused } = signedIn(
       answering((url) =>
-        url.pathname === "/api/held"
+        url.pathname === refused
           ? { status: 403, body: nobody }
           : answers()(url),
       ),

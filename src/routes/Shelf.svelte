@@ -2,6 +2,7 @@
   import { onDestroy } from "svelte";
   import Board from "./Board.svelte";
   import Action from "../components/Action.svelte";
+  import Meter from "../components/Meter.svelte";
   import Poster from "../components/Poster.svelte";
   import Panel from "../components/Panel.svelte";
   import Skeleton from "../components/Skeleton.svelte";
@@ -10,6 +11,13 @@
   import type { Heard } from "../api/member";
   import type { Freshness } from "../lib/freshness";
   import { Gallery, onScreen, type Taking } from "../lib/gallery.svelte";
+  import {
+    farOf,
+    partOf,
+    shelvedAs,
+    type PartWay,
+    type PartWays,
+  } from "../lib/partway";
   import type { Told } from "../lib/title";
   import type { Access } from "../lib/wire";
   import { captionOf, watchOf, type Holding, type Shelf } from "../lib/yours";
@@ -24,6 +32,8 @@
     shelf: Heard<Shelf> | undefined;
     /** When the shelf was answered. */
     freshness: Freshness;
+    /** What they were part-way through, as lemonfiber answered it this time. */
+    watching?: Heard<PartWays> | undefined;
     /** Ask again, where something could not be read. */
     onretry?: (() => void) | undefined;
     /** Asking for one title's poster. Left out, every title is lettered. */
@@ -43,6 +53,7 @@
     watched,
     shelf,
     freshness,
+    watching,
     onretry,
     posters,
     opened,
@@ -64,6 +75,44 @@
       ? access.value
       : undefined,
   );
+
+  /**
+   * What they were part-way through, where it was read and holds anything.
+   * Nothing part-way is no panel at all: there is nothing to carry on with.
+   */
+  const partWay = $derived(
+    watching?.at === "answered" &&
+      watching.value.available &&
+      watching.value.part_way.length > 0
+      ? watching.value.part_way
+      : undefined,
+  );
+
+  /**
+   * What is said where what they were part-way through went unread: what
+   * lemonfiber said where it declined, and that it went unread otherwise.
+   */
+  const partWayUnread = $derived(unreadOf(watching));
+
+  /** A panel that went unread was answered at no time it can be stamped with. */
+  const UNREAD: Freshness = { kind: "never" };
+
+  function unreadOf(answer: Heard<PartWays> | undefined): string | undefined {
+    if (answer === undefined) return undefined;
+    if (answer.at === "declined") return answer.said;
+    if (answer.at === "answered" && answer.value.available) return undefined;
+    return m.member_partway_unread();
+  }
+
+  /** Open what they were part-way through, where it is a shelf title. */
+  function opening(one: PartWay): (() => void) | undefined {
+    const holding = shelvedAs(one);
+    if (holding === undefined || onopen === undefined) return undefined;
+    const open = onopen;
+    return () => {
+      open(holding);
+    };
+  }
 
   /** The shelf, where it was answered and could be read. */
   const held = $derived(
@@ -92,6 +141,34 @@
   with a way to ask again.
 -->
 <Board>
+  {#if partWay !== undefined}
+    <Panel stamped="quiet" title={m.member_partway_title()} {freshness}>
+      <ul class="posters" aria-label={m.member_partway_title()}>
+        {#each partWay as one (one.id)}
+          {@const part = partOf(one)}
+          <li class="part-way" {@attach onScreen(gallery, one.id)}>
+            <Poster
+              title={one.title}
+              artwork={gallery.drawnFrom(one.id)}
+              note={farOf(one)}
+              onopen={opening(one)}
+            />
+            {#if part !== undefined}
+              <Meter
+                {part}
+                label={m.member_partway_meter({ title: one.title })}
+              />
+            {/if}
+          </li>
+        {/each}
+      </ul>
+    </Panel>
+  {:else if partWayUnread !== undefined}
+    <Panel stamped="quiet" title={m.member_partway_title()} freshness={UNREAD}>
+      <Value state="unknown" absent={partWayUnread} />
+    </Panel>
+  {/if}
+
   <Panel stamped="quiet" title={m.member_shelf_title()} {freshness}>
     {#if held !== undefined && held.holdings.length > 0}
       <ul class="posters" aria-label={m.member_shelf_title()}>
@@ -187,6 +264,12 @@
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  .part-way {
+    display: grid;
+    gap: var(--sp-2);
+    align-content: start;
   }
 
   .again {

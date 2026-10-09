@@ -37,6 +37,9 @@ export const REQUESTS = "/api/requests";
 /** What one member can watch. */
 const HELD = "/api/held";
 
+/** What one member was part-way through. */
+const WATCHING = "/api/watching";
+
 /** A picture of a title on the shelf: its poster, or the wide one behind it. */
 export type Artwork = "poster" | "backdrop";
 
@@ -125,6 +128,16 @@ export type Heard<T> = Exclude<Answer<T>, { at: "refused" }>;
  */
 export function shelfOf(member: string): string {
   return `${HELD}?${new URLSearchParams({ member }).toString()}`;
+}
+
+/**
+ * Where what that member was part-way through is read, most recent first.
+ *
+ * As with the shelf, lemonfiber decides whose it is from the session, and the
+ * member the door named is named back to it.
+ */
+export function watchingOf(member: string): string {
+  return `${WATCHING}?${new URLSearchParams({ member }).toString()}`;
 }
 
 /**
