@@ -54,6 +54,7 @@
   "playing_watching": "{member} is watching {medium} on {device}.",
   "playing_paused": "{member} has paused {medium} on {device}.",
   "playing_film": "a film",
+  "playing_an_episode": "an episode",
   "playing_series": "an episode",
   "playing_other": "something",
   "playing_medium_other": "something this page has no word for",

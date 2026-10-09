@@ -44,6 +44,7 @@ describe("what one session is playing", () => {
 
   it("has words for every kind of thing, and says so of one it has none for", () => {
     expect(wordOfMedium("other")).toBe(m.playing_other());
+    expect(wordOfMedium("episode")).toBe(m.playing_an_episode());
     expect(wordOfMedium("radio" as Session["medium"])).toBe(
       m.playing_medium_other(),
     );

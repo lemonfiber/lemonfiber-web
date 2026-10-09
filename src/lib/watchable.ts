@@ -23,6 +23,8 @@ export function wordOfKind(medium: Medium): string {
       return m.watch_film();
     case "series":
       return m.watch_series();
+    case "episode":
+      return m.watch_episode();
     case "other":
       return m.watch_other();
     default:

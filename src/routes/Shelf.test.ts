@@ -3,7 +3,13 @@ import userEvent from "@testing-library/user-event";
 import { unreachable } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
 import Shelf from "./Shelf.svelte";
-import { kit, kitsEmptyShelf, kitsShelf, kitsUnreadShelf } from "./mine";
+import {
+  arrival,
+  kit,
+  kitsEmptyShelf,
+  kitsShelf,
+  kitsUnreadShelf,
+} from "./mine";
 import type { Heard } from "../api/member";
 import type { Freshness } from "../lib/freshness";
 import type { Access } from "../lib/wire";
@@ -241,5 +247,75 @@ describe("the stamp a member is shown", () => {
     expect(
       screen.getByText(m.fresh_silent({ span: m.span_minutes({ count: 5 }) })),
     ).toBeVisible();
+  });
+});
+
+describe("one title, opened over the shelf", () => {
+  const [first] = kitsShelf.holdings;
+
+  it("opens the title whose poster is pressed", async () => {
+    const onopen = vi.fn();
+    render(Shelf, {
+      access: theirs,
+      watched: answered,
+      shelf: { at: "answered", value: kitsShelf },
+      freshness: answered,
+      onopen,
+      onclose: vi.fn(),
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: "Arrival" }));
+
+    expect(onopen).toHaveBeenCalledWith(first);
+  });
+
+  it("draws the opened title over the shelf, and reads it again when asked", async () => {
+    const onopen = vi.fn();
+    render(Shelf, {
+      access: theirs,
+      watched: answered,
+      shelf: { at: "answered", value: kitsShelf },
+      freshness: answered,
+      opened: first,
+      told: { at: "unanswered", problem: unreachable() },
+      onopen,
+      onclose: vi.fn(),
+    });
+    const card = screen.getByRole("dialog", { name: "Arrival" });
+
+    await userEvent.click(
+      within(card).getByRole("button", { name: m.action_try_again() }),
+    );
+
+    expect(onopen).toHaveBeenCalledWith(first);
+  });
+
+  it("draws an opened title with nothing to ask again with where nothing opens", () => {
+    render(Shelf, {
+      access: theirs,
+      watched: answered,
+      shelf: { at: "answered", value: kitsShelf },
+      freshness: answered,
+      opened: first,
+      told: { at: "unanswered", problem: unreachable() },
+      onclose: vi.fn(),
+    });
+    const card = screen.getByRole("dialog", { name: "Arrival" });
+    expect(
+      within(card).queryByRole("button", { name: m.action_try_again() }),
+    ).toBeNull();
+  });
+
+  it("opens nothing where there is no way to put it away", () => {
+    render(Shelf, {
+      access: theirs,
+      watched: answered,
+      shelf: { at: "answered", value: kitsShelf },
+      freshness: answered,
+      opened: first,
+      told: { at: "answered", value: arrival },
+    });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.queryByRole("button")).toBeNull();
   });
 });

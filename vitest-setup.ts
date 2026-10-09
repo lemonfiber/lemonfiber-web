@@ -40,3 +40,16 @@ class Unseen {
   }
 }
 Object.assign(globalThis, { IntersectionObserver: Unseen });
+
+/**
+ * jsdom draws no dialog over the page, and has no way to open one as it: what
+ * is left of opening one is that it is open, and of closing one that it is not
+ * and says so, as a browser's does.
+ */
+HTMLDialogElement.prototype.showModal = function showModal(): void {
+  this.open = true;
+};
+HTMLDialogElement.prototype.close = function close(): void {
+  this.open = false;
+  this.dispatchEvent(new Event("close"));
+};

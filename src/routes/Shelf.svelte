@@ -6,11 +6,13 @@
   import Panel from "../components/Panel.svelte";
   import Skeleton from "../components/Skeleton.svelte";
   import Value from "../components/Value.svelte";
+  import TitleCard from "./TitleCard.svelte";
   import type { Heard } from "../api/member";
   import type { Freshness } from "../lib/freshness";
   import { Gallery, onScreen, type Taking } from "../lib/gallery.svelte";
+  import type { Told } from "../lib/title";
   import type { Access } from "../lib/wire";
-  import { captionOf, watchOf, type Shelf } from "../lib/yours";
+  import { captionOf, watchOf, type Holding, type Shelf } from "../lib/yours";
   import * as m from "../paraglide/messages.js";
 
   interface Props {
@@ -26,9 +28,28 @@
     onretry?: (() => void) | undefined;
     /** Asking for one title's poster. Left out, every title is lettered. */
     posters?: Taking | undefined;
+    /** The title opened over the shelf, where one is. */
+    opened?: Holding | undefined;
+    /** What reading the opened title came to, or nothing while it is read. */
+    told?: Heard<Told> | undefined;
+    /** Open one title. Left out, the posters open nothing. */
+    onopen?: ((holding: Holding) => void) | undefined;
+    /** Put the opened title away. */
+    onclose?: (() => void) | undefined;
   }
 
-  let { access, watched, shelf, freshness, onretry, posters }: Props = $props();
+  let {
+    access,
+    watched,
+    shelf,
+    freshness,
+    onretry,
+    posters,
+    opened,
+    told,
+    onopen,
+    onclose,
+  }: Props = $props();
 
   /** The posters on screen, fetched with the session's key. */
   const gallery = new Gallery((id) =>
@@ -57,8 +78,8 @@
   it. Each poster is read from this page's own address with the session's key,
   never from the media server's door, while it is on screen, and let go once
   it is not. A title with no poster, or one that cannot be read, is drawn
-  lettered with its name. What the
-  member is held to follows it.
+  lettered with its name. Pressing a poster opens what the title is over the
+  shelf, read when it is opened. What the member is held to follows it.
 
   Both are what lemonfiber answered this time and nothing else. The shelf is
   what the media server shows this member, with their limits already applied by
@@ -80,6 +101,11 @@
               title={holding.title}
               artwork={gallery.drawnFrom(holding.id)}
               note={captionOf(holding)}
+              onopen={onopen === undefined
+                ? undefined
+                : () => {
+                    onopen(holding);
+                  }}
             />
           </li>
         {/each}
@@ -125,6 +151,20 @@
     {/if}
   </Panel>
 </Board>
+
+{#if opened !== undefined && onclose !== undefined}
+  <TitleCard
+    name={opened.title}
+    answer={told}
+    artwork={gallery.drawnFrom(opened.id)}
+    {onclose}
+    onretry={onopen === undefined
+      ? undefined
+      : () => {
+          onopen(opened);
+        }}
+  />
+{/if}
 
 <style>
   .line {

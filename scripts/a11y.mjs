@@ -267,19 +267,29 @@ async function walkStory(tabbing, id) {
   // A control inside a closed disclosure is not a place to land until the
   // disclosure is opened: only its summary is, and the browser lays out what
   // the summary holds while passing it over.
+  //
+  // A dialog open over the page holds focus inside it until it is closed, and
+  // the page behind it is inert: only what the dialog holds is a place to land.
+  // Opening it focused the first of those, so focus is taken away before
+  // anything is read.
   const places = await tabbing.evaluate((selector) => {
     /** Whether an element is folded away inside a closed disclosure. */
     const folded = (element) => {
       const closed = element.closest("details:not([open])");
       return closed !== null && element.parentElement !== closed;
     };
+    const modal = document.querySelector("dialog:modal");
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     const spots = [...document.querySelectorAll(selector)].filter(
       (element) =>
         element instanceof HTMLElement &&
         element.getClientRects().length > 0 &&
         getComputedStyle(element).visibility !== "hidden" &&
         element.getAttribute("tabindex") !== "-1" &&
-        !folded(element),
+        !folded(element) &&
+        (modal === null || modal.contains(element)),
     );
     spots.forEach((element, index) => {
       const style = getComputedStyle(element);
