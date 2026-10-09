@@ -175,7 +175,7 @@ answers with `certificate`, so nothing here could read it.
 | `bandwidth`         | the settings: the limits typed, as they were typed, made at once; or the limits lifted for the minutes typed                                                                       |
 | `downloads-pause`   | the settings: every download client paused at once, since a pause holds until it is resumed                                                                                        |
 | `downloads-resume`  | the settings: every download client resumed at once, with whatever would stop them again                                                                                           |
-| `update`            | the settings: every step first, then the move on a yes under it, letting downloads finish first where asked                                                                        |
+| `update`            | the settings: every step first, then the move on a yes under it, carrying back the offer the steps were read under, letting downloads finish first where asked                     |
 | `watch`             | the overview, against the forms chosen                                                                                                                                             |
 | `walkthrough`       | the requests: the thing named, or something likely to work, after a question saying it fetches it                                                                                  |
 | `search`            | the requests: one item followed with the indexers asked, beside looking it up without asking them                                                                                  |

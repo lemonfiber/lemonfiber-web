@@ -166,7 +166,7 @@ describe("updating, from the settings screen", () => {
       { at: "/api/actions/update", body: "{}" },
       {
         at: "/api/actions/update",
-        body: JSON.stringify({ confirm: true, wait: false }),
+        body: JSON.stringify({ confirm: true, wait: false, offer: plan.offer }),
       },
     ]);
     expect(

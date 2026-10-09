@@ -3,8 +3,10 @@
  *
  * One request, named as the command line names it, asked for twice. Unconfirmed
  * it changes nothing and answers with every step it would take and what each
- * means. The yes is the same request, confirmed, and it carries whether what
- * the download clients are still working on is let finish first where the plan
+ * means, under an offer naming those steps. The yes is the same request,
+ * confirmed, carrying that offer back, so it takes the steps that were read or
+ * is refused where they have moved since; and it carries whether what the
+ * download clients are still working on is let finish first where the plan
  * names anything they are.
  */
 import type { Arguments } from "../api/acting";
@@ -30,11 +32,15 @@ export type Update =
       readonly doing: "update";
       readonly confirm: true;
       readonly wait: boolean;
+      /** The offer the steps agreed to were read under, as it named itself. */
+      readonly offer: string;
     };
 
 /** What to send for one asking. */
 export function givenForUpdate(update: Update): Arguments {
-  return "confirm" in update ? { confirm: true, wait: update.wait } : {};
+  return "confirm" in update
+    ? { confirm: true, wait: update.wait, offer: update.offer }
+    : {};
 }
 
 /** How the updates panel's requests are asked for. */
@@ -53,6 +59,8 @@ export interface Plan {
   readonly steps: readonly Step[];
   /** What the download clients are still working on. */
   readonly inFlight: readonly string[];
+  /** The name the offer gave itself, which the yes carries. */
+  readonly offer: string;
 }
 
 /**
@@ -66,7 +74,12 @@ export function standingPlan(work: readonly Work[]): Plan | undefined {
   if (report.confirmed || report.state !== "updates-available") {
     return undefined;
   }
-  return { id: newest.id, steps: report.changes, inFlight: report.in_flight };
+  return {
+    id: newest.id,
+    steps: report.changes,
+    inFlight: report.in_flight,
+    offer: report.offer,
+  };
 }
 
 /**
