@@ -17,6 +17,7 @@
  * status that is neither a success nor a refusal means.
  */
 import {
+  Client,
   isKind,
   malformed,
   parse,
@@ -40,7 +41,7 @@ const HELD = "/api/held";
 export type Artwork = "poster" | "backdrop";
 
 /**
- * Where a title's picture is read, at this page's own address.
+ * Where a title's picture is read, under this page's own `/api/`.
  *
  * lemonfiber serves a member's artwork from the console's address rather than
  * from the media server's door, so the page asks nothing of another origin and
@@ -48,7 +49,32 @@ export type Artwork = "poster" | "backdrop";
  * own shelf only, and nothing where a title has no picture.
  */
 export function artworkAt(id: string, picture: Artwork): string {
-  return `${HELD}/${encodeURIComponent(id)}/${picture}`;
+  return `held/${encodeURIComponent(id)}/${picture}`;
+}
+
+/** What a picture is served as: an image, and nothing else is drawn. */
+const IMAGE = "image/";
+
+/**
+ * One title's picture, asked for with this session's key as every read is, or
+ * nothing where it could not be had: no picture, a title not on this member's
+ * shelf, a refusal, or an answer that is not an image.
+ */
+export async function takingArtwork(
+  reaching: Reaching,
+  id: string,
+  picture: Artwork,
+): Promise<Blob | undefined> {
+  const opened = Client.at({
+    url: reaching.at,
+    token: reaching.token,
+    sending: reaching.sending,
+  });
+  if (!opened.ok) return undefined;
+  const handed = await opened.client.take(artworkAt(id, picture));
+  return handed.ok && handed.value.type.startsWith(IMAGE)
+    ? handed.value
+    : undefined;
 }
 
 /** The statuses lemonfiber, or a proxy in front of it, turns a request away with. */

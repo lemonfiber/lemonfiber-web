@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/svelte";
+import { render, screen, waitFor, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { unreachable } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
@@ -33,6 +33,26 @@ function drawn(
 const panel = (name: string): HTMLElement =>
   screen.getByRole("region", { name });
 
+/** Every place on the page counts as on screen the moment it is watched. */
+function onScreenAtOnce(): void {
+  vi.stubGlobal(
+    "IntersectionObserver",
+    class {
+      readonly #told: (entries: { isIntersecting: boolean }[]) => void;
+      constructor(told: (entries: { isIntersecting: boolean }[]) => void) {
+        this.#told = told;
+      }
+      observe(): undefined {
+        this.#told([{ isIntersecting: true }]);
+        return undefined;
+      }
+      disconnect(): undefined {
+        return undefined;
+      }
+    },
+  );
+}
+
 describe("what the household holds that a member can watch", () => {
   // The server applies their limits before it answers, so every title it sent
   // is drawn and none is held back here.
@@ -52,23 +72,52 @@ describe("what the household holds that a member can watch", () => {
     }
   });
 
-  // Pictures come from this page's own address, never the media server's door,
-  // and a picture that cannot be read leaves the title lettered in its place.
-  it("asks this page's own address for each poster, and letters a title whose poster is not there", async () => {
-    drawn({ at: "answered", value: kitsShelf });
-    const shelf = within(panel(m.member_shelf_title())).getByRole("list", {
-      name: m.member_shelf_title(),
+  // A poster is fetched with the session's key while it is on screen, drawn
+  // from an address the page made for its bytes, and a title whose poster
+  // could not be had stays lettered.
+  it("draws each poster on screen from the bytes it was handed, and letters the rest", async () => {
+    onScreenAtOnce();
+    URL.createObjectURL = (): string => "blob:arrival";
+    const revoked = vi.fn();
+    URL.revokeObjectURL = revoked;
+    const [first] = kitsShelf.holdings;
+    const posters = vi.fn((id: string) =>
+      Promise.resolve(
+        id === first?.id ? new Blob(["x"], { type: "image/png" }) : undefined,
+      ),
+    );
+    const { unmount } = render(Shelf, {
+      access: theirs,
+      watched: answered,
+      shelf: { at: "answered", value: kitsShelf },
+      freshness: answered,
+      posters,
     });
-    const pictures = shelf.querySelectorAll("img");
-    expect([...pictures].map((one) => one.getAttribute("src"))).toStrictEqual(
-      kitsShelf.holdings.map((one) => `/api/held/${one.id}/poster`),
+
+    await waitFor(() => {
+      expect(document.querySelector("img")).toHaveAttribute(
+        "src",
+        "blob:arrival",
+      );
+    });
+    expect(document.querySelectorAll("img")).toHaveLength(1);
+    expect(posters.mock.calls.map(([id]) => id)).toStrictEqual(
+      kitsShelf.holdings.map((one) => one.id),
     );
 
-    await fireEvent.error(pictures[0] ?? document.body);
+    unmount();
+    expect(revoked).toHaveBeenCalledWith("blob:arrival");
+    vi.unstubAllGlobals();
+  });
 
-    expect(shelf.querySelectorAll("img")).toHaveLength(
-      kitsShelf.holdings.length - 1,
-    );
+  it("letters every title where nothing hands over posters", async () => {
+    onScreenAtOnce();
+    drawn({ at: "answered", value: kitsShelf });
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    expect(document.querySelectorAll("img")).toHaveLength(0);
+    vi.unstubAllGlobals();
   });
 
   it("says what kind of thing each is, and the year where the server knows one", () => {

@@ -1,12 +1,14 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import Board from "./Board.svelte";
   import Action from "../components/Action.svelte";
   import Poster from "../components/Poster.svelte";
   import Panel from "../components/Panel.svelte";
   import Skeleton from "../components/Skeleton.svelte";
   import Value from "../components/Value.svelte";
-  import { artworkAt, type Heard } from "../api/member";
+  import type { Heard } from "../api/member";
   import type { Freshness } from "../lib/freshness";
+  import { Gallery, onScreen, type Taking } from "../lib/gallery.svelte";
   import type { Access } from "../lib/wire";
   import { captionOf, watchOf, type Shelf } from "../lib/yours";
   import * as m from "../paraglide/messages.js";
@@ -22,9 +24,18 @@
     freshness: Freshness;
     /** Ask again, where something could not be read. */
     onretry?: (() => void) | undefined;
+    /** Asking for one title's poster. Left out, every title is lettered. */
+    posters?: Taking | undefined;
   }
 
-  let { access, watched, shelf, freshness, onretry }: Props = $props();
+  let { access, watched, shelf, freshness, onretry, posters }: Props = $props();
+
+  /** The posters on screen, fetched with the session's key. */
+  const gallery = new Gallery((id) =>
+    posters === undefined ? Promise.resolve(undefined) : posters(id),
+  );
+
+  onDestroy(gallery.releaseAll);
 
   /** What they may watch, where it was answered and says anything. */
   const limits = $derived(
@@ -43,9 +54,10 @@
   What a household member can watch, and what the household holds that they can.
 
   The shelf comes first, drawn as posters, each with its title as text beneath
-  it. Each poster is read from this page's own address, never from the media
-  server's door, and a title with no poster, or one that cannot be read, is
-  drawn lettered with its name. What the
+  it. Each poster is read from this page's own address with the session's key,
+  never from the media server's door, while it is on screen, and let go once
+  it is not. A title with no poster, or one that cannot be read, is drawn
+  lettered with its name. What the
   member is held to follows it.
 
   Both are what lemonfiber answered this time and nothing else. The shelf is
@@ -63,10 +75,10 @@
     {#if held !== undefined && held.holdings.length > 0}
       <ul class="posters" aria-label={m.member_shelf_title()}>
         {#each held.holdings as holding (holding.id)}
-          <li>
+          <li {@attach onScreen(gallery, holding.id)}>
             <Poster
               title={holding.title}
-              artwork={artworkAt(holding.id, "poster")}
+              artwork={gallery.drawnFrom(holding.id)}
               note={captionOf(holding)}
             />
           </li>
