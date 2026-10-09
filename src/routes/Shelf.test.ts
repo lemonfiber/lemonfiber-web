@@ -1,3 +1,4 @@
+import type { ComponentProps } from "svelte";
 import { render, screen, waitFor, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { unreachable } from "@lemonfiber/sdk-ts";
@@ -7,7 +8,10 @@ import {
   arrival,
   kit,
   kitsEmptyShelf,
+  kitsNothingPartWay,
+  kitsPartWay,
   kitsShelf,
+  kitsUnreadPartWay,
   kitsUnreadShelf,
 } from "./mine";
 import type { Heard } from "../api/member";
@@ -317,5 +321,110 @@ describe("one title, opened over the shelf", () => {
     });
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(screen.queryByRole("button")).toBeNull();
+  });
+});
+
+describe("what a member was part-way through", () => {
+  const partWay = (
+    watching: ComponentProps<typeof Shelf>["watching"],
+    onopen = vi.fn(),
+  ): void => {
+    render(Shelf, {
+      access: theirs,
+      watched: answered,
+      shelf: { at: "answered", value: kitsShelf },
+      freshness: answered,
+      watching,
+      onopen,
+      onclose: vi.fn(),
+    });
+  };
+
+  const carryOn = (): HTMLElement =>
+    screen.getByRole("region", { name: m.member_partway_title() });
+
+  it("comes before the shelf, each with how far in and what is left", () => {
+    partWay({ at: "answered", value: kitsPartWay });
+    const regions = screen.getAllByRole("region");
+    expect(regions[0]).toBe(carryOn());
+    expect(within(carryOn()).getAllByRole("listitem")).toHaveLength(2);
+    expect(
+      within(carryOn()).getByRole("progressbar", {
+        name: m.member_partway_meter({ title: "Arrival" }),
+      }),
+    ).toHaveAttribute("aria-valuenow", "43");
+    expect(
+      within(carryOn()).getByText(
+        m.member_partway_left({ left: "66 minutes" }),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("draws no bar for something whose length the server does not know", () => {
+    partWay({ at: "answered", value: kitsPartWay });
+    expect(within(carryOn()).getAllByRole("progressbar")).toHaveLength(1);
+  });
+
+  it("opens a film as the shelf does, and an episode not at all", async () => {
+    const onopen = vi.fn();
+    partWay({ at: "answered", value: kitsPartWay }, onopen);
+
+    await userEvent.click(
+      within(carryOn()).getByRole("button", { name: "Arrival" }),
+    );
+
+    expect(onopen).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "f01", medium: "film" }),
+    );
+    expect(
+      within(carryOn()).queryByRole("button", { name: "Dulcinea" }),
+    ).toBeNull();
+  });
+
+  it("opens nothing where nothing opens titles", () => {
+    render(Shelf, {
+      access: theirs,
+      watched: answered,
+      shelf: { at: "answered", value: kitsShelf },
+      freshness: answered,
+      watching: { at: "answered", value: kitsPartWay },
+    });
+    expect(within(carryOn()).queryByRole("button")).toBeNull();
+  });
+
+  // Nothing part-way is nothing to carry on with, not a refusal.
+  it("is no panel where they were part-way through nothing, or while it is read", () => {
+    partWay({ at: "answered", value: kitsNothingPartWay });
+    expect(
+      screen.queryByRole("region", { name: m.member_partway_title() }),
+    ).toBeNull();
+  });
+
+  it("is no panel before anything has answered", () => {
+    partWay(undefined);
+    expect(
+      screen.queryByRole("region", { name: m.member_partway_title() }),
+    ).toBeNull();
+  });
+
+  it.each([
+    [
+      "the media server would not give it up",
+      { at: "answered", value: kitsUnreadPartWay },
+    ],
+    ["lemonfiber did not answer", { at: "unanswered", problem: unreachable() }],
+  ] as const)(
+    "says it could not be read where %s, not that there is nothing",
+    (_where, watching) => {
+      partWay(watching);
+      expect(
+        within(carryOn()).getByText(m.member_partway_unread()),
+      ).toBeInTheDocument();
+    },
+  );
+
+  it("says what lemonfiber said where it declined", () => {
+    partWay({ at: "declined", said: "Not yours." });
+    expect(within(carryOn()).getByText("Not yours.")).toBeInTheDocument();
   });
 });

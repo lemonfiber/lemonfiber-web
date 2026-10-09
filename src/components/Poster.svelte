@@ -128,15 +128,11 @@
   }
 
   /* The name is the button; the whole poster is where it is pressed. */
+  /* The page undoes a button's own look once; what is left is its padding,
+     and setting its words where the name's are. */
   .open {
     padding: 0;
-    border: 0;
-    background: none;
-    color: inherit;
-    font: inherit;
-    font-weight: 600;
     text-align: start;
-    cursor: pointer;
   }
 
   .open::after {

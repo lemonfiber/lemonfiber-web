@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 77 kinds of answer, and this console reads 63 of them.
+The client carries 77 kinds of answer, and this console reads 64 of them.
 Another surface can make 56 requests of the stack, and this console offers 49 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 12 kinds and 6
+them. 2 kinds and 1 request are offered elsewhere by rule, and 11 kinds and 6
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -85,6 +85,7 @@ where it answers with a kind the contract did not have before.
 | `minted-key`   | the settings: a key just minted, its secret shown once with the pin and the address a program needs, dropped when closed or on reload                                                                                                                                                                                                                |
 | `outbound`     | the settings: every request lemonfiber makes on its own account, where it goes, what travels, whether it is allowed, the setting that switches it off and what that costs; and every request the stack's services make, with whose it is                                                                                                             |
 | `pairing`      | the settings: the line a phone's code carries, the short form of the certificate's fingerprint to check on the phone, and what would make a paired phone refuse this machine                                                                                                                                                                         |
+| `part-way`     | the member's shelf: what they were part-way through, above it, each with what is left or how far in, and a bar where its length is known; a film or a series opens as the shelf's titles do; nothing part-way is no panel, and an unread list is said as that                                                                                        |
 | `pausing`      | the settings: what pausing or resuming every download came to, each download client with what it was doing and what it read back                                                                                                                                                                                                                     |
 | `playing`      | the overview: every session the media server is playing now, who is watching what on which device and whether it is paused, or that the media server could not be asked                                                                                                                                                                              |
 | `plugins`      | the settings: every plugin under its name, what it does, its version, where it came from and what signed it, what it runs and fills, whether its source answers, and what one fills in place of the stack's own                                                                                                                                      |
@@ -135,7 +136,6 @@ where it answers with a kind the contract did not have before.
 | `music`        | D2       | Quality presets: the music format                                                                                                                   |
 | `news`         | N27      | What's new: the newest of each kind, from the stream                                                                                                |
 | `news-items`   | N27      | What's new: everything newer than what was last seen, asked for                                                                                     |
-| `part-way`     | D11      | Watching what the house holds: what a member was part-way through, and how far                                                                      |
 | `removal`      | D6       | Household identity: somebody taken out of the household                                                                                             |
 | `reset`        | C9       | Drift: what a full reset would revert                                                                                                               |
 | `watched`      | D11      | Watching what the house holds: what handing a member's progress through a title to the media server came to                                         |

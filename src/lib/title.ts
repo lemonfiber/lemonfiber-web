@@ -28,7 +28,7 @@ export type Season = Title["seasons"][number];
 export type Episode = Season["episodes"][number];
 
 /** A length in minutes, in the reader's own words for one. */
-function minutesOf(minutes: number): string {
+export function minutesOf(minutes: number): string {
   return new Intl.NumberFormat(getLocale(), {
     style: "unit",
     unit: "minute",

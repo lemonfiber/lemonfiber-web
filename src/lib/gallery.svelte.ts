@@ -29,8 +29,12 @@ export class Gallery {
   /** The address each picture on screen is drawn from, by its title's id. */
   readonly #drawn = new SvelteMap<string, string>();
 
-  /** The titles on screen now. */
-  readonly #wanted = new SvelteSet<string>();
+  /**
+   * The titles on screen now, each with how many places show it: a title can
+   * be on a shelf and in what a member was part-way through at once, and its
+   * picture is let go only once neither shows it.
+   */
+  readonly #wanted = new SvelteMap<string, number>();
 
   /** The titles waiting for a turn to be asked for. */
   #waiting: string[] = [];
@@ -56,27 +60,41 @@ export class Gallery {
 
   /** A title came on screen: ask for its picture, unless it is had or missing. */
   readonly want = (id: string): void => {
-    if (this.#wanted.has(id)) return;
-    this.#wanted.add(id);
+    const places = this.#wanted.get(id) ?? 0;
+    this.#wanted.set(id, places + 1);
+    if (places > 0) return;
     if (this.#missing.has(id)) return;
     this.#waiting.push(id);
     this.#next();
   };
 
-  /** A title left the screen: stop waiting for it, and let its picture go. */
+  /**
+   * One place showing a title left the screen. Once none shows it, stop
+   * waiting for it, and let its picture go.
+   */
   readonly release = (id: string): void => {
+    const places = (this.#wanted.get(id) ?? 0) - 1;
+    if (places > 0) {
+      this.#wanted.set(id, places);
+      return;
+    }
+    this.#let(id);
+  };
+
+  /** Stop waiting for a title's picture, and let it go. */
+  #let(id: string): void {
     this.#wanted.delete(id);
     this.#waiting = this.#waiting.filter((one) => one !== id);
     const drawn = this.#drawn.get(id);
     if (drawn === undefined) return;
     URL.revokeObjectURL(drawn);
     this.#drawn.delete(id);
-  };
+  }
 
   /** Let every picture go, as the shelf leaves the page. */
   readonly releaseAll = (): void => {
-    for (const id of [...this.#wanted, ...this.#drawn.keys()]) {
-      this.release(id);
+    for (const id of [...this.#wanted.keys(), ...this.#drawn.keys()]) {
+      this.#let(id);
     }
   };
 

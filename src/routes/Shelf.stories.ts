@@ -4,7 +4,9 @@ import {
   arrival,
   kit,
   kitsEmptyShelf,
+  kitsPartWay,
   kitsShelf,
+  kitsUnreadPartWay,
   kitsUnreadShelf,
 } from "./mine";
 
@@ -41,6 +43,22 @@ type Story = StoryObj<typeof meta>;
  * hide is not on the shelf to begin with.
  */
 export const WhatIsHere: Story = {};
+
+/**
+ * What they were part-way through comes first, each with what is left, and a
+ * bar where the server knows how long it runs.
+ */
+export const CarryOnWatching: Story = {
+  args: { watching: { at: "answered", value: kitsPartWay } },
+};
+
+/**
+ * What they were part-way through could not be read. Said as that, not as
+ * nothing to carry on with.
+ */
+export const PartWayUnread: Story = {
+  args: { watching: { at: "answered", value: kitsUnreadPartWay } },
+};
 
 /** One title opened over the shelf, read when it was opened. */
 export const OneTitleOpened: Story = {

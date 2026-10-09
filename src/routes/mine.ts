@@ -8,6 +8,7 @@
  */
 import { household } from "./house";
 import type { Household, Member } from "../lib/wire";
+import type { PartWays } from "../lib/partway";
 import type { Told } from "../lib/title";
 import type { Shelf } from "../lib/yours";
 
@@ -190,4 +191,39 @@ export const goneFromTheShelf: Told = {
   id: "o01",
   member: "Kit",
   title: null,
+};
+
+/**
+ * What Kit was part-way through, most recent first: a film whose length the
+ * server knows, and an episode whose length it does not.
+ */
+export const kitsPartWay: PartWays = {
+  rehearsed: false,
+  available: true,
+  findings: [],
+  id: kitsId,
+  member: "Kit",
+  part_way: [
+    {
+      id: "f01",
+      medium: "film",
+      title: "Arrival",
+      year: 2016,
+      position: 3000,
+      length: 6960,
+    },
+    { id: "s01-1-1", medium: "episode", title: "Dulcinea", position: 600 },
+  ],
+};
+
+/** Nothing part-way, read: there is nothing to carry on with. */
+export const kitsNothingPartWay: PartWays = { ...kitsPartWay, part_way: [] };
+
+/** What Kit was part-way through, which the media server would not give up. */
+export const kitsUnreadPartWay: PartWays = {
+  ...kitsNothingPartWay,
+  available: false,
+  findings: [
+    "the media server would not say what this member was part-way through",
+  ],
 };
