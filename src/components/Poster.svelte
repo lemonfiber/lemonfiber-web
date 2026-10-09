@@ -17,7 +17,19 @@
     outline?: boolean | undefined;
   }
 
-  let { title, artwork, state, label, note, outline = false }: Props = $props();
+  // The state prop is read as `standing`: a variable named `state` beside the
+  // `$state` rune is read by the compiler as a store.
+  let {
+    title,
+    artwork,
+    state: standing,
+    label,
+    note,
+    outline = false,
+  }: Props = $props();
+
+  /** Whether the picture failed to load, which draws the lettering instead. */
+  let failed = $state(false);
 </script>
 
 <!--
@@ -27,16 +39,30 @@
   the name is text under it, and the frame — whether it holds a picture or the
   lettering that stands in for one — is hidden from a screen reader, which
   would otherwise be read the same words twice.
+
+  A picture that fails to load is replaced by the lettering, so a wall whose
+  pictures cannot be reached is still a wall of titles. It is asked for with no
+  referrer, so the server behind it is not told which page asked.
 -->
 <div class="poster">
-  {#if artwork === undefined}
+  {#if artwork === undefined || failed}
     <div class="art blank" class:outline aria-hidden="true">{title}</div>
   {:else}
-    <img class="art" src={artwork} alt="" />
+    <img
+      class="art"
+      src={artwork}
+      alt=""
+      loading="lazy"
+      decoding="async"
+      referrerpolicy="no-referrer"
+      onerror={() => {
+        failed = true;
+      }}
+    />
   {/if}
   <div class="t">{title}</div>
-  {#if state !== undefined}
-    <StateTag {state} {label} wraps />
+  {#if standing !== undefined}
+    <StateTag state={standing} {label} wraps />
   {/if}
   {#if note !== undefined}
     <span class="sub">{note}</span>
