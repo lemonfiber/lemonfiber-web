@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Port from "../../components/Port.svelte";
@@ -17,6 +18,7 @@
     wordOfOutcome,
   } from "../../lib/verdict";
   import type { Diagnosis, Finding } from "../../lib/wire";
+  import { Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -129,6 +131,9 @@
     const words = said?.trim();
     return words === undefined || words === "" ? undefined : words;
   }
+
+  /** Whether the list is shown whole. */
+  const short = new Shortening();
 </script>
 
 <!--
@@ -168,7 +173,7 @@
 -->
 <Panel {title} {freshness} flush={listed}>
   {#if shown !== undefined && listed}
-    {#each shown as one, at (at)}
+    {#each short.of(shown) as one, at (at)}
       <article class="finding" class:alarm={one.tone === "alarm"}>
         <Port tone={one.tone} />
         <div class="what">
@@ -223,7 +228,8 @@
         </div>
       </article>
     {/each}
-    {#if anyMarked(shown)}
+    <ShowAll items={shown} shortening={short} />
+    {#if anyMarked(short.of(shown))}
       <p class="legend"><Said text={m.findings_marked()} /></p>
     {/if}
   {:else if shown !== undefined}

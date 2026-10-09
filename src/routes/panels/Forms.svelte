@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import FormRow from "../../components/FormRow.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
@@ -6,6 +7,7 @@
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../../lib/freshness";
   import type { Forms } from "../../lib/wire";
+  import { Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -26,6 +28,9 @@
     forms?.ok === false ? forms.problem.message : undefined,
   );
   const listed = $derived(declared !== undefined && declared.length > 0);
+
+  /** Whether every form is listed, or only the first few. */
+  const short = new Shortening();
 </script>
 
 <!--
@@ -36,13 +41,16 @@
   listing answers, and a stack that declares none says so rather than showing an
   empty frame.
 
+  A long list shows its first few and any form already chosen, with the rest
+  one press away.
+
   Choosing is kept here rather than on the panel that acts. What is chosen
   outlasts any one request — an operator restarts a form and then fetches newer
   images for it — so it belongs beside the forms rather than beside the buttons.
 -->
 <Panel title={m.panel_forms()} {freshness} flush={listed}>
   {#if declared !== undefined && listed}
-    {#each declared as form (form.id)}
+    {#each short.keeping( declared, (form) => chosen.includes(form.id) ) as form (form.id)}
       <FormRow
         name={form.name}
         description={form.description}
@@ -53,6 +61,7 @@
         }}
       />
     {/each}
+    <ShowAll items={declared} shortening={short} />
   {:else if declared !== undefined}
     <Value state="unknown" absent={m.forms_none()} />
   {:else if problem !== undefined}

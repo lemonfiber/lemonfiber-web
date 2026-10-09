@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Value from "../../components/Value.svelte";
@@ -7,6 +8,7 @@
   import type { Freshness } from "../../lib/freshness";
   import type { Mover } from "../../lib/moving";
   import { surveyGroups, type Survey } from "../../lib/survey";
+  import { SHORT_DETAILED, Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -26,6 +28,9 @@
   const groupId = $props.id();
 
   const groups = $derived(survey.ok ? surveyGroups(survey.value) : []);
+
+  /** Whether each part of the survey is listed whole, or its first few. */
+  const short = new Shortening(SHORT_DETAILED);
 </script>
 
 <!--
@@ -33,7 +38,8 @@
   its containers, the ports in the way, what taking each over would come to,
   what the layout costs, what may be done, and what is named and not carried.
   A survey that could not ask the container engine says so rather than drawing
-  an empty machine. Under it, each way forward is offered, asked about first.
+  an empty machine. Each part lists its first few, and one press lists them
+  all. Under it, each way forward is offered, asked about first.
 -->
 <Panel title={m.panel_survey()} {freshness} flush>
   <div class="scope">
@@ -53,7 +59,7 @@
     <section class="group" aria-labelledby="{groupId}-{place}">
       <h3 id="{groupId}-{place}">{group.title}</h3>
       <ul class="entries">
-        {#each group.entries as entry, at (at)}
+        {#each short.of(group.entries) as entry, at (at)}
           <li>
             <ul class="lines">
               {#each entry as line, said (said)}
@@ -65,6 +71,7 @@
       </ul>
     </section>
   {/each}
+  <ShowAll groups={groups.map((group) => group.entries)} shortening={short} />
 
   {#if mover !== undefined && survey.ok && survey.value.read}
     <Moving survey={survey.value} {mover} />

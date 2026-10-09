@@ -145,6 +145,7 @@
   }
 
   .notes summary {
+    padding: var(--sp-1) 0;
     cursor: pointer;
     font-size: var(--text-prose);
     font-weight: 600;

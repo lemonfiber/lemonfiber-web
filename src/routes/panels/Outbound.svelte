@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import Choice from "../../components/Choice.svelte";
   import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -13,6 +14,7 @@
     theirsLines,
     type Leaving,
   } from "../../lib/leaving";
+  import { SHORT_DETAILED, Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -36,6 +38,12 @@
   const problem = $derived(
     outbound?.ok === false ? outbound.problem.message : undefined,
   );
+
+  /** Whether lemonfiber's own requests are listed whole. */
+  const shortOurs = new Shortening(SHORT_DETAILED);
+
+  /** Whether the services' requests are listed whole. */
+  const shortTheirs = new Shortening(SHORT_DETAILED);
 </script>
 
 <!--
@@ -67,7 +75,7 @@
         <p><Said text={m.outbound_none()} /></p>
       {/if}
       <ul class="requests">
-        {#each leaving.ours as one (one.reach)}
+        {#each shortOurs.of(leaving.ours) as one (one.reach)}
           <li>
             <h4>{one.purpose}</h4>
             {#if configurer !== undefined}
@@ -87,6 +95,7 @@
           </li>
         {/each}
       </ul>
+      <ShowAll items={leaving.ours} shortening={shortOurs} inset={false} />
     </section>
 
     <section class="account" aria-labelledby={theirsId}>
@@ -95,7 +104,7 @@
         <p><Said text={m.outbound_none()} /></p>
       {/if}
       <ul class="requests">
-        {#each leaving.theirs as one, at (at)}
+        {#each shortTheirs.of(leaving.theirs) as one, at (at)}
           <li>
             <h4>{one.service}</h4>
             <ul class="lines">
@@ -106,6 +115,7 @@
           </li>
         {/each}
       </ul>
+      <ShowAll items={leaving.theirs} shortening={shortTheirs} inset={false} />
     </section>
   {/if}
 </Panel>

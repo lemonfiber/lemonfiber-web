@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ShowAll from "../../components/ShowAll.svelte";
   import Said from "../../components/Said.svelte";
   import DataTable from "../../components/DataTable.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -17,6 +18,7 @@
     type Stack,
   } from "../../lib/wire";
   import { listed } from "../../lib/listed";
+  import { Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -58,6 +60,9 @@
   function named(ids: readonly string[]): string {
     return listed(namesOf(ids, declared));
   }
+
+  /** Whether every program is listed, or only the first few. */
+  const short = new Shortening();
 </script>
 
 <!--
@@ -121,7 +126,7 @@
     <DataTable
       label={m.panel_programs()}
       {columns}
-      rows={services.map((service): Row => ({
+      rows={short.of(services).map((service): Row => ({
         kind: "answered",
         key: service.id,
         cells: [
@@ -142,6 +147,7 @@
         ],
       }))}
     />
+    <ShowAll items={services} shortening={short} />
   {:else if services !== undefined}
     <Value state="unknown" absent={m.programs_none()} />
   {:else if problem !== undefined}

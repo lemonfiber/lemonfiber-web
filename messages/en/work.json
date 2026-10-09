@@ -367,5 +367,7 @@
   "action_wizard_start": "Start the stack",
   "action_wizard_connect": "Connect services",
   "action_wizard_open": "Open the console",
-  "action_wizard_ask_again": "Ask again"
+  "action_wizard_ask_again": "Ask again",
+  "action_show_all": "Show all {count}",
+  "action_show_fewer": "Show fewer"
 }

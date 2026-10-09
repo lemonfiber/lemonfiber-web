@@ -1,4 +1,5 @@
 import { render, screen, within } from "@testing-library/svelte";
+import userEvent from "@testing-library/user-event";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import Settings from "./Settings.svelte";
@@ -23,8 +24,13 @@ describe("what is wired to what, on the settings screen", () => {
     expect(within(panel()).getByText(m.waiting_answer())).toBeInTheDocument();
   });
 
-  it("names each link under the service it runs from", () => {
+  it("names each link under the service it runs from, once shown whole", async () => {
     reading({ ok: true, value: wiring });
+    await userEvent.click(
+      within(panel()).getByRole("button", {
+        name: m.action_show_all({ count: wiring.wired.length }),
+      }),
+    );
     const links = within(panel()).getByRole("list", {
       name: m.wiring_said(),
     });

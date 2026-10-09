@@ -42,6 +42,15 @@
   const theKey = `${uid}-the-key`;
 
   const given = $derived(typed.trim());
+
+  /**
+   * Whether the key is asked for first: where nothing answers a password, or
+   * where the run turned away the key this page was holding. Otherwise it waits
+   * behind its question, since only the operator at the terminal has one.
+   */
+  const keyFirst = $derived(
+    onsignin === undefined || (refused && said === undefined),
+  );
   const who = $derived(name.trim());
   const ready = $derived(password !== "" && !asking);
 
@@ -99,7 +108,8 @@
   A run also mints a key, prints it once, and expects it back in a header on
   every request. That is no use to anybody who is not at the terminal, and it is
   the whole of what somebody who is needs, so it is asked for below rather than
-  instead.
+  instead, folded behind the question of whether the page was opened from a
+  terminal: a household member signing in never meets it unless they open it.
 
   Where this screen replaced a console the run turned away, it says so where a
   reader who cannot see the screen change is told, and takes the focus the
@@ -125,7 +135,9 @@
       {/if}
     </div>
   {/if}
-  <p class="prose">{m.unlock_prose()}</p>
+  <p class="prose">
+    {onsignin === undefined ? m.unlock_prose() : m.unlock_prose_signin()}
+  </p>
 
   {#if onsignin !== undefined}
     {@const ask = onsignin}
@@ -182,27 +194,30 @@
   {/if}
 
   <section>
-    <h2 id={theKey}>{m.wayin_key_title()}</h2>
-    <p class="prose">{m.unlock_hint()}</p>
+    <details class="terminal" open={keyFirst}>
+      <summary>{m.wayin_key_open()}</summary>
+      <h2 id={theKey}>{m.wayin_key_title()}</h2>
+      <p class="prose">{m.unlock_hint()}</p>
 
-    <form
-      aria-labelledby={theKey}
-      onsubmit={(event: SubmitEvent) => {
-        event.preventDefault();
-        if (given !== "") onopen(given);
-      }}
-    >
-      <Field
-        label={m.unlock_label()}
-        value={typed}
-        purpose="key"
-        oninput={(value: string) => {
-          typed = value;
+      <form
+        aria-labelledby={theKey}
+        onsubmit={(event: SubmitEvent) => {
+          event.preventDefault();
+          if (given !== "") onopen(given);
         }}
-      />
+      >
+        <Field
+          label={m.unlock_label()}
+          value={typed}
+          purpose="key"
+          oninput={(value: string) => {
+            typed = value;
+          }}
+        />
 
-      <Action label={m.unlock_open()} weight="quiet" submits />
-    </form>
+        <Action label={m.unlock_open()} weight="quiet" submits />
+      </form>
+    </details>
   </section>
 </main>
 
@@ -238,6 +253,17 @@
     margin-top: var(--sp-6);
     padding-top: var(--sp-5);
     border-top: 1px solid var(--line);
+  }
+
+  summary {
+    padding: var(--sp-2) 0;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: var(--text-prose);
+  }
+
+  .terminal[open] summary {
+    margin-bottom: var(--sp-4);
   }
 
   .why {
