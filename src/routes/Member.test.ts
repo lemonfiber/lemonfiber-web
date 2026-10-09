@@ -272,7 +272,7 @@ describe("what the household holds, for the member signed in", () => {
   });
 
   // A poster is asked for with the session's key, at the console's own address.
-  it("asks for each poster on screen at this page's own address", async () => {
+  it("asks for each poster on screen at this page's own address, as the member the door named", async () => {
     vi.stubGlobal(
       "IntersectionObserver",
       class {
@@ -294,11 +294,12 @@ describe("what the household holds, for the member signed in", () => {
     signedIn(sending);
     await screen.findByText("Arrival", read);
 
+    const poster = `/api/held/${kitsShelf.holdings[0]?.id ?? ""}/poster`;
     await waitFor(() => {
-      expect(asked(sending).map((url) => url.pathname)).toContain(
-        `/api/held/${kitsShelf.holdings[0]?.id ?? ""}/poster`,
-      );
+      expect(asked(sending).map((url) => url.pathname)).toContain(poster);
     });
+    const pictured = asked(sending).find((url) => url.pathname === poster);
+    expect(pictured?.searchParams.getAll("member")).toEqual([kitsId]);
     vi.unstubAllGlobals();
   });
 

@@ -285,7 +285,7 @@
       {shelf}
       {watching}
       freshness={stocked}
-      posters={(id: string) => takingArtwork(reaching, id, "poster")}
+      posters={(id: string) => takingArtwork(reaching, member, id, "poster")}
       {opened}
       {told}
       onopen={(holding: Holding) => {

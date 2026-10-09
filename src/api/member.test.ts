@@ -272,8 +272,19 @@ describe("the shelf", () => {
 
 describe("where a title's pictures are read", () => {
   it("names a place under this page's own address, with the title's id kept whole", () => {
-    expect(artworkAt("f01", "poster")).toBe("held/f01/poster");
-    expect(artworkAt("a/b c", "backdrop")).toBe("held/a%2Fb%20c/backdrop");
+    expect(artworkAt("kit", "f01", "poster")).toBe(
+      "held/f01/poster?member=kit",
+    );
+    expect(artworkAt("kit", "a/b c", "backdrop")).toBe(
+      "held/a%2Fb%20c/backdrop?member=kit",
+    );
+  });
+
+  // The picture is read as the member, as the title is; naming nobody is refused.
+  it("names the member it is read as, escaped as a parameter", () => {
+    expect(artworkAt("Ada & Kit", "f01", "poster")).toBe(
+      "held/f01/poster?member=Ada+%26+Kit",
+    );
   });
 });
 
@@ -293,28 +304,34 @@ describe("taking a title's picture", () => {
     const poster = new Blob(["x"], { type: "image/jpeg" });
     const sending = handing(poster);
 
-    expect(await takingArtwork(reaching(sending), "f01", "poster")).toBe(
+    expect(await takingArtwork(reaching(sending), "kit", "f01", "poster")).toBe(
       poster,
     );
     const [url, init] = vi.mocked(sending).mock.calls[0] ?? [];
-    expect(url).toBe(`${here}/api/held/f01/poster`);
+    expect(url).toBe(`${here}/api/held/f01/poster?member=kit`);
     expect(init?.headers[TOKEN_HEADER]).toBe(session);
   });
 
   it("hands nothing over that is not an image, that was refused, or where it could not ask", async () => {
     const page = new Blob(["<html>"], { type: "text/html" });
     expect(
-      await takingArtwork(reaching(handing(page)), "f01", "poster"),
+      await takingArtwork(reaching(handing(page)), "kit", "f01", "poster"),
     ).toBeUndefined();
     expect(
       await takingArtwork(
         reaching(saying(404, refusedAs("ELSEWHERE", "No picture."))),
+        "kit",
         "f01",
         "poster",
       ),
     ).toBeUndefined();
     expect(
-      await takingArtwork(reaching(handing(page), elsewhere), "f01", "poster"),
+      await takingArtwork(
+        reaching(handing(page), elsewhere),
+        "kit",
+        "f01",
+        "poster",
+      ),
     ).toBeUndefined();
   });
 });
