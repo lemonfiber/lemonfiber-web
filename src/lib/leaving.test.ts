@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { oursLines, theirsLines, wordOfWhose, type Theirs } from "./leaving";
+import {
+  flipOf,
+  oursLines,
+  theirsLines,
+  wordOfWhose,
+  type Theirs,
+} from "./leaving";
 import { household, indexing, stranger, updates } from "../api/leavings";
 import * as m from "../paraglide/messages.js";
 
@@ -72,5 +78,18 @@ describe("a request one of the stack's services makes", () => {
     for (const [origin, word] of cases) expect(wordOfWhose(origin)).toBe(word);
     const strange = { origin: "elsewhere" } as unknown as Theirs["origin"];
     expect(wordOfWhose(strange)).toBe(m.outbound_whose_other());
+  });
+});
+
+describe("switching one of lemonfiber's own requests", () => {
+  it("turns an allowed request off, and one switched off back on, by its own setting", () => {
+    expect(flipOf(updates)).toStrictEqual({
+      key: updates.switch,
+      value: "off",
+    });
+    expect(flipOf(household)).toStrictEqual({
+      key: household.switch,
+      value: "on",
+    });
   });
 });

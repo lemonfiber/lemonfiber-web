@@ -103,6 +103,9 @@
         />
       {/if}
     </div>
+    {#if !typed}
+      <p class="missing">{m.trace_missing()}</p>
+    {/if}
   </div>
 
   {#if reading !== undefined || tracer.busy}
@@ -172,10 +175,21 @@
     padding: var(--sp-3) var(--panel-pad);
   }
 
+  /* The title takes the measure a field sets itself, and the season sits
+     beside it rather than at the far edge; each keeps its own height, so a
+     hint under one does not stretch the box of the other. */
   .fields {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(6rem, 10rem);
+    grid-template-columns: minmax(0, 30rem) minmax(6rem, 10rem);
+    justify-content: start;
+    align-items: start;
     gap: var(--sp-3);
+  }
+
+  .missing {
+    margin: 0;
+    font-size: var(--text-control);
+    color: var(--muted);
   }
 
   .acts {

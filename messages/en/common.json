@@ -172,6 +172,7 @@
   "telemetry_unrecognised_lead": "This page has no word for what lemonfiber said about itself.",
   "telemetry_unrecognised_prose": "Everything below is what lemonfiber said when the page was asked to draw it.",
   "eyebrow_wrong": "Things wrong",
+  "eyebrow_wrong_with": "Things wrong, {condition}",
   "space_until_full": "Full in {span} at the rate it is filling.",
   "space_not_filling": "Nothing is filling it fast.",
   "waiting_nothing": "Nothing is queued.",

@@ -1,11 +1,18 @@
 <script lang="ts">
+  import Choice from "../../components/Choice.svelte";
   import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
+  import type { Configurer } from "../../lib/configuring";
   import type { Freshness } from "../../lib/freshness";
-  import { oursLines, theirsLines, type Leaving } from "../../lib/leaving";
+  import {
+    flipOf,
+    oursLines,
+    theirsLines,
+    type Leaving,
+  } from "../../lib/leaving";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -13,9 +20,14 @@
     outbound: Reading<Leaving> | undefined;
     /** When this panel's source last answered. */
     freshness: Freshness;
+    /**
+     * What changing a setting asks for, where this run may change one. Each of
+     * lemonfiber's own requests is then switched on and off where it is read.
+     */
+    configurer?: Configurer | undefined;
   }
 
-  let { outbound, freshness }: Props = $props();
+  let { outbound, freshness, configurer }: Props = $props();
 
   const oursId = $props.id();
   const theirsId = `${oursId}-theirs`;
@@ -30,12 +42,17 @@
   Everything that leaves this machine: lemonfiber's own requests, each with
   where it goes, what travels, whether it is allowed and the setting that
   switches it off, and the requests the stack's services make, each with the
-  service it belongs to. Nothing here changes anything; switching a request off
-  is a setting, changed where the settings are.
+  service it belongs to. Where this run may change a setting, each of
+  lemonfiber's own requests is switched on and off where it is read: the switch
+  asks for the setting named beside it, as the settings panel would, and what
+  that came to is said there.
 -->
 <Panel title={m.panel_outbound()} {freshness} flush>
   <div class="scope">
     <p><Said text={m.outbound_prose()} /></p>
+    {#if configurer !== undefined && leaving !== undefined}
+      <p><Said text={m.outbound_switch_note()} /></p>
+    {/if}
     {#if leaving === undefined && problem !== undefined}
       <Value state="unknown" absent={problem} />
     {:else if leaving === undefined}
@@ -53,6 +70,15 @@
         {#each leaving.ours as one (one.reach)}
           <li>
             <h4>{one.purpose}</h4>
+            {#if configurer !== undefined}
+              <Choice
+                words={m.outbound_switch()}
+                on={one.allowed}
+                onclick={() => {
+                  configurer.onask({ doing: "config-set", ...flipOf(one) });
+                }}
+              />
+            {/if}
             <ul class="lines">
               {#each oursLines(one) as line, at (at)}
                 <li><Said text={line} /></li>

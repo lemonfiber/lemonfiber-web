@@ -57,6 +57,16 @@
     stack?.ok === false ? stack.problem.message : undefined,
   );
 
+  /**
+   * What the figure counts, with how the stack stands said in the same line
+   * rather than beside the figure, where it read as what was counted.
+   */
+  const wrongWith = $derived(
+    condition === undefined
+      ? m.eyebrow_wrong()
+      : m.eyebrow_wrong_with({ condition }),
+  );
+
   /** What the grading expands to for one of the things it counted. */
   function read(one: Affected): Wrong {
     return {
@@ -73,7 +83,7 @@
 
 <!--
   The one line the whole screen is graded by, and the clause the reading of what
-  is running sets beside it.
+  is running adds to the line above the figure.
 
   Two sources fill one panel, and the count is the one that may be missing: the
   reading answers once and the stream keeps grading, so a screen that has been
@@ -97,8 +107,7 @@
       state={stateOfStanding(health.standing)}
       figure={tally(health.wanting_attention)}
       absent={m.value_not_known()}
-      eyebrow={m.eyebrow_wrong()}
-      beside={condition}
+      eyebrow={wrongWith}
       caption={health.worst ?? wordOfStanding(health.standing)}
       alarm={toneOfStanding(health.standing) === "alarm"}
     />
@@ -137,8 +146,7 @@
     <BigFigure
       state="unknown"
       absent={m.waiting_answer()}
-      eyebrow={m.eyebrow_wrong()}
-      beside={condition}
+      eyebrow={wrongWith}
     />
   {:else if problem !== undefined}
     <Value state="unknown" absent={problem} />

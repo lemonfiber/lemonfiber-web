@@ -68,3 +68,17 @@ export function theirsLines(one: Theirs): readonly string[] {
   if (!one.recorded) lines.push(m.outbound_unrecorded());
   return lines;
 }
+
+/** The value a reach setting takes to let its request leave the machine. */
+const REACH_ON = "on";
+
+/** The value a reach setting takes to keep its request on the machine. */
+const REACH_OFF = "off";
+
+/** The setting that switches one of lemonfiber's own requests, and the value that flips it. */
+export function flipOf(one: Ours): {
+  readonly key: string;
+  readonly value: string;
+} {
+  return { key: one.switch, value: one.allowed ? REACH_OFF : REACH_ON };
+}

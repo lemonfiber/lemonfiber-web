@@ -17,10 +17,14 @@ describe("how things stand", () => {
     expect(screen.getByText(worst)).toBeInTheDocument();
   });
 
-  it("sets the reading of what is running beside the count", () => {
+  // Beside the figure, the condition read as what was counted ("2 running
+  // badly"), so it says how the stack stands in the line above the figure.
+  it("says how the stack stands in the line above the count, not beside it", () => {
     board({ stack: read, moment, flow: "live" });
     expect(
-      screen.getByText(wordOfCondition(stack.condition)),
+      screen.getByText(
+        m.eyebrow_wrong_with({ condition: wordOfCondition(stack.condition) }),
+      ),
     ).toBeInTheDocument();
   });
 

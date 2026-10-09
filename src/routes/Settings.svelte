@@ -135,7 +135,7 @@
   {#if line !== undefined || sharer !== undefined}
     <Line {line} {freshness} {sharer} />
   {/if}
-  <Outbound {outbound} {freshness} />
+  <Outbound {outbound} {freshness} {configurer} />
   <Alerts {alerts} {freshness} />
   <Credentials {credentials} {freshness} />
 
