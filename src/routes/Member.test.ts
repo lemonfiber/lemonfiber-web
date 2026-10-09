@@ -218,23 +218,6 @@ describe("what the household holds, for the member signed in", () => {
     expect(watching?.searchParams.getAll("member")).toEqual([kitsId]);
   });
 
-  it("is signed out where what they were part-way through alone is refused", async () => {
-    const { onrefused } = signedIn(
-      answering((url) =>
-        url.pathname === "/api/watching"
-          ? { status: 403, body: nobody }
-          : answers()(url),
-      ),
-    );
-    await screen.findByText("Andor");
-
-    await room(nameOfRoom("held"));
-
-    await waitFor(() => {
-      expect(onrefused).toHaveBeenCalledWith(nobody);
-    });
-  });
-
   it("says what they are held to, as lemonfiber answered it", async () => {
     signedIn(answering(answers()));
     await screen.findByText("Andor");
@@ -650,10 +633,13 @@ describe("a member lemonfiber stops taking", () => {
     });
   });
 
-  it("is signed out where the shelf alone is refused", async () => {
+  it.each([
+    ["the shelf", "/api/held"],
+    ["what they were part-way through", "/api/watching"],
+  ])("is signed out where %s alone is refused", async (_what, refused) => {
     const { onrefused } = signedIn(
       answering((url) =>
-        url.pathname === "/api/held"
+        url.pathname === refused
           ? { status: 403, body: nobody }
           : answers()(url),
       ),
