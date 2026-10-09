@@ -7,6 +7,7 @@ import {
   controls,
   finished,
   forgotten,
+  restartOffered,
   leaking,
   moment,
   notAnswering,
@@ -315,6 +316,11 @@ export const FormsCouldNotBeListed: Story = {
       },
     },
   },
+};
+
+/** A restart read first: every program it would restart, beside the yes. */
+export const RestartReadFirst: Story = {
+  args: { controls: { ...controls, work: [restartOffered] } },
 };
 
 /**
