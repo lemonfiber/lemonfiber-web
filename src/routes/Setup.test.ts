@@ -53,6 +53,16 @@ describe("which screen the operator gets", () => {
     ).toBeNull();
   });
 
+  it("counts the steps still to come, for a screen too narrow to list them", async () => {
+    walked({ "/api/setup": fresh });
+    await screen.findByRole("heading", { name: titleOfStep("welcome") });
+    expect(
+      screen.getByText(
+        m.wizard_steps_left({ count: fresh.unanswered.length + 1 }),
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("opens on the way out of an apply that stopped part-way, naming what it wrote", async () => {
     walked({ "/api/setup": interrupted });
     expect(
@@ -101,12 +111,34 @@ describe("walking the steps", () => {
     expect(sentTo(sent, "/api/setup/back")).toStrictEqual([undefined]);
   });
 
+  // Back sits first beside each step's own action, a question's and the
+  // review's alike.
+  it("goes back from a question and from the review", async () => {
+    const { sent } = walked({
+      "/api/setup": on("review"),
+      "/api/setup/back": [on("autostart"), on("notifications")],
+    });
+    await screen.findByRole("heading", { name: titleOfStep("review") });
+    await press(m.action_wizard_back());
+    await screen.findByRole("heading", { name: titleOfStep("autostart") });
+    await press(m.action_wizard_back());
+    expect(
+      await screen.findByRole("heading", {
+        name: titleOfStep("notifications"),
+      }),
+    ).toBeVisible();
+    expect(sentTo(sent, "/api/setup/back")).toHaveLength(2);
+  });
+
   it("sends the download services chosen", async () => {
     const { sent } = walked({
       "/api/setup": on("protocols"),
       "/api/setup/answer": on("vpn"),
     });
     await screen.findByRole("heading", { name: titleOfStep("protocols") });
+    // Each switch has its words beside it, not only a name to be heard by.
+    expect(screen.getByText(m.wizard_usenet())).toBeVisible();
+    expect(screen.getByText(m.wizard_torrents())).toBeVisible();
     await press(m.wizard_usenet());
     await press(m.wizard_usenet());
     await press(m.wizard_torrents());
@@ -130,7 +162,9 @@ describe("walking the steps", () => {
     expect(
       screen.getByRole("button", { name: m.action_wizard_continue() }),
     ).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByText(m.wizard_missing_understood())).toBeVisible();
     await press(m.wizard_vpn_understood());
+    expect(screen.queryByText(m.wizard_missing_understood())).toBeNull();
     await press(m.action_wizard_continue());
     await screen.findByRole("heading", { name: titleOfStep("data-location") });
     expect(sentTo(sent, "/api/setup/answer")).toStrictEqual([
@@ -165,10 +199,12 @@ describe("walking the steps", () => {
     });
     await screen.findByRole("heading", { name: titleOfStep("data-location") });
     const box = screen.getByLabelText(m.wizard_data_folder());
+    expect(box).toHaveAttribute("autocapitalize", "none");
     await userEvent.type(box, "media");
     expect(
       screen.getByRole("button", { name: m.action_wizard_continue() }),
     ).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByText(m.wizard_missing())).toBeVisible();
     await userEvent.clear(box);
     await userEvent.type(box, "/srv/media");
     await press(m.action_wizard_continue());

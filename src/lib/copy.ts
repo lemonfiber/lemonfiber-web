@@ -86,16 +86,18 @@ export function installedLine(installed: Standing["installed"]): string {
   }
 }
 
-/** Where this copy stands and what moving it takes, line by line. */
+/**
+ * Where this copy stands and what moving it takes, line by line. What the
+ * newer release changes is drawn apart, as notes, and is not among the lines.
+ */
 export function standingLines(standing: Standing): readonly string[] {
   const lines = [standingLine(standing), installedLine(standing.installed)];
-  const { at, command, instead, changed } = standing;
+  const { at, command, instead } = standing;
   if (at !== undefined && at !== null) lines.push(m.copy_at({ at }));
   if (command !== undefined && command !== null) {
     lines.push(m.copy_command({ command }));
   }
   if (instead !== undefined && instead !== null) lines.push(instead);
-  if (changed !== undefined && changed !== null) lines.push(changed);
   lines.push(standing.carries, standing.afterwards);
   return lines;
 }

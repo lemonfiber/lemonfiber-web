@@ -168,7 +168,15 @@ describe("when lemonfiber will not do what was asked", () => {
 
     await press(wordOfDoing("up", false));
 
-    expect(await screen.findByText(said)).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        (_, element) =>
+          element?.tagName === "P" &&
+          element.textContent ===
+            "The action up needs forms, which was not given.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText("forms").tagName).toBe("CODE");
   });
 
   // A key is minted once a run, so a write refused is a page holding a key

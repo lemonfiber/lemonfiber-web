@@ -107,8 +107,8 @@
 
   h2 {
     margin: 0;
-    font-size: var(--text-panel);
-    font-weight: 600;
+    font-size: var(--text-unit);
+    font-weight: 700;
   }
 
   .prose {

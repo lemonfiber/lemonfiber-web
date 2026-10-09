@@ -142,7 +142,9 @@ describe("a household member signed in", () => {
     removing.mockRestore();
   });
 
-  it("ages a stamp as the clock moves", async () => {
+  // When a source last answered is the operator's concern: a member's screen
+  // stamps nothing while its answers hold, however long ago they came.
+  it("shows no stamp while the answers hold, as the clock moves", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     try {
       signedIn(answering(answers()));
@@ -151,10 +153,10 @@ describe("a household member signed in", () => {
       await vi.advanceTimersByTimeAsync(60_000);
 
       expect(
-        screen.getAllByText(
+        screen.queryAllByText(
           m.fresh_answered({ span: m.span_minutes({ count: 1 }) }),
-        ).length,
-      ).toBeGreaterThan(0);
+        ),
+      ).toStrictEqual([]);
     } finally {
       vi.useRealTimers();
     }
@@ -211,6 +213,26 @@ describe("what the household holds, for the member signed in", () => {
       await screen.findByText(m.member_shelf_unread()),
     ).toBeInTheDocument();
     expect(screen.queryByText("Arrival")).toBeNull();
+  });
+
+  it("asks again for the shelf when told, and draws it once it answers", async () => {
+    let answering_ = false;
+    globalThis.history.replaceState(undefined, "", "/held");
+    signedIn(
+      answering((url) =>
+        answering_ || url.pathname === "/api/requests"
+          ? answers()(url)
+          : "nothing",
+      ),
+    );
+    const again = await screen.findAllByRole("button", {
+      name: m.action_try_again(),
+    });
+    answering_ = true;
+
+    await userEvent.click(again[0] ?? document.body);
+
+    expect(await screen.findByText("Arrival")).toBeInTheDocument();
   });
 
   it("opens on the shelf where the address names it", async () => {

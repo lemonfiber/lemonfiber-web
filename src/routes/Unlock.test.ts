@@ -209,6 +209,16 @@ describe("handing over a password", () => {
 });
 
 describe("handing over the key a run printed", () => {
+  // The key opens this run as the operator: it is hidden as it is pasted, and
+  // nothing the browser keeps may remember it for whoever sits here next.
+  it("hides the key, and asks the browser to keep nothing of it", () => {
+    doorway();
+    const box = screen.getByLabelText(m.unlock_label());
+    expect(box).toHaveAttribute("type", "password");
+    expect(box).toHaveAttribute("autocomplete", "off");
+    expect(box).toHaveAttribute("autocapitalize", "none");
+  });
+
   it("hands over the key it was given", async () => {
     const opened = doorway();
 

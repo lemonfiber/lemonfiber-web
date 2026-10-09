@@ -115,7 +115,10 @@
 
   h1 {
     margin: 0;
-    font-size: var(--text-title);
+    font-family: var(--brandface);
+    font-weight: 800;
+    font-size: var(--lf-size-display-m);
+    letter-spacing: -0.045em;
   }
 
   .refused {

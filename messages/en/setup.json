@@ -1,6 +1,7 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "wizard_title": "Set up lemonfiber",
+  "wizard_steps_left": "Still to come: {count}",
   "wizard_asked": "Setup said",
   "wizard_unknown_lead": "lemonfiber did not say whether this machine is set up.",
   "wizard_step_now": "You are here",
@@ -22,6 +23,7 @@
   "wizard_vpn_absent": "Go without",
   "wizard_vpn_confirm": "Everyone I share with will see my home address.",
   "wizard_vpn_understood": "I understand",
+  "wizard_missing_understood": "Turn on “I understand” to go without a tunnel.",
   "wizard_data_title": "Data folder",
   "wizard_data_prose": "Where downloads and the library are kept. Both live under this one folder, so a finished download can move into the library without being copied.",
   "wizard_data_folder": "Folder path",
@@ -29,10 +31,12 @@
   "wizard_credentials_title": "Indexer",
   "wizard_credentials_prose": "The indexer that searches for releases. lemonfiber tries the key as soon as you give it.",
   "wizard_indexer_url": "Indexer address",
+  "wizard_indexer_url_hint": "The address your indexer gives for apps, such as https://indexer.example.",
   "wizard_indexer_key": "Indexer key",
   "wizard_provider_title": "Usenet provider",
   "wizard_provider_prose": "Your Usenet provider. lemonfiber signs in once to check it.",
   "wizard_provider_host": "Server",
+  "wizard_provider_host_hint": "The server name your provider gives, such as news.example.com.",
   "wizard_provider_port": "Port",
   "wizard_provider_tls": "Encrypted connection",
   "wizard_provider_plain": "Without encryption, your provider login and everything you download cross the internet where anyone along the way can read them. Leave it on unless your provider offers nothing else.",
@@ -83,5 +87,6 @@
   "wizard_start_over_confirm": "Starting over undoes what was written and forgets every answer you gave. You will begin again at the first question.",
   "wizard_written_title": "Setup written",
   "wizard_written_prose": "Your setup is written. Start the stack to download images and run the services, then lemonfiber connects them to each other.",
-  "wizard_written_asked": "Starting and connecting"
+  "wizard_written_asked": "Starting and connecting",
+  "wizard_missing": "Fill in each box above to go on."
 }

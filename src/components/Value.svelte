@@ -85,5 +85,6 @@
     font-family: var(--sans);
     font-style: italic;
     font-size: 0.95em;
+    overflow-wrap: anywhere;
   }
 </style>

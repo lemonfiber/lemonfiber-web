@@ -1,9 +1,9 @@
 <script lang="ts">
   import Action from "../../components/Action.svelte";
+  import Choice from "../../components/Choice.svelte";
   import Field from "../../components/Field.svelte";
   import Said from "../../components/Said.svelte";
   import Segmented from "../../components/Segmented.svelte";
-  import Switch from "../../components/Switch.svelte";
   import {
     chosenFrom,
     everyAppetite,
@@ -27,11 +27,13 @@
     step: Asking;
     /** Whether a step is out, which silences the controls. */
     busy: boolean;
+    /** Go back a step, offered first beside the step's own action. */
+    onback: () => void;
     /** Send one answer. */
     onanswer: (answer: Answer) => void;
   }
 
-  let { step, busy, onanswer }: Props = $props();
+  let { step, busy, onback, onanswer }: Props = $props();
 
   let usenet = $state(false);
   let torrent = $state(false);
@@ -112,6 +114,11 @@
   /** Whether the step offers going on with nothing entered. */
   const skippable = $derived(step === "credentials" || step === "provider");
 
+  /** What is still missing while the answer cannot be sent. */
+  const missing = $derived(
+    step === "vpn" ? m.wizard_missing_understood() : m.wizard_missing(),
+  );
+
   /** The label the answer is sent with. */
   const forward = $derived(
     step === "credentials" || step === "provider"
@@ -126,20 +133,21 @@
   key or a password goes in that one request and is cleared as it is sent.
   Turning encryption off says what that exposes. Going without a VPN is sent
   only once the operator says they understand that everyone they share with
-  will see their home address.
+  will see their home address. Every switch has its words beside it, and while
+  the answer cannot be sent a line under the actions says what is missing.
 -->
 <div class="answering">
   {#if step === "protocols"}
-    <Switch
+    <Choice
+      words={m.wizard_usenet()}
       on={usenet}
-      label={m.wizard_usenet()}
       onclick={() => {
         usenet = !usenet;
       }}
     />
-    <Switch
+    <Choice
+      words={m.wizard_torrents()}
       on={torrent}
-      label={m.wizard_torrents()}
       onclick={() => {
         torrent = !torrent;
       }}
@@ -158,10 +166,10 @@
       }}
     />
     {#if !carrying}
-      <p class="prose"><Said text={m.wizard_vpn_confirm()} /></p>
-      <Switch
+      <p class="caution"><Said text={m.wizard_vpn_confirm()} /></p>
+      <Choice
+        words={m.wizard_vpn_understood()}
         on={understood}
-        label={m.wizard_vpn_understood()}
         onclick={() => {
           understood = !understood;
         }}
@@ -172,6 +180,7 @@
       label={m.wizard_data_folder()}
       value={folder}
       hint={m.wizard_data_hint()}
+      purpose="path"
       oninput={(value: string) => {
         folder = value;
       }}
@@ -180,6 +189,8 @@
     <Field
       label={m.wizard_indexer_url()}
       value={url}
+      hint={m.wizard_indexer_url_hint()}
+      purpose="address"
       oninput={(value: string) => {
         url = value;
       }}
@@ -196,6 +207,8 @@
     <Field
       label={m.wizard_provider_host()}
       value={host}
+      hint={m.wizard_provider_host_hint()}
+      purpose="address"
       oninput={(value: string) => {
         host = value;
       }}
@@ -207,15 +220,15 @@
         port = value;
       }}
     />
-    <Switch
+    <Choice
+      words={m.wizard_provider_tls()}
       on={tls}
-      label={m.wizard_provider_tls()}
       onclick={() => {
         tls = !tls;
       }}
     />
     {#if !tls}
-      <p class="prose"><Said text={m.wizard_provider_plain()} /></p>
+      <p class="caution"><Said text={m.wizard_provider_plain()} /></p>
     {/if}
     <Field
       label={m.wizard_provider_user()}
@@ -286,9 +299,9 @@
       }}
     />
   {:else}
-    <Switch
+    <Choice
+      words={m.wizard_autostart_on()}
       on={autostart}
-      label={m.wizard_autostart_on()}
       onclick={() => {
         autostart = !autostart;
       }}
@@ -296,6 +309,7 @@
   {/if}
 
   <div class="acts">
+    <Action label={m.action_wizard_back()} off={busy} onclick={onback} />
     {#if typed === undefined}
       <Action label={forward} weight="firm" off />
     {:else}
@@ -321,13 +335,44 @@
       />
     {/if}
   </div>
+  {#if typed === undefined}
+    <p class="missing">{missing}</p>
+  {/if}
 </div>
 
 <style>
   .answering {
     display: grid;
     gap: var(--sp-3);
+    justify-self: stretch;
     justify-items: start;
+  }
+
+  /* A field takes the width it is given, up to the measure it sets itself,
+     and a choice of a few takes the same measure, so its options read whole
+     rather than wrapping inside a box sized to the narrowest of them. */
+  .answering > :global(.field) {
+    justify-self: stretch;
+  }
+
+  .answering > :global(.seg) {
+    justify-self: stretch;
+    max-width: 30rem;
+  }
+
+  .caution {
+    margin: 0;
+    max-width: 68ch;
+    padding: var(--sp-2) var(--sp-3);
+    border-left: 0.1875rem solid var(--warn);
+    background: var(--warn-tint);
+    font-size: var(--text-prose);
+  }
+
+  .missing {
+    margin: 0;
+    font-size: var(--text-control);
+    color: var(--muted);
   }
 
   .prose {

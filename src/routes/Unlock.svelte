@@ -195,6 +195,7 @@
       <Field
         label={m.unlock_label()}
         value={typed}
+        purpose="key"
         oninput={(value: string) => {
           typed = value;
         }}

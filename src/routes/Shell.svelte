@@ -19,6 +19,14 @@
   }
 
   let { place, menu, ongo, children }: Props = $props();
+
+  /**
+   * Bring the place being read into view in a menu that scrolls sideways, so
+   * a phone opened on the last screen still shows which one it is.
+   */
+  function inView(item: HTMLElement): void {
+    item.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
 </script>
 
 <!--
@@ -39,7 +47,7 @@
   <nav class="menu" aria-label={menu.named()}>
     <ul>
       {#each menu.places as one (one)}
-        <li>
+        <li {@attach one === place ? inView : undefined}>
           <MenuItem
             href={menu.pathOf(one)}
             icon={menu.iconOf(one)}
@@ -119,6 +127,7 @@
   @media (max-width: 52rem) {
     .console {
       grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto minmax(0, 1fr);
       grid-template-areas:
         "brow"
         "menu"
@@ -133,6 +142,16 @@
 
     ul {
       display: flex;
+    }
+
+    /* Each place keeps the width its name needs, so the row scrolls rather
+       than squeezing the names into their neighbours' drawings. */
+    li {
+      flex: none;
+    }
+
+    .menu :global(.mitem) {
+      white-space: nowrap;
     }
 
     main {

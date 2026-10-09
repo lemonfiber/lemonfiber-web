@@ -192,7 +192,14 @@ describe("when lemonfiber would not do it", () => {
       },
     });
 
-    expect(screen.getByText(wouldNot)).toBeInTheDocument();
+    // The action and the setting it names between backticks are set as code.
+    expect(
+      screen.getByText(
+        (_, element) =>
+          element?.textContent === wouldNot.replaceAll("`", "") &&
+          element.querySelectorAll("code").length === 2,
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByText(m.eyebrow_refused())).toBeInTheDocument();
   });
 

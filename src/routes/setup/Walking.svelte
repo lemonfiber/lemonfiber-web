@@ -53,14 +53,15 @@
 
 <!--
   The step setup is on: what it is for, its form or its acknowledgement, and
-  the steps still ahead. What proving a credential came to is said at the top
+  the steps still ahead, which a narrow screen counts rather than lists. Back
+  sits first beside the step's own action. What proving a credential came to is said at the top
   of whichever step the answer moved on to, so the result is never lost when
   setup moves on; where it left the credential unproven, going back to enter
   it again is offered beside it. Review lists every setting apply will write,
   and nothing is written until it is said yes to.
 -->
 <div class="walking">
-  <WizardSteps steps={ahead} current={1} />
+  <div class="rail"><WizardSteps steps={ahead} current={1} /></div>
 
   <section class="step" aria-labelledby={titleId}>
     {#if proved !== undefined}
@@ -78,6 +79,9 @@
       </div>
     {/if}
 
+    {#if ahead.length > 1}
+      <p class="left">{m.wizard_steps_left({ count: ahead.length - 1 })}</p>
+    {/if}
     <h2 id={titleId}>{titleOfStep(wizard.at)}</h2>
     <p class="prose"><Said text={proseOfStep(wizard.at)} /></p>
 
@@ -93,6 +97,13 @@
       {/if}
       <div class="acts">
         <Action
+          label={m.action_wizard_back()}
+          off={busy}
+          onclick={() => {
+            onmove({ move: "back" });
+          }}
+        />
+        <Action
           label={m.action_wizard_write()}
           weight="firm"
           off={busy || !wizard.ready_for_review}
@@ -107,6 +118,9 @@
         <Answering
           step={asking}
           {busy}
+          onback={() => {
+            onmove({ move: "back" });
+          }}
           onanswer={(answer: Answer) => {
             onmove({ move: "answer", answer });
           }}
@@ -114,24 +128,21 @@
       {/key}
     {:else}
       <div class="acts">
+        {#if wizard.at !== "welcome"}
+          <Action
+            label={m.action_wizard_back()}
+            off={busy}
+            onclick={() => {
+              onmove({ move: "back" });
+            }}
+          />
+        {/if}
         <Action
           label={m.action_wizard_continue()}
           weight="firm"
           off={busy}
           onclick={() => {
             onmove({ move: "next" });
-          }}
-        />
-      </div>
-    {/if}
-
-    {#if wizard.at !== "welcome"}
-      <div class="acts">
-        <Action
-          label={m.action_wizard_back()}
-          off={busy}
-          onclick={() => {
-            onmove({ move: "back" });
           }}
         />
       </div>
@@ -147,12 +158,6 @@
     align-items: start;
   }
 
-  @media (max-width: 48rem) {
-    .walking {
-      grid-template-columns: 1fr;
-    }
-  }
-
   .step {
     display: grid;
     gap: var(--sp-4);
@@ -162,8 +167,15 @@
 
   h2 {
     margin: 0;
-    font-size: var(--text-panel);
-    font-weight: 600;
+    font-size: var(--text-unit);
+    font-weight: 700;
+  }
+
+  .left {
+    display: none;
+    margin: 0;
+    font-size: var(--text-control);
+    color: var(--muted);
   }
 
   .prose,
@@ -196,5 +208,21 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--sp-2);
+  }
+
+  /* Narrower than the rail and the question side by side, the rail would push
+     the question below the fold, so the count of steps left stands in for it. */
+  @media (max-width: 48rem) {
+    .walking {
+      grid-template-columns: 1fr;
+    }
+
+    .rail {
+      display: none;
+    }
+
+    .left {
+      display: block;
+    }
   }
 </style>

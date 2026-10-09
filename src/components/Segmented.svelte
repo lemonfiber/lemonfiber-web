@@ -103,7 +103,7 @@
 
   .seg button {
     flex: 1;
-    padding: 0.3125rem 0;
+    padding: 0.3125rem var(--sp-2);
     color: var(--muted);
     font-size: var(--text-note);
   }

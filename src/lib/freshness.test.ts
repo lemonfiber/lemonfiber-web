@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   answeredAt,
+  deadStampFor,
+  deadStateFor,
   silentSince,
   spanFor,
   stampFor,
@@ -111,5 +113,20 @@ describe("stampFor", () => {
     for (const freshness of every) {
       expect(stampFor(freshness)).toMatch(/[A-Za-z]/);
     }
+  });
+});
+
+describe("the stamp of a panel that could not be read", () => {
+  it("says it was asked, and gives no tick, where the source answered", () => {
+    const asked: Freshness = { kind: "answered", secondsAgo: 5 };
+    expect(deadStampFor(asked)).toBe("Unread, asked 5s ago");
+    expect(deadStateFor(asked)).toBe("stopped");
+  });
+
+  it("says what any stamp says where the source was silent or never answered", () => {
+    const quiet: Freshness = { kind: "silent", secondsAgo: 60 };
+    expect(deadStampFor(quiet)).toBe(stampFor(quiet));
+    expect(deadStateFor(quiet)).toBe(stateFor(quiet));
+    expect(deadStampFor({ kind: "never" })).toBe("Never checked");
   });
 });

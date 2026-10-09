@@ -1,8 +1,9 @@
 import { render, screen, within } from "@testing-library/svelte";
+import userEvent from "@testing-library/user-event";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import Settings from "./Settings.svelte";
-import { behind, versions } from "../api/copies";
+import { behind, untold, versions } from "../api/copies";
 import {
   standingLines,
   versionLines,
@@ -63,5 +64,45 @@ describe("this copy of lemonfiber, on the settings screen", () => {
     });
     expect(within(part(m.copy_versions())).getByText("No.")).toBeVisible();
     expect(within(part(m.copy_moving())).getByText("Not now.")).toBeVisible();
+  });
+});
+
+describe("what a newer release changes", () => {
+  it("folds the notes away under their own heading, drawn as a list rather than as markup", async () => {
+    reading({
+      standing: {
+        ok: true,
+        value: {
+          ...behind,
+          changed: "## 0.18.0\n\n### New\n\n- The household view\n\nThanks.",
+        },
+      },
+    });
+    const moving = part(m.copy_moving());
+    const notes = within(moving).getByText(m.copy_changed());
+    expect(within(moving).getByText("The household view")).not.toBeVisible();
+
+    await userEvent.click(notes);
+
+    expect(within(moving).getByRole("heading", { name: "New" })).toBeVisible();
+    expect(within(moving).getByText("The household view")).toBeVisible();
+    expect(within(moving).getByText("Thanks.")).toBeVisible();
+    expect(within(moving).queryByText(/##/u)).toBeNull();
+  });
+
+  it("offers no notes where the release passed none on, or only blank ones", () => {
+    for (const value of [
+      untold,
+      { ...untold, changed: null },
+      { ...untold, changed: "  " },
+    ]) {
+      const { unmount } = render(Settings, {
+        quality: undefined,
+        freshness: answered,
+        standing: { ok: true, value },
+      });
+      expect(screen.queryByText(m.copy_changed())).toBeNull();
+      unmount();
+    }
   });
 });
