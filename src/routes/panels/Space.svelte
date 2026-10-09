@@ -30,17 +30,20 @@
   /** What the panel says, from what the source last read off the volume. */
   interface Shown {
     readonly free: Figure;
+    readonly config: Figure;
     readonly link: string;
     readonly until: string;
   }
 
   /**
-   * What is free, what an import costs, and when the disk runs out.
+   * What is free, what an import costs, when the disk runs out, and what is
+   * free where the settings and databases are kept.
    */
   function read(space: Space): Shown {
     const exhaustion = space.exhaustion ?? undefined;
     return {
       free: figureOf(space.free, bytes),
+      config: figureOf(space.config_free, bytes),
       link: wordOfLink(space.hardlink),
       until:
         exhaustion === undefined
@@ -57,6 +60,11 @@
   A volume that could not be read this refresh carries its last figure dimmed
   rather than a zero: no free space and no answer about free space are opposite
   readings, and the one that reads as an emergency is the one that is not.
+
+  The settings and databases every service keeps can sit on another volume
+  than the media, and fill apart from it: once they fill, every service stops.
+  What is free there is its own reading, said under the media's, and read the
+  same way.
 -->
 {#snippet unfilled()}
   <Value state="unknown" absent={reason} />
@@ -76,7 +84,38 @@
       beside={shown.link}
       caption={shown.until}
     />
+    <dl class="config">
+      <dt>{m.space_config_label()}</dt>
+      <dd>
+        <Value
+          state={shown.config.state}
+          figure={shown.config.figure}
+          absent={m.value_cannot_say()}
+        />
+      </dd>
+    </dl>
   {:else}
     <Skeleton width="7rem" label={m.waiting_answer()} />
   {/if}
 </Panel>
+
+<style>
+  .config {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-1) var(--sp-2);
+    align-items: baseline;
+    margin: var(--sp-3) 0 0;
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--line);
+    font-size: var(--text-note);
+  }
+
+  dt {
+    color: var(--muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+</style>

@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/svelte";
+import { screen, within } from "@testing-library/svelte";
 import { describe, expect, it } from "vitest";
 import { moment, stack, unavailable, worst, cleared } from "./fixture";
 import { stampFor } from "../lib/freshness";
@@ -161,6 +161,47 @@ describe("the disk", () => {
     expect(panel()).toHaveTextContent("384 GB");
     expect(panel()).toHaveTextContent(m.schematic_linked_not_copied());
     expect(panel()).toHaveTextContent(m.space_not_filling());
+  });
+
+  // The settings and databases fill apart from the media, and stop every
+  // service when they do, so what is free there is said on its own.
+  it("says what is free where the settings and databases are kept", () => {
+    board({
+      moment: changed({
+        storage: {
+          panel: "ready",
+          data: {
+            free: { reading: "known", value: 4096 },
+            config_free: { reading: "known", value: 2048 },
+            hardlink: "linking",
+            exhaustion: null,
+          },
+        },
+      }),
+      flow: "live",
+    });
+    const config = within(panel()).getByText(m.space_config_label());
+    expect(config.nextElementSibling).toHaveTextContent("2 KB");
+  });
+
+  it("says it cannot say where the settings volume alone could not be read", () => {
+    board({
+      moment: changed({
+        storage: {
+          panel: "ready",
+          data: {
+            free: { reading: "known", value: 4096 },
+            config_free: { reading: "unknown" },
+            hardlink: "linking",
+            exhaustion: null,
+          },
+        },
+      }),
+      flow: "live",
+    });
+    const config = within(panel()).getByText(m.space_config_label());
+    expect(config.nextElementSibling).toHaveTextContent(m.value_cannot_say());
+    expect(panel()).toHaveTextContent("4 KB");
   });
 
   it("says when it runs out at the rate it is filling", () => {
