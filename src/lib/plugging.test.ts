@@ -12,6 +12,7 @@ import {
 } from "./plugging";
 import type { Work } from "./work";
 import {
+  guarding,
   installed,
   installOffer,
   madeInstall,
@@ -19,6 +20,7 @@ import {
   released,
   signIn,
   wouldInstall,
+  wouldInstallGuarded,
   wouldRemove,
   wouldUpdate,
 } from "../api/plugs";
@@ -225,6 +227,15 @@ describe("what a reading asks to be approved", () => {
       },
     ]);
     expect(approvables({ ...installed, would: subtitles })).toStrictEqual([]);
+  });
+
+  it("is then every privileged shape a service of it would take", () => {
+    expect(
+      approvables({ ...wouldInstallGuarded, would: subtitles }),
+    ).toStrictEqual([{ taking: guarding, approval: "egress-guard@tunnel" }]);
+    expect(
+      approvables(wouldInstallGuarded).map((one) => one.approval),
+    ).toStrictEqual(["api_key@opensubtitles", "egress-guard@tunnel"]);
   });
 
   it("is read from the install a reading would make, the new version's for an update", () => {

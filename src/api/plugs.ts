@@ -11,6 +11,7 @@ import type {
   PluginPair,
   PluginRecipe,
   PluginRemoval,
+  PluginTaking,
   PluginUpdate,
   Plugs,
 } from "../lib/plugged";
@@ -95,6 +96,7 @@ export const wouldInstall: PluginInstall = {
   ],
   recipes_ran: [],
   recorded: false,
+  taking: [],
   would: {
     ...subtitles,
     recipes: [signIn],
@@ -141,6 +143,21 @@ export const wouldInstall: PluginInstall = {
       claims: ["subtitles"],
     },
   },
+};
+
+/** A service of a plugin taking the egress guard's privileged shape. */
+export const guarding: PluginTaking = {
+  service: "tunnel",
+  shape: "egress-guard",
+  grants: ["NET_ADMIN"],
+  devices: ["/dev/net/tun"],
+  approval: "egress-guard@tunnel",
+};
+
+/** What installing the fetcher would come to, were one of its services to take that shape. */
+export const wouldInstallGuarded: PluginInstall = {
+  ...wouldInstall,
+  taking: [guarding],
 };
 
 /** The reading of an install, standing for a yes. */

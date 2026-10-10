@@ -14,6 +14,7 @@ import type { Came } from "./came";
 import type {
   PluginInstall,
   PluginPair,
+  PluginTaking,
   PluginRemoval,
   PluginUpdate,
   Plugs,
@@ -150,27 +151,38 @@ export function standingPlug(work: readonly Work[]): Offered | undefined {
   return offeredOf(newest.id, newest.doing, newest.given, report);
 }
 
-/** One value a recipe would carry elsewhere, and what approving it is written as. */
-export interface Approvable {
-  /** The recipe that would carry it, by its title. */
-  readonly recipe: string;
-  readonly pair: PluginPair;
-  /** What approving it is written as, which the yes sends. */
-  readonly approval: string;
-}
+/**
+ * One thing a reading asks to be approved apart from the offer: a value a
+ * recipe would carry elsewhere, or a privileged shape a service would take,
+ * with what approving it is written as, which the yes sends.
+ */
+export type Approvable =
+  | {
+      /** The recipe that would carry it, by its title. */
+      readonly recipe: string;
+      readonly pair: PluginPair;
+      readonly approval: string;
+    }
+  | { readonly taking: PluginTaking; readonly approval: string };
 
 /**
  * Every value a reading's recipes would carry off the machine or away from
- * the service it was read from, each needing its own approval.
+ * the service it was read from, then every privileged shape a service of it
+ * would take, each needing its own approval.
  */
 export function approvables(install: PluginInstall): readonly Approvable[] {
-  return (install.would.recipes ?? []).flatMap((recipe) =>
+  const carried = (install.would.recipes ?? []).flatMap((recipe) =>
     recipe.pairs.flatMap((pair) =>
       pair.approval === undefined
         ? []
         : [{ recipe: recipe.title, pair, approval: pair.approval }],
     ),
   );
+  const taken = install.taking.map((taking) => ({
+    taking,
+    approval: taking.approval,
+  }));
+  return [...carried, ...taken];
 }
 
 /** The install a reading would make, the new version's for an update. */

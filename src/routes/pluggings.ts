@@ -9,6 +9,7 @@ import {
   installOffer,
   madeInstall,
   readInstall,
+  wouldInstallGuarded,
   wouldRemove,
   wouldUpdate,
 } from "../api/plugs";
@@ -26,6 +27,16 @@ export const installRead: Work = {
   at: "done",
   job: undefined,
   came: { kind: "plugins", report: readInstall },
+};
+
+/** A record of reading an install one of whose services takes a privileged shape. */
+export const installReadGuarded: Work = {
+  ...installRead,
+  id: "60",
+  came: {
+    kind: "plugins",
+    report: { ...readInstall, install: wouldInstallGuarded },
+  },
 };
 
 /** A record of that install, made under its reading. */
