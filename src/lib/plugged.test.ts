@@ -66,6 +66,16 @@ describe("what an install would write", () => {
     ]);
   });
 
+  it("names a key it writes for one of the plugin's services", () => {
+    const keyed: PluginInstall = {
+      ...bare,
+      changes: [{ path: "/srv/lemonfiber/plugins/subfetch/key", puts: "key" }],
+    };
+    expect(writesLines(keyed)).toStrictEqual([
+      m.plug_writes_key({ path: "/srv/lemonfiber/plugins/subfetch/key" }),
+    ]);
+  });
+
   it("says a change it has no word for as that, and an install writing nothing as that", () => {
     const odd = {
       ...bare,
