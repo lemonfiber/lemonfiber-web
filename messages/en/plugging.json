@@ -2,6 +2,7 @@
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "plug_writes_directory": "Makes the directory {path}, where one of its services keeps its configuration.",
   "plug_writes_document": "Writes {path}, the container lemonfiber derives for it.",
+  "plug_writes_key": "Writes {path}, the key lemonfiber asks one of its services with, made as it is written and never shown.",
   "plug_writes_region": "Writes a marked region into {path}: its route through the proxy, or its dashboard entry.",
   "plug_writes_other": "Changes {path} in a way this page has no word for.",
   "plug_overrides": "Changes the bundled setting {setting}: {why}",

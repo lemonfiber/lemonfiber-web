@@ -80,6 +80,8 @@ function changeLine(change: PluginChange): string {
       return m.plug_writes_directory({ path });
     case "document":
       return m.plug_writes_document({ path });
+    case "key":
+      return m.plug_writes_key({ path });
     case "region":
       return m.plug_writes_region({ path });
     default:
