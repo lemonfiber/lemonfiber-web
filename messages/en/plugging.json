@@ -8,6 +8,9 @@
   "plug_overrides": "Changes the bundled setting {setting}: {why}",
   "plug_contests": "Leaves {capability}, which {by} asks for, claimed by {claimants} with nothing chosen between them.",
   "plug_writes_nothing": "Writes nothing to this machine.",
+  "plug_taking": "{service} takes the {shape} shape, written for it beside what every plugin's service gets.",
+  "plug_taking_grants": "{service} is given the kernel capabilities {grants}.",
+  "plug_taking_devices": "{service} is given the devices {devices}.",
   "plug_reached_household": "{service} is reached by the household at {hostname}, on port {port}.",
   "plug_reached_loopback": "{service} is reached from this machine only, on port {port}.",
   "plug_reached_none": "{service} has nothing listening, so nothing reaches it.",
@@ -68,9 +71,11 @@
   "plug_section_reaches": "What it reaches",
   "plug_section_verified": "How it is proved",
   "plug_section_recipes": "Its recipes",
+  "plug_section_taking": "Its privileged shapes",
   "plug_section_update": "The update",
   "plug_section_removal": "The removal",
   "plug_recipes_none": "It declares no recipe, so it carries nothing anywhere.",
+  "plug_taking_none": "No service of it takes a privileged shape.",
   "plug_approve": "Approve {approval}",
-  "plug_approved_count": "{approved} of the {asked} values it would carry elsewhere are approved. A value left unapproved is not sent."
+  "plug_approved_count": "{approved} of the {asked} approvals it asks for are given. A value left unapproved is not sent, and a shape left unapproved is not taken."
 }

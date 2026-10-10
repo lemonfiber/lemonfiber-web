@@ -6,6 +6,7 @@ import {
   reachesLines,
   recipeLines,
   removalLines,
+  takingLines,
   titleOfPlug,
   updateLines,
   verificationLines,
@@ -17,6 +18,7 @@ import { everyPlugging } from "./plugging";
 import { installedLines } from "./plugins";
 import { undoLines } from "./undone";
 import {
+  guarding,
   installed,
   installOffer,
   kept,
@@ -39,12 +41,33 @@ const bare: PluginInstall = {
   proofs: [],
   recipes_ran: [],
   recorded: false,
+  taking: [],
   would: { plugin: "hand-rolled", version: "0.1.0", services: [] },
 };
 
 describe("what a record of an act on a plugin is headed", () => {
   it.each(everyPlugging)("heads %s with what it is doing", (doing) => {
     expect(titleOfPlug(doing)).not.toBe("");
+  });
+});
+
+describe("what a service taking a privileged shape is given", () => {
+  it("names the shape, each kernel capability and device, and what approving it is written as", () => {
+    expect(takingLines(guarding)).toStrictEqual([
+      m.plug_taking({ service: "tunnel", shape: "egress-guard" }),
+      m.plug_taking_grants({ service: "tunnel", grants: "NET_ADMIN" }),
+      m.plug_taking_devices({ service: "tunnel", devices: "/dev/net/tun" }),
+      m.plug_approval({ approval: "egress-guard@tunnel" }),
+    ]);
+  });
+
+  it("leaves out a line for what it is not given", () => {
+    expect(takingLines({ ...guarding, grants: [], devices: [] })).toStrictEqual(
+      [
+        m.plug_taking({ service: "tunnel", shape: "egress-guard" }),
+        m.plug_approval({ approval: "egress-guard@tunnel" }),
+      ],
+    );
   });
 });
 

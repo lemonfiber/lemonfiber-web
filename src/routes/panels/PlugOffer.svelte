@@ -8,6 +8,7 @@
     reachesLines,
     recipeLines,
     removalLines,
+    takingLines,
     updateLines,
     verificationLines,
     writesLines,
@@ -99,9 +100,11 @@
   A reading, drawn whole before its yes: for an update or a removal what stops
   and what goes back first, then what the plugin is, everything it would write,
   everywhere it and its recipes would reach, how it is proved and checked, and
-  every recipe with each call it makes and each value it could carry. A value
-  that would leave the machine or the service it was read from is approved on
-  its own switch, so agreeing to the plugin is never agreeing to what it sends.
+  every recipe with each call it makes and each value it could carry, and every
+  privileged shape a service of it would take. A value that would leave the
+  machine or the service it was read from, and a privileged shape, is each
+  approved on its own switch, so agreeing to the plugin is never agreeing to
+  what it sends or to what it is given.
   The yes names the reading it agrees to, and lemonfiber refuses it where what
   is there has moved since.
 -->
@@ -158,6 +161,32 @@
       {:else}
         <p class="prose"><Said text={m.plug_recipes_none()} /></p>
       {/each}
+    </div>
+
+    <div class="part">
+      <h4>{m.plug_section_taking()}</h4>
+      {#if install.taking.length > 0}
+        <ul class="pairs">
+          {#each install.taking as taking (taking.approval)}
+            <li>
+              <ul class="lines">
+                {#each takingLines(taking) as line, place (place)}
+                  <li><Said text={line} /></li>
+                {/each}
+              </ul>
+              <Switch
+                on={approved.includes(taking.approval)}
+                label={m.plug_approve({ approval: taking.approval })}
+                onclick={() => {
+                  flip(taking.approval);
+                }}
+              />
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="prose"><Said text={m.plug_taking_none()} /></p>
+      {/if}
     </div>
   {/if}
 

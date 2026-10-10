@@ -43,6 +43,9 @@ export type PluginPair = PluginRecipe["pairs"][number];
 /** One call a recipe makes. */
 type PluginStep = PluginRecipe["steps"][number];
 
+/** One service taking a privileged shape, with what it is given. */
+export type PluginTaking = PluginInstall["taking"][number];
+
 /** One proof that has to hold before a plugin counts as installed. */
 type PluginProving = PluginInstall["proofs"][number];
 
@@ -246,6 +249,27 @@ export function pairLines(pair: PluginPair): readonly string[] {
   if (pair.approval !== undefined) {
     lines.push(m.plug_approval({ approval: pair.approval }));
   }
+  return lines;
+}
+
+/**
+ * One service taking a privileged shape, in lines: the shape, each kernel
+ * capability and device it is given, and what approving it is written as.
+ */
+export function takingLines(taking: PluginTaking): readonly string[] {
+  const { service } = taking;
+  const lines = [m.plug_taking({ service, shape: taking.shape })];
+  if (taking.grants.length > 0) {
+    lines.push(
+      m.plug_taking_grants({ service, grants: listed(taking.grants) }),
+    );
+  }
+  if (taking.devices.length > 0) {
+    lines.push(
+      m.plug_taking_devices({ service, devices: listed(taking.devices) }),
+    );
+  }
+  lines.push(m.plug_approval({ approval: taking.approval }));
   return lines;
 }
 

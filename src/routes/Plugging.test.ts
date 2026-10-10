@@ -6,6 +6,7 @@ import {
   installMade,
   installOffer,
   installRead,
+  installReadGuarded,
   plugger,
   removeRead,
   updateRead,
@@ -13,8 +14,8 @@ import {
 import { plugins, subtitles } from "../api/installs";
 import type { Freshness } from "../lib/freshness";
 import type { Plugger } from "../lib/plugging";
-import { writesLines } from "../lib/plugged";
-import { readInstall, wouldInstall } from "../api/plugs";
+import { takingLines, writesLines } from "../lib/plugged";
+import { guarding, readInstall, wouldInstall } from "../api/plugs";
 import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 5 };
@@ -138,6 +139,38 @@ describe("acting on a plugin, on the settings screen", () => {
     expect(onask).toHaveBeenLastCalledWith(
       expect.objectContaining({ approved: [] }),
     );
+  });
+
+  it("draws each privileged shape a service would take, approved on its own switch", async () => {
+    const onask = vi.fn();
+    drawn({ ...plugger, work: [installReadGuarded], onask });
+    const offer = within(asked()).getByRole("region", {
+      name: m.plug_offer_title(),
+    });
+    expect(
+      within(offer).getByRole("heading", { name: m.plug_section_taking() }),
+    ).toBeVisible();
+    for (const line of takingLines(guarding)) {
+      expect(within(offer).getByText(line)).toBeVisible();
+    }
+
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: m.plug_approve({ approval: "egress-guard@tunnel" }),
+      }),
+    );
+    expect(
+      screen.getByText(m.plug_approved_count({ approved: 1, asked: 2 })),
+    ).toBeVisible();
+    await press(m.action_plug_install_yes({ offer: installOffer }));
+    expect(onask).toHaveBeenLastCalledWith(
+      expect.objectContaining({ approved: ["egress-guard@tunnel"] }),
+    );
+  });
+
+  it("says where no service takes a privileged shape", () => {
+    drawn({ ...plugger, work: [installRead] });
+    expect(screen.getByText(m.plug_taking_none())).toBeVisible();
   });
 
   it("draws an update's account and a removal's, each with a yes naming its reading", async () => {
