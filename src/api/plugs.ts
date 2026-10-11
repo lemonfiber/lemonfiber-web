@@ -63,6 +63,7 @@ export const signIn: PluginRecipe = {
 
 /** What installing the fetcher would write, reach and prove, with nothing done. */
 export const wouldInstall: PluginInstall = {
+  asks: [],
   changes: [
     { path: "/srv/lemonfiber/plugins/subfetch", puts: "directory" },
     { path: "/srv/lemonfiber/compose/subfetch.yml", puts: "document" },

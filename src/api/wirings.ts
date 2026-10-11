@@ -11,6 +11,7 @@ import type { Link, Wiring } from "../lib/wiring";
 /** Sonarr asks for a download client, and one does it. */
 export const outright: Link = {
   by: "sonarr",
+  origin: { origin: "bundled" },
   reaches: {
     how: "asked",
     capability: "download-client",
@@ -23,6 +24,7 @@ export const outright: Link = {
 /** Prowlarr feeds every service that searches. */
 export const each: Link = {
   by: "prowlarr",
+  origin: { origin: "bundled" },
   reaches: {
     how: "asked",
     capability: "searcher",
@@ -35,6 +37,7 @@ export const each: Link = {
 /** Two request services claim one ask, and nobody has chosen. */
 export const contested: Link = {
   by: "jellyfin",
+  origin: { origin: "bundled" },
   reaches: {
     how: "asked",
     capability: "requests",
@@ -47,6 +50,7 @@ export const contested: Link = {
 /** The operator chose one subtitle service over another, and said why. */
 export const chosen: Link = {
   by: "radarr",
+  origin: { origin: "bundled" },
   reaches: {
     how: "asked",
     capability: "subtitles",
@@ -64,6 +68,7 @@ export const chosen: Link = {
 /** A link kept to a named service. */
 export const byName: Link = {
   by: "jellyfin",
+  origin: { origin: "bundled" },
   reaches: {
     how: "by-name",
     service: "jellyfin-db",
