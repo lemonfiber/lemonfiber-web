@@ -35,6 +35,7 @@ import * as m from "../paraglide/messages.js";
 
 /** An install that writes, reaches and declares nothing. */
 const bare: PluginInstall = {
+  asks: [],
   changes: [],
   overrides: [],
   contests: [],

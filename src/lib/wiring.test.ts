@@ -43,6 +43,7 @@ describe("one link", () => {
   it("says when the stack chose, and no reason where none was given", () => {
     const stackChose: Link = {
       by: "radarr",
+      origin: { origin: "bundled" },
       reaches: {
         how: "asked",
         capability: "subtitles",
@@ -69,6 +70,7 @@ describe("one link", () => {
   it("says nothing does it, and has words for a settling it does not know", () => {
     const unfilled: Link = {
       by: "lidarr",
+      origin: { origin: "bundled" },
       reaches: {
         how: "asked",
         capability: "music-indexer",
