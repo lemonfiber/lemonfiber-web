@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 77 kinds of answer, and this console reads 64 of them.
-Another surface can make 56 requests of the stack, and this console offers 49 of
-them. 2 kinds and 1 request are offered elsewhere by rule, and 11 kinds and 6
+The client carries 80 kinds of answer, and this console reads 64 of them.
+Another surface can make 59 requests of the stack, and this console offers 49 of
+them. 2 kinds and 2 requests are offered elsewhere by rule, and 14 kinds and 8
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -46,7 +46,7 @@ The kinds are read off the client. The requests are not in the client, which
 asks for an action by whatever name it is handed, so the suite lists them as
 lemonfiber's action table names them, with the setup walk, serving this
 surface, replacing the certificate a paired phone pins, and minting, listing
-and revoking keys beside them. A request lemonfiber adds is caught there only
+and revoking keys, minting one as a claim and collecting it beside them. A request lemonfiber adds is caught there only
 where it answers with a kind the contract did not have before.
 
 ## Kinds read here
@@ -129,10 +129,13 @@ where it answers with a kind the contract did not have before.
 
 | Kind           | Feature  | What it is                                                                                                                                          |
 | -------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `askable`      | D4       | Searching and asking: what a member's search found, under their own limits                                                                          |
+| `asked`        | D4       | Searching and asking: what a member's ask came to                                                                                                   |
 | `capabilities` | ARCH-R78 | What this copy of lemonfiber can do, each named by the path it is served at                                                                         |
 | `certificate`  | N1       | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint                                            |
 | `front-door`   | G5       | The front door, asked for on its own                                                                                                                |
 | `grant`        | D11      | Watching what the house holds: a grant to play on the member's own account, which a member's paired client asks for the device it plays on          |
+| `key-claim`    | C10      | Integration keys: a key minted as a claim, its link and when it lapses, drawn once as a code                                                        |
 | `music`        | D2       | Quality presets: the music format                                                                                                                   |
 | `news`         | N27      | What's new: the newest of each kind, from the stream                                                                                                |
 | `news-items`   | N27      | What's new: everything newer than what was last seen, asked for                                                                                     |
@@ -221,17 +224,20 @@ asks for any, naming it.
 
 ## Requests unsuited to this surface
 
-| Request | Rule    | The equivalent                                                                                       |
-| ------- | ------- | ---------------------------------------------------------------------------------------------------- |
-| `ui`    | `G1-R1` | the address bar: a surface cannot start itself, and being able to ask is proof it is already serving |
+| Request       | Rule      | The equivalent                                                                                                                     |
+| ------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `ui`          | `G1-R1`   | the address bar: a surface cannot start itself, and being able to ask is proof it is already serving                               |
+| `key-collect` | `C10-R20` | the program that will hold the key collects it with the claim its link carries, and the console mints the claim and shows its link |
 
 ## Requests not offered yet
 
-| Request                 | Feature | What it is                                                                                                          |
-| ----------------------- | ------- | ------------------------------------------------------------------------------------------------------------------- |
-| `quality-set`           | D2      | Quality presets: choose one; the reading names no presets to choose from                                            |
-| `reset`                 | C9      | Drift: revert every edit to lemonfiber's own state                                                                  |
-| `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes      |
-| `grant`                 | D11     | Watching what the house holds: a grant to play, which a member's paired client asks for the device it plays on      |
-| `watched`               | D11     | Watching what the house holds: how far through a title a member is, handed to the media server from a paired client |
-| `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only            |
+| Request                 | Feature | What it is                                                                                                                  |
+| ----------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `quality-set`           | D2      | Quality presets: choose one; the reading names no presets to choose from                                                    |
+| `reset`                 | C9      | Drift: revert every edit to lemonfiber's own state                                                                          |
+| `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes              |
+| `grant`                 | D11     | Watching what the house holds: a grant to play, which a member's paired client asks for the device it plays on              |
+| `watched`               | D11     | Watching what the house holds: how far through a title a member is, handed to the media server from a paired client         |
+| `ask`                   | D4      | Searching and asking: a member asks for a title their search found, under their own limits                                  |
+| `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only                    |
+| `key-claim`             | C10     | Integration keys: mint a key as a claim, answered with the link a program collects it with, shown once as a link and a code |

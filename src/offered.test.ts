@@ -61,6 +61,7 @@ type Feature =
   | "C10"
   | "D1"
   | "D2"
+  | "D4"
   | "D5"
   | "D6"
   | "D7"
@@ -89,8 +90,8 @@ type Feature =
  * The core's actions in the order its table lists them, then the setup walk its
  * own endpoints serve, then serving this surface, which the command line does,
  * then replacing the certificate a paired phone pins, which only the command
- * line offers, then minting, listing and revoking keys, which the core serves at
- * routes of their own.
+ * line offers, then minting, listing and revoking keys, minting one as a claim
+ * and collecting it, which the core serves at routes of their own.
  */
 const EVERY_REQUEST = [
   "up",
@@ -128,6 +129,7 @@ const EVERY_REQUEST = [
   "household-handoff",
   "grant",
   "watched",
+  "ask",
   "support",
   "restore",
   "watch",
@@ -149,6 +151,8 @@ const EVERY_REQUEST = [
   "key-mint",
   "key-list",
   "key-revoke",
+  "key-claim",
+  "key-collect",
 ] as const;
 
 /** One request another surface can make. */
@@ -330,6 +334,8 @@ const OFFERED_REQUESTS: readonly Request[] = [
  */
 const ELSEWHERE_REQUESTS: Partial<Record<Request, string>> = {
   ui: "G1-R1 — a surface cannot start itself; the address bar is the equivalent, since being able to ask is proof it is already serving",
+  "key-collect":
+    "C10-R20 — a key is collected by the program that will hold it, with the claim its link carries; the console mints the claim and shows its link",
 };
 
 /** Requests nobody has offered here yet, each with the feature it belongs to. */
@@ -339,7 +345,9 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   remove: "D6",
   grant: "D11",
   watched: "D11",
+  ask: "D4",
   "companion-certificate": "N1",
+  "key-claim": "C10",
 };
 
 /** Kinds something the page imports reads. */
@@ -432,10 +440,13 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
 
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
+  askable: "D4",
+  asked: "D4",
   capabilities: "ARCH-R78",
   certificate: "N1",
   "front-door": "G5",
   grant: "D11",
+  "key-claim": "C10",
   music: "D2",
   news: "N27",
   "news-items": "N27",
