@@ -69,6 +69,8 @@ export function stateLine(state: Listed["state"]): string {
   switch (state) {
     case "active":
       return m.keys_active();
+    case "waiting":
+      return m.keys_waiting();
     case "revoked":
       return m.keys_revoked();
     case "orphaned":

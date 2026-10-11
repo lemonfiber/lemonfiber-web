@@ -38,6 +38,7 @@ describe("one integration key", () => {
   });
 
   it("has a word for every state and purpose, and for one it does not know", () => {
+    expect(stateLine("waiting")).toBe(m.keys_waiting());
     expect(stateLine("orphaned")).toBe(m.keys_orphaned());
     expect(stateLine("unconfirmed")).toBe(m.keys_unconfirmed());
     expect(stateLine("revoked")).toBe(m.keys_revoked());
