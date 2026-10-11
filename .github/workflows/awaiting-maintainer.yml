@@ -11,7 +11,7 @@
 #   pin-only pin-only / pin-only
 #   ci         sonar-gate / gate
 #   gate       gate
-#   sdk-drift  sdk-drift
+#   sdk-drift  sdk-drift / drift
 #
 # `sonar-gate / gate` is a job of `ci` here rather than of a `sonar` workflow of
 # its own, which is why `ci` covers it and no fourth workflow is named. Two of
@@ -53,6 +53,6 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    uses: lemonfiber/spec/.github/workflows/awaiting-maintainer.yml@72472b4a5b35e3edf9a6a539f23f5b0eb528d878 # v1.0.78
+    uses: lemonfiber/spec/.github/workflows/awaiting-maintainer.yml@164464d71266bdc36d90272c58eb8bd02f1ba10d # v1.0.80
     secrets:
       DISCORD_MAINTAINERS_WEBHOOK: ${{ secrets.DISCORD_MAINTAINERS_WEBHOOK }}
