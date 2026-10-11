@@ -225,6 +225,7 @@
   "keys_purpose_other": "something else",
   "keys_purpose_unknown": "something this page has no word for",
   "keys_active": "It is in use.",
+  "keys_waiting": "It waits for a program to collect it with its key link, and lets nothing in until then. Uncollected, it is revoked when the link lapses.",
   "keys_revoked": "It has been revoked.",
   "keys_orphaned": "It acts for an account that has left the household, so it is refused.",
   "keys_unconfirmed": "Its mint was not confirmed, so it is refused.",
