@@ -1,75 +1,24 @@
-# A pinned copy goes stale in silence, so every pin is compared on every pull
-# request.
-#
-# This surface takes two lemonfiber repositories as exact git revisions rather
-# than as published versions: `@lemonfiber/sdk-ts`, the client it reaches
-# lemonfiber through, and `@lemonfiber/brand`, the tokens every colour, size and
-# step here is drawn from. Nothing else in the gate looks at either revision:
-# `npm ci` installs what the manifest names and `npm run client` builds it, and
-# both are content with a revision from any point in the past.
-#
-# `scripts/pins.mjs` finds every dependency in `package.json` that points at a
-# lemonfiber repository, compares its revision with that repository's default
-# branch, and names the commits in between. A count would be the wrong thing to
-# report: most commits there change nothing this surface installs, and "behind
-# by eleven" reads as an emergency where the list reads as a decision. For the
-# same reason, a move that touched only files npm does not install from is not
-# drift. Which files those are is read from the dependency's own manifest: a
-# package npm builds at install, as it builds the client, counts everything but
-# its workflows and its tests; one installed as it stands, as brand is, counts
-# what its `files` lists and what npm always packs.
-#
-# The same script holds the lockfile to the manifest, which `npm ci` does not do
-# for a git dependency. With `@lemonfiber/brand` pinned in `package.json` at one
-# commit and resolved in `package-lock.json` at another, `npm ci
-# --ignore-scripts` (npm 11.13.0) installs the manifest's commit, leaves the
-# lockfile naming the other, and exits 0 — whichever of the two moved, and
-# whether or not the lockfile's own copy of the declaration moved with it.
-#
-# The job is named `sdk-drift` because that is the context the default branch's
-# protection requires; a job under any other name would leave the required check
-# waiting on a report that never comes. It checks every pin, the client's among
-# them.
-#
-# Every run writes the verdict for each pin to its own summary, and each failure
-# names the package and the command that brings it current in the annotation on
-# the check, so a red X is read on the run page rather than in this file.
+# Every revision this surface pins in another lemonfiber repository, held against what that one's main ships. The comparison is spec's shared `upstream-drift` (Q-R68,
+# Q-R70), which writes what it found and the command that takes it to the run's
+# summary as well as the log.
 name: sdk-drift
 on:
   pull_request:
   workflow_dispatch:
   schedule:
-    # Weekly, as the contract drift check runs. The client's main also fires
-    # `sdk-moved` on every push, so for the client this is the floor rather than
-    # the first notice — what it catches is a push that went untold. For brand,
-    # which tells nobody, this and the pull requests are the notice.
+    # Weekly, as the floor: a pull request is what usually asks the question.
     - cron: "40 7 * * 1"
-
 permissions:
   contents: read
-
 # A pull request pushed again cancels the run on its old head, which nobody
 # will read and which holds runners the org shares (Q-R75). Every other event
 # is grouped by its own run, so it is never cancelled and never cancels.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
   cancel-in-progress: true
-
 jobs:
   sdk-drift:
-    name: sdk-drift
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      # The script needs no package installed, only the Node this repository
-      # names.
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version-file: .nvmrc
-
-      - name: Compare every pin with its repository and with the lockfile
-        run: node scripts/pins.mjs
+    uses: lemonfiber/spec/.github/workflows/upstream-drift.yml@164464d71266bdc36d90272c58eb8bd02f1ba10d # v1.0.80
+    with:
+      lock: "npm"
+      remedy: "point {name} at github:lemonfiber/{repo}#{head} in package.json, run `npm install`, then `npm run client`"
