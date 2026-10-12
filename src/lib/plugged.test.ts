@@ -100,6 +100,20 @@ describe("what an install would write", () => {
     ]);
   });
 
+  it("names a secrets file it writes for one of the plugin's services", () => {
+    const secreted: PluginInstall = {
+      ...bare,
+      changes: [
+        { path: "/srv/lemonfiber/plugins/subfetch/secrets", puts: "secrets" },
+      ],
+    };
+    expect(writesLines(secreted)).toStrictEqual([
+      m.plug_writes_secrets({
+        path: "/srv/lemonfiber/plugins/subfetch/secrets",
+      }),
+    ]);
+  });
+
   it("says a change it has no word for as that, and an install writing nothing as that", () => {
     const odd = {
       ...bare,

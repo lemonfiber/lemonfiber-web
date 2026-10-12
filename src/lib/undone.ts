@@ -35,6 +35,10 @@ function reversalWords(does: Reversal): string {
       return m.came_undo_revoke();
     case "reinstate":
       return m.came_undo_reinstate();
+    case "rehold":
+      return m.came_undo_rehold();
+    case "resettle":
+      return m.came_undo_resettle();
     default:
       return m.came_undo_other();
   }
