@@ -535,6 +535,8 @@ describe("what putting the last repair back came to", () => {
     ],
     [{ does: "revoke", name: "ha" }, m.came_undo_revoke()],
     [{ does: "reinstate", name: "ha" }, m.came_undo_reinstate()],
+    [{ does: "rehold", name: "sonarr.api_key" }, m.came_undo_rehold()],
+    [{ does: "resettle", name: "sonarr.url" }, m.came_undo_resettle()],
     [
       { does: "pondered" } as unknown as Undone["reversed"][number]["action"],
       m.came_undo_other(),
