@@ -535,6 +535,14 @@ describe("what putting the last repair back came to", () => {
     ],
     [{ does: "revoke", name: "ha" }, m.came_undo_revoke()],
     [{ does: "reinstate", name: "ha" }, m.came_undo_reinstate()],
+    [
+      { does: "revoke-device", name: "Pixel · 3f2a" },
+      m.came_undo_revoke_device(),
+    ],
+    [
+      { does: "reinstate-device", name: "Pixel · 3f2a" },
+      m.came_undo_reinstate_device(),
+    ],
     [{ does: "rehold", name: "sonarr.api_key" }, m.came_undo_rehold()],
     [{ does: "resettle", name: "sonarr.url" }, m.came_undo_resettle()],
     [

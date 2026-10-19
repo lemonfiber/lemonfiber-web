@@ -110,6 +110,8 @@
   "came_undo_rewind": "a file it wrote over holds its old text again",
   "came_undo_revoke": "the key it minted was revoked",
   "came_undo_reinstate": "a revoked key was made good again",
+  "came_undo_revoke_device": "the device key it registered was revoked",
+  "came_undo_reinstate_device": "a revoked device key was made good again",
   "came_undo_rehold": "a secret was put back to the value it held",
   "came_undo_resettle": "a setting was put back to what it held",
   "came_undo_other": "something this page has no words for was put back",
