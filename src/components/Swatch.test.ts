@@ -4,6 +4,11 @@ import Swatch from "./Swatch.svelte";
 
 const lemon = { name: "Lemon", token: "--lemon" };
 
+/** The background the chip declares, as written on it. */
+function ground(container: HTMLElement): string | undefined {
+  return container.querySelector<HTMLElement>(".chip")?.style.background;
+}
+
 describe("Swatch", () => {
   it("says what the colour is called", () => {
     render(Swatch, lemon);
@@ -17,9 +22,7 @@ describe("Swatch", () => {
 
   it("draws the chip from the token rather than from a copy of its value", () => {
     const { container } = render(Swatch, lemon);
-    expect(container.querySelector(".chip")).toHaveStyle({
-      background: "var(--lemon)",
-    });
+    expect(ground(container)).toBe("var(--lemon)");
   });
 
   it("keeps the block of colour out of the reading", () => {
@@ -39,16 +42,12 @@ describe("Swatch", () => {
 describe("when a swatch is pointed at another token", () => {
   it("takes that token's name, its words and its colour together", async () => {
     const { container, rerender } = render(Swatch, lemon);
-    expect(container.querySelector(".chip")).toHaveStyle({
-      background: "var(--lemon)",
-    });
+    expect(ground(container)).toBe("var(--lemon)");
 
     await rerender({ name: "Needs you", token: "--alarm" });
 
     expect(screen.getByText("--alarm")).toBeInTheDocument();
     expect(screen.getByText("Needs you")).toBeInTheDocument();
-    expect(container.querySelector(".chip")).toHaveStyle({
-      background: "var(--alarm)",
-    });
+    expect(ground(container)).toBe("var(--alarm)");
   });
 });

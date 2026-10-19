@@ -19,7 +19,7 @@ export default defineConfig({
     target: "es2022",
     assetsInlineLimit: 0,
     sourcemap: false,
-    rollupOptions: { output: { entryFileNames: "assets/[name]-[hash].js" } },
+    rolldownOptions: { output: { entryFileNames: "assets/[name]-[hash].js" } },
   },
 
   test: {

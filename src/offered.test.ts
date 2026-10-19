@@ -82,7 +82,8 @@ type Feature =
   | "N1"
   | "N27"
   | "ARCH-R78"
-  | "ARCH-R156";
+  | "ARCH-R156"
+  | "ARCH-R254";
 
 /**
  * Every request another surface can make of the stack.
@@ -91,7 +92,8 @@ type Feature =
  * own endpoints serve, then serving this surface, which the command line does,
  * then replacing the certificate a paired phone pins, which only the command
  * line offers, then minting, listing and revoking keys, minting one as a claim
- * and collecting it, which the core serves at routes of their own.
+ * and collecting it, then registering, challenging, listing and revoking device
+ * keys, which the core serves at routes of their own.
  */
 const EVERY_REQUEST = [
   "up",
@@ -100,6 +102,8 @@ const EVERY_REQUEST = [
   "restart",
   "pull",
   "config-set",
+  "settings-set",
+  "settings-clear",
   "quality-set",
   "quality-reapply",
   "quality-upgrade",
@@ -153,6 +157,10 @@ const EVERY_REQUEST = [
   "key-revoke",
   "key-claim",
   "key-collect",
+  "device-key-register",
+  "device-key-challenge",
+  "device-key-list",
+  "device-key-revoke",
 ] as const;
 
 /** One request another surface can make. */
@@ -348,6 +356,12 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   ask: "D4",
   "companion-certificate": "N1",
   "key-claim": "C10",
+  "settings-set": "ARCH-R254",
+  "settings-clear": "ARCH-R254",
+  "device-key-register": "C10",
+  "device-key-challenge": "C10",
+  "device-key-list": "C10",
+  "device-key-revoke": "C10",
 };
 
 /** Kinds something the page imports reads. */
@@ -444,6 +458,9 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   asked: "D4",
   capabilities: "ARCH-R78",
   certificate: "N1",
+  "device-challenge": "C10",
+  "device-key": "C10",
+  "device-keys": "C10",
   "front-door": "G5",
   grant: "D11",
   "key-claim": "C10",
@@ -452,6 +469,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   "news-items": "N27",
   removal: "D6",
   reset: "C9",
+  settings: "ARCH-R254",
   watched: "D11",
   word: "G2",
 };
