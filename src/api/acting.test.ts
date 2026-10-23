@@ -121,6 +121,7 @@ describe("when the work had finished before the reply", () => {
           enveloped("reset", {
             rehearsed: false,
             confirmed: false,
+            offer: "reset-1",
             reverted: [],
             reverted_connections: [],
           }),

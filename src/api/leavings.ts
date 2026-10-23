@@ -50,6 +50,7 @@ export const stranger: Theirs = {
 
 /** Everything that leaves this machine. */
 export const leaving: Leaving = {
+  on_behalf: [],
   ours: [updates, household],
   theirs: [indexing, stranger],
 };

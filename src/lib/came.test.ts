@@ -546,6 +546,15 @@ describe("what putting the last repair back came to", () => {
     [{ does: "rehold", name: "sonarr.api_key" }, m.came_undo_rehold()],
     [{ does: "resettle", name: "sonarr.url" }, m.came_undo_resettle()],
     [
+      { does: "move-back", from: "/srv/sonarr", to: "/data/sonarr" },
+      m.came_undo_move_back(),
+    ],
+    [
+      { does: "keep-copy", volume: "sonarr-config", to: "/data/sonarr" },
+      m.came_undo_keep_copy(),
+    ],
+    [{ does: "leave", path: "compose.override.yml" }, m.came_undo_leave()],
+    [
       { does: "pondered" } as unknown as Undone["reversed"][number]["action"],
       m.came_undo_other(),
     ],

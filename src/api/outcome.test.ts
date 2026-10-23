@@ -228,6 +228,7 @@ describe("what an envelope says a piece of work came to", () => {
         sealed("reset", {
           rehearsed: false,
           confirmed: false,
+          offer: "reset-1",
           reverted: [],
           reverted_connections: [],
         }),

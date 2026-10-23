@@ -287,6 +287,7 @@ describe("servicesOf", () => {
     ],
     undeclared: [],
     disturbs: {
+      fetching: { bound: "open-ended", until: "images" },
       starting: { bound: "bounded", seconds: 1 },
       stopping: { bound: "bounded", seconds: 1 },
       stopping_after_downloads: { bound: "open-ended", until: "downloads" },

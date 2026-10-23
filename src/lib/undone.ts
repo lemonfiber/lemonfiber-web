@@ -43,6 +43,12 @@ function reversalWords(does: Reversal): string {
       return m.came_undo_rehold();
     case "resettle":
       return m.came_undo_resettle();
+    case "move-back":
+      return m.came_undo_move_back();
+    case "keep-copy":
+      return m.came_undo_keep_copy();
+    case "leave":
+      return m.came_undo_leave();
     default:
       return m.came_undo_other();
   }
