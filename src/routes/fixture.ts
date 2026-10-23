@@ -132,9 +132,11 @@ export const stack: Stack = {
     },
   ],
   // What each verb takes the stack away for, which a screen says before it asks
-  // anybody to confirm one. The teardown that waits for downloads is the one with
-  // nothing to bound it: what it waits for belongs to whoever is seeding.
+  // anybody to confirm one. The teardown that waits for downloads and fetching a
+  // form's images have nothing to bound them: what they wait for belongs to whoever
+  // is seeding, and to the line the images come down.
   disturbs: {
+    fetching: { bound: "open-ended", until: "images" },
     starting: { bound: "bounded", seconds: 180 },
     stopping: { bound: "bounded", seconds: 10 },
     stopping_after_downloads: { bound: "open-ended", until: "downloads" },

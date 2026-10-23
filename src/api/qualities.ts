@@ -44,6 +44,11 @@ export const inForce: Tuned = {
     size_per_hour: "300 MB",
     targets: "FLAC",
   },
+  offered: {
+    formats: ["lossy", "lossless"],
+    media_types: ["tv", "movies", "music"],
+    presets: ["balanced", "maximum"],
+  },
 };
 
 /** What putting the recorded preset back over the edits came to. */

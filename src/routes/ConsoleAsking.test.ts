@@ -235,6 +235,7 @@ describe("when lemonfiber will not do what was asked", () => {
         body: enveloped("reset", {
           rehearsed: false,
           confirmed: false,
+          offer: "reset-1",
           reverted: [],
           reverted_connections: [],
         }),

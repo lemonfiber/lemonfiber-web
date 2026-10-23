@@ -50,7 +50,7 @@ describe("what leaves this machine, on the settings screen", () => {
   });
 
   it("says so where either account is empty", () => {
-    reading({ ok: true, value: { ours: [], theirs: [] } });
+    reading({ ok: true, value: { on_behalf: [], ours: [], theirs: [] } });
     expect(within(panel()).getAllByText(m.outbound_none())).toHaveLength(2);
   });
 
