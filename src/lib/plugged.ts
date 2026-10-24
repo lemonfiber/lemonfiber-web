@@ -89,6 +89,10 @@ function changeLine(change: PluginChange): string {
       return m.plug_writes_region({ path });
     case "secrets":
       return m.plug_writes_secrets({ path });
+    case "starting":
+      return m.plug_writes_starting({ path });
+    case "upstream":
+      return m.plug_writes_upstream({ path });
     default:
       return m.plug_writes_other({ path });
   }

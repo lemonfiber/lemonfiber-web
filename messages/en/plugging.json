@@ -5,6 +5,8 @@
   "plug_writes_key": "Writes {path}, the key lemonfiber asks one of its services with, made as it is written and never shown.",
   "plug_writes_region": "Writes a marked region into {path}: its route through the proxy, or its dashboard entry.",
   "plug_writes_secrets": "Writes {path}, a service's own secrets file, readable by its owner alone, its values never shown.",
+  "plug_writes_starting": "Writes {path}, a file the plugin ships for one of its services, only where there is none yet.",
+  "plug_writes_upstream": "Writes {path}, what one of its services signs in to the service behind it with, readable by its owner alone, its values never shown.",
   "plug_writes_other": "Changes {path} in a way this page has no word for.",
   "plug_overrides": "Changes the bundled setting {setting}: {why}",
   "plug_contests": "Leaves {capability}, which {by} asks for, claimed by {claimants} with nothing chosen between them.",

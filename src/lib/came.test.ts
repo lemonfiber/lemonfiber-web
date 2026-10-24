@@ -479,6 +479,14 @@ const putBackAs = (over: Partial<Undone>): readonly string[] =>
     report: { rehearsed: false, reversed: [], left: [], ...over },
   });
 
+/** A credential of another service granted to a plugin, as the journal names it. */
+const grant = {
+  at: "1767225600",
+  credential: "sonarr.api_key",
+  for: "subtitles",
+  of: "sonarr",
+};
+
 describe("what putting the last repair back came to", () => {
   it("says what went back and what did not, in the words given", () => {
     expect(linesOf({ kind: "undo", report: undone })).toStrictEqual([
@@ -545,6 +553,14 @@ describe("what putting the last repair back came to", () => {
     ],
     [{ does: "rehold", name: "sonarr.api_key" }, m.came_undo_rehold()],
     [{ does: "resettle", name: "sonarr.url" }, m.came_undo_resettle()],
+    [
+      { does: "regrant", give: true, plugin: "subfetch", grant },
+      m.came_undo_regrant_give(),
+    ],
+    [
+      { does: "regrant", give: false, plugin: "subfetch", grant },
+      m.came_undo_regrant_end(),
+    ],
     [
       { does: "move-back", from: "/srv/sonarr", to: "/data/sonarr" },
       m.came_undo_move_back(),

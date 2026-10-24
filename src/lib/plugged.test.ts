@@ -114,6 +114,27 @@ describe("what an install would write", () => {
     ]);
   });
 
+  it("names a file it ships for one of its services, and what one signs in to the service behind it with", () => {
+    const shipped: PluginInstall = {
+      ...bare,
+      changes: [
+        { path: "/srv/lemonfiber/config/subfetch/app.yml", puts: "starting" },
+        {
+          path: "/srv/lemonfiber/config/subfetch-adapter/upstream.json",
+          puts: "upstream",
+        },
+      ],
+    };
+    expect(writesLines(shipped)).toStrictEqual([
+      m.plug_writes_starting({
+        path: "/srv/lemonfiber/config/subfetch/app.yml",
+      }),
+      m.plug_writes_upstream({
+        path: "/srv/lemonfiber/config/subfetch-adapter/upstream.json",
+      }),
+    ]);
+  });
+
   it("says a change it has no word for as that, and an install writing nothing as that", () => {
     const odd = {
       ...bare,

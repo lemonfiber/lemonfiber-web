@@ -75,6 +75,8 @@ type Feature =
   | "E4"
   | "F2"
   | "F4"
+  | "F8"
+  | "F14"
   | "G2"
   | "G5"
   | "G6"
@@ -149,6 +151,9 @@ const EVERY_REQUEST = [
   "plugin-install",
   "plugin-update",
   "plugin-remove",
+  "plugin-prove",
+  "plugin-run",
+  "credentials-revoke",
   "setup",
   "ui",
   "companion-certificate",
@@ -362,6 +367,9 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "device-key-challenge": "C10",
   "device-key-list": "C10",
   "device-key-revoke": "C10",
+  "plugin-prove": "F14",
+  "plugin-run": "F8",
+  "credentials-revoke": "F14",
 };
 
 /** Kinds something the page imports reads. */

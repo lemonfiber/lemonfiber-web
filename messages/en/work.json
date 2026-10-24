@@ -114,6 +114,8 @@
   "came_undo_reinstate_device": "a revoked device key was made good again",
   "came_undo_rehold": "a secret was put back to the value it held",
   "came_undo_resettle": "a setting was put back to what it held",
+  "came_undo_regrant_give": "a credential grant it ended was given back to the plugin",
+  "came_undo_regrant_end": "a credential grant it gave a plugin was ended",
   "came_undo_move_back": "a service's state was moved back to where it was",
   "came_undo_keep_copy": "the copy of a volume was kept, and the volume was never changed",
   "came_undo_leave": "the operator's own file was left as it is",
