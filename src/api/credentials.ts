@@ -36,6 +36,7 @@ export const staleKey: Held = {
 export const inventory: Inventory = {
   rehearsed: false,
   held: [webPassword, staleKey],
+  grants: [],
   protection: {
     summary: "Each value is kept in a file only you can read.",
     against: ["Other accounts on this machine reading them."],

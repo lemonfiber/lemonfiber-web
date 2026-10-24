@@ -11,12 +11,12 @@ import * as m from "../paraglide/messages.js";
 /** What putting back a run of changes came to. */
 export type Undone = ByKind["undo"]["data"];
 
-/** One change put back, and what putting it back did. */
-type Reversal = Undone["reversed"][number]["action"]["does"];
+/** What putting one change back did. */
+type Reversal = Undone["reversed"][number]["action"];
 
 /** What putting one change back did, in a few words. */
-function reversalWords(does: Reversal): string {
-  switch (does) {
+function reversalWords(action: Reversal): string {
+  switch (action.does) {
     case "remove":
       return m.came_undo_remove();
     case "restore":
@@ -43,6 +43,10 @@ function reversalWords(does: Reversal): string {
       return m.came_undo_rehold();
     case "resettle":
       return m.came_undo_resettle();
+    case "regrant":
+      return action.give
+        ? m.came_undo_regrant_give()
+        : m.came_undo_regrant_end();
     case "move-back":
       return m.came_undo_move_back();
     case "keep-copy":
@@ -62,7 +66,7 @@ export function undoLines(report: Undone): readonly string[] {
     lines.push(
       m.came_undo_reversed({
         target: one.target,
-        does: reversalWords(one.action.does),
+        does: reversalWords(one.action),
       }),
     );
   }

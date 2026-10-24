@@ -29,8 +29,8 @@ actually reach.
 ## The measurement
 
 The client carries 84 kinds of answer, and this console reads 64 of them.
-Another surface can make 65 requests of the stack, and this console offers 49 of
-them. 2 kinds and 2 requests are offered elsewhere by rule, and 18 kinds and 14
+Another surface can make 68 requests of the stack, and this console offers 49 of
+them. 2 kinds and 2 requests are offered elsewhere by rule, and 18 kinds and 17
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -252,3 +252,6 @@ asks for any, naming it.
 | `device-key-challenge`  | C10       | Integration keys: a challenge a registered device key signs to prove the operator for one mint                                   |
 | `device-key-list`       | C10       | Integration keys: every device key, by name, fingerprint, backing, registration and last use                                     |
 | `device-key-revoke`     | C10       | Integration keys: revoke one device key by name, with effect at its next challenge                                               |
+| `plugin-prove`          | F14       | Plugins: run a plugin's live proof again; a pass clears what it was recorded as failing                                          |
+| `plugin-run`            | F8        | Plugins: run one of a plugin's recipes by name, with its own rehearsal, offer and approvals                                      |
+| `credentials-revoke`    | F14       | Credentials: end a plugin's grant of another service's credential; the plugin stays installed                                    |
