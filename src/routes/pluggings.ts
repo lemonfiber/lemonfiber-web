@@ -9,6 +9,7 @@ import {
   installOffer,
   madeInstall,
   readInstall,
+  wouldInstallGranting,
   wouldInstallGuarded,
   wouldRemove,
   wouldUpdate,
@@ -39,6 +40,16 @@ export const installReadGuarded: Work = {
   },
 };
 
+/** A record of reading an install a credential of another service would cross to. */
+export const installReadGranting: Work = {
+  ...installRead,
+  id: "59",
+  came: {
+    kind: "plugins",
+    report: { ...readInstall, install: wouldInstallGranting },
+  },
+};
+
 /** A record of that install, made under its reading. */
 export const installMade: Work = {
   ...installRead,
@@ -52,7 +63,7 @@ export const updateRead: Work = {
   id: "63",
   doing: "plugin-update",
   scoped: false,
-  given: { plugin: "subtitle-fetch" },
+  given: { plugin: "subtitle-fetch", source: "example.org/subtitle-fetch.git" },
   at: "done",
   job: undefined,
   came: {
@@ -71,6 +82,7 @@ export const removeRead: Work = {
   ...updateRead,
   id: "64",
   doing: "plugin-remove",
+  given: { plugin: "subtitle-fetch" },
   came: {
     kind: "plugins",
     report: {

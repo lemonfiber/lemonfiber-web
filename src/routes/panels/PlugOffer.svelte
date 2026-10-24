@@ -4,6 +4,7 @@
   import Switch from "../../components/Switch.svelte";
   import {
     describedLines,
+    grantingLine,
     pairLines,
     reachesLines,
     recipeLines,
@@ -81,7 +82,8 @@
     if (offered.doing === "plugin-install") {
       onyes({ doing: offered.doing, source: offered.source, offer, approved });
     } else if (offered.doing === "plugin-update") {
-      onyes({ doing: offered.doing, plugin: offered.plugin, offer, approved });
+      const { plugin, source } = offered;
+      onyes({ doing: offered.doing, plugin, source, offer, approved });
     } else {
       onyes({ doing: offered.doing, plugin: offered.plugin, offer });
     }
@@ -100,11 +102,12 @@
   A reading, drawn whole before its yes: for an update or a removal what stops
   and what goes back first, then what the plugin is, everything it would write,
   everywhere it and its recipes would reach, how it is proved and checked, and
-  every recipe with each call it makes and each value it could carry, and every
-  privileged shape a service of it would take. A value that would leave the
-  machine or the service it was read from, and a privileged shape, is each
-  approved on its own switch, so agreeing to the plugin is never agreeing to
-  what it sends or to what it is given.
+  every recipe with each call it makes and each value it could carry, every
+  privileged shape a service of it would take, and every credential of another
+  service that would cross to it. A value that would leave the machine or the
+  service it was read from, a privileged shape and a credential are each
+  approved on a switch of their own, off until turned on, so agreeing to the
+  plugin is never agreeing to what it sends or to what it is given.
   The yes names the reading it agrees to, and lemonfiber refuses it where what
   is there has moved since.
 -->
@@ -186,6 +189,28 @@
         </ul>
       {:else}
         <p class="prose"><Said text={m.plug_taking_none()} /></p>
+      {/if}
+    </div>
+
+    <div class="part">
+      <h4>{m.plug_section_granting()}</h4>
+      {#if install.granting.length > 0}
+        <ul class="pairs">
+          {#each install.granting as granting (granting.approval)}
+            <li>
+              <p class="prose"><Said text={grantingLine(granting)} /></p>
+              <Switch
+                on={approved.includes(granting.approval)}
+                label={m.plug_approve({ approval: granting.approval })}
+                onclick={() => {
+                  flip(granting.approval);
+                }}
+              />
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="prose"><Said text={m.plug_granting_none()} /></p>
       {/if}
     </div>
   {/if}

@@ -12,6 +12,7 @@ import type {
   PluginRecipe,
   PluginRemoval,
   PluginTaking,
+  PluginGranting,
   PluginUpdate,
   Plugs,
 } from "../lib/plugged";
@@ -64,6 +65,7 @@ export const signIn: PluginRecipe = {
 /** What installing the fetcher would write, reach and prove, with nothing done. */
 export const wouldInstall: PluginInstall = {
   asks: [],
+  granting: [],
   changes: [
     { path: "/srv/lemonfiber/plugins/subfetch", puts: "directory" },
     { path: "/srv/lemonfiber/compose/subfetch.yml", puts: "document" },
@@ -153,6 +155,20 @@ export const guarding: PluginTaking = {
   grants: ["NET_ADMIN"],
   devices: ["/dev/net/tun"],
   approval: "egress-guard@tunnel",
+};
+
+/** The series manager's key, crossing to the fetcher to fill subtitles. */
+export const crossing: PluginGranting = {
+  credential: "sonarr.api_key",
+  of: "sonarr",
+  for: "subtitles",
+  approval: "sonarr.api_key@subtitle-fetch",
+};
+
+/** What installing the fetcher would come to, were that key to cross to it. */
+export const wouldInstallGranting: PluginInstall = {
+  ...wouldInstall,
+  granting: [crossing],
 };
 
 /** What installing the fetcher would come to, were one of its services to take that shape. */

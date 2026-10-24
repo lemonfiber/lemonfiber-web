@@ -6,6 +6,7 @@ import {
   installMade,
   installOffer,
   installRead,
+  installReadGranting,
   installReadGuarded,
   plugger,
   removeRead,
@@ -14,8 +15,9 @@ import {
 import { plugins, subtitles } from "../api/installs";
 import type { Freshness } from "../lib/freshness";
 import type { Plugger } from "../lib/plugging";
-import { takingLines, writesLines } from "../lib/plugged";
-import { guarding, readInstall, wouldInstall } from "../api/plugs";
+import type { Installed } from "../lib/plugins";
+import { grantingLine, takingLines, writesLines } from "../lib/plugged";
+import { crossing, guarding, readInstall, wouldInstall } from "../api/plugs";
 import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 5 };
@@ -66,7 +68,7 @@ describe("acting on a plugin, on the settings screen", () => {
     expect(asked()).toHaveFocus();
   });
 
-  it("reads an update or a removal of each installed plugin by its id", async () => {
+  it("reads an update of each installed plugin from the source its record keeps, and a removal by its id", async () => {
     const onask = vi.fn();
     drawn({ ...plugger, onask });
 
@@ -76,10 +78,35 @@ describe("acting on a plugin, on the settings screen", () => {
     expect(onask).toHaveBeenNthCalledWith(1, {
       doing: "plugin-update",
       plugin: "subtitle-fetch",
+      source: "example.org/subtitle-fetch.git",
     });
     expect(onask).toHaveBeenNthCalledWith(2, {
       doing: "plugin-remove",
       plugin: "hand-rolled",
+    });
+  });
+
+  it("reads an update of a plugin whose record keeps no source with none, for lemonfiber to answer", async () => {
+    const onask = vi.fn();
+    const sourceless: Installed = {
+      plugin: subtitles.plugin,
+      name: "Subtitle fetch",
+      version: subtitles.version,
+      services: [],
+    };
+    render(Settings, {
+      quality: undefined,
+      freshness: answered,
+      plugins: { ok: true, value: { ...plugins, installed: [sourceless] } },
+      plugger: { ...plugger, onask },
+    });
+
+    await press(m.action_plug_update({ name: "Subtitle fetch" }));
+
+    expect(onask).toHaveBeenCalledWith({
+      doing: "plugin-update",
+      plugin: "subtitle-fetch",
+      source: "",
     });
   });
 
@@ -168,9 +195,40 @@ describe("acting on a plugin, on the settings screen", () => {
     );
   });
 
-  it("says where no service takes a privileged shape", () => {
+  it("says where no service takes a privileged shape, and no credential crosses", () => {
     drawn({ ...plugger, work: [installRead] });
     expect(screen.getByText(m.plug_taking_none())).toBeVisible();
+    expect(screen.getByText(m.plug_granting_none())).toBeVisible();
+  });
+
+  it("draws each credential that would cross, off until approved on its own switch, and agreeing to the reading approves none", async () => {
+    const onask = vi.fn();
+    drawn({ ...plugger, work: [installReadGranting], onask });
+    const offer = within(asked()).getByRole("region", {
+      name: m.plug_offer_title(),
+    });
+    expect(
+      within(offer).getByRole("heading", { name: m.plug_section_granting() }),
+    ).toBeVisible();
+    expect(within(offer).getByText(grantingLine(crossing))).toBeVisible();
+    const approval = m.plug_approve({
+      approval: "sonarr.api_key@subtitle-fetch",
+    });
+    expect(screen.getByRole("button", { name: approval })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+
+    await press(m.action_plug_install_yes({ offer: installOffer }));
+    expect(onask).toHaveBeenLastCalledWith(
+      expect.objectContaining({ approved: [] }),
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: approval }));
+    await press(m.action_plug_install_yes({ offer: installOffer }));
+    expect(onask).toHaveBeenLastCalledWith(
+      expect.objectContaining({ approved: ["sonarr.api_key@subtitle-fetch"] }),
+    );
   });
 
   it("draws an update's account and a removal's, each with a yes naming its reading", async () => {
@@ -183,6 +241,7 @@ describe("acting on a plugin, on the settings screen", () => {
     expect(onask).toHaveBeenLastCalledWith({
       doing: "plugin-update",
       plugin: "subtitle-fetch",
+      source: "example.org/subtitle-fetch.git",
       offer: "plugin-update:5d20",
       approved: [],
     });

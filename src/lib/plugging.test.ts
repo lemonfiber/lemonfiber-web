@@ -12,6 +12,7 @@ import {
 } from "./plugging";
 import type { Work } from "./work";
 import {
+  crossing,
   guarding,
   installed,
   installOffer,
@@ -20,6 +21,7 @@ import {
   released,
   signIn,
   wouldInstall,
+  wouldInstallGranting,
   wouldInstallGuarded,
   wouldRemove,
   wouldUpdate,
@@ -57,16 +59,17 @@ describe("what the plugins panel asks for", () => {
 });
 
 describe("what each asking sends", () => {
-  it("reads an install from its source, and an update or a removal by the plugin", () => {
+  it("reads an install from its source, an update by the plugin and its source, and a removal by the plugin", () => {
     expect(
       givenForPlug({ doing: "plugin-install", source: "komga" }),
     ).toStrictEqual({
       source: "komga",
     });
     expect(
-      givenForPlug({ doing: "plugin-update", plugin: "komga" }),
+      givenForPlug({ doing: "plugin-update", plugin: "komga", source: "k" }),
     ).toStrictEqual({
       plugin: "komga",
+      source: "k",
     });
     expect(
       givenForPlug({ doing: "plugin-remove", plugin: "komga" }),
@@ -132,14 +135,20 @@ describe("the reading standing on the screen", () => {
   it("is an update or a removal read, for the plugin it was read for", () => {
     const updating = { ...readInstall, install: null, update: wouldUpdate };
     expect(
-      standingPlug([read("plugin-update", { plugin: "komga" }, updating)]),
+      standingPlug([
+        read("plugin-update", { plugin: "komga", source: "k" }, updating),
+      ]),
     ).toStrictEqual({
       id: "7",
       offer: installOffer,
       doing: "plugin-update",
       plugin: "komga",
+      source: "k",
       update: wouldUpdate,
     });
+    expect(
+      standingPlug([read("plugin-update", { plugin: "komga" }, updating)]),
+    ).toBeUndefined();
     const removing = { ...readInstall, install: null, removal: wouldRemove };
     expect(
       standingPlug([read("plugin-remove", { plugin: "komga" }, removing)]),
@@ -238,6 +247,14 @@ describe("what a reading asks to be approved", () => {
     ).toStrictEqual(["api_key@opensubtitles", "egress-guard@tunnel"]);
   });
 
+  it("is last every credential that would cross to it", () => {
+    expect(
+      approvables({ ...wouldInstallGranting, would: subtitles }),
+    ).toStrictEqual([
+      { granting: crossing, approval: "sonarr.api_key@subtitle-fetch" },
+    ]);
+  });
+
   it("is read from the install a reading would make, the new version's for an update", () => {
     const base = { id: "1", offer: installOffer };
     const install: Offered = {
@@ -250,6 +267,7 @@ describe("what a reading asks to be approved", () => {
       ...base,
       doing: "plugin-update",
       plugin: "komga",
+      source: "k",
       update: wouldUpdate,
     };
     const removal: Offered = {

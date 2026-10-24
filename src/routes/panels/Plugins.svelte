@@ -77,6 +77,7 @@
                   acting.onask({
                     doing: "plugin-update",
                     plugin: plugin.plugin,
+                    source: plugin.from ?? "",
                   });
                 }}
               />
