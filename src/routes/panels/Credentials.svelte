@@ -43,10 +43,6 @@
 
   /** Whether the list is shown whole. */
   const short = new Shortening(SHORT_DETAILED);
-
-  const strays = $derived(
-    inventory === undefined ? [] : strayGrants(inventory),
-  );
 </script>
 
 <!--
@@ -95,6 +91,7 @@
       <ShowAll items={inventory.held} shortening={short} />
     {/if}
 
+    {@const strays = strayGrants(inventory)}
     {#if strays.length > 0}
       <section class="stray" aria-labelledby={strayId}>
         <h3 id={strayId}>{m.credential_grants_stray()}</h3>

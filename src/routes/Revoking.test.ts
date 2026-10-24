@@ -52,6 +52,33 @@ describe("ending a grant, on the settings screen", () => {
     });
   });
 
+  it("reads ending a grant whose credential is listed nowhere else too", async () => {
+    const onask = vi.fn();
+    const elsewhere = {
+      ...komgaGrant,
+      credential: "sonarr.api_key",
+      of: "sonarr",
+    };
+    render(Settings, {
+      quality: undefined,
+      freshness: answered,
+      credentials: { ok: true, value: { ...inventory, grants: [elsewhere] } },
+      revoker: { ...revoker, onask },
+    });
+
+    await press(
+      m.action_grant_revoke({
+        plugin: "comic-shelf",
+        credential: "sonarr.api_key",
+      }),
+    );
+    expect(onask).toHaveBeenCalledWith({
+      doing: "credentials-revoke",
+      plugin: "comic-shelf",
+      credential: "sonarr.api_key",
+    });
+  });
+
   it("silences the control while something is being asked", () => {
     drawn({ ...revoker, busy: true });
     expect(screen.getByRole("button", { name: revoke })).toHaveAttribute(
@@ -97,6 +124,17 @@ describe("ending a grant, on the settings screen", () => {
       within(asked()).getByRole("button", { name: m.action_leave_as_is() }),
     );
     expect(ondrop).toHaveBeenCalledWith(revokeRead.id);
+  });
+
+  it("leaves putting a record away to whatever it is handed, holding no record of its own", async () => {
+    drawn({ ...revoker, work: [revokeMade] });
+
+    await userEvent.click(
+      within(asked()).getByRole("button", { name: m.action_hide_record() }),
+    );
+    expect(
+      within(asked()).getByText(m.doing_revoke_grant_title()),
+    ).toBeVisible();
   });
 
   it("says what ending the grant came to, and puts the record away", async () => {
