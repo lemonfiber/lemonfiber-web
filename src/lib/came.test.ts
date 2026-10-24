@@ -24,6 +24,8 @@ import { handoffLines } from "./handoff";
 import { readyForSam } from "../api/handoffs";
 import { pluggedLines } from "./plugged";
 import { madeInstall } from "../api/plugs";
+import { revokedLines } from "./revoked";
+import { revokedGrant } from "../api/credentials";
 import { carried, offer, undone } from "../api/reports";
 import * as m from "../paraglide/messages.js";
 
@@ -351,6 +353,14 @@ describe("what acting on a plugin came to", () => {
     expect(linesOf({ kind: "plugins", report: madeInstall })).toStrictEqual(
       pluggedLines(madeInstall),
     );
+  });
+});
+
+describe("what ending a grant came to", () => {
+  it("says it as the credentials panel does", () => {
+    expect(
+      linesOf({ kind: "credentials", report: revokedGrant }),
+    ).toStrictEqual(revokedLines(revokedGrant));
   });
 });
 

@@ -32,6 +32,12 @@ describe("one installed plugin", () => {
       m.plugin_installed_at({ when: whenOf("1790000000") }),
       m.plugin_places({ services: "subfetch" }),
       m.plugin_fills({ capabilities: "subtitles" }),
+      m.plugin_granted({
+        credential: "sonarr.api_key",
+        of: "sonarr",
+        capability: "subtitles",
+        when: whenOf("1790000100"),
+      }),
       m.plugin_source_reachable({ from }),
     ]);
   });

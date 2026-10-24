@@ -26,6 +26,7 @@
  */
 import { titleOfMove } from "./moved";
 import { titleOfPlug } from "./plugged";
+import { titleOfTending } from "./invited";
 import { rehearsingRestart, type Offered } from "./restarting";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import type { Acted, Arguments } from "../api/acting";
@@ -36,12 +37,7 @@ import type { Freshness } from "./freshness";
 import type { Forms, Preview } from "./wire";
 import * as m from "../paraglide/messages.js";
 
-import {
-  everyDoing,
-  type Doing,
-  type Requested,
-  type Tending,
-} from "./requested";
+import { everyDoing, type Doing, type Requested } from "./requested";
 
 export { everyDoing } from "./requested";
 
@@ -218,24 +214,6 @@ export function wordOfDoing(doing: Doing, scoped: boolean): string {
   }
 }
 
-/** What a record of something the household panels asked for is headed. */
-function titleOfTending(doing: Tending): string {
-  switch (doing) {
-    case "invite":
-      return m.doing_invite_title();
-    case "reissue":
-      return m.doing_reissue_title();
-    case "household-allow":
-      return m.doing_allow_title();
-    case "household-approve":
-      return m.doing_approve_title();
-    case "household-decline":
-      return m.doing_decline_title();
-    case "household-handoff":
-      return m.doing_handoff_title();
-  }
-}
-
 /**
  * What a record of it is headed by: what was asked for, as it is happening.
  */
@@ -306,6 +284,8 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
     case "plugin-update":
     case "plugin-remove":
       return titleOfPlug(doing);
+    case "credentials-revoke":
+      return m.doing_revoke_grant_title();
   }
 }
 

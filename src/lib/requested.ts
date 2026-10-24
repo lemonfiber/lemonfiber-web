@@ -133,6 +133,12 @@ export type Moving =
  */
 export type Plugging = "plugin-install" | "plugin-update" | "plugin-remove";
 
+/**
+ * Something the credentials panel can ask for, named as the endpoint names it.
+ * What it takes and how it is asked about is in `./revoking`.
+ */
+export type Revoking = "credentials-revoke";
+
 /** Anything a record can be of. */
 export type Requested =
   | Doing
@@ -151,4 +157,5 @@ export type Requested =
   | Reclaiming
   | Filling
   | Moving
-  | Plugging;
+  | Plugging
+  | Revoking;

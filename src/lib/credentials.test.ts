@@ -1,12 +1,22 @@
 import { describe, expect, it } from "vitest";
 import {
+  grantLine,
+  grantsOf,
   heldLines,
+  strayGrantLine,
+  strayGrants,
   wordOfMaker,
   wordOfOwner,
   wordOfState,
   type Held,
 } from "./credentials";
-import { staleKey, webPassword } from "../api/credentials";
+import { whenOf } from "./history";
+import {
+  inventory,
+  komgaGrant,
+  staleKey,
+  webPassword,
+} from "../api/credentials";
 import * as m from "../paraglide/messages.js";
 
 describe("one credential, without its value", () => {
@@ -80,5 +90,42 @@ describe("one credential, without its value", () => {
     expect(
       wordOfOwner({ origin: "elsewhere" } as unknown as Held["from"]),
     ).toBe(m.credential_of_other());
+  });
+});
+
+describe("each grant of a credential to a plugin", () => {
+  const elsewhere = {
+    ...komgaGrant,
+    credential: "sonarr.api_key",
+    of: "sonarr",
+  };
+
+  it("sits beside the credential it crosses, and nowhere else", () => {
+    expect(grantsOf(staleKey, inventory.grants)).toStrictEqual([komgaGrant]);
+    expect(grantsOf(webPassword, inventory.grants)).toStrictEqual([]);
+  });
+
+  it("names the plugin, what it was granted for and when", () => {
+    expect(grantLine(komgaGrant)).toBe(
+      m.credential_granted({
+        plugin: "comic-shelf",
+        capability: "library.read",
+        when: whenOf("1790000000"),
+      }),
+    );
+  });
+
+  it("is still drawn where its credential is listed nowhere, naming the credential and whose it is", () => {
+    const strayed = { ...inventory, grants: [komgaGrant, elsewhere] };
+    expect(strayGrants(strayed)).toStrictEqual([elsewhere]);
+    expect(strayGrantLine(elsewhere)).toBe(
+      m.credential_granted_stray({
+        credential: "sonarr.api_key",
+        of: "sonarr",
+        plugin: "comic-shelf",
+        capability: "library.read",
+        when: whenOf("1790000000"),
+      }),
+    );
   });
 });

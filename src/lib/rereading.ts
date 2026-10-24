@@ -17,6 +17,7 @@ import { changedTheDisk } from "./removing";
 import { changedByReclaiming } from "./reclaiming";
 import { changedByFilling } from "./filling";
 import { changedByPlugging } from "./plugging";
+import { changedByRevoking } from "./revoking";
 import { changedByMoving } from "./moving";
 import { changedBySeeding } from "./seeding";
 import type { Place } from "./route";
@@ -37,6 +38,7 @@ const CHANGES: readonly (readonly [(came: Came) => boolean, Place])[] = [
   [changedTheLine, "settings"],
   [changedByFilling, "settings"],
   [changedByPlugging, "settings"],
+  [changedByRevoking, "settings"],
   [changedByMoving, "checks"],
   [changedTheHousehold, "requests"],
   [changedTheHosting, "overview"],

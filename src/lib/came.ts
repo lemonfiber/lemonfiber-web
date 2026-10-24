@@ -67,6 +67,8 @@ import { movedLines, type Moved } from "./moved";
 import { handoffLines, type Handoff } from "./handoff";
 import { undoLines, type Undone } from "./undone";
 import { pluggedLines, type Plugs } from "./plugged";
+import type { Inventory } from "./credentials";
+import { revokedLines } from "./revoked";
 
 export type { Undone } from "./undone";
 import {
@@ -124,6 +126,7 @@ export type Came =
   | { readonly kind: "pausing"; readonly report: Paused }
   | { readonly kind: "update"; readonly report: Updated }
   | { readonly kind: "plugins"; readonly report: Plugs }
+  | { readonly kind: "credentials"; readonly report: Inventory }
   | { readonly kind: "trace"; readonly report: Traced }
   | { readonly kind: "walkthrough"; readonly report: Walked }
   | { readonly kind: "watch"; readonly report: Guarded }
@@ -444,6 +447,8 @@ export function linesOf(came: Came): readonly string[] {
       return updateLines(came.report);
     case "plugins":
       return pluggedLines(came.report);
+    case "credentials":
+      return revokedLines(came.report);
     case "trace":
       return traceLines(came.report);
     case "walkthrough":

@@ -160,5 +160,8 @@ function ofTheSettings(envelope: Envelope): Came | undefined {
   if (isKind(envelope, "plugins")) {
     return { kind: "plugins", report: envelope.data };
   }
+  if (isKind(envelope, "credentials")) {
+    return { kind: "credentials", report: envelope.data };
+  }
   return undefined;
 }

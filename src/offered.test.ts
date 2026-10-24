@@ -34,6 +34,7 @@ import { everyMoving } from "./lib/moving";
 import { everyPlugging } from "./lib/plugging";
 import { everyKeying } from "./routes/keying.svelte";
 import { everyRemoving } from "./lib/removing";
+import { everyRevoking } from "./lib/revoking";
 import { everySeeding } from "./lib/seeding";
 import { everySharing } from "./lib/sharing";
 import { everyUpdating } from "./lib/updating";
@@ -286,6 +287,14 @@ const WALKED: readonly {
       "src/routes/panels/PlugOffer.svelte",
     ],
   },
+  {
+    list: everyRevoking,
+    named: "everyRevoking",
+    by: [
+      "src/routes/panels/Granted.svelte",
+      "src/routes/panels/Revoking.svelte",
+    ],
+  },
 ];
 
 /** Requests this console offers. */
@@ -338,6 +347,7 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "plugin-install",
   "plugin-update",
   "plugin-remove",
+  "credentials-revoke",
   "setup",
 ];
 
@@ -369,7 +379,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "device-key-revoke": "C10",
   "plugin-prove": "F14",
   "plugin-run": "F8",
-  "credentials-revoke": "F14",
 };
 
 /** Kinds something the page imports reads. */

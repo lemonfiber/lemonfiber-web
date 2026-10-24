@@ -4,6 +4,7 @@ import { forgotten, guardKept, hosted, removed } from "../api/removals";
 import { reclaimedRoom } from "../api/spaces";
 import { filled } from "../api/substitutions";
 import { adopted } from "../api/moves";
+import { revokedGrant, wouldRevoke } from "../api/credentials";
 
 describe("which screen a finished piece of work changed", () => {
   it("is the disk for anything taken off it", () => {
@@ -22,6 +23,15 @@ describe("which screen a finished piece of work changed", () => {
     expect(placeChangedBy({ kind: "substitution", report: filled })).toBe(
       "settings",
     );
+  });
+
+  it("is the settings for a grant ended, and none for its reading", () => {
+    expect(placeChangedBy({ kind: "credentials", report: revokedGrant })).toBe(
+      "settings",
+    );
+    expect(
+      placeChangedBy({ kind: "credentials", report: wouldRevoke }),
+    ).toBeUndefined();
   });
 
   it("is the checks for an act on a setup already here, once done", () => {

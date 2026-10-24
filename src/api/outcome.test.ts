@@ -5,6 +5,7 @@ import { staged } from "./configs";
 import { offered } from "./invitations";
 import { readyForSam } from "./handoffs";
 import { readInstall } from "./plugs";
+import { revokedGrant } from "./credentials";
 import { guarded, traced, walked } from "./found";
 import { declared, paused, plan } from "./lines";
 import { material } from "./pairings";
@@ -134,6 +135,13 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("plugins", readInstall))).toStrictEqual({
       kind: "plugins",
       report: readInstall,
+    });
+  });
+
+  it("reads what ending a grant came to", () => {
+    expect(outcomeOf(sealed("credentials", revokedGrant))).toStrictEqual({
+      kind: "credentials",
+      report: revokedGrant,
     });
   });
 

@@ -42,6 +42,7 @@
   import { tuning } from "../lib/tuning";
   import { filling } from "../lib/filling";
   import { plugging } from "../lib/plugging";
+  import { revoking } from "../lib/revoking";
   import { moving } from "../lib/moving";
   import { upkeep } from "../lib/upkeep";
   import { hosting } from "../lib/hosting";
@@ -346,6 +347,7 @@
   const tuneAsks = new Asked(desk, tuning);
   const fillAsks = new Asked(desk, filling);
   const plugAsks = new Asked(desk, plugging);
+  const revokeAsks = new Asked(desk, revoking);
   const moveAsks = new Asked(desk, moving);
   const changeAsks = new Asked(desk, configuring);
   const tendAsks = new Asked(desk, tending);
@@ -522,23 +524,14 @@
     />
   {:else}
     <Settings
+      {...setup}
       quality={setup?.quality}
-      settings={setup?.settings}
-      line={setup?.line}
-      outbound={setup?.outbound}
-      credentials={setup?.credentials}
-      versions={setup?.versions}
-      standing={setup?.standing}
-      catalogue={setup?.catalogue}
-      provenance={setup?.provenance}
-      alerts={setup?.alerts}
-      wiring={setup?.wiring}
-      plugins={setup?.plugins}
       glossary={explained.glossary}
       freshness={stamped}
       tuner={tuneAsks.asker}
       filler={fillAsks.asker}
       plugger={plugAsks.asker}
+      revoker={revokeAsks.asker}
       {keyer}
       configurer={changeAsks.asker}
       pairer={pairAsks.asker}
