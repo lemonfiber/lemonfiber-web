@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   describedLines,
+  grantingLine,
   pairLines,
   pluggedLines,
   reachesLines,
@@ -29,6 +30,7 @@ import {
   wouldInstall,
   wouldRemove,
   wouldUpdate,
+  crossing,
 } from "../api/plugs";
 import { plugins } from "../api/installs";
 import * as m from "../paraglide/messages.js";
@@ -43,6 +45,7 @@ const bare: PluginInstall = {
   recipes_ran: [],
   recorded: false,
   taking: [],
+  granting: [],
   would: { plugin: "hand-rolled", version: "0.1.0", services: [] },
 };
 
@@ -422,5 +425,17 @@ describe("what a record of an act on a plugin came to", () => {
 
   it("says how many plugins are installed where nothing was acted on", () => {
     expect(pluggedLines(plugins)).toStrictEqual([m.plug_count({ count: 2 })]);
+  });
+});
+
+describe("a credential that would cross to the plugin", () => {
+  it("names the setting it is held under, whose it is and what it would fill", () => {
+    expect(grantingLine(crossing)).toBe(
+      m.plug_granting({
+        credential: "sonarr.api_key",
+        of: "sonarr",
+        capability: "subtitles",
+      }),
+    );
   });
 });

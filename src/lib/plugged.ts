@@ -46,6 +46,9 @@ type PluginStep = PluginRecipe["steps"][number];
 /** One service taking a privileged shape, with what it is given. */
 export type PluginTaking = PluginInstall["taking"][number];
 
+/** One credential of another service that would cross to the plugin. */
+export type PluginGranting = PluginInstall["granting"][number];
+
 /** One proof that has to hold before a plugin counts as installed. */
 type PluginProving = PluginInstall["proofs"][number];
 
@@ -277,6 +280,18 @@ export function takingLines(taking: PluginTaking): readonly string[] {
   }
   lines.push(m.plug_approval({ approval: taking.approval }));
   return lines;
+}
+
+/**
+ * One credential that would cross to the plugin, in a line: the setting it is
+ * held under, whose it is and what it would fill. No value is carried.
+ */
+export function grantingLine(granting: PluginGranting): string {
+  return m.plug_granting({
+    credential: granting.credential,
+    of: granting.of,
+    capability: granting.for,
+  });
 }
 
 /** One recipe, in lines: what it does and why, and every call it makes. */

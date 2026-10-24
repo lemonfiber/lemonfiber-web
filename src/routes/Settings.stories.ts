@@ -11,6 +11,7 @@ import { plugins } from "../api/installs";
 import {
   installMade,
   installRead,
+  installReadGranting,
   plugger,
   removeRead,
   updateRead,
@@ -259,6 +260,18 @@ export const ARemovalRead: Story = {
   args: {
     plugins: { ok: true, value: plugins },
     plugger: { ...plugger, work: [removeRead] },
+  },
+};
+
+/**
+ * An install a credential of another service would cross to, the credential
+ * named by its setting, whose it is and what it would fill, approved on a
+ * switch of its own that is off until turned on.
+ */
+export const APluginReadWithAGrant: Story = {
+  args: {
+    plugins: { ok: true, value: plugins },
+    plugger: { ...plugger, work: [installReadGranting] },
   },
 };
 
