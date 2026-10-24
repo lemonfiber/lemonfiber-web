@@ -5,7 +5,8 @@
  * is installed under where its record carries no name. Its lines say what it
  * does in its author's words, the version installed, the source it came from
  * and the commit that source resolved to, what signed it, when it went on,
- * the services it placed and the capabilities they fill. Where the reading
+ * the services it placed and the capabilities they fill, and each credential
+ * of another service it was granted, with when. Where the reading
  * asked each plugin's source whether it still answers, that is said too: a
  * source that has gone leaves the plugin running as it was installed, and
  * takes away the way to a newer version. Every capability the operator chose
@@ -28,6 +29,9 @@ export type Installed = Plugins["installed"][number];
 
 /** Whether one plugin's source still answers. */
 export type Source = NonNullable<Plugins["sources"]>[number];
+
+/** A credential of another service the operator granted a plugin. */
+type Grant = NonNullable<Installed["granted"]>[number];
 
 /** A capability one of a plugin's services fills, by the operator's choice. */
 export type Substituted = NonNullable<Plugins["substituted"]>[number];
@@ -90,8 +94,8 @@ function placedLines(plugin: Installed): readonly string[] {
 
 /**
  * One installed plugin, line by line: what it does, the version installed,
- * where it came from, what it runs and fills, and whether its source still
- * answers where the reading asked.
+ * where it came from, what it runs and fills, each grant it holds, and whether
+ * its source still answers where the reading asked.
  */
 export function installedLines(
   plugin: Installed,
@@ -104,8 +108,19 @@ export function installedLines(
     m.plugin_version({ version: plugin.version }),
     ...originLines(plugin),
     ...placedLines(plugin),
+    ...(plugin.granted ?? []).map((grant) => grantedLine(grant)),
     ...(source === undefined ? [] : [sourceLine(source)]),
   ];
+}
+
+/** One credential of another service the plugin holds, in a line. */
+function grantedLine(grant: Grant): string {
+  return m.plugin_granted({
+    credential: grant.credential,
+    of: grant.of,
+    capability: grant.for,
+    when: whenOf(grant.at),
+  });
 }
 
 /** A capability a plugin's service fills by the operator's choice. */

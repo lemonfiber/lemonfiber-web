@@ -5,7 +5,17 @@
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
-  import { heldLines, type Inventory } from "../../lib/credentials";
+  import {
+    grantLine,
+    grantsOf,
+    heldLines,
+    strayGrantLine,
+    strayGrants,
+    type Inventory,
+  } from "../../lib/credentials";
+  import type { Revoker } from "../../lib/revoking";
+  import Granted from "./Granted.svelte";
+  import Revoking from "./Revoking.svelte";
   import type { Freshness } from "../../lib/freshness";
   import { SHORT_DETAILED, Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
@@ -15,11 +25,14 @@
     credentials: Reading<Inventory> | undefined;
     /** When this panel's source last answered. */
     freshness: Freshness;
+    /** What ending a grant asks for, where this page may act. */
+    revoker?: Revoker | undefined;
   }
 
-  let { credentials, freshness }: Props = $props();
+  let { credentials, freshness, revoker }: Props = $props();
 
   const protectionId = $props.id();
+  const strayId = `${protectionId}-stray`;
 
   const inventory = $derived(
     credentials?.ok === true ? credentials.value : undefined,
@@ -35,9 +48,11 @@
 <!--
   Every credential the stack holds: where it stands, who made it, whose it is,
   where its value lives, the setting it is recorded under and everything that
-  signs in with it. The inventory carries no value, so none is drawn. Under it,
-  lemonfiber's own account of what keeping them in files protects against and
-  what it does not.
+  signs in with it, and each plugin it is granted to, with what for and when.
+  The inventory carries no value, so none is drawn. Under it, lemonfiber's own
+  account of what keeping them in files protects against and what it does not.
+  Where acting is given, each grant can be ended, read first and agreed to
+  under the name its reading gave itself.
 -->
 <Panel title={m.panel_credentials()} {freshness} flush>
   <div class="scope">
@@ -55,6 +70,7 @@
     {#if inventory.held.length > 0}
       <ul class="held" aria-label={m.credential_said()}>
         {#each short.of(inventory.held) as one, place (place)}
+          {@const grants = grantsOf(one, inventory.grants)}
           <li>
             <h3>{one.name}</h3>
             <ul class="lines">
@@ -62,10 +78,29 @@
                 <li><Said text={line} /></li>
               {/each}
             </ul>
+            {#if grants.length > 0}
+              <ul class="lines grants" aria-label={m.credential_grants_said()}>
+                {#each grants as grant (grant.plugin)}
+                  <Granted {grant} line={grantLine(grant)} {revoker} />
+                {/each}
+              </ul>
+            {/if}
           </li>
         {/each}
       </ul>
       <ShowAll items={inventory.held} shortening={short} />
+    {/if}
+
+    {@const strays = strayGrants(inventory)}
+    {#if strays.length > 0}
+      <section class="stray" aria-labelledby={strayId}>
+        <h3 id={strayId}>{m.credential_grants_stray()}</h3>
+        <ul class="lines grants">
+          {#each strays as grant, at (at)}
+            <Granted {grant} line={strayGrantLine(grant)} {revoker} />
+          {/each}
+        </ul>
+      </section>
     {/if}
 
     <section class="protection" aria-labelledby={protectionId}>
@@ -84,6 +119,9 @@
         {/each}
       </ul>
     </section>
+  {/if}
+  {#if revoker !== undefined}
+    <Revoking {revoker} />
   {/if}
 </Panel>
 
@@ -109,6 +147,7 @@
   }
 
   .held > li,
+  .stray,
   .protection {
     display: grid;
     gap: var(--sp-2);

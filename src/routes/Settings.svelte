@@ -31,6 +31,7 @@
   import type { Tuner } from "../lib/tuning";
   import type { Filler } from "../lib/filling";
   import type { Plugger } from "../lib/plugging";
+  import type { Revoker } from "../lib/revoking";
   import type { Updater } from "../lib/updating";
   import type { Wiring as Wired } from "../lib/wiring";
   import type { Plugins as Installs } from "../lib/plugins";
@@ -81,6 +82,8 @@
     filler?: Filler | undefined;
     /** What acting on a plugin asks for, and what came of it. */
     plugger?: Plugger | undefined;
+    /** What ending a plugin's grant asks for, and what came of it. */
+    revoker?: Revoker | undefined;
     /** What keeping integration keys asks for. Left out where nothing answers it. */
     keyer?: Keyer | undefined;
     /** What updating the stack asks for. Left out where nothing answers it. */
@@ -107,6 +110,7 @@
     tuner,
     filler,
     plugger,
+    revoker,
     keyer,
     configurer,
     sharer,
@@ -119,10 +123,11 @@
   How the stack is set up, and what can be changed about it from here: the
   quality new media is fetched at, every setting lemonfiber keeps, how the line
   is shared, everything that leaves this machine, what the operator is told
-  about, every credential the stack holds, the versions the stack stands on,
-  what the stack holds and where each service comes from, what it wires to
-  what, the plugins on this machine, this copy of lemonfiber, pairing the
-  companion app, the integration keys, and every word lemonfiber explains.
+  about, every credential the stack holds and each grant of one to a plugin,
+  the versions the stack stands on, what the stack holds and where each service
+  comes from, what it wires to what, the plugins on this machine, this copy of
+  lemonfiber, pairing the companion app, the integration keys, and every word
+  lemonfiber explains.
 
   The readings are asked for together on the way in, and stamped together.
   The line is drawn where it was read or can be declared.
@@ -137,7 +142,7 @@
   {/if}
   <Outbound {outbound} {freshness} {configurer} />
   <Alerts {alerts} {freshness} />
-  <Credentials {credentials} {freshness} />
+  <Credentials {credentials} {freshness} {revoker} />
 
   {#if updater !== undefined}
     <Updates {updater} {freshness} />

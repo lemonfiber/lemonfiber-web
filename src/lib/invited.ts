@@ -8,7 +8,7 @@
  * offers withdrawn and reset accounts switched off on the way past are named
  * rather than done quietly. Saying what somebody may ask for, and letting a
  * request through or turning it down, answer with the household as it now
- * stands.
+ * stands. A record of each of those acts is headed here too.
  *
  * What lemonfiber writes into a report, such as an address, a caution or what a
  * limit is and is not, is its own and is passed through unchanged. The words
@@ -17,6 +17,7 @@
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { saidOfPolicy, wordOfUnrated } from "./household";
 import { listed } from "./listed";
+import type { Tending } from "./requested";
 import * as m from "../paraglide/messages.js";
 
 /** An account offered to somebody, or what offering one would make. */
@@ -104,4 +105,22 @@ export function householdLines(report: Housed): readonly string[] {
   }
   lines.push(...report.findings);
   return lines;
+}
+
+/** What a record of something the household panels asked for is headed. */
+export function titleOfTending(doing: Tending): string {
+  switch (doing) {
+    case "invite":
+      return m.doing_invite_title();
+    case "reissue":
+      return m.doing_reissue_title();
+    case "household-allow":
+      return m.doing_allow_title();
+    case "household-approve":
+      return m.doing_approve_title();
+    case "household-decline":
+      return m.doing_decline_title();
+    case "household-handoff":
+      return m.doing_handoff_title();
+  }
 }

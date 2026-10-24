@@ -6,7 +6,8 @@
  * whether each field is one the contract has rather than whoever wrote the
  * reader and the body agreeing with each other.
  */
-import type { Held, Inventory } from "../lib/credentials";
+import type { Granted, Held, Inventory } from "../lib/credentials";
+import type { Revoked } from "../lib/revoked";
 
 /** A password the operator supplied, in use by two consumers. */
 export const webPassword: Held = {
@@ -32,14 +33,48 @@ export const staleKey: Held = {
   advisory: "It has not been proved in thirty days.",
 };
 
+/** The Komga key, granted to a third-party plugin that fills reading for it. */
+export const komgaGrant: Granted = {
+  plugin: "comic-shelf",
+  credential: staleKey.setting,
+  of: "komga",
+  for: "library.read",
+  at: "1790000000",
+};
+
 /** Every credential, and what keeping them in files protects against. */
 export const inventory: Inventory = {
   rehearsed: false,
   held: [webPassword, staleKey],
-  grants: [],
+  grants: [komgaGrant],
   protection: {
     summary: "Each value is kept in a file only you can read.",
     against: ["Other accounts on this machine reading them."],
     not_against: ["Anyone who can act as you, or as root."],
   },
+};
+
+/** The name the reading of ending the Komga grant goes by. */
+export const revokeOffer = "credentials-revoke:4b7e";
+
+/** What ending the Komga grant would come to, as its reading names it. */
+export const endingKomga: Revoked = {
+  agreement: revokeOffer,
+  ended: false,
+  grant: komgaGrant,
+  restarts: ["comic-shelf"],
+};
+
+/** What ending the Komga grant would come to, with nothing ended. */
+export const wouldRevoke: Inventory = {
+  ...inventory,
+  rehearsed: true,
+  revoked: endingKomga,
+};
+
+/** Ending the Komga grant under that reading, with its service restarted. */
+export const revokedGrant: Inventory = {
+  ...inventory,
+  grants: [],
+  revoked: { ...endingKomga, ended: true },
 };

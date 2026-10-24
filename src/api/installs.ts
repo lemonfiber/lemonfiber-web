@@ -8,7 +8,10 @@
  */
 import type { Installed, Plugins } from "../lib/plugins";
 
-/** A subtitle fetcher from a git source, signed, filling one capability. */
+/**
+ * A subtitle fetcher from a git source, signed, filling one capability with
+ * the series manager's key granted to it.
+ */
 export const subtitles: Installed = {
   plugin: "subtitle-fetch",
   name: "Subtitle fetch",
@@ -29,6 +32,14 @@ export const subtitles: Installed = {
     },
   ],
   provides: ["subtitles"],
+  granted: [
+    {
+      credential: "sonarr.api_key",
+      of: "sonarr",
+      for: "subtitles",
+      at: "1790000100",
+    },
+  ],
 };
 
 /**

@@ -2,8 +2,13 @@ import { render, screen, within } from "@testing-library/svelte";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import Settings from "./Settings.svelte";
-import { inventory, staleKey } from "../api/credentials";
-import { heldLines, type Inventory } from "../lib/credentials";
+import { inventory, komgaGrant, staleKey } from "../api/credentials";
+import {
+  grantLine,
+  heldLines,
+  strayGrantLine,
+  type Inventory,
+} from "../lib/credentials";
 import type { Freshness } from "../lib/freshness";
 import * as m from "../paraglide/messages.js";
 
@@ -34,6 +39,31 @@ describe("the credentials, on the settings screen", () => {
     for (const line of heldLines(staleKey)) {
       expect(within(held).getByText(line)).toBeVisible();
     }
+  });
+
+  it("names each grant beside the credential it crosses, with nothing to press where this page may not act", () => {
+    reading({ ok: true, value: inventory });
+    const grants = within(panel()).getByRole("list", {
+      name: m.credential_grants_said(),
+    });
+    expect(within(grants).getByText(grantLine(komgaGrant))).toBeVisible();
+    expect(within(panel()).queryByRole("button")).toBeNull();
+  });
+
+  it("still names a grant whose credential is listed nowhere, under a heading of its own", () => {
+    const elsewhere = {
+      ...komgaGrant,
+      credential: "sonarr.api_key",
+      of: "sonarr",
+    };
+    reading({ ok: true, value: { ...inventory, grants: [elsewhere] } });
+    const strays = within(panel()).getByRole("region", {
+      name: m.credential_grants_stray(),
+    });
+    expect(within(strays).getByText(strayGrantLine(elsewhere))).toBeVisible();
+    expect(
+      within(panel()).queryByRole("list", { name: m.credential_grants_said() }),
+    ).toBeNull();
   });
 
   it("says what keeping them in files protects against, and what it does not", () => {

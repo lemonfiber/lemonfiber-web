@@ -126,6 +126,8 @@ export interface Arguments {
   readonly plugin?: string;
   /** Every value a recipe would carry elsewhere that is approved, as its reading writes it. */
   readonly approved?: readonly string[];
+  /** The credential a plugin's grant is of, by the setting it is held under. */
+  readonly credential?: string;
 }
 
 /**

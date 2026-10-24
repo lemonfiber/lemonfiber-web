@@ -19,6 +19,7 @@ import { vocabulary } from "../api/vocabularies";
 import { catalogue, provenance } from "../api/catalogues";
 import { behind, versions } from "../api/copies";
 import { inventory } from "../api/credentials";
+import { revokeMade, revokeRead, revoker } from "./revokings";
 import { leaving } from "../api/leavings";
 import { pausedRecord, planRecord, shared, sharer, updater } from "./lined";
 
@@ -125,11 +126,35 @@ export const WhatLeavesThisMachine: Story = {
 };
 
 /**
- * Every credential the stack holds, with no value among them, and what keeping
- * them in files protects against and what it does not.
+ * Every credential the stack holds, with no value among them, each grant of one
+ * to a plugin beside it, and what keeping them in files protects against and
+ * what it does not.
  */
 export const EveryCredential: Story = {
   args: { credentials: { ok: true, value: inventory } },
+};
+
+/**
+ * Ending a plugin's grant, read first: the grant it would end and what would
+ * restart, labelled as nothing ended yet, above a yes naming the reading.
+ */
+export const AGrantRead: Story = {
+  args: {
+    credentials: { ok: true, value: inventory },
+    revoker: { ...revoker, work: [revokeRead] },
+  },
+};
+
+/**
+ * A grant ended under its reading: what restarted, that the plugin stays
+ * installed, and that rotating the credential takes back a value already
+ * handed.
+ */
+export const AGrantEnded: Story = {
+  args: {
+    credentials: { ok: true, value: inventory },
+    revoker: { ...revoker, work: [revokeMade] },
+  },
 };
 
 /**
