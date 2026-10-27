@@ -12,14 +12,8 @@ describe("one stuck item", () => {
 });
 
 describe("what may be missing from the list", () => {
-  it("says a queue could not be read, and names each one that cannot be here", () => {
-    expect(shortLines(stalled)).toStrictEqual([
-      m.stuck_incomplete(),
-      m.stuck_unread({
-        what: "readarr",
-        because: "It speaks an API this build does not.",
-      }),
-    ]);
+  it("says a queue could not be read", () => {
+    expect(shortLines(stalled)).toStrictEqual([m.stuck_incomplete()]);
   });
 
   it("says nothing where every queue was read", () => {

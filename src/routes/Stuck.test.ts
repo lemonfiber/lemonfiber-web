@@ -74,7 +74,7 @@ describe("the stuck downloads, on the requests screen", () => {
   it("says so where nothing is stuck", () => {
     reading({
       ok: true,
-      value: { incomplete: false, items: [], unsupported: [] },
+      value: { incomplete: false, items: [] },
     });
     expect(within(panel()).getByText(m.stuck_none())).toBeVisible();
     expect(

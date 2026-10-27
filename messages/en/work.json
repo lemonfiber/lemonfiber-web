@@ -84,7 +84,6 @@
   "came_wiring_already": "Already connected: {connections}.",
   "came_wiring_unmanaged": "Set before lemonfiber was, and taken as they are: {connections}.",
   "came_wiring_other": "Turned out in a way this page has no words for: {connections}.",
-  "came_unsupported": "Not wired: {what}. {because}",
   "came_unread": "lemonfiber said what this came to in a form this page does not read yet.",
   "came_checks_shown": "What each check found is listed on this screen.",
   "came_repair_offered": "Could be put right, and nothing has changed yet: {check}. {does}",

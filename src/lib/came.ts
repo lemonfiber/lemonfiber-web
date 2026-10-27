@@ -347,11 +347,6 @@ function seedLines(report: Seeded): readonly string[] {
   if (others.length > 0) {
     lines.push(m.came_wiring_other({ connections: listed(others) }));
   }
-  for (const skipped of report.unsupported ?? []) {
-    lines.push(
-      m.came_unsupported({ what: skipped.what, because: skipped.because }),
-    );
-  }
   return lines;
 }
 
