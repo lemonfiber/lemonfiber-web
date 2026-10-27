@@ -5,8 +5,7 @@
  * Each item is named with the service whose queue holds it and the stage it is
  * stuck at, so the reader can follow that one item rather than a count. A queue
  * that could not be read leaves the list short, and says so rather than
- * reading as nothing stuck; a service whose queue lemonfiber cannot read at all
- * is named with why.
+ * reading as nothing stuck.
  *
  * What lemonfiber writes into the reading is its own and is passed through
  * unchanged. The words around it live in `messages/`.
@@ -31,9 +30,5 @@ export function heldLine(item: Held): string {
 
 /** What may be missing from the list, line by line. */
 export function shortLines(stuck: Stuck): readonly string[] {
-  const lines = stuck.incomplete ? [m.stuck_incomplete()] : [];
-  for (const one of stuck.unsupported ?? []) {
-    lines.push(m.stuck_unread({ what: one.what, because: one.because }));
-  }
-  return lines;
+  return stuck.incomplete ? [m.stuck_incomplete()] : [];
 }

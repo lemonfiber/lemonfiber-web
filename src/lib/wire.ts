@@ -101,9 +101,6 @@ export type Affected = Health["affected"][number];
 /** One interruption, as the operator has already been told about it. */
 export type Alert = Moment["alerts"][number];
 
-/** A service lemonfiber runs and can do less with, and why. */
-export type Unsupported = NonNullable<Stack["unsupported"]>[number];
-
 /**
  * A service the forms asked for and the configuration left out, with what it
  * would need and which forms asked for it.

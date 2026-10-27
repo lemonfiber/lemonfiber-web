@@ -58,43 +58,6 @@ describe("the programs", () => {
     expect(panel()).toHaveTextContent("Nothing answered.");
   });
 
-  // Left out, such a service reads as one lemonfiber forgot rather than one it
-  // was told about in terms it could not follow.
-  it("names a service it can do less with, and why", () => {
-    board({ programs: read, read: answered });
-
-    expect(panel()).toHaveTextContent(m.programs_less());
-    expect(panel()).toHaveTextContent("bazarr");
-    expect(panel()).toHaveTextContent(
-      "Its declaration leaves out the part that says where to reach it.",
-    );
-  });
-
-  it("says nothing of them where the reading names none", () => {
-    board({ programs: { ok: true, value: { ...stack, unsupported: [] } } });
-    expect(panel()).not.toHaveTextContent(m.programs_less());
-  });
-
-  // A build whose contract never named the field at all is the same screen as
-  // one whose reading named none, rather than a panel with a hole in it.
-  it("says nothing of them where the reading has no such field", () => {
-    board({
-      programs: {
-        ok: true,
-        value: {
-          condition: stack.condition,
-          active_forms: stack.active_forms,
-          forms: stack.forms,
-          filtered: stack.filtered,
-          services: stack.services,
-          undeclared: stack.undeclared,
-          disturbs: stack.disturbs,
-        },
-      },
-    });
-    expect(panel()).not.toHaveTextContent(m.programs_less());
-  });
-
   /** The row the table draws for one service, found by its name. */
   const row = (name: string): HTMLElement =>
     within(panel())

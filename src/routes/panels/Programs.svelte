@@ -54,7 +54,6 @@
     programs?.ok === false ? programs.problem.message : undefined,
   );
   const anyServed = $derived(services !== undefined && services.length > 0);
-  const cannot = $derived(reading?.unsupported ?? []);
 
   /** The names of the forms named here, as one run of words. */
   function named(ids: readonly string[]): string {
@@ -82,13 +81,6 @@
   kept out of the table rather than drawn in it as stopped: a service left out
   on purpose is the operator's own setting being honoured, and a row saying it
   is down would report that setting as a fault.
-
-  Last stand the services lemonfiber runs and can do less with, each with why.
-  They start, stop and report their state like any other, so the table says
-  nothing about them that is not also true of the rest; what is missing is the
-  work that needs to know what a service is. Left out, such a service reads as
-  one lemonfiber simply forgot, and the operator who wrote the declaration it
-  could not follow has nothing to go on.
 -->
 {#snippet asKnown()}
   <StateTag state="known" />
@@ -168,20 +160,6 @@
             <span class="because">
               {m.programs_asked_by({ forms: named(one.forms) })}
             </span>
-          </li>
-        {/each}
-      </ul>
-    </div>
-  {/if}
-
-  {#if cannot.length > 0}
-    <div class="aside">
-      <p class="eyebrow">{m.programs_less()}</p>
-      <ul class="listed">
-        {#each cannot as one, at (at)}
-          <li>
-            <span class="named">{one.what}</span>
-            <span class="because">{one.because}</span>
           </li>
         {/each}
       </ul>

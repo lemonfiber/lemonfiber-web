@@ -122,15 +122,6 @@ export const stack: Stack = {
     },
   ],
   undeclared: [],
-  // A service that starts, stops and reports its state like any other, and
-  // that lemonfiber can do none of the work needing to know what it is for.
-  unsupported: [
-    {
-      what: "bazarr",
-      because:
-        "Its declaration leaves out the part that says where to reach it.",
-    },
-  ],
   // What each verb takes the stack away for, which a screen says before it asks
   // anybody to confirm one. The teardown that waits for downloads and fetching a
   // form's images have nothing to bound them: what they wait for belongs to whoever

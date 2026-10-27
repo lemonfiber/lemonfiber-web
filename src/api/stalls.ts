@@ -22,11 +22,8 @@ export const stalledSeries: Held = {
   stage: "importing",
 };
 
-/** Two stuck items, with one queue unread and one unreadable here. */
+/** Two stuck items, with one queue unread. */
 export const stalled: Stuck = {
   incomplete: true,
   items: [stalledFilm, stalledSeries],
-  unsupported: [
-    { what: "readarr", because: "It speaks an API this build does not." },
-  ],
 };

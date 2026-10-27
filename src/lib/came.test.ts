@@ -325,19 +325,6 @@ describe("what wiring the programs to each other came to", () => {
       m.came_wiring_other({ connections: "SABnzbd into Sonarr" }),
     ]);
   });
-
-  it("names what it could not speak to, and why", () => {
-    expect(
-      seeded({
-        unsupported: [{ what: "readarr", because: "It speaks an older API." }],
-      }),
-    ).toStrictEqual([
-      m.came_unsupported({
-        what: "readarr",
-        because: "It speaks an older API.",
-      }),
-    ]);
-  });
 });
 
 describe("what handing somebody a device came to", () => {
