@@ -1,0 +1,6 @@
+# Advisories OSV-Scanner passes over here, each with why and until when.
+
+[[IgnoredVulns]]
+id = "GHSA-gcqx-w48m-w2h4"
+ignoreUntil = 2026-11-28T00:00:00Z
+reason = "deepmerge 4.3.1 is a development dependency only: @sveltejs/vite-plugin-svelte merges its build-time configuration with it, so nothing it merges reaches the shipped app. No deepmerge release fixes the advisory, and every vite-plugin-svelte release requires ^4.3.1."
