@@ -49,7 +49,7 @@
   let pass = $state("");
   let uid = $state("");
   let gid = $state("");
-  let library = $state<Library>("jellyfin-docker");
+  let library = $state<Library>("container");
   let others = $state(false);
   let appetite = $state<Appetite>("problems-only");
   let autostart = $state(true);

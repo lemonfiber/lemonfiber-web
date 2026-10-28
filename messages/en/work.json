@@ -118,6 +118,8 @@
   "came_undo_move_back": "a service's state was moved back to where it was",
   "came_undo_keep_copy": "the copy of a volume was kept, and the volume was never changed",
   "came_undo_leave": "the operator's own file was left as it is",
+  "came_undo_rename_back": "a value went back to the key it was kept under",
+  "came_undo_unreplaced": "the media server's internal certificate was left as it is",
   "came_undo_other": "something this page has no words for was put back",
   "came_grant_ended": "{plugin} no longer holds {credential}.",
   "came_grant_not_ended": "{plugin} still holds {credential}.",

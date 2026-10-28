@@ -568,6 +568,11 @@ describe("what putting the last repair back came to", () => {
     ],
     [{ does: "leave", path: "compose.override.yml" }, m.came_undo_leave()],
     [
+      { does: "rename-back", from: "JELLYFIN_MODE", to: "MEDIA_SERVER_MODE" },
+      m.came_undo_rename_back(),
+    ],
+    [{ does: "unreplaced", service: "jellyfin" }, m.came_undo_unreplaced()],
+    [
       { does: "pondered" } as unknown as Undone["reversed"][number]["action"],
       m.came_undo_other(),
     ],

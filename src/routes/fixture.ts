@@ -108,6 +108,7 @@ export const services: readonly Service[] = [
 export const stack: Stack = {
   condition: "degraded",
   active_forms: ["core", "media"],
+  waiting: [],
   forms: [],
   services: [...services],
   // The stack is set up for torrents alone, so what downloads over usenet is

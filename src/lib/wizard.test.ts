@@ -151,10 +151,8 @@ describe("what a form takes", () => {
   });
 
   it("chooses the one a control names, or keeps the one held", () => {
-    expect(chosenFrom(everyLibrary, "none", "jellyfin-docker")).toBe("none");
-    expect(chosenFrom(everyLibrary, "plex", "jellyfin-docker")).toBe(
-      "jellyfin-docker",
-    );
+    expect(chosenFrom(everyLibrary, "none", "container")).toBe("none");
+    expect(chosenFrom(everyLibrary, "plex", "container")).toBe("container");
   });
 
   it("names every way to serve the library and every amount to be told", () => {

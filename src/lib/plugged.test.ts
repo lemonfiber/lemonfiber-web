@@ -46,6 +46,8 @@ const bare: PluginInstall = {
   recorded: false,
   taking: [],
   granting: [],
+  sharing: [],
+  waiting: [],
   would: { plugin: "hand-rolled", version: "0.1.0", services: [] },
 };
 
