@@ -14,6 +14,7 @@
     verificationLines,
     writesLines,
   } from "../../lib/plugged";
+  import { waitingLines } from "../../lib/waiting";
   import {
     approvables,
     installOf,
@@ -65,6 +66,12 @@
         { title: m.plug_section_reaches(), lines: reachesLines(install) },
         { title: m.plug_section_verified(), lines: verificationLines(install) },
       );
+      if (install.waiting.length > 0) {
+        drawn.push({
+          title: m.waits_heading(),
+          lines: waitingLines(install.waiting),
+        });
+      }
     }
     return drawn;
   });
@@ -101,7 +108,8 @@
 <!--
   A reading, drawn whole before its yes: for an update or a removal what stops
   and what goes back first, then what the plugin is, everything it would write,
-  everywhere it and its recipes would reach, how it is proved and checked, and
+  everywhere it and its recipes would reach, how it is proved and checked, each
+  service it would leave held back with what it waits for, and
   every recipe with each call it makes and each value it could carry, every
   privileged shape a service of it would take, and every credential of another
   service that would cross to it. A value that would leave the machine or the

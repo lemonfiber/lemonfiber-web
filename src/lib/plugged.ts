@@ -14,6 +14,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { listed } from "./listed";
+import { heldLines } from "./waiting";
 import { installedLines } from "./plugins";
 import type { Plugging } from "./requested";
 import { undoLines } from "./undone";
@@ -379,6 +380,7 @@ function installedOutcome(install: PluginInstall): readonly string[] {
   for (const one of install.verified?.broke ?? []) {
     lines.push(m.plug_broke({ title: one.now.title }));
   }
+  lines.push(...heldLines(install.waiting));
   const { reversed } = install;
   if (reversed !== undefined && reversed !== null) {
     lines.push(...undoLines(reversed));
@@ -394,6 +396,7 @@ function updatedOutcome(update: PluginUpdate): readonly string[] {
       : m.plug_updated_not({ plugin: update.plugin, from: update.from }),
   ];
   if (said(update.stopped)) lines.push(update.stopped);
+  lines.push(...heldLines(update.install.waiting));
   const { restored } = update;
   if (restored !== undefined && restored !== null) {
     lines.push(

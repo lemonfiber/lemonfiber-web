@@ -1,6 +1,13 @@
 import { screen, within } from "@testing-library/svelte";
 import { describe, expect, it } from "vitest";
-import { moment, services, stack, unavailable, controls } from "./fixture";
+import {
+  held,
+  moment,
+  services,
+  stack,
+  unavailable,
+  controls,
+} from "./fixture";
 import { wordFor } from "../lib/state";
 import { everyServiceState, stateOfService } from "../lib/wire";
 import * as m from "../paraglide/messages.js";
@@ -203,6 +210,46 @@ describe("the programs", () => {
   it("says nothing of what was left out where nothing was", () => {
     board({ programs: { ok: true, value: { ...stack, filtered: [] } } });
     expect(panel()).not.toHaveTextContent(m.programs_left_out());
+  });
+
+  /** Where the panel lists what is held back, found by its heading. */
+  const heldBack = (): HTMLElement =>
+    screen.getByText(m.waits_heading()).parentElement ??
+    expect.fail("the heading stands on its own");
+
+  it("names each service held back, everything it waits for and how to give a setting, never a value", () => {
+    board({ programs: { ok: true, value: { ...stack, waiting: held } } });
+
+    const lines = within(heldBack())
+      .getAllByRole("listitem")
+      .map((one) => one.textContent);
+    expect(lines).toStrictEqual([
+      "gluetun waits for the setting gluetun:vpn-type, one of wireguard, openvpn; the secret gluetun:wireguard-key",
+      "qbittorrent waits for gluetun, which it runs through",
+    ]);
+    expect(heldBack()).toHaveTextContent(
+      "Give a setting with lemonfiber settings set <setting>=<value>.",
+    );
+  });
+
+  it("says how to give a setting only where a service waits for one", () => {
+    const [, through] = held;
+    board({
+      programs: {
+        ok: true,
+        value: { ...stack, waiting: through === undefined ? [] : [through] },
+      },
+    });
+
+    expect(heldBack()).toHaveTextContent(
+      "qbittorrent waits for gluetun, which it runs through",
+    );
+    expect(heldBack()).not.toHaveTextContent(m.waits_give_setting());
+  });
+
+  it("says nothing of what is held back where nothing is", () => {
+    board({ programs: { ok: true, value: { ...stack, waiting: [] } } });
+    expect(panel()).not.toHaveTextContent(m.waits_heading());
   });
 });
 

@@ -8,6 +8,7 @@ import {
   installRead,
   installReadGranting,
   installReadGuarded,
+  installReadWaiting,
   plugger,
   removeRead,
   updateRead,
@@ -133,6 +134,31 @@ describe("acting on a plugin, on the settings screen", () => {
         name: m.action_plug_install_yes({ offer: installOffer }),
       }),
     ).toBeVisible();
+  });
+
+  it("names each service the install would leave held back, with what it waits for and never a value", () => {
+    drawn({ ...plugger, work: [installReadWaiting] });
+
+    const offer = within(asked()).getByRole("region", {
+      name: m.plug_offer_title(),
+    });
+    expect(
+      within(offer).getByRole("heading", { name: m.waits_heading() }),
+    ).toBeVisible();
+    for (const line of [
+      "subtitle-fetch waits for the setting subtitle-fetch:language, one of en, nl; the secret subtitle-fetch:account-key",
+      "Give a setting with lemonfiber settings set <setting>=<value>.",
+    ]) {
+      expect(within(offer).getByText(line)).toBeVisible();
+    }
+  });
+
+  it("names nothing held back where the install would leave nothing waiting", () => {
+    drawn({ ...plugger, work: [installRead] });
+
+    expect(
+      within(asked()).queryByRole("heading", { name: m.waits_heading() }),
+    ).toBeNull();
   });
 
   it("sends the yes under the reading's name with each value approved, and only those", async () => {

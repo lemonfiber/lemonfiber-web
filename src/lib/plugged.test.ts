@@ -18,6 +18,7 @@ import {
 import { everyPlugging } from "./plugging";
 import { installedLines } from "./plugins";
 import { undoLines } from "./undone";
+import { heldLines } from "./waiting";
 import {
   guarding,
   installed,
@@ -28,6 +29,7 @@ import {
   released,
   signIn,
   wouldInstall,
+  wouldInstallWaiting,
   wouldRemove,
   wouldUpdate,
   crossing,
@@ -357,6 +359,29 @@ describe("what a record of an act on a plugin came to", () => {
     expect(pluggedLines(madeInstall)).toStrictEqual([
       m.plug_installed({ plugin: "subtitle-fetch", version: "1.4.0" }),
       m.plug_recipe_held({ recipe: "sign-in" }),
+    ]);
+  });
+
+  it("says what an install or an update that ran left held back, and how to give a setting", () => {
+    const { waiting } = wouldInstallWaiting;
+    expect(
+      pluggedLines({
+        ...madeInstall,
+        install: { ...installed, waiting },
+      }),
+    ).toStrictEqual([
+      m.plug_installed({ plugin: "subtitle-fetch", version: "1.4.0" }),
+      m.plug_recipe_held({ recipe: "sign-in" }),
+      ...heldLines(waiting),
+    ]);
+    expect(
+      pluggedLines({
+        ...plugins,
+        update: { ...wouldUpdate, install: { ...installed, waiting } },
+      }),
+    ).toStrictEqual([
+      m.plug_updated({ plugin: "subtitle-fetch", to: "1.5.0" }),
+      ...heldLines(waiting),
     ]);
   });
 

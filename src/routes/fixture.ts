@@ -21,6 +21,7 @@ import type {
   Word,
 } from "../lib/wire";
 import type { Controls, Work } from "../lib/work";
+import type { Waiting } from "../lib/waiting";
 
 /** Bytes free on a disk with room on it. */
 const FREE = 412_000_000_000;
@@ -101,6 +102,29 @@ export const services: readonly Service[] = [
     // missing it.
     forms: [],
     depends_on: [],
+  },
+];
+
+/**
+ * The services held back until the operator gives what they need to start: a
+ * VPN guard waiting for its type and its key, and the torrent client that runs
+ * through it.
+ */
+export const held: Waiting[] = [
+  {
+    service: "gluetun",
+    wants: [
+      {
+        kind: "setting",
+        setting: "gluetun:vpn-type",
+        choices: ["wireguard", "openvpn"],
+      },
+      { kind: "secret", secret: "gluetun:wireguard-key" },
+    ],
+  },
+  {
+    service: "qbittorrent",
+    wants: [{ kind: "service", service: "gluetun" }],
   },
 ];
 

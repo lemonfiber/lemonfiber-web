@@ -12,6 +12,7 @@ import {
   installMade,
   installRead,
   installReadGranting,
+  installReadWaiting,
   plugger,
   removeRead,
   updateRead,
@@ -272,6 +273,18 @@ export const APluginReadWithAGrant: Story = {
   args: {
     plugins: { ok: true, value: plugins },
     plugger: { ...plugger, work: [installReadGranting] },
+  },
+};
+
+/**
+ * An install that would leave its service held back until the operator gives
+ * an account key and a language, each named and never a value, then how a
+ * setting is given.
+ */
+export const APluginReadThatWouldWait: Story = {
+  args: {
+    plugins: { ok: true, value: plugins },
+    plugger: { ...plugger, work: [installReadWaiting] },
   },
 };
 

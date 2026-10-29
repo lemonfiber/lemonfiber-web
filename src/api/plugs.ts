@@ -179,6 +179,27 @@ export const wouldInstallGuarded: PluginInstall = {
   taking: [guarding],
 };
 
+/**
+ * What installing the fetcher would come to where it waits for an account
+ * only the operator holds, and for its language among the ones it serves.
+ */
+export const wouldInstallWaiting: PluginInstall = {
+  ...wouldInstall,
+  waiting: [
+    {
+      service: "subtitle-fetch",
+      wants: [
+        {
+          kind: "setting",
+          setting: "subtitle-fetch:language",
+          choices: ["en", "nl"],
+        },
+        { kind: "secret", secret: "subtitle-fetch:account-key" },
+      ],
+    },
+  ],
+};
+
 /** The reading of an install, standing for a yes. */
 export const readInstall: Plugs = {
   ...plugins,

@@ -18,6 +18,7 @@
     type Stack,
   } from "../../lib/wire";
   import { listed } from "../../lib/listed";
+  import { givingLine, waitingWords } from "../../lib/waiting";
   import { Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
 
@@ -50,6 +51,8 @@
     reading === undefined ? undefined : namesOf(reading.active_forms, declared),
   );
   const left = $derived(reading?.filtered ?? []);
+  const held = $derived(reading?.waiting ?? []);
+  const giving = $derived(givingLine(held));
   const problem = $derived(
     programs?.ok === false ? programs.problem.message : undefined,
   );
@@ -81,6 +84,10 @@
   kept out of the table rather than drawn in it as stopped: a service left out
   on purpose is the operator's own setting being honoured, and a row saying it
   is down would report that setting as a fault.
+
+  Under those stand the services held back until the operator gives what they
+  need to start, each with everything it waits for and never a value, then how
+  a setting is given, in the words status says them in.
 -->
 {#snippet asKnown()}
   <StateTag state="known" />
@@ -165,6 +172,20 @@
       </ul>
     </div>
   {/if}
+
+  {#if held.length > 0}
+    <div class="aside">
+      <p class="eyebrow">{m.waits_heading()}</p>
+      <ul class="listed">
+        {#each held as one (one.service)}
+          <li><span class="because">{waitingWords(one)}</span></li>
+        {/each}
+      </ul>
+      {#if giving !== undefined}
+        <p class="prose giving"><Said text={giving} /></p>
+      {/if}
+    </div>
+  {/if}
 </Panel>
 
 <style>
@@ -208,6 +229,10 @@
 
   .prose {
     margin-bottom: var(--sp-3);
+  }
+
+  .giving {
+    margin: var(--sp-3) 0 0;
   }
 
   .eyebrow {
