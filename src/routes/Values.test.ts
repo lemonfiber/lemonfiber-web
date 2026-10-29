@@ -29,6 +29,7 @@ import {
 import type { Valuer } from "../lib/valuing";
 import { waitingWords } from "../lib/waiting";
 import * as m from "../paraglide/messages.js";
+import { overlaid } from "../api/overlays";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 5 };
 
@@ -329,10 +330,7 @@ describe("what a change would do, and the yes to it", () => {
     ).toBeVisible();
     for (const line of [
       ...changeLines(movingTunnel),
-      ...unvettedLines({
-        overlay: "/etc/lemonfiber/overlay.yml",
-        services: ["gluetun"],
-      }),
+      ...unvettedLines(overlaid),
     ]) {
       expect(within(reading).getByText(line)).toBeVisible();
     }

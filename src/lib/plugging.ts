@@ -23,6 +23,7 @@ import type {
   PluginUpdate,
   Plugs,
 } from "./plugged";
+import type { Unvetted } from "./unvetted";
 import type { Plugging, Requested, Work } from "./work";
 
 /** Every request the plugins panel makes, least disruptive first. */
@@ -112,6 +113,8 @@ export type Offered = {
   readonly id: string;
   /** The name the reading gave itself, which the yes carries. */
   readonly offer: string;
+  /** The operator's own overlay, where it changes a service. */
+  readonly unvetted?: Unvetted | undefined;
 } & (
   | {
       readonly doing: "plugin-install";
@@ -171,7 +174,11 @@ export function standingPlug(work: readonly Work[]): Offered | undefined {
   if (newest.at !== "done" || newest.came.kind !== "plugins") return undefined;
   const { report } = newest.came;
   if (!report.rehearsed) return undefined;
-  return offeredOf(newest.id, newest.doing, newest.given, report);
+  const offered = offeredOf(newest.id, newest.doing, newest.given, report);
+  const unvetted = report.unvetted ?? undefined;
+  return offered === undefined || unvetted === undefined
+    ? offered
+    : { ...offered, unvetted };
 }
 
 /**

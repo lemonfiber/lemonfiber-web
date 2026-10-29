@@ -218,5 +218,6 @@
   "waits_secret": "the secret {secret}",
   "waits_through": "{service}, which it runs through",
   "waits_give_setting": "Give a setting under {panel}, on the {screen} screen.",
+  "overlay_title": "Your overlay",
   "overlay_unvetted": "Your own overlay at {overlay} changes {services}. Nothing in it is held to what lemonfiber checks, so it is unvetted."
 }

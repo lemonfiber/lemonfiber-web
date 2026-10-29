@@ -13,6 +13,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { listed } from "./listed";
+import { unvettedLines } from "./unvetted";
 import * as m from "../paraglide/messages.js";
 
 /** Where the stack stands against its pins, and what moving would come to. */
@@ -125,5 +126,5 @@ export function updateLines(report: Updated): readonly string[] {
   for (const said of [report.backup, report.halted]) {
     if (said !== undefined && said !== null) lines.push(said);
   }
-  return lines;
+  return [...lines, ...unvettedLines(report.unvetted)];
 }

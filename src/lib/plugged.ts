@@ -18,6 +18,7 @@ import { heldLines } from "./waiting";
 import { installedLines } from "./plugins";
 import type { Plugging } from "./requested";
 import { undoLines } from "./undone";
+import { unvettedLines } from "./unvetted";
 import * as m from "../paraglide/messages.js";
 
 /** What is installed, and what one act on a plugin came to. */
@@ -421,6 +422,11 @@ export function pluggedLines(report: Plugs): readonly string[] {
       ...(offer === "" ? [] : [m.plug_offer_named({ offer })]),
     ];
   }
+  return [...outcomeLines(report), ...unvettedLines(report.unvetted)];
+}
+
+/** What an act on a plugin that ran came to, line by line. */
+function outcomeLines(report: Plugs): readonly string[] {
   const { install, update, removal } = report;
   if (update !== undefined && update !== null) return updatedOutcome(update);
   if (install !== undefined && install !== null) {

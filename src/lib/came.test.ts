@@ -30,6 +30,8 @@ import { madeSet } from "../api/values";
 import { valuedLines } from "./values";
 import { carried, offer, undone } from "../api/reports";
 import * as m from "../paraglide/messages.js";
+import { overlaid } from "../api/overlays";
+import { unvettedLines } from "./unvetted";
 
 /** A run of the checks in which nothing was found. */
 const allWell: Checked = { rehearsed: false, overall: "healthy", findings: [] };
@@ -67,6 +69,19 @@ const service = (
   name,
   profile: "core",
   state,
+});
+
+describe("the operator's own overlay, under what a run came to", () => {
+  it("is named before the command that ran", () => {
+    expect(
+      said({
+        unvetted: overlaid,
+      }),
+    ).toStrictEqual([
+      unvettedLines(overlaid)[0],
+      m.came_command({ command: "docker compose up -d" }),
+    ]);
+  });
 });
 
 describe("what a start, stop, switch, restart or fetch came to", () => {

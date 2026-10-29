@@ -154,6 +154,44 @@ describe("acting on a plugin, on the settings screen", () => {
     }
   });
 
+  it("names the operator's own overlay in its own section of the reading", () => {
+    drawn({
+      ...plugger,
+      work: [
+        {
+          id: installRead.id,
+          doing: "plugin-install",
+          scoped: false,
+          given: installRead.given,
+          at: "done",
+          job: undefined,
+          came: {
+            kind: "plugins",
+            report: {
+              ...readInstall,
+              unvetted: {
+                overlay: "/etc/lemonfiber/overlay.yml",
+                services: ["subtitle-fetch"],
+              },
+            },
+          },
+        },
+      ],
+    });
+
+    const offer = within(asked()).getByRole("region", {
+      name: m.plug_offer_title(),
+    });
+    expect(
+      within(offer).getByRole("heading", { name: m.overlay_title() }),
+    ).toBeVisible();
+    expect(
+      within(offer).getByText(
+        "Your own overlay at /etc/lemonfiber/overlay.yml changes subtitle-fetch. Nothing in it is held to what lemonfiber checks, so it is unvetted.",
+      ),
+    ).toBeVisible();
+  });
+
   it("names nothing held back where the install would leave nothing waiting", () => {
     drawn({ ...plugger, work: [installRead] });
 
