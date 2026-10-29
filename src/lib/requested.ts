@@ -139,6 +139,12 @@ export type Plugging = "plugin-install" | "plugin-update" | "plugin-remove";
  */
 export type Revoking = "credentials-revoke";
 
+/**
+ * Something the settings panel can ask for, named as the endpoint names it.
+ * What it takes and how it is asked about is in `./valuing`.
+ */
+export type Valuing = "settings-set" | "settings-clear";
+
 /** Anything a record can be of. */
 export type Requested =
   | Doing
@@ -158,4 +164,5 @@ export type Requested =
   | Filling
   | Moving
   | Plugging
-  | Revoking;
+  | Revoking
+  | Valuing;

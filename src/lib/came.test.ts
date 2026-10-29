@@ -26,6 +26,8 @@ import { pluggedLines } from "./plugged";
 import { madeInstall } from "../api/plugs";
 import { revokedLines } from "./revoked";
 import { revokedGrant } from "../api/credentials";
+import { madeSet } from "../api/values";
+import { valuedLines } from "./values";
 import { carried, offer, undone } from "../api/reports";
 import * as m from "../paraglide/messages.js";
 
@@ -348,6 +350,14 @@ describe("what ending a grant came to", () => {
     expect(
       linesOf({ kind: "credentials", report: revokedGrant }),
     ).toStrictEqual(revokedLines(revokedGrant));
+  });
+});
+
+describe("what moving the settings came to", () => {
+  it("says it as the settings panel does", () => {
+    expect(linesOf({ kind: "settings", report: madeSet })).toStrictEqual(
+      valuedLines(madeSet),
+    );
   });
 });
 

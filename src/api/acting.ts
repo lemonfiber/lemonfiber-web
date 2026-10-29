@@ -128,6 +128,10 @@ export interface Arguments {
   readonly approved?: readonly string[];
   /** The credential a plugin's grant is of, by the setting it is held under. */
   readonly credential?: string;
+  /** Each setting moved in one act, to the value it is to hold. */
+  readonly values?: Readonly<Record<string, string>>;
+  /** Each setting whose operator value one act takes away, by its name. */
+  readonly settings?: readonly string[];
 }
 
 /**

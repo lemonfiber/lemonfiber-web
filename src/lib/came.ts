@@ -69,6 +69,7 @@ import { undoLines, type Undone } from "./undone";
 import { pluggedLines, type Plugs } from "./plugged";
 import type { Inventory } from "./credentials";
 import { revokedLines } from "./revoked";
+import { valuedLines, type Values } from "./values";
 
 export type { Undone } from "./undone";
 import {
@@ -127,6 +128,7 @@ export type Came =
   | { readonly kind: "update"; readonly report: Updated }
   | { readonly kind: "plugins"; readonly report: Plugs }
   | { readonly kind: "credentials"; readonly report: Inventory }
+  | { readonly kind: "settings"; readonly report: Values }
   | { readonly kind: "trace"; readonly report: Traced }
   | { readonly kind: "walkthrough"; readonly report: Walked }
   | { readonly kind: "watch"; readonly report: Guarded }
@@ -396,14 +398,22 @@ function repairLines(report: Repaired): readonly string[] {
   return lines;
 }
 
-/** What acting on a plugin, or on a grant it holds, came to. */
-type Plugged = Extract<Came, { readonly kind: "plugins" | "credentials" }>;
+/** What acting on a plugin, a grant it holds or a setting came to. */
+type Plugged = Extract<
+  Came,
+  { readonly kind: "plugins" | "credentials" | "settings" }
+>;
 
-/** What acting on a plugin, or on a grant it holds, came to, line by line. */
+/** What acting on a plugin, a grant it holds or a setting came to, line by line. */
 function pluggingLines(came: Plugged): readonly string[] {
-  return came.kind === "plugins"
-    ? pluggedLines(came.report)
-    : revokedLines(came.report);
+  switch (came.kind) {
+    case "plugins":
+      return pluggedLines(came.report);
+    case "credentials":
+      return revokedLines(came.report);
+    case "settings":
+      return valuedLines(came.report);
+  }
 }
 
 /**
@@ -452,6 +462,7 @@ export function linesOf(came: Came): readonly string[] {
       return updateLines(came.report);
     case "plugins":
     case "credentials":
+    case "settings":
       return pluggingLines(came);
     case "trace":
       return traceLines(came.report);

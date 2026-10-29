@@ -394,5 +394,18 @@
   "action_wizard_open": "Open the console",
   "action_wizard_ask_again": "Ask again",
   "action_show_all": "Show all {count}",
-  "action_show_fewer": "Show fewer"
+  "action_show_fewer": "Show fewer",
+  "action_values_edit": "Change {setting}",
+  "action_values_add": "Add to change",
+  "action_values_drop": "Drop {setting}",
+  "action_values_read": "Read the change",
+  "action_values_clear": "Clear {setting}",
+  "action_values_read_clear": "Read the clearing",
+  "action_values_yes": "Change as {offer}",
+  "came_values_made": "The change was made.",
+  "came_values_not_made": "The change was not made.",
+  "came_values_unrestarted": "Its services did not restart: {why}",
+  "came_values_read": "{count} settings read.",
+  "doing_values_set_title": "Changing settings",
+  "doing_values_clear_title": "Clearing settings"
 }

@@ -15,6 +15,7 @@
   import Quality from "./panels/Quality.svelte";
   import Updates from "./panels/Updates.svelte";
   import Wiring from "./panels/Wiring.svelte";
+  import Values from "./panels/Values.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Configured } from "../lib/configured";
   import type { Configurer } from "../lib/configuring";
@@ -32,6 +33,8 @@
   import type { Filler } from "../lib/filling";
   import type { Plugger } from "../lib/plugging";
   import type { Revoker } from "../lib/revoking";
+  import type { Valuer } from "../lib/valuing";
+  import type { Values as Read } from "../lib/values";
   import type { Updater } from "../lib/updating";
   import type { Wiring as Wired } from "../lib/wiring";
   import type { Plugins as Installs } from "../lib/plugins";
@@ -62,6 +65,8 @@
     wiring?: Reading<Wired> | undefined;
     /** The plugins on this machine, or why they could not be read. */
     plugins?: Reading<Installs> | undefined;
+    /** Every setting and secret the services read, or why they could not be read. */
+    values?: Reading<Read> | undefined;
     /** Every word lemonfiber explains, or why they could not be read. */
     glossary?: Reading<Vocabulary> | undefined;
     /** When this screen's sources last answered. */
@@ -84,6 +89,8 @@
     plugger?: Plugger | undefined;
     /** What ending a plugin's grant asks for, and what came of it. */
     revoker?: Revoker | undefined;
+    /** What changing the settings the services read asks for, and what came of it. */
+    valuer?: Valuer | undefined;
     /** What keeping integration keys asks for. Left out where nothing answers it. */
     keyer?: Keyer | undefined;
     /** What updating the stack asks for. Left out where nothing answers it. */
@@ -105,12 +112,14 @@
     alerts,
     wiring,
     plugins,
+    values,
     glossary,
     freshness,
     tuner,
     filler,
     plugger,
     revoker,
+    valuer,
     keyer,
     configurer,
     sharer,
@@ -121,7 +130,8 @@
 
 <!--
   How the stack is set up, and what can be changed about it from here: the
-  quality new media is fetched at, every setting lemonfiber keeps, how the line
+  quality new media is fetched at, every setting lemonfiber keeps, every
+  setting and secret the services read with each service held back, how the line
   is shared, everything that leaves this machine, what the operator is told
   about, every credential the stack holds and each grant of one to a plugin,
   the versions the stack stands on, what the stack holds and where each service
@@ -136,6 +146,7 @@
   <Quality {quality} {freshness} {tuner} />
 
   <Configuration {settings} {freshness} {configurer} />
+  <Values {values} {freshness} {valuer} />
 
   {#if line !== undefined || sharer !== undefined}
     <Line {line} {freshness} {sharer} />

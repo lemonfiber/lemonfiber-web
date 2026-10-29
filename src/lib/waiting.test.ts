@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   givingLine,
   heldLines,
+  stillHeldLines,
   waitingLines,
   waitingWords,
   type Waiting,
@@ -49,11 +50,11 @@ describe("a service held back until the operator gives what it needs", () => {
     );
   });
 
-  it("says how to give a setting only where one is waited for", () => {
+  it("says where in the console a setting is given, only where one is waited for", () => {
     expect(waitingLines([guard, through])).toStrictEqual([
       waitingWords(guard),
       waitingWords(through),
-      "Give a setting with lemonfiber settings set <setting>=<value>.",
+      "Give a setting under Service settings, on the Settings screen.",
     ]);
     expect(waitingLines([through])).toStrictEqual([waitingWords(through)]);
     expect(waitingLines([])).toStrictEqual([]);
@@ -66,5 +67,14 @@ describe("a service held back until the operator gives what it needs", () => {
     ]);
     expect(heldLines([])).toStrictEqual([]);
     expect(givingLine([through])).toBeUndefined();
+  });
+
+  it("leaves where a setting is given out of what the settings view says is still held back", () => {
+    expect(stillHeldLines([guard, through])).toStrictEqual([
+      "Held back until you give what they need to start",
+      waitingWords(guard),
+      waitingWords(through),
+    ]);
+    expect(stillHeldLines([])).toStrictEqual([]);
   });
 });

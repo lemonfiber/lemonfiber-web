@@ -35,6 +35,7 @@ import { everyPlugging } from "./lib/plugging";
 import { everyKeying } from "./routes/keying.svelte";
 import { everyRemoving } from "./lib/removing";
 import { everyRevoking } from "./lib/revoking";
+import { everyValuing } from "./lib/valuing";
 import { everySeeding } from "./lib/seeding";
 import { everySharing } from "./lib/sharing";
 import { everyUpdating } from "./lib/updating";
@@ -85,8 +86,7 @@ type Feature =
   | "N1"
   | "N27"
   | "ARCH-R78"
-  | "ARCH-R156"
-  | "ARCH-R254";
+  | "ARCH-R156";
 
 /**
  * Every request another surface can make of the stack.
@@ -295,6 +295,15 @@ const WALKED: readonly {
       "src/routes/panels/Revoking.svelte",
     ],
   },
+  {
+    list: everyValuing,
+    named: "everyValuing",
+    by: [
+      "src/routes/panels/Values.svelte",
+      "src/routes/panels/Valued.svelte",
+      "src/routes/panels/Valuing.svelte",
+    ],
+  },
 ];
 
 /** Requests this console offers. */
@@ -348,6 +357,8 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "plugin-update",
   "plugin-remove",
   "credentials-revoke",
+  "settings-set",
+  "settings-clear",
   "setup",
 ];
 
@@ -371,8 +382,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   ask: "D4",
   "companion-certificate": "N1",
   "key-claim": "C10",
-  "settings-set": "ARCH-R254",
-  "settings-clear": "ARCH-R254",
   "device-key-register": "C10",
   "device-key-challenge": "C10",
   "device-key-list": "C10",
@@ -427,6 +436,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "restore",
   "seed",
   "self-update",
+  "settings",
   "space",
   "start",
   "status",
@@ -486,7 +496,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   "news-items": "N27",
   removal: "D6",
   reset: "C9",
-  settings: "ARCH-R254",
   watched: "D11",
   word: "G2",
 };
