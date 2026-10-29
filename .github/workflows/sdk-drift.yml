@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   sdk-drift:
-    uses: lemonfiber/spec/.github/workflows/upstream-drift.yml@a3a5049ee28c2261cc6728db8b48fdf1083b4eca # v1.0.119
+    uses: lemonfiber/spec/.github/workflows/upstream-drift.yml@5fa73fdc020fa14fea2b58535b9881fed75a70ed # v1.0.122
     with:
       lock: "npm"
       remedy: "point {name} at github:lemonfiber/{repo}#{head} in package.json, run `npm install`, then `npm run client`"
