@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Walking from "./Walking.svelte";
-import { fresh, reviewing } from "../../api/setups";
+import { fresh, reviewing, tunnelling } from "../../api/setups";
 
 const meta = {
   title: "Surfaces/Setup",
@@ -29,6 +29,15 @@ export const Welcome: Story = {};
  */
 export const DownloadServices: Story = {
   args: { wizard: { ...fresh, at: "protocols" } },
+};
+
+/**
+ * The tunnel, asking what the tunnel service needs: the type, then the
+ * provider offered under it, then the address and the key that type needs,
+ * the key typed hidden.
+ */
+export const TheTunnelService: Story = {
+  args: { wizard: tunnelling },
 };
 
 /**

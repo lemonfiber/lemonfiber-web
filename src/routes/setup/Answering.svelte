@@ -20,11 +20,19 @@
     type Asking,
     type Library,
   } from "../../lib/wizard";
+  import {
+    carrying as guarded,
+    type Given,
+    type GuardQuestion,
+  } from "../../lib/guarding";
+  import Guarding from "./Guarding.svelte";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
     /** The question setup is on. */
     step: Asking;
+    /** What the tunnel step asks of the egress guard, in order. */
+    guard: readonly GuardQuestion[];
     /** Whether a step is out, which silences the controls. */
     busy: boolean;
     /** Go back a step, offered first beside the step's own action. */
@@ -33,12 +41,14 @@
     onanswer: (answer: Answer) => void;
   }
 
-  let { step, busy, onback, onanswer }: Props = $props();
+  let { step, guard, busy, onback, onanswer }: Props = $props();
 
   let usenet = $state(false);
   let torrent = $state(false);
   let carrying = $state(true);
   let understood = $state(false);
+  let guardSettings = $state<Given>({});
+  let guardSecrets = $state<Given>({});
   let folder = $state("");
   let url = $state("");
   let key = $state("");
@@ -63,7 +73,7 @@
       case "protocols":
         return { protocols: { usenet, torrent } };
       case "vpn":
-        if (carrying) return { vpn: "carrying" };
+        if (carrying) return guarded(guard, guardSettings, guardSecrets);
         return understood ? { vpn: "absent" } : undefined;
       case "data-location": {
         const path = folderTyped(folder);
@@ -109,15 +119,17 @@
     onanswer(answer);
     key = "";
     pass = "";
+    guardSecrets = {};
   }
 
   /** Whether the step offers going on with nothing entered. */
   const skippable = $derived(step === "credentials" || step === "provider");
 
   /** What is still missing while the answer cannot be sent. */
-  const missing = $derived(
-    step === "vpn" ? m.wizard_missing_understood() : m.wizard_missing(),
-  );
+  const missing = $derived.by(() => {
+    if (step !== "vpn") return m.wizard_missing();
+    return carrying ? m.wizard_guard_missing() : m.wizard_missing_understood();
+  });
 
   /** The label the answer is sent with. */
   const forward = $derived(
@@ -131,7 +143,9 @@
   The form for the question setup is on, and nothing else. Each step's fields
   are its own, and the answer is sent only once every part of it is there. A
   key or a password goes in that one request and is cleared as it is sent.
-  Turning encryption off says what that exposes. Going without a VPN is sent
+  Turning encryption off says what that exposes. Going through a tunnel asks
+  what the tunnel service needs, and its keys and passwords are cleared as the
+  answer is sent. Going without a VPN is sent
   only once the operator says they understand that everyone they share with
   will see their home address. Every switch has its words beside it, and while
   the answer cannot be sent a line under the actions says what is missing.
@@ -165,6 +179,19 @@
         understood = false;
       }}
     />
+    {#if carrying && guard.length > 0}
+      <Guarding
+        questions={guard}
+        settings={guardSettings}
+        secrets={guardSecrets}
+        onsetting={(setting: string, value: string) => {
+          guardSettings = { ...guardSettings, [setting]: value };
+        }}
+        onsecret={(secret: string, value: string) => {
+          guardSecrets = { ...guardSecrets, [secret]: value };
+        }}
+      />
+    {/if}
     {#if !carrying}
       <p class="caution"><Said text={m.wizard_vpn_confirm()} /></p>
       <Choice

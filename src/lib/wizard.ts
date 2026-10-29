@@ -13,11 +13,13 @@
  * What lemonfiber writes into a report is its own and is passed through
  * unchanged. The words around it live in `messages/`.
  */
-import type {
-  ByKind,
-  Choice,
-  Reading,
-  SetupAnswerBody,
+import {
+  REFUSAL_CODES,
+  type ByKind,
+  type Choice,
+  type Problem,
+  type Reading,
+  type SetupAnswerBody,
 } from "@lemonfiber/sdk-ts";
 import { originWords } from "./configured";
 import * as m from "../paraglide/messages.js";
@@ -332,4 +334,19 @@ export function wordOfAppetite(appetite: Appetite): string {
     case "everything":
       return m.wizard_told_everything();
   }
+}
+
+/** The refusal of a tunnel answer that leaves the egress guard short or over. */
+const GUARD_UNANSWERED = "GUARD_UNANSWERED";
+
+/**
+ * What a refused step says: a tunnel answer that leaves out what the egress
+ * guard asks for, or gives what it does not, in this console's words naming
+ * where to look; any other refusal in lemonfiber's.
+ */
+export function refusedWords(problem: Problem): string {
+  const { code } = problem;
+  return code !== undefined && REFUSAL_CODES[code].name === GUARD_UNANSWERED
+    ? m.wizard_guard_unanswered()
+    : problem.message;
 }
