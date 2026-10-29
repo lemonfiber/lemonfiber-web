@@ -143,11 +143,12 @@ describe("acting on a plugin, on the settings screen", () => {
       name: m.plug_offer_title(),
     });
     expect(
-      within(offer).getByRole("heading", { name: m.waits_heading() }),
+      within(offer).getByRole("heading", { name: m.waits_title() }),
     ).toBeVisible();
     for (const line of [
+      m.waits_heading(),
       "subtitle-fetch waits for the setting subtitle-fetch:language, one of en, nl; the secret subtitle-fetch:account-key",
-      "Give a setting with lemonfiber settings set <setting>=<value>.",
+      "Give a setting under Service settings, on the Settings screen.",
     ]) {
       expect(within(offer).getByText(line)).toBeVisible();
     }
@@ -157,7 +158,7 @@ describe("acting on a plugin, on the settings screen", () => {
     drawn({ ...plugger, work: [installRead] });
 
     expect(
-      within(asked()).queryByRole("heading", { name: m.waits_heading() }),
+      within(asked()).queryByRole("heading", { name: m.waits_title() }),
     ).toBeNull();
   });
 

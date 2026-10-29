@@ -228,11 +228,11 @@ describe("the programs", () => {
       "qbittorrent waits for gluetun, which it runs through",
     ]);
     expect(heldBack()).toHaveTextContent(
-      "Give a setting with lemonfiber settings set <setting>=<value>.",
+      "Give a setting under Service settings, on the Settings screen.",
     );
   });
 
-  it("says how to give a setting only where a service waits for one", () => {
+  it("says where to give a setting only where a service waits for one", () => {
     const [, through] = held;
     board({
       programs: {
@@ -244,7 +244,9 @@ describe("the programs", () => {
     expect(heldBack()).toHaveTextContent(
       "qbittorrent waits for gluetun, which it runs through",
     );
-    expect(heldBack()).not.toHaveTextContent(m.waits_give_setting());
+    expect(heldBack()).not.toHaveTextContent(
+      "Give a setting under Service settings",
+    );
   });
 
   it("says nothing of what is held back where nothing is", () => {

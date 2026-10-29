@@ -1,10 +1,11 @@
 /**
  * The services held back until the operator gives what they need to start,
  * said the one way status, the doctor and every rehearsal say them: each
- * service and everything it waits for, never with a value, and how a setting
- * is given.
+ * service and everything it waits for, never with a value, and where in this
+ * console a setting is given.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { nameOf } from "./route";
 import * as m from "../paraglide/messages.js";
 
 /** A service held back, with everything it waits for. */
@@ -40,16 +41,22 @@ export function waitingWords(one: Waiting): string {
   });
 }
 
-/** How a setting is given, where one of `held` waits for one; nothing otherwise. */
+/**
+ * Where a setting is given, where one of `held` waits for one; nothing
+ * otherwise.
+ */
 export function givingLine(held: readonly Waiting[]): string | undefined {
   return held.some((one) => one.wants.some((want) => want.kind === "setting"))
-    ? m.waits_give_setting()
+    ? m.waits_give_setting({
+        panel: m.values_title(),
+        screen: nameOf("settings"),
+      })
     : undefined;
 }
 
 /**
- * Each service held back, then how to give a setting where one of them waits
- * for one; nothing where none is held back.
+ * Each service held back, then where to give a setting where one of them
+ * waits for one; nothing where none is held back.
  */
 export function waitingLines(held: readonly Waiting[]): readonly string[] {
   const giving = givingLine(held);
@@ -58,9 +65,21 @@ export function waitingLines(held: readonly Waiting[]): readonly string[] {
 
 /**
  * What a record of an act says of what it left held back: the heading status
- * says it under, then each service and how to give a setting; nothing where
+ * says it under, then each service and where to give a setting; nothing where
  * nothing is held back.
  */
 export function heldLines(held: readonly Waiting[]): readonly string[] {
   return held.length === 0 ? [] : [m.waits_heading(), ...waitingLines(held)];
+}
+
+/**
+ * What the settings view says of what a change leaves held back: the heading
+ * status says it under, then each service, with no pointer to where a setting
+ * is given, since that is where it is said; nothing where nothing is held
+ * back.
+ */
+export function stillHeldLines(held: readonly Waiting[]): readonly string[] {
+  return held.length === 0
+    ? []
+    : [m.waits_heading(), ...held.map(waitingWords)];
 }

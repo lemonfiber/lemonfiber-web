@@ -6,6 +6,7 @@ import { offered } from "./invitations";
 import { readyForSam } from "./handoffs";
 import { readInstall } from "./plugs";
 import { revokedGrant } from "./credentials";
+import { madeSet } from "./values";
 import { guarded, traced, walked } from "./found";
 import { declared, paused, plan } from "./lines";
 import { material } from "./pairings";
@@ -142,6 +143,13 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("credentials", revokedGrant))).toStrictEqual({
       kind: "credentials",
       report: revokedGrant,
+    });
+  });
+
+  it("reads what moving the settings came to", () => {
+    expect(outcomeOf(sealed("settings", madeSet))).toStrictEqual({
+      kind: "settings",
+      report: madeSet,
     });
   });
 

@@ -5,6 +5,7 @@ import { reclaimedRoom } from "../api/spaces";
 import { filled } from "../api/substitutions";
 import { adopted } from "../api/moves";
 import { revokedGrant, wouldRevoke } from "../api/credentials";
+import { madeClear, wouldSet } from "../api/values";
 
 describe("which screen a finished piece of work changed", () => {
   it("is the disk for anything taken off it", () => {
@@ -31,6 +32,15 @@ describe("which screen a finished piece of work changed", () => {
     );
     expect(
       placeChangedBy({ kind: "credentials", report: wouldRevoke }),
+    ).toBeUndefined();
+  });
+
+  it("is the settings for a setting moved or cleared, and none for its reading", () => {
+    expect(placeChangedBy({ kind: "settings", report: madeClear })).toBe(
+      "settings",
+    );
+    expect(
+      placeChangedBy({ kind: "settings", report: wouldSet }),
     ).toBeUndefined();
   });
 

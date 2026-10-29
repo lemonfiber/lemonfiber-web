@@ -13,6 +13,7 @@ import { everyUpdating } from "./updating";
 import { everyTending } from "./tending";
 import { everyPlugging } from "./plugging";
 import { everyRevoking } from "./revoking";
+import { everyValuing } from "./valuing";
 import {
   askable,
   askingOf,
@@ -81,6 +82,7 @@ describe("what the console can ask for", () => {
       ...everyMoving,
       ...everyPlugging,
       ...everyRevoking,
+      ...everyValuing,
     ];
     const titles = new Set(
       requested.map((doing) => titleOfDoing(doing, false)),

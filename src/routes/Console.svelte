@@ -43,6 +43,7 @@
   import { filling } from "../lib/filling";
   import { plugging } from "../lib/plugging";
   import { revoking } from "../lib/revoking";
+  import { valuing } from "../lib/valuing";
   import { moving } from "../lib/moving";
   import { upkeep } from "../lib/upkeep";
   import { hosting } from "../lib/hosting";
@@ -348,6 +349,7 @@
   const fillAsks = new Asked(desk, filling);
   const plugAsks = new Asked(desk, plugging);
   const revokeAsks = new Asked(desk, revoking);
+  const valueAsks = new Asked(desk, valuing);
   const moveAsks = new Asked(desk, moving);
   const changeAsks = new Asked(desk, configuring);
   const tendAsks = new Asked(desk, tending);
@@ -532,6 +534,7 @@
       filler={fillAsks.asker}
       plugger={plugAsks.asker}
       revoker={revokeAsks.asker}
+      valuer={valueAsks.asker}
       {keyer}
       configurer={changeAsks.asker}
       pairer={pairAsks.asker}

@@ -14,7 +14,7 @@
     verificationLines,
     writesLines,
   } from "../../lib/plugged";
-  import { waitingLines } from "../../lib/waiting";
+  import { heldLines } from "../../lib/waiting";
   import {
     approvables,
     installOf,
@@ -68,8 +68,8 @@
       );
       if (install.waiting.length > 0) {
         drawn.push({
-          title: m.waits_heading(),
-          lines: waitingLines(install.waiting),
+          title: m.waits_title(),
+          lines: heldLines(install.waiting),
         });
       }
     }

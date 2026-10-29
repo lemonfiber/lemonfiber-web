@@ -22,6 +22,8 @@ import { catalogue, provenance } from "../api/catalogues";
 import { behind, versions } from "../api/copies";
 import { inventory } from "../api/credentials";
 import { revokeMade, revokeRead, revoker } from "./revokings";
+import { values } from "../api/values";
+import { clearMade, setRead, valuer } from "./valuings";
 import { leaving } from "../api/leavings";
 import { pausedRecord, planRecord, shared, sharer, updater } from "./lined";
 
@@ -156,6 +158,39 @@ export const AGrantEnded: Story = {
   args: {
     credentials: { ok: true, value: inventory },
     revoker: { ...revoker, work: [revokeMade] },
+  },
+};
+
+/**
+ * Every setting the services read: whose it is, what it holds or the default
+ * it falls back on, the values it accepts and who reads it; the guard held
+ * back until it is given its tunnel and key; and every secret, never its
+ * value. Values are given or taken away from here.
+ */
+export const WhatTheServicesRead: Story = {
+  args: { values: { ok: true, value: values }, valuer },
+};
+
+/**
+ * Moving the guard's tunnel, read first: the move and its cost, what it
+ * rewrites and restarts, what stays held back and the operator's own overlay,
+ * labelled as nothing written yet, above a yes naming the reading.
+ */
+export const AChangeOfSettingsRead: Story = {
+  args: {
+    values: { ok: true, value: values },
+    valuer: { ...valuer, work: [setRead] },
+  },
+};
+
+/**
+ * Countries taken away under their reading, with the stack stopped so nothing
+ * restarted, said as lemonfiber said it.
+ */
+export const ASettingCleared: Story = {
+  args: {
+    values: { ok: true, value: values },
+    valuer: { ...valuer, work: [clearMade] },
   },
 };
 

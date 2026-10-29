@@ -69,6 +69,7 @@ import { undoLines, type Undone } from "./undone";
 import { pluggedLines, type Plugs } from "./plugged";
 import type { Inventory } from "./credentials";
 import { revokedLines } from "./revoked";
+import { valuedLines, type Values } from "./values";
 
 export type { Undone } from "./undone";
 import {
@@ -127,6 +128,7 @@ export type Came =
   | { readonly kind: "update"; readonly report: Updated }
   | { readonly kind: "plugins"; readonly report: Plugs }
   | { readonly kind: "credentials"; readonly report: Inventory }
+  | { readonly kind: "settings"; readonly report: Values }
   | { readonly kind: "trace"; readonly report: Traced }
   | { readonly kind: "walkthrough"; readonly report: Walked }
   | { readonly kind: "watch"; readonly report: Guarded }
@@ -453,6 +455,8 @@ export function linesOf(came: Came): readonly string[] {
     case "plugins":
     case "credentials":
       return pluggingLines(came);
+    case "settings":
+      return valuedLines(came.report);
     case "trace":
       return traceLines(came.report);
     case "walkthrough":

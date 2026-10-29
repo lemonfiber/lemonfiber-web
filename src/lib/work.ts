@@ -286,6 +286,10 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return titleOfPlug(doing);
     case "credentials-revoke":
       return m.doing_revoke_grant_title();
+    case "settings-set":
+      return m.doing_values_set_title();
+    case "settings-clear":
+      return m.doing_values_clear_title();
   }
 }
 
