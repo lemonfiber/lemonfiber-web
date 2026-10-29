@@ -3,14 +3,13 @@ import Dashboard from "./Dashboard.svelte";
 import {
   adrift,
   chosenForm,
-  rehearsed,
   controls,
   finished,
   forgotten,
+  held,
   restartOffered,
   leaking,
   moment,
-  notAnswering,
   stack,
   started,
   stillWaiting,
@@ -254,67 +253,14 @@ export const AskedForSomethingRefused: Story = {
 };
 
 /**
- * A form taken up. Three controls that could do nothing without one come
- * alive, the two that can mean the whole stack say they no longer do, and the
- * line above them says as much in words.
+ * Two services held back until the operator gives what they need: a VPN guard
+ * waiting for its type and its key, and the torrent client that runs through
+ * it. Each is named with everything it waits for and never a value, then how a
+ * setting is given.
  */
-export const AFormChosen: Story = {
+export const ServicesHeldBack: Story = {
   args: {
-    controls: {
-      ...controls,
-      chosen: [chosenForm],
-      preview: { ok: true, value: rehearsed },
-      previewed: { kind: "answered", secondsAgo: 2 },
-    },
-  },
-};
-
-/**
- * Two forms taken up. What starting them would do is one answer for both: a
- * program they share is listed once.
- */
-export const TwoFormsChosen: Story = {
-  args: {
-    controls: {
-      ...controls,
-      chosen: ["core", chosenForm],
-      preview: {
-        ok: true,
-        value: {
-          ...rehearsed,
-          forms: ["core", chosenForm],
-          services: ["gluetun", "prowlarr", ...rehearsed.services],
-        },
-      },
-      previewed: { kind: "answered", secondsAgo: 2 },
-    },
-  },
-};
-
-/**
- * The stack declares no forms at all. Said in words rather than left as an
- * empty frame a reader has to interpret.
- */
-export const NoFormsDeclared: Story = {
-  args: {
-    controls: { ...controls, forms: { ok: true, value: { forms: [] } } },
-  },
-};
-
-/**
- * The listing did not answer. The panel says why in the source's own words,
- * and the controls that need a form stay silent because there is none to
- * choose.
- */
-export const FormsCouldNotBeListed: Story = {
-  args: {
-    controls: {
-      ...controls,
-      forms: {
-        ok: false,
-        problem: { kind: "unreachable", message: notAnswering },
-      },
-    },
+    programs: { ok: true, value: { ...stack, waiting: held } },
   },
 };
 

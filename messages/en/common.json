@@ -208,5 +208,13 @@
   "step_available": "Ready",
   "step_other": "A step this page has no word for",
   "step_line": "{stage}: {said}",
-  "step_line_detail": "{stage}: {said} {detail}"
+  "step_line_detail": "{stage}: {said} {detail}",
+  "waits_heading": "Held back until you give what they need to start",
+  "waits_service": "{service} waits for {wants}",
+  "waits_setting": "the setting {setting}",
+  "waits_setting_choices": "the setting {setting}, one of {choices}",
+  "waits_setting_no_choice": "the setting {setting}, which has no choice until the settings it depends on change",
+  "waits_secret": "the secret {secret}",
+  "waits_through": "{service}, which it runs through",
+  "waits_give_setting": "Give a setting with lemonfiber settings set <setting>=<value>."
 }

@@ -12,6 +12,7 @@ import {
   wouldInstallGranting,
   wouldInstallGuarded,
   wouldRemove,
+  wouldInstallWaiting,
   wouldUpdate,
 } from "../api/plugs";
 import type { Plugger } from "../lib/plugging";
@@ -47,6 +48,16 @@ export const installReadGranting: Work = {
   came: {
     kind: "plugins",
     report: { ...readInstall, install: wouldInstallGranting },
+  },
+};
+
+/** A record of reading an install that would leave its service held back. */
+export const installReadWaiting: Work = {
+  ...installRead,
+  id: "58",
+  came: {
+    kind: "plugins",
+    report: { ...readInstall, install: wouldInstallWaiting },
   },
 };
 
