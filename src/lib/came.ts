@@ -398,14 +398,22 @@ function repairLines(report: Repaired): readonly string[] {
   return lines;
 }
 
-/** What acting on a plugin, or on a grant it holds, came to. */
-type Plugged = Extract<Came, { readonly kind: "plugins" | "credentials" }>;
+/** What acting on a plugin, a grant it holds or a setting came to. */
+type Plugged = Extract<
+  Came,
+  { readonly kind: "plugins" | "credentials" | "settings" }
+>;
 
-/** What acting on a plugin, or on a grant it holds, came to, line by line. */
+/** What acting on a plugin, a grant it holds or a setting came to, line by line. */
 function pluggingLines(came: Plugged): readonly string[] {
-  return came.kind === "plugins"
-    ? pluggedLines(came.report)
-    : revokedLines(came.report);
+  switch (came.kind) {
+    case "plugins":
+      return pluggedLines(came.report);
+    case "credentials":
+      return revokedLines(came.report);
+    case "settings":
+      return valuedLines(came.report);
+  }
 }
 
 /**
@@ -454,9 +462,8 @@ export function linesOf(came: Came): readonly string[] {
       return updateLines(came.report);
     case "plugins":
     case "credentials":
-      return pluggingLines(came);
     case "settings":
-      return valuedLines(came.report);
+      return pluggingLines(came);
     case "trace":
       return traceLines(came.report);
     case "walkthrough":

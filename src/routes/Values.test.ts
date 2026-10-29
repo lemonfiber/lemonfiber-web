@@ -381,6 +381,15 @@ describe("what a change would do, and the yes to it", () => {
     expect(ondrop).toHaveBeenCalledWith(setRead.id);
   });
 
+  it("leaves putting a record away to whatever it is handed, holding no record of its own", async () => {
+    drawn({ ...valuer, work: [setMade] });
+
+    await userEvent.click(
+      within(asked()).getByRole("button", { name: m.action_hide_record() }),
+    );
+    expect(within(asked()).getByText(m.doing_values_set_title())).toBeVisible();
+  });
+
   it("says what each change came to, and puts a record away", async () => {
     const ondrop = vi.fn();
     drawn({ ...valuer, work: [clearMade, setMade], ondrop });
