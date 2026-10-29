@@ -36,6 +36,8 @@ import {
 } from "../api/plugs";
 import { plugins } from "../api/installs";
 import * as m from "../paraglide/messages.js";
+import { overlaid } from "../api/overlays";
+import { unvettedLines } from "./unvetted";
 
 /** An install that writes, reaches and declares nothing. */
 const bare: PluginInstall = {
@@ -353,6 +355,21 @@ describe("what a record of an act on a plugin came to", () => {
     expect(pluggedLines({ ...readInstall, agreement: null })).toStrictEqual([
       m.came_rehearsed(),
     ]);
+  });
+
+  it("names the operator's own overlay after what an act that ran came to, and not on a reading", () => {
+    expect(
+      pluggedLines({
+        ...madeInstall,
+        unvetted: overlaid,
+      }).at(-1),
+    ).toBe(unvettedLines(overlaid)[0]);
+    expect(
+      pluggedLines({
+        ...readInstall,
+        unvetted: overlaid,
+      }),
+    ).toStrictEqual(pluggedLines(readInstall));
   });
 
   it("says an install that ran was installed, and what each recipe did", () => {

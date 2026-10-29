@@ -27,6 +27,7 @@ import {
   wouldUpdate,
 } from "../api/plugs";
 import { plugins, subtitles } from "../api/installs";
+import { overlaid } from "../api/overlays";
 
 /** A record of one act on a plugin, answered with what it came to. */
 const answered = (
@@ -130,6 +131,19 @@ describe("the reading standing on the screen", () => {
       source: "komga",
       install: wouldInstall,
     });
+  });
+
+  it("carries the operator's own overlay, where the reading names one", () => {
+    const unvetted = overlaid;
+    expect(
+      standingPlug([
+        read(
+          "plugin-install",
+          { source: "komga" },
+          { ...readInstall, unvetted },
+        ),
+      ])?.unvetted,
+    ).toStrictEqual(unvetted);
   });
 
   it("is an update or a removal read, for the plugin it was read for", () => {

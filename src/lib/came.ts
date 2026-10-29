@@ -70,6 +70,7 @@ import { pluggedLines, type Plugs } from "./plugged";
 import type { Inventory } from "./credentials";
 import { revokedLines } from "./revoked";
 import { valuedLines, type Values } from "./values";
+import { unvettedLines } from "./unvetted";
 
 export type { Undone } from "./undone";
 import {
@@ -192,6 +193,7 @@ function lifecycleLines(report: Lifecycle): readonly string[] {
   for (const edit of report.stack_edits) {
     lines.push(m.came_edited({ path: edit.path }));
   }
+  lines.push(...unvettedLines(report.unvetted));
   lines.push(m.came_command({ command: report.command.join(" ") }));
   return lines;
 }

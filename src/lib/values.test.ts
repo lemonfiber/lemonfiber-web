@@ -25,6 +25,8 @@ import {
   vpnType,
   wouldSet,
 } from "../api/values";
+import { overlaid } from "../api/overlays";
+import { unvettedLines } from "./unvetted";
 
 describe("whose a setting is", () => {
   it("names lemonfiber's own apart from a plugin's", () => {
@@ -191,6 +193,15 @@ describe("what a record of the settings panel's asking says", () => {
       "Held back until you give what they need to start",
       "gluetun waits for the secret gluetun:wireguard-key",
     ]);
+  });
+
+  it("names the operator's own overlay after a change made", () => {
+    expect(
+      valuedLines({
+        ...madeSet,
+        unvetted: overlaid,
+      }).at(-1),
+    ).toBe(unvettedLines(overlaid)[0]);
   });
 
   it("says why nothing restarted, and what a change started", () => {

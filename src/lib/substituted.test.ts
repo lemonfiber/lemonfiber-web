@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { substitutedLines } from "./substituted";
 import { filled, wouldFill, wouldLeave } from "../api/substitutions";
 import * as m from "../paraglide/messages.js";
+import { overlaid } from "../api/overlays";
+import { unvettedLines } from "./unvetted";
 
 describe("what choosing a filler would come to", () => {
   it("says what would fill it, that nothing does now, what asks, the setting and the reason", () => {
@@ -21,6 +23,15 @@ describe("what choosing a filler would come to", () => {
       m.fill_leaves({ by: "sonarr", capability: "subtitle-hints" }),
       m.fill_setting({ setting: "wiring.subtitles = subgen" }),
     ]);
+  });
+
+  it("names the operator's own overlay last, where it changes a service", () => {
+    expect(
+      substitutedLines({
+        ...wouldLeave,
+        unvetted: overlaid,
+      }).at(-1),
+    ).toBe(unvettedLines(overlaid)[0]);
   });
 
   it("says it in the past once written", () => {

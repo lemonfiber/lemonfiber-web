@@ -3,6 +3,8 @@ import { linesOf } from "./came";
 import { stepLine, updateLines, type Step, type Updated } from "./updated";
 import { moved, plan } from "../api/lines";
 import * as m from "../paraglide/messages.js";
+import { overlaid } from "../api/overlays";
+import { unvettedLines } from "./unvetted";
 
 const [sonarr, jellyfin] = plan.changes as [Step, Step];
 
@@ -59,6 +61,15 @@ describe("what an update would change, or changed", () => {
       stepLine(jellyfin),
       m.came_update_in_flight({ names: "A film still coming down" }),
     ]);
+  });
+
+  it("names the operator's own overlay last, where it changes a service", () => {
+    expect(
+      updateLines({
+        ...plan,
+        unvetted: overlaid,
+      }).at(-1),
+    ).toBe(unvettedLines(overlaid)[0]);
   });
 
   it("says how each service ended once it moved, with the backup and the halt", () => {

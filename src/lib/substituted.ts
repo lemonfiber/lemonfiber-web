@@ -15,6 +15,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { listed } from "./listed";
+import { unvettedLines } from "./unvetted";
 import * as m from "../paraglide/messages.js";
 
 /** What a choice of filler came to, or would come to. */
@@ -47,5 +48,5 @@ export function substitutedLines(report: Substituted): readonly string[] {
   if (why !== undefined && why !== null && why !== "") {
     lines.push(m.fill_why({ why }));
   }
-  return lines;
+  return [...lines, ...unvettedLines(report.unvetted)];
 }

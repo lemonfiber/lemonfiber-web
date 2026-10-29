@@ -14,6 +14,7 @@
     verificationLines,
     writesLines,
   } from "../../lib/plugged";
+  import { unvettedLines } from "../../lib/unvetted";
   import { heldLines } from "../../lib/waiting";
   import {
     approvables,
@@ -72,6 +73,10 @@
           lines: heldLines(install.waiting),
         });
       }
+    }
+    const overlay = unvettedLines(offered.unvetted);
+    if (overlay.length > 0) {
+      drawn.push({ title: m.overlay_title(), lines: overlay });
     }
     return drawn;
   });

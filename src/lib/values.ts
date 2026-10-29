@@ -18,6 +18,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { listed } from "./listed";
+import { unvettedLines } from "./unvetted";
 import { stillHeldLines } from "./waiting";
 import * as m from "../paraglide/messages.js";
 
@@ -212,5 +213,5 @@ export function valuedLines(report: Values): readonly string[] {
       m.values_offer_named({ offer: change.agreement }),
     ];
   }
-  return madeLines(change);
+  return [...madeLines(change), ...unvettedLines(report.unvetted)];
 }

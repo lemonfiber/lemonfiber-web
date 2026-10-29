@@ -7,6 +7,7 @@
  * reader and the body agreeing with each other.
  */
 import type { Change, SecretRead, ValueRead, Values } from "../lib/values";
+import { overlaid } from "./overlays";
 
 /** The core's domain, set by the operator and read by two services. */
 export const domain: ValueRead = {
@@ -154,7 +155,7 @@ export const wouldSet: Values = {
   ...values,
   rehearsed: true,
   change: movingTunnel,
-  unvetted: { overlay: "/etc/lemonfiber/overlay.yml", services: ["gluetun"] },
+  unvetted: overlaid,
 };
 
 /** That change made under its reading. */
