@@ -274,6 +274,7 @@ describe("servicesOf", () => {
   const reading = (services: Service[]): Stack => ({
     condition: "partial",
     active_forms: ["core"],
+    waiting: [],
     forms: [],
     services,
     filtered: [

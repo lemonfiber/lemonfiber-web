@@ -66,6 +66,8 @@ export const signIn: PluginRecipe = {
 export const wouldInstall: PluginInstall = {
   asks: [],
   granting: [],
+  sharing: [],
+  waiting: [],
   changes: [
     { path: "/srv/lemonfiber/plugins/subfetch", puts: "directory" },
     { path: "/srv/lemonfiber/compose/subfetch.yml", puts: "document" },

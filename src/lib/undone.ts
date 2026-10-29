@@ -53,6 +53,10 @@ function reversalWords(action: Reversal): string {
       return m.came_undo_keep_copy();
     case "leave":
       return m.came_undo_leave();
+    case "rename-back":
+      return m.came_undo_rename_back();
+    case "unreplaced":
+      return m.came_undo_unreplaced();
     default:
       return m.came_undo_other();
   }

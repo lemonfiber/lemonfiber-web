@@ -292,11 +292,7 @@ export type Appetite = Extract<
 >["notifications"];
 
 /** Every way the library may be served, the one that serves nothing first. */
-export const everyLibrary: readonly Library[] = [
-  "none",
-  "jellyfin-docker",
-  "jellyfin-native",
-];
+export const everyLibrary: readonly Library[] = ["none", "container", "host"];
 
 /** Every amount the operator may be told, the quietest first. */
 export const everyAppetite: readonly Appetite[] = [
@@ -319,9 +315,9 @@ export function wordOfLibrary(library: Library): string {
   switch (library) {
     case "none":
       return m.wizard_library_none();
-    case "jellyfin-docker":
+    case "container":
       return m.wizard_library_docker();
-    case "jellyfin-native":
+    case "host":
       return m.wizard_library_host();
   }
 }
