@@ -193,8 +193,10 @@ function lifecycleLines(report: Lifecycle): readonly string[] {
   for (const edit of report.stack_edits) {
     lines.push(m.came_edited({ path: edit.path }));
   }
-  lines.push(...unvettedLines(report.unvetted));
-  lines.push(m.came_command({ command: report.command.join(" ") }));
+  lines.push(
+    ...unvettedLines(report.unvetted),
+    m.came_command({ command: report.command.join(" ") }),
+  );
   return lines;
 }
 
