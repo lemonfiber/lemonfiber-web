@@ -10,7 +10,12 @@
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { movedBy, standingOf } from "../api/setting";
 import { turnedAway, type Reaching } from "../api/asking";
-import type { Move, Proving, Wizard } from "../lib/wizard";
+import {
+  refusedWords,
+  type Move,
+  type Proving,
+  type Wizard,
+} from "../lib/wizard";
 
 /** What setting up is handed: where to ask, and what a refused key asks for. */
 export interface Handing {
@@ -67,7 +72,7 @@ export class Setting {
       return;
     }
     if (!walked.ok) {
-      this.said = walked.problem.message;
+      this.said = refusedWords(walked.problem);
       return;
     }
     if (move.move === "apply" || move.move === "recover") {

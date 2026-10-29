@@ -117,6 +117,7 @@
       {#key asking}
         <Answering
           step={asking}
+          guard={wizard.guard}
           {busy}
           onback={() => {
             onmove({ move: "back" });

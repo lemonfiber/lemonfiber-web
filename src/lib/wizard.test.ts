@@ -13,6 +13,7 @@ import {
   proofLine,
   proseOfRecovery,
   proseOfStep,
+  refusedWords,
   stepsAhead,
   titleOfRecovery,
   titleOfStep,
@@ -160,5 +161,30 @@ describe("what a form takes", () => {
     expect(new Set(everyAppetite.map((one) => wordOfAppetite(one))).size).toBe(
       3,
     );
+  });
+});
+
+describe("what a refused step says", () => {
+  it("says a tunnel answer that leaves the egress guard short or over in this console's words", () => {
+    expect(
+      refusedWords({
+        kind: "misasked",
+        message: "The VPN answer leaves out a setting.",
+        code: "SETUP-16",
+      }),
+    ).toBe(m.wizard_guard_unanswered());
+  });
+
+  it("says any other refusal in lemonfiber's words", () => {
+    expect(
+      refusedWords({
+        kind: "misasked",
+        message: "The path is not absolute.",
+        code: "SETUP-5",
+      }),
+    ).toBe("The path is not absolute.");
+    expect(
+      refusedWords({ kind: "misasked", message: "Not one lemonfiber takes." }),
+    ).toBe("Not one lemonfiber takes.");
   });
 });
