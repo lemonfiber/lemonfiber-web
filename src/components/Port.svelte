@@ -16,9 +16,8 @@
 </script>
 
 <!--
-  The terminal from the mark: eight jacketed strands run out through the pith
-  and end in a faceplate. A row terminates one of them, and how full the tile
-  is says how much it wants you.
+  A fibre port on a faceplate. A row terminates one strand, and how full the
+  tile is says how much it wants you.
 
   The icon inside is a shape before it is a colour — a strand end, a note, a
   warning triangle — so the tile survives greyscale. The tile replaces a
@@ -63,15 +62,6 @@
     border-radius: var(--r-md);
     background: var(--pith);
     color: var(--muted);
-  }
-
-  /* The faceplate's bezel, dashed as the pith is in the mark. */
-  .port::before {
-    content: "";
-    position: absolute;
-    inset: var(--sp-1);
-    border: 1px dashed currentColor;
-    opacity: 0.22;
   }
 
   .ic {
