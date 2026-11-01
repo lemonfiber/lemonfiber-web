@@ -90,8 +90,6 @@ function changeLine(change: PluginChange): string {
       return m.plug_writes_document({ path });
     case "key":
       return m.plug_writes_key({ path });
-    case "region":
-      return m.plug_writes_region({ path });
     case "secrets":
       return m.plug_writes_secrets({ path });
     case "starting":
@@ -381,6 +379,7 @@ function installedOutcome(install: PluginInstall): readonly string[] {
   for (const one of install.verified?.broke ?? []) {
     lines.push(m.plug_broke({ title: one.now.title }));
   }
+  if (said(install.secured)) lines.push(install.secured);
   lines.push(...heldLines(install.waiting));
   const { reversed } = install;
   if (reversed !== undefined && reversed !== null) {

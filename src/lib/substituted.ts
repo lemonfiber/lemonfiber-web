@@ -44,6 +44,21 @@ export function substitutedLines(report: Substituted): readonly string[] {
     const said = { by: left.by, capability: left.capability };
     lines.push(done ? m.fill_left(said) : m.fill_leaves(said));
   }
+  if (change.starts.length > 0) {
+    const services = listed(change.starts);
+    lines.push(
+      done ? m.fill_started({ services }) : m.fill_starts({ services }),
+    );
+  }
+  if (change.stops.length > 0) {
+    const services = listed(change.stops);
+    lines.push(
+      done ? m.fill_stopped({ services }) : m.fill_stops({ services }),
+    );
+  }
+  for (const one of report.unran ?? []) {
+    lines.push(m.fill_unran({ service: one.service, because: one.because }));
+  }
   lines.push(m.fill_setting({ setting: change.setting }));
   if (why !== undefined && why !== null && why !== "") {
     lines.push(m.fill_why({ why }));

@@ -21,8 +21,22 @@ describe("what choosing a filler would come to", () => {
       m.fill_would({ capability: "subtitles", service: "subgen" }),
       m.fill_was({ service: "bazarr" }),
       m.fill_leaves({ by: "sonarr", capability: "subtitle-hints" }),
+      m.fill_starts({ services: "subgen" }),
+      m.fill_stops({ services: "bazarr" }),
       m.fill_setting({ setting: "wiring.subtitles = subgen" }),
     ]);
+  });
+
+  it("names a part it could not stop or start, and why", () => {
+    const unran = {
+      ...wouldLeave,
+      applied: true,
+      rehearsed: false,
+      unran: [{ service: "bazarr", because: "the engine refused" }],
+    };
+    expect(substitutedLines(unran)).toContain(
+      m.fill_unran({ service: "bazarr", because: "the engine refused" }),
+    );
   });
 
   it("names the operator's own overlay last, where it changes a service", () => {
@@ -41,6 +55,12 @@ describe("what choosing a filler would come to", () => {
     const left = { ...wouldLeave, applied: true, rehearsed: false };
     expect(substitutedLines(left)).toContain(
       m.fill_left({ by: "sonarr", capability: "subtitle-hints" }),
+    );
+    expect(substitutedLines(left)).toContain(
+      m.fill_started({ services: "subgen" }),
+    );
+    expect(substitutedLines(left)).toContain(
+      m.fill_stopped({ services: "bazarr" }),
     );
   });
 

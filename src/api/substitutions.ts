@@ -19,6 +19,8 @@ export const wouldFill: Substituted = {
     was: null,
     asked_by: ["jellyfin"],
     leaves_unfilled: [],
+    starts: [],
+    stops: [],
     setting: "wiring.requests = jellyseerr",
     why: "Jellyseerr knows the household.",
   },
@@ -45,6 +47,8 @@ export const wouldLeave: Substituted = {
     was: "bazarr",
     asked_by: [],
     leaves_unfilled: [{ by: "sonarr", capability: "subtitle-hints" }],
+    starts: ["subgen"],
+    stops: ["bazarr"],
     setting: "wiring.subtitles = subgen",
   },
 };

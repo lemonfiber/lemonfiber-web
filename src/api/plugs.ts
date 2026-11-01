@@ -71,7 +71,7 @@ export const wouldInstall: PluginInstall = {
   changes: [
     { path: "/srv/lemonfiber/plugins/subfetch", puts: "directory" },
     { path: "/srv/lemonfiber/compose/subfetch.yml", puts: "document" },
-    { path: "/srv/lemonfiber/proxy/routes.conf", puts: "region" },
+    { path: "/srv/lemonfiber/proxy/routes.conf", puts: "upstream" },
   ],
   overrides: [
     { setting: "bazarr.enabled", why: "It fetches subtitles itself." },

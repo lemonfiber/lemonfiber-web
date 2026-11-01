@@ -34,8 +34,8 @@
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
-    "@lemonfiber/brand": "github:lemonfiber/brand#59a37447f541534236a2f3ca3c64f9af50090923",
-    "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#837b2d77d86d955a1e46f4ad3ad604774bdd6102",
+    "@lemonfiber/brand": "github:lemonfiber/brand#139e00809a210031c2deb1ee43b3eab43d77c9f1",
+    "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#b59049f24039aa2d037fe3c571b131e8ae5dadb3",
     "qrcode-generator": "2.0.4"
   },
   "devDependencies": {

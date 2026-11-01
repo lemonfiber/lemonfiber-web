@@ -86,7 +86,7 @@ describe("what an install would write", () => {
     expect(writesLines(wouldInstall)).toStrictEqual([
       m.plug_writes_directory({ path: "/srv/lemonfiber/plugins/subfetch" }),
       m.plug_writes_document({ path: "/srv/lemonfiber/compose/subfetch.yml" }),
-      m.plug_writes_region({ path: "/srv/lemonfiber/proxy/routes.conf" }),
+      m.plug_writes_upstream({ path: "/srv/lemonfiber/proxy/routes.conf" }),
       m.plug_overrides({
         setting: "bazarr.enabled",
         why: "It fetches subtitles itself.",
@@ -147,7 +147,7 @@ describe("what an install would write", () => {
   it("says a change it has no word for as that, and an install writing nothing as that", () => {
     const odd = {
       ...bare,
-      changes: [{ path: "/x", puts: "link" as unknown as "region" }],
+      changes: [{ path: "/x", puts: "link" as unknown as "upstream" }],
     };
     expect(writesLines(odd)).toStrictEqual([
       m.plug_writes_other({ path: "/x" }),
@@ -459,6 +459,13 @@ describe("what a record of an act on a plugin came to", () => {
     expect(pluggedLines({ ...plugins, removal: wouldRemove })[0]).toBe(
       m.plug_removed_not({ plugin: "subtitle-fetch" }),
     );
+  });
+
+  it("passes on what securing the egress guard came to, in lemonfiber's words", () => {
+    const secured = "The guard restarted to take up the credential.";
+    expect(
+      pluggedLines({ ...plugins, install: { ...bare, secured } }),
+    ).toStrictEqual([m.plug_installed_not({ plugin: "hand-rolled" }), secured]);
   });
 
   it("says an install stopped before its checks ran was not installed, and no more", () => {

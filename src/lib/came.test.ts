@@ -305,6 +305,13 @@ describe("what wiring the programs to each other came to", () => {
         reason: "NZBGet names no adapter",
       }),
     ],
+    [
+      { state: "restarted", service: "sonarr" },
+      m.came_wiring_restarted({
+        connection: "SABnzbd into Sonarr",
+        service: "sonarr",
+      }),
+    ],
   ] as const)("says why %j, in the words given", (state, words) => {
     expect(seeded({ wirings: [wiring(state)] })).toStrictEqual([words]);
   });
@@ -597,6 +604,14 @@ describe("what putting the last repair back came to", () => {
       m.came_undo_rename_back(),
     ],
     [{ does: "unreplaced", service: "jellyfin" }, m.came_undo_unreplaced()],
+    [
+      { does: "run", service: "sonarr", running: true },
+      m.came_undo_run_start(),
+    ],
+    [
+      { does: "run", service: "sonarr", running: false },
+      m.came_undo_run_stop(),
+    ],
     [
       { does: "pondered" } as unknown as Undone["reversed"][number]["action"],
       m.came_undo_other(),
