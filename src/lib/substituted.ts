@@ -24,12 +24,49 @@ export type Substituted = ByKind["substitution"]["data"];
 /** The change itself. */
 export type Substitution = Substituted["substitution"];
 
+/** What the choice leaves without a filler and what it leaves behind. */
+function leavesLines(change: Substitution, done: boolean): readonly string[] {
+  return [
+    ...change.leaves_unfilled.map((left) => {
+      const said = { by: left.by, capability: left.capability };
+      return done ? m.fill_left(said) : m.fill_leaves(said);
+    }),
+    ...change.leaves_behind.map((kept) => {
+      const said = { said: kept.said, capability: kept.capability };
+      return done ? m.fill_left_behind(said) : m.fill_leaves_behind(said);
+    }),
+  ];
+}
+
+/** The parts the choice starts again and stops, and any it could not. */
+function partsLines(report: Substituted): readonly string[] {
+  const { starts, stops } = report.substitution;
+  const done = report.applied;
+  const lines: string[] = [];
+  if (starts.length > 0) {
+    const services = listed(starts);
+    lines.push(
+      done ? m.fill_started({ services }) : m.fill_starts({ services }),
+    );
+  }
+  if (stops.length > 0) {
+    const services = listed(stops);
+    lines.push(
+      done ? m.fill_stopped({ services }) : m.fill_stops({ services }),
+    );
+  }
+  for (const one of report.unran ?? []) {
+    lines.push(m.fill_unran({ service: one.service, because: one.because }));
+  }
+  return lines;
+}
+
 /** A choice of filler, line by line, said in the tense its report calls for. */
 export function substitutedLines(report: Substituted): readonly string[] {
   const change = report.substitution;
   const done = report.applied;
   const { capability, now, was, why } = change;
-  const lines = [
+  const lines: string[] = [
     done
       ? m.fill_did({ capability, service: now })
       : m.fill_would({ capability, service: now }),
@@ -40,30 +77,11 @@ export function substitutedLines(report: Substituted): readonly string[] {
   if (change.asked_by.length > 0) {
     lines.push(m.fill_asked_by({ services: listed(change.asked_by) }));
   }
-  for (const left of change.leaves_unfilled) {
-    const said = { by: left.by, capability: left.capability };
-    lines.push(done ? m.fill_left(said) : m.fill_leaves(said));
-  }
-  for (const kept of change.leaves_behind) {
-    const said = { said: kept.said, capability: kept.capability };
-    lines.push(done ? m.fill_left_behind(said) : m.fill_leaves_behind(said));
-  }
-  if (change.starts.length > 0) {
-    const services = listed(change.starts);
-    lines.push(
-      done ? m.fill_started({ services }) : m.fill_starts({ services }),
-    );
-  }
-  if (change.stops.length > 0) {
-    const services = listed(change.stops);
-    lines.push(
-      done ? m.fill_stopped({ services }) : m.fill_stops({ services }),
-    );
-  }
-  for (const one of report.unran ?? []) {
-    lines.push(m.fill_unran({ service: one.service, because: one.because }));
-  }
-  lines.push(m.fill_setting({ setting: change.setting }));
+  lines.push(
+    ...leavesLines(change, done),
+    ...partsLines(report),
+    m.fill_setting({ setting: change.setting }),
+  );
   if (why !== undefined && why !== null && why !== "") {
     lines.push(m.fill_why({ why }));
   }
