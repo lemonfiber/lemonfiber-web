@@ -214,6 +214,7 @@ describe("how an install is proved", () => {
         asked({ outcome: "passed" }),
         asked({ outcome: "failed", faults: ["status 500", "no body"] }),
         asked({ outcome: "unproven", why: "No recording." }),
+        asked({ outcome: "open", why: "The pairing code was never entered." }),
         asked({ outcome: "failing-as-declared", declared: [] }),
         asked({ outcome: "odd" } as unknown as { outcome: "passed" }),
       ],
@@ -229,6 +230,12 @@ describe("how an install is proved", () => {
     );
     expect(lines).toContain(
       m.plug_proof_unproven({ proof: "p", why: "No recording." }),
+    );
+    expect(lines).toContain(
+      m.plug_proof_open({
+        proof: "p",
+        why: "The pairing code was never entered.",
+      }),
     );
     expect(lines).toContain(m.plug_proof_declared({ proof: "p", count: 0 }));
     expect(lines).toContain(m.plug_proof_other({ proof: "p" }));
@@ -252,14 +259,14 @@ describe("how an install is proved", () => {
 });
 
 describe("each recipe and each value it could carry", () => {
-  it("says why a recipe runs and every call it makes, through an adapter or outside", () => {
+  it("says why a recipe runs and every call it makes, in the API it reaches or outside any", () => {
     expect(recipeLines(signIn)).toStrictEqual([
       "Without an account the service answers ten times a day.",
       m.plug_step({
         method: "GET",
         path: "/api/v3/config",
         to: "sonarr",
-        adapter: "servarr",
+        native: "servarr",
       }),
       m.plug_step_outside({
         method: "POST",

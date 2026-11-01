@@ -21,6 +21,10 @@ describe("what choosing a filler would come to", () => {
       m.fill_would({ capability: "subtitles", service: "subgen" }),
       m.fill_was({ service: "bazarr" }),
       m.fill_leaves({ by: "sonarr", capability: "subtitle-hints" }),
+      m.fill_leaves_behind({
+        said: "Its list of wanted subtitles",
+        capability: "subtitles",
+      }),
       m.fill_starts({ services: "subgen" }),
       m.fill_stops({ services: "bazarr" }),
       m.fill_setting({ setting: "wiring.subtitles = subgen" }),
@@ -55,6 +59,12 @@ describe("what choosing a filler would come to", () => {
     const left = { ...wouldLeave, applied: true, rehearsed: false };
     expect(substitutedLines(left)).toContain(
       m.fill_left({ by: "sonarr", capability: "subtitle-hints" }),
+    );
+    expect(substitutedLines(left)).toContain(
+      m.fill_left_behind({
+        said: "Its list of wanted subtitles",
+        capability: "subtitles",
+      }),
     );
     expect(substitutedLines(left)).toContain(
       m.fill_started({ services: "subgen" }),

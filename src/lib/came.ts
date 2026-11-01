@@ -190,6 +190,10 @@ function lifecycleLines(report: Lifecycle): readonly string[] {
   if (report.forwarding !== undefined && report.forwarding !== null) {
     lines.push(report.forwarding);
   }
+  if (report.fencing !== undefined && report.fencing !== null) {
+    lines.push(report.fencing);
+  }
+  lines.push(...(report.unfenced ?? []));
   for (const edit of report.stack_edits) {
     lines.push(m.came_edited({ path: edit.path }));
   }

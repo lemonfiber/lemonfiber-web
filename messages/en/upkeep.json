@@ -183,6 +183,8 @@
   "fill_asked_by": "Asked for by {services}.",
   "fill_leaves": "{by} would be left asking for {capability}, with nothing to fill it.",
   "fill_left": "{by} is left asking for {capability}, with nothing to fill it.",
+  "fill_leaves_behind": "{said}, held for {capability}, would stay with the part it stops; its replacement is not given it.",
+  "fill_left_behind": "{said}, held for {capability}, stayed with the part it stopped; its replacement was not given it.",
   "fill_setting": "The setting it writes: {setting}.",
   "fill_starts": "{services} would be started again, back in their form.",
   "fill_started": "{services} started again, back in their form.",

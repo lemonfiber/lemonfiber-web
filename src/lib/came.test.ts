@@ -183,6 +183,16 @@ describe("what a start, stop, switch, restart or fetch came to", () => {
     expect(said({ forwarding: null })).toHaveLength(1);
   });
 
+  it("passes on why a fence went unwritten, and each fenced service held back, in lemonfiber's words", () => {
+    const fencing = "The engine's host did not answer for its addresses.";
+    const unfenced = [
+      "qbittorrent is held back: no fence can be written for it.",
+    ];
+    expect(said({ fencing, unfenced })).toStrictEqual(
+      expect.arrayContaining([fencing, ...unfenced]),
+    );
+  });
+
   it("names a stack file that was changed by hand and left as it was", () => {
     expect(
       said({ stack_edits: [{ path: "compose.yaml", diff: "" }] }),

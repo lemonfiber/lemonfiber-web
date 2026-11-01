@@ -44,6 +44,10 @@ export function substitutedLines(report: Substituted): readonly string[] {
     const said = { by: left.by, capability: left.capability };
     lines.push(done ? m.fill_left(said) : m.fill_leaves(said));
   }
+  for (const kept of change.leaves_behind) {
+    const said = { said: kept.said, capability: kept.capability };
+    lines.push(done ? m.fill_left_behind(said) : m.fill_leaves_behind(said));
+  }
   if (change.starts.length > 0) {
     const services = listed(change.starts);
     lines.push(
