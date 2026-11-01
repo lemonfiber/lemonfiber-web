@@ -183,6 +183,16 @@ describe("what a start, stop, switch, restart or fetch came to", () => {
     expect(said({ forwarding: null })).toHaveLength(1);
   });
 
+  it("passes on why a fence went unwritten, and each fenced service held back, in lemonfiber's words", () => {
+    const fencing = "The engine's host did not answer for its addresses.";
+    const unfenced = [
+      "qbittorrent is held back: no fence can be written for it.",
+    ];
+    expect(said({ fencing, unfenced })).toStrictEqual(
+      expect.arrayContaining([fencing, ...unfenced]),
+    );
+  });
+
   it("names a stack file that was changed by hand and left as it was", () => {
     expect(
       said({ stack_edits: [{ path: "compose.yaml", diff: "" }] }),
@@ -303,6 +313,13 @@ describe("what wiring the programs to each other came to", () => {
       m.came_wiring_unmatched({
         connection: "SABnzbd into Sonarr",
         reason: "NZBGet names no adapter",
+      }),
+    ],
+    [
+      { state: "restarted", service: "sonarr" },
+      m.came_wiring_restarted({
+        connection: "SABnzbd into Sonarr",
+        service: "sonarr",
       }),
     ],
   ] as const)("says why %j, in the words given", (state, words) => {
@@ -597,6 +614,14 @@ describe("what putting the last repair back came to", () => {
       m.came_undo_rename_back(),
     ],
     [{ does: "unreplaced", service: "jellyfin" }, m.came_undo_unreplaced()],
+    [
+      { does: "run", service: "sonarr", running: true },
+      m.came_undo_run_start(),
+    ],
+    [
+      { does: "run", service: "sonarr", running: false },
+      m.came_undo_run_stop(),
+    ],
     [
       { does: "pondered" } as unknown as Undone["reversed"][number]["action"],
       m.came_undo_other(),

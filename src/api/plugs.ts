@@ -49,14 +49,14 @@ export const signIn: PluginRecipe = {
       method: "GET",
       path: "/api/v3/config",
       to: "sonarr",
-      adapter: { kind: "servarr", owner: "lemonfiber" },
+      native: "servarr",
     },
     {
       id: "login",
       method: "POST",
       path: "/login",
       to: "opensubtitles",
-      adapter: null,
+      native: null,
     },
   ],
   pairs: [released, kept],
@@ -71,7 +71,7 @@ export const wouldInstall: PluginInstall = {
   changes: [
     { path: "/srv/lemonfiber/plugins/subfetch", puts: "directory" },
     { path: "/srv/lemonfiber/compose/subfetch.yml", puts: "document" },
-    { path: "/srv/lemonfiber/proxy/routes.conf", puts: "region" },
+    { path: "/srv/lemonfiber/proxy/routes.conf", puts: "upstream" },
   ],
   overrides: [
     { setting: "bazarr.enabled", why: "It fetches subtitles itself." },

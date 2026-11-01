@@ -1,5 +1,7 @@
 <script lang="ts" generics="P extends string">
   import type { Snippet } from "svelte";
+  import onPaper from "@lemonfiber/brand/logo/lockup-horizontal.svg?url";
+  import onInk from "@lemonfiber/brand/logo/lockup-horizontal-on-ink.svg?url";
   import MenuItem from "../components/MenuItem.svelte";
   import * as m from "../paraglide/messages.js";
   import type { Menu } from "../lib/route";
@@ -30,7 +32,7 @@
 </script>
 
 <!--
-  The chrome every screen sits in: the wordmark, the menu, and the screen. The
+  The chrome every screen sits in: the brand's lockup, the menu, and the screen. The
   console and a household member are handed different menus, and the chrome is
   the same for both.
 
@@ -41,7 +43,10 @@
 -->
 <div class="console">
   <header class="brow">
-    <p class="mark">{m.product_name()}</p>
+    <p class="mark">
+      <img class="on-paper" src={onPaper} alt={m.product_name()} height="32" />
+      <img class="on-ink" src={onInk} alt={m.product_name()} height="32" />
+    </p>
   </header>
 
   <nav class="menu" aria-label={menu.named()}>
@@ -90,10 +95,31 @@
 
   .mark {
     margin: 0;
-    font-family: var(--brandface);
-    font-weight: 800;
-    font-size: var(--text-item);
-    letter-spacing: -0.045em;
+    display: flex;
+  }
+
+  .mark img {
+    width: auto;
+    image-rendering: pixelated;
+  }
+
+  .on-ink,
+  :global([data-lf-theme="ink"]) .on-paper {
+    display: none;
+  }
+
+  :global([data-lf-theme="ink"]) .on-ink {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-lf-theme="paper"])) .on-paper {
+      display: none;
+    }
+
+    :global(:root:not([data-lf-theme="paper"])) .on-ink {
+      display: block;
+    }
   }
 
   .menu {

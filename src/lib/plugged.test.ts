@@ -86,7 +86,7 @@ describe("what an install would write", () => {
     expect(writesLines(wouldInstall)).toStrictEqual([
       m.plug_writes_directory({ path: "/srv/lemonfiber/plugins/subfetch" }),
       m.plug_writes_document({ path: "/srv/lemonfiber/compose/subfetch.yml" }),
-      m.plug_writes_region({ path: "/srv/lemonfiber/proxy/routes.conf" }),
+      m.plug_writes_upstream({ path: "/srv/lemonfiber/proxy/routes.conf" }),
       m.plug_overrides({
         setting: "bazarr.enabled",
         why: "It fetches subtitles itself.",
@@ -147,7 +147,7 @@ describe("what an install would write", () => {
   it("says a change it has no word for as that, and an install writing nothing as that", () => {
     const odd = {
       ...bare,
-      changes: [{ path: "/x", puts: "link" as unknown as "region" }],
+      changes: [{ path: "/x", puts: "link" as unknown as "upstream" }],
     };
     expect(writesLines(odd)).toStrictEqual([
       m.plug_writes_other({ path: "/x" }),
@@ -214,6 +214,7 @@ describe("how an install is proved", () => {
         asked({ outcome: "passed" }),
         asked({ outcome: "failed", faults: ["status 500", "no body"] }),
         asked({ outcome: "unproven", why: "No recording." }),
+        asked({ outcome: "open", why: "The pairing code was never entered." }),
         asked({ outcome: "failing-as-declared", declared: [] }),
         asked({ outcome: "odd" } as unknown as { outcome: "passed" }),
       ],
@@ -229,6 +230,12 @@ describe("how an install is proved", () => {
     );
     expect(lines).toContain(
       m.plug_proof_unproven({ proof: "p", why: "No recording." }),
+    );
+    expect(lines).toContain(
+      m.plug_proof_open({
+        proof: "p",
+        why: "The pairing code was never entered.",
+      }),
     );
     expect(lines).toContain(m.plug_proof_declared({ proof: "p", count: 0 }));
     expect(lines).toContain(m.plug_proof_other({ proof: "p" }));
@@ -252,14 +259,14 @@ describe("how an install is proved", () => {
 });
 
 describe("each recipe and each value it could carry", () => {
-  it("says why a recipe runs and every call it makes, through an adapter or outside", () => {
+  it("says why a recipe runs and every call it makes, in the API it reaches or outside any", () => {
     expect(recipeLines(signIn)).toStrictEqual([
       "Without an account the service answers ten times a day.",
       m.plug_step({
         method: "GET",
         path: "/api/v3/config",
         to: "sonarr",
-        adapter: "servarr",
+        native: "servarr",
       }),
       m.plug_step_outside({
         method: "POST",
@@ -459,6 +466,13 @@ describe("what a record of an act on a plugin came to", () => {
     expect(pluggedLines({ ...plugins, removal: wouldRemove })[0]).toBe(
       m.plug_removed_not({ plugin: "subtitle-fetch" }),
     );
+  });
+
+  it("passes on what securing the egress guard came to, in lemonfiber's words", () => {
+    const secured = "The guard restarted to take up the credential.";
+    expect(
+      pluggedLines({ ...plugins, install: { ...bare, secured } }),
+    ).toStrictEqual([m.plug_installed_not({ plugin: "hand-rolled" }), secured]);
   });
 
   it("says an install stopped before its checks ran was not installed, and no more", () => {

@@ -90,8 +90,6 @@ function changeLine(change: PluginChange): string {
       return m.plug_writes_document({ path });
     case "key":
       return m.plug_writes_key({ path });
-    case "region":
-      return m.plug_writes_region({ path });
     case "secrets":
       return m.plug_writes_secrets({ path });
     case "starting":
@@ -174,6 +172,8 @@ function verdictLine(proof: string, verdict: PluginVerdict): string {
       return m.plug_proof_failed({ proof, faults: verdict.faults.join(" ") });
     case "unproven":
       return m.plug_proof_unproven({ proof, why: verdict.why });
+    case "open":
+      return m.plug_proof_open({ proof, why: verdict.why });
     case "failing-as-declared":
       return m.plug_proof_declared({
         proof,
@@ -231,11 +231,11 @@ export function verificationLines(install: PluginInstall): readonly string[] {
 
 /** One call a recipe makes, in a line. */
 function stepLine(step: PluginStep): string {
-  const said = { method: step.method, path: step.path, to: step.to };
-  const { adapter } = step;
-  return adapter === undefined || adapter === null
-    ? m.plug_step_outside(said)
-    : m.plug_step({ ...said, adapter: adapter.kind });
+  const call = { method: step.method, path: step.path, to: step.to };
+  const { native } = step;
+  return said(native)
+    ? m.plug_step({ ...call, native })
+    : m.plug_step_outside(call);
 }
 
 /**
@@ -381,6 +381,7 @@ function installedOutcome(install: PluginInstall): readonly string[] {
   for (const one of install.verified?.broke ?? []) {
     lines.push(m.plug_broke({ title: one.now.title }));
   }
+  if (said(install.secured)) lines.push(install.secured);
   lines.push(...heldLines(install.waiting));
   const { reversed } = install;
   if (reversed !== undefined && reversed !== null) {
