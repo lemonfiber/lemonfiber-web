@@ -13,6 +13,8 @@ import {
   verificationLines,
   writesLines,
   type PluginInstall,
+  type PluginTaking,
+  type PluginUpdate,
   type Plugs,
 } from "./plugged";
 import { everyPlugging } from "./plugging";
@@ -68,6 +70,26 @@ describe("what a service taking a privileged shape is given", () => {
       m.plug_taking_grants({ service: "tunnel", grants: "NET_ADMIN" }),
       m.plug_taking_devices({ service: "tunnel", devices: "/dev/net/tun" }),
       m.plug_approval({ approval: "egress-guard@tunnel" }),
+    ]);
+  });
+
+  it("says a service joining the group that owns its devices does", () => {
+    const rendering: PluginTaking = {
+      service: "server",
+      shape: "render",
+      grants: [],
+      devices: ["/dev/dri/renderD128"],
+      grouped: true,
+      approval: "render@server",
+    };
+    expect(takingLines(rendering)).toStrictEqual([
+      m.plug_taking({ service: "server", shape: "render" }),
+      m.plug_taking_devices({
+        service: "server",
+        devices: "/dev/dri/renderD128",
+      }),
+      m.plug_taking_grouped({ service: "server" }),
+      m.plug_approval({ approval: "render@server" }),
     ]);
   });
 
@@ -156,6 +178,28 @@ describe("what an install would write", () => {
       m.plug_writes_upstream({
         path: "/srv/lemonfiber/config/subfetch-adapter/upstream.json",
       }),
+    ]);
+  });
+
+  it("says each secret it puts into a starting file where the file names one, and in what form, never its value", () => {
+    const seeded: PluginInstall = {
+      ...bare,
+      changes: [
+        {
+          path: "/srv/lemonfiber/config/subfetch/app.yml",
+          puts: "starting",
+          placeholders: [
+            { secret: "api_key", form: "plain" },
+            { secret: "admin_password", form: "pbkdf2" },
+          ],
+        },
+      ],
+    };
+    const path = "/srv/lemonfiber/config/subfetch/app.yml";
+    expect(writesLines(seeded)).toStrictEqual([
+      m.plug_writes_starting({ path }),
+      m.plug_writes_placeholder({ path, secret: "api_key" }),
+      m.plug_writes_placeholder_hashed({ path, secret: "admin_password" }),
     ]);
   });
 
@@ -362,6 +406,42 @@ describe("what an update or a removal would come to", () => {
       m.plug_update({ plugin: "subtitle-fetch", from: "1.4.0", to: "1.5.0" }),
       m.plug_interrupts({ services: "subfetch" }),
       ...undoLines(wouldUpdate.went_back),
+    ]);
+  });
+
+  it("says each starting file whose placeholders the new version changes, and that the file here is left as it is", () => {
+    const reshipping: PluginUpdate = {
+      ...wouldUpdate,
+      reshipped: [
+        {
+          path: "/srv/lemonfiber/config/subfetch/app.yml",
+          was: [{ secret: "api_key", form: "plain" }],
+          becomes: [
+            { secret: "api_key", form: "plain" },
+            { secret: "admin_password", form: "pbkdf2" },
+          ],
+        },
+        {
+          path: "/srv/lemonfiber/config/subfetch/old.yml",
+          was: [{ secret: "token", form: "plain" }],
+          becomes: [],
+        },
+      ],
+    };
+    expect(updateLines(reshipping)).toStrictEqual([
+      m.plug_update({ plugin: "subtitle-fetch", from: "1.4.0", to: "1.5.0" }),
+      m.plug_interrupts({ services: "subfetch" }),
+      m.plug_reshipped({
+        path: "/srv/lemonfiber/config/subfetch/app.yml",
+        was: "api_key",
+        becomes: `api_key, ${m.plug_placeholder_hashed({ secret: "admin_password" })}`,
+      }),
+      m.plug_reshipped({
+        path: "/srv/lemonfiber/config/subfetch/old.yml",
+        was: "token",
+        becomes: m.plug_placeholders_none(),
+      }),
+      ...undoLines(reshipping.went_back),
     ]);
   });
 
