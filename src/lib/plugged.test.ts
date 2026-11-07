@@ -198,8 +198,16 @@ describe("what an install would write", () => {
     const path = "/srv/lemonfiber/config/subfetch/app.yml";
     expect(writesLines(seeded)).toStrictEqual([
       m.plug_writes_starting({ path }),
-      m.plug_writes_placeholder({ path, secret: "api_key" }),
-      m.plug_writes_placeholder_hashed({ path, secret: "admin_password" }),
+      m.plug_writes_placeholder({
+        path,
+        secret: "api_key",
+        form: m.plug_placeholder_form_plain(),
+      }),
+      m.plug_writes_placeholder({
+        path,
+        secret: "admin_password",
+        form: m.plug_placeholder_form_pbkdf2(),
+      }),
     ]);
   });
 
@@ -409,7 +417,7 @@ describe("what an update or a removal would come to", () => {
     ]);
   });
 
-  it("says each starting file whose placeholders the new version changes, and that the file here is left as it is", () => {
+  it("says each starting file whose placeholders the new version changes, what each version names, and that the file here is left as it is", () => {
     const reshipping: PluginUpdate = {
       ...wouldUpdate,
       reshipped: [
@@ -431,16 +439,29 @@ describe("what an update or a removal would come to", () => {
     expect(updateLines(reshipping)).toStrictEqual([
       m.plug_update({ plugin: "subtitle-fetch", from: "1.4.0", to: "1.5.0" }),
       m.plug_interrupts({ services: "subfetch" }),
-      m.plug_reshipped({
-        path: "/srv/lemonfiber/config/subfetch/app.yml",
-        was: "api_key",
-        becomes: `api_key, ${m.plug_placeholder_hashed({ secret: "admin_password" })}`,
+      m.plug_reshipped({ path: "/srv/lemonfiber/config/subfetch/app.yml" }),
+      m.plug_reshipped_was(),
+      m.plug_placeholder({
+        secret: "api_key",
+        form: m.plug_placeholder_form_plain(),
       }),
-      m.plug_reshipped({
-        path: "/srv/lemonfiber/config/subfetch/old.yml",
-        was: "token",
-        becomes: m.plug_placeholders_none(),
+      m.plug_reshipped_becomes(),
+      m.plug_placeholder({
+        secret: "api_key",
+        form: m.plug_placeholder_form_plain(),
       }),
+      m.plug_placeholder({
+        secret: "admin_password",
+        form: m.plug_placeholder_form_pbkdf2(),
+      }),
+      m.plug_reshipped({ path: "/srv/lemonfiber/config/subfetch/old.yml" }),
+      m.plug_reshipped_was(),
+      m.plug_placeholder({
+        secret: "token",
+        form: m.plug_placeholder_form_plain(),
+      }),
+      m.plug_reshipped_becomes(),
+      m.plug_placeholders_none(),
       ...undoLines(reshipping.went_back),
     ]);
   });

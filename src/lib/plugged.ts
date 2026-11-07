@@ -83,27 +83,32 @@ function said(value: string | null | undefined): value is string {
 /** One placeholder a starting file names a secret by. */
 type PluginPlaceholder = PluginChange["placeholders"][number];
 
-/** A placeholder as a list of them names it: the secret, or a hash of it. */
-function placeholderWord(placeholder: PluginPlaceholder): string {
+/** The form a placeholder writes its secret's value in, in words. */
+function formWords(placeholder: PluginPlaceholder): string {
   return placeholder.form === "pbkdf2"
-    ? m.plug_placeholder_hashed({ secret: placeholder.secret })
-    : placeholder.secret;
-}
-
-/** The placeholders a file names, in a phrase, or that it names none. */
-function placeholdersWord(placeholders: readonly PluginPlaceholder[]): string {
-  return placeholders.length === 0
-    ? m.plug_placeholders_none()
-    : listed(placeholders.map((one) => placeholderWord(one)));
+    ? m.plug_placeholder_form_pbkdf2()
+    : m.plug_placeholder_form_plain();
 }
 
 /** What a starting file has put into it where it names a secret, a line each. */
 function placeholderLines(change: PluginChange): readonly string[] {
   const { path } = change;
   return change.placeholders.map((one) =>
-    one.form === "pbkdf2"
-      ? m.plug_writes_placeholder_hashed({ path, secret: one.secret })
-      : m.plug_writes_placeholder({ path, secret: one.secret }),
+    m.plug_writes_placeholder({
+      path,
+      secret: one.secret,
+      form: formWords(one),
+    }),
+  );
+}
+
+/** The placeholders one version of a starting file names, a line each, or that it names none. */
+function shippedLines(
+  placeholders: readonly PluginPlaceholder[],
+): readonly string[] {
+  if (placeholders.length === 0) return [m.plug_placeholders_none()];
+  return placeholders.map((one) =>
+    m.plug_placeholder({ secret: one.secret, form: formWords(one) }),
   );
 }
 
@@ -378,13 +383,13 @@ export function updateLines(update: PluginUpdate): readonly string[] {
   return [
     m.plug_update({ plugin: update.plugin, from: update.from, to: update.to }),
     interruptsLine(update.interrupts),
-    ...update.reshipped.map((file) =>
-      m.plug_reshipped({
-        path: file.path,
-        was: placeholdersWord(file.was),
-        becomes: placeholdersWord(file.becomes),
-      }),
-    ),
+    ...update.reshipped.flatMap((file) => [
+      m.plug_reshipped({ path: file.path }),
+      m.plug_reshipped_was(),
+      ...shippedLines(file.was),
+      m.plug_reshipped_becomes(),
+      ...shippedLines(file.becomes),
+    ]),
     ...undoLines(update.went_back),
   ];
 }
