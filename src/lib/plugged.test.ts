@@ -102,7 +102,13 @@ describe("what an install would write", () => {
   it("names a key it writes for one of the plugin's services", () => {
     const keyed: PluginInstall = {
       ...bare,
-      changes: [{ path: "/srv/lemonfiber/plugins/subfetch/key", puts: "key" }],
+      changes: [
+        {
+          path: "/srv/lemonfiber/plugins/subfetch/key",
+          puts: "key",
+          placeholders: [],
+        },
+      ],
     };
     expect(writesLines(keyed)).toStrictEqual([
       m.plug_writes_key({ path: "/srv/lemonfiber/plugins/subfetch/key" }),
@@ -113,7 +119,11 @@ describe("what an install would write", () => {
     const secreted: PluginInstall = {
       ...bare,
       changes: [
-        { path: "/srv/lemonfiber/plugins/subfetch/secrets", puts: "secrets" },
+        {
+          path: "/srv/lemonfiber/plugins/subfetch/secrets",
+          puts: "secrets",
+          placeholders: [],
+        },
       ],
     };
     expect(writesLines(secreted)).toStrictEqual([
@@ -127,10 +137,15 @@ describe("what an install would write", () => {
     const shipped: PluginInstall = {
       ...bare,
       changes: [
-        { path: "/srv/lemonfiber/config/subfetch/app.yml", puts: "starting" },
+        {
+          path: "/srv/lemonfiber/config/subfetch/app.yml",
+          puts: "starting",
+          placeholders: [],
+        },
         {
           path: "/srv/lemonfiber/config/subfetch-adapter/upstream.json",
           puts: "upstream",
+          placeholders: [],
         },
       ],
     };
@@ -147,7 +162,13 @@ describe("what an install would write", () => {
   it("says a change it has no word for as that, and an install writing nothing as that", () => {
     const odd = {
       ...bare,
-      changes: [{ path: "/x", puts: "link" as unknown as "upstream" }],
+      changes: [
+        {
+          path: "/x",
+          puts: "link" as unknown as "upstream",
+          placeholders: [],
+        },
+      ],
     };
     expect(writesLines(odd)).toStrictEqual([
       m.plug_writes_other({ path: "/x" }),

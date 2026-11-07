@@ -69,9 +69,21 @@ export const wouldInstall: PluginInstall = {
   sharing: [],
   waiting: [],
   changes: [
-    { path: "/srv/lemonfiber/plugins/subfetch", puts: "directory" },
-    { path: "/srv/lemonfiber/compose/subfetch.yml", puts: "document" },
-    { path: "/srv/lemonfiber/proxy/routes.conf", puts: "upstream" },
+    {
+      path: "/srv/lemonfiber/plugins/subfetch",
+      puts: "directory",
+      placeholders: [],
+    },
+    {
+      path: "/srv/lemonfiber/compose/subfetch.yml",
+      puts: "document",
+      placeholders: [],
+    },
+    {
+      path: "/srv/lemonfiber/proxy/routes.conf",
+      puts: "upstream",
+      placeholders: [],
+    },
   ],
   overrides: [
     { setting: "bazarr.enabled", why: "It fetches subtitles itself." },
@@ -156,6 +168,7 @@ export const guarding: PluginTaking = {
   shape: "egress-guard",
   grants: ["NET_ADMIN"],
   devices: ["/dev/net/tun"],
+  grouped: false,
   approval: "egress-guard@tunnel",
 };
 
@@ -232,6 +245,7 @@ export const wouldUpdate: PluginUpdate = {
   interrupts: ["subfetch"],
   install: wouldInstall,
   went_back: { rehearsed: true, reversed: [], left: [] },
+  reshipped: [],
 };
 
 /** What removing the fetcher would come to. */

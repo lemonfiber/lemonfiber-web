@@ -57,6 +57,10 @@ function reversalWords(action: Reversal): string {
       return m.came_undo_rename_back();
     case "unreplaced":
       return m.came_undo_unreplaced();
+    case "reseed":
+      return m.came_undo_reseed();
+    case "unmoved":
+      return m.came_undo_unmoved();
     case "run":
       return action.running ? m.came_undo_run_start() : m.came_undo_run_stop();
     default:
