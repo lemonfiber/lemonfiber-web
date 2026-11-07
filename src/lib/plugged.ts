@@ -80,6 +80,38 @@ function said(value: string | null | undefined): value is string {
   return value !== undefined && value !== null && value !== "";
 }
 
+/** One placeholder a starting file names a secret by. */
+type PluginPlaceholder = PluginChange["placeholders"][number];
+
+/** The form a placeholder writes its secret's value in, in words. */
+function formWords(placeholder: PluginPlaceholder): string {
+  return placeholder.form === "pbkdf2"
+    ? m.plug_placeholder_form_pbkdf2()
+    : m.plug_placeholder_form_plain();
+}
+
+/** What a starting file has put into it where it names a secret, a line each. */
+function placeholderLines(change: PluginChange): readonly string[] {
+  const { path } = change;
+  return change.placeholders.map((one) =>
+    m.plug_writes_placeholder({
+      path,
+      secret: one.secret,
+      form: formWords(one),
+    }),
+  );
+}
+
+/** The placeholders one version of a starting file names, a line each, or that it names none. */
+function shippedLines(
+  placeholders: readonly PluginPlaceholder[],
+): readonly string[] {
+  if (placeholders.length === 0) return [m.plug_placeholders_none()];
+  return placeholders.map((one) =>
+    m.plug_placeholder({ secret: one.secret, form: formWords(one) }),
+  );
+}
+
 /** One change an install makes, in a line naming where it lands. */
 function changeLine(change: PluginChange): string {
   const { path } = change;
@@ -107,7 +139,10 @@ function changeLine(change: PluginChange): string {
  * contested.
  */
 export function writesLines(install: PluginInstall): readonly string[] {
-  const lines = install.changes.map((change) => changeLine(change));
+  const lines = install.changes.flatMap((change) => [
+    changeLine(change),
+    ...placeholderLines(change),
+  ]);
   for (const one of install.overrides) {
     lines.push(m.plug_overrides({ setting: one.setting, why: one.why }));
   }
@@ -265,7 +300,8 @@ export function pairLines(pair: PluginPair): readonly string[] {
 
 /**
  * One service taking a privileged shape, in lines: the shape, each kernel
- * capability and device it is given, and what approving it is written as.
+ * capability and device it is given, whether it joins the group owning those
+ * devices, and what approving it is written as.
  */
 export function takingLines(taking: PluginTaking): readonly string[] {
   const { service } = taking;
@@ -280,6 +316,7 @@ export function takingLines(taking: PluginTaking): readonly string[] {
       m.plug_taking_devices({ service, devices: listed(taking.devices) }),
     );
   }
+  if (taking.grouped) lines.push(m.plug_taking_grouped({ service }));
   lines.push(m.plug_approval({ approval: taking.approval }));
   return lines;
 }
@@ -338,13 +375,21 @@ function interruptsLine(interrupts: readonly string[]): string {
 
 /**
  * What an update would come to beyond the new version's own install: the
- * versions on either side, what stops, and what putting the old version's
- * changes back would come to.
+ * versions on either side, what stops, each starting file whose placeholders
+ * the new version changes, and what putting the old version's changes back
+ * would come to.
  */
 export function updateLines(update: PluginUpdate): readonly string[] {
   return [
     m.plug_update({ plugin: update.plugin, from: update.from, to: update.to }),
     interruptsLine(update.interrupts),
+    ...update.reshipped.flatMap((file) => [
+      m.plug_reshipped({ path: file.path }),
+      m.plug_reshipped_was(),
+      ...shippedLines(file.was),
+      m.plug_reshipped_becomes(),
+      ...shippedLines(file.becomes),
+    ]),
     ...undoLines(update.went_back),
   ];
 }
