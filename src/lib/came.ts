@@ -246,6 +246,7 @@ type Bare = Exclude<
   | "refused"
   | "unmatched"
   | "restarted"
+  | "kept"
 >;
 
 /**
@@ -311,6 +312,8 @@ function ownLine(wiring: Wired): string | undefined {
       return m.came_wiring_refused({ connection, reason: state.reason });
     case "unmatched":
       return m.came_wiring_unmatched({ connection, reason: state.reason });
+    case "kept":
+      return m.came_wiring_kept({ connection, path: state.path });
     case "drifted":
     case "stale":
     case "wired":

@@ -322,6 +322,13 @@ describe("what wiring the programs to each other came to", () => {
         service: "sonarr",
       }),
     ],
+    [
+      { state: "kept", path: "recyclarr/recyclarr.yml" },
+      m.came_wiring_kept({
+        connection: "SABnzbd into Sonarr",
+        path: "recyclarr/recyclarr.yml",
+      }),
+    ],
   ] as const)("says why %j, in the words given", (state, words) => {
     expect(seeded({ wirings: [wiring(state)] })).toStrictEqual([words]);
   });
@@ -614,6 +621,17 @@ describe("what putting the last repair back came to", () => {
       m.came_undo_rename_back(),
     ],
     [{ does: "unreplaced", service: "jellyfin" }, m.came_undo_unreplaced()],
+    [
+      {
+        does: "reseed",
+        path: "config/settings.yml",
+        plugin: "subfetch",
+        secret: "api_key",
+        written: 7,
+      },
+      m.came_undo_reseed(),
+    ],
+    [{ does: "unmoved", service: "gluetun" }, m.came_undo_unmoved()],
     [
       { does: "run", service: "sonarr", running: true },
       m.came_undo_run_start(),
