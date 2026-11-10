@@ -175,18 +175,18 @@ describe("what each asking sends", () => {
     expect(
       givenForTend({
         doing: "household-approve",
-        request: 44,
+        request: "44",
         title: "A film",
       }),
-    ).toStrictEqual({ request: 44 });
+    ).toStrictEqual({ request: "44" });
     expect(
       givenForTend({
         doing: "household-decline",
-        request: 44,
+        request: "44",
         title: "A film",
         reason: "We have it on disc.",
       }),
-    ).toStrictEqual({ request: 44, reason: "We have it on disc." });
+    ).toStrictEqual({ request: "44", reason: "We have it on disc." });
   });
 });
 
@@ -208,7 +208,7 @@ describe("what is asked before anything is sent", () => {
     expect(
       questionOfTend({
         doing: "household-approve",
-        request: 44,
+        request: "44",
         title: "A film",
       }),
     ).toBeUndefined();
@@ -221,8 +221,8 @@ describe("what is asked before anything is sent", () => {
     expect(sameTend(undefined, kit)).toBe(false);
     expect(
       sameTend(
-        { doing: "household-approve", request: 44, title: "A film" },
-        { doing: "household-approve", request: 41, title: "Andor" },
+        { doing: "household-approve", request: "44", title: "A film" },
+        { doing: "household-approve", request: "41", title: "Andor" },
       ),
     ).toBe(true);
     expect(sameTend(kit, { doing: "invite", name: "Kit", terms: open })).toBe(

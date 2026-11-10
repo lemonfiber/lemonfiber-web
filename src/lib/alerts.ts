@@ -9,6 +9,7 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
 /** What the operator is told about. */
@@ -16,6 +17,36 @@ export type Alerts = ByKind["alerts"]["data"];
 
 /** One kind of event set apart from the preset. */
 export type Exception = Alerts["exceptions"][number];
+
+/** What sort of thing an alert tells the operator. */
+export type Notification = Alerts["kinds"][number];
+
+/** What sort of thing an alert tells, in a few words. */
+function notificationWords(kind: Notification): string {
+  switch (kind) {
+    case "problem":
+      return m.alerts_kind_problem();
+    case "completion":
+      return m.alerts_kind_completion();
+    case "update":
+      return m.alerts_kind_update();
+    case "backup":
+      return m.alerts_kind_backup();
+    case "request":
+      return m.alerts_kind_request();
+    case "member":
+      return m.alerts_kind_member();
+    default:
+      return m.alerts_kind_other();
+  }
+}
+
+/** Which sorts of thing this stack tells about as it is set up, in a sentence. */
+export function raisedLine(alerts: Alerts): string {
+  return alerts.kinds.length === 0
+    ? m.alerts_raised_none()
+    : m.alerts_raised({ kinds: listed(alerts.kinds.map(notificationWords)) });
+}
 
 /** The preset in force and what it means, line by line. */
 export function presetLines(alerts: Alerts): readonly string[] {

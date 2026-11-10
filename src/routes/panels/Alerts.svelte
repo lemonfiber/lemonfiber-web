@@ -4,7 +4,12 @@
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
-  import { exceptionLine, presetLines, type Alerts } from "../../lib/alerts";
+  import {
+    exceptionLine,
+    presetLines,
+    raisedLine,
+    type Alerts,
+  } from "../../lib/alerts";
   import type { Freshness } from "../../lib/freshness";
   import * as m from "../../paraglide/messages.js";
 
@@ -25,7 +30,8 @@
 
 <!--
   What the operator is told about: the preset in force and what it means, in
-  lemonfiber's words, and each kind of event set apart from it. Nothing here
+  lemonfiber's words, which sorts of thing the stack tells about as it is set
+  up, and each kind of event set apart from it. Nothing here
   changes what is told.
 -->
 <Panel title={m.panel_alerts()} {freshness} flush>
@@ -39,6 +45,7 @@
       {#each presetLines(told) as line, at (at)}
         <p>{line}</p>
       {/each}
+      <p>{raisedLine(told)}</p>
       {#if told.exceptions.length === 0}
         <p><Said text={m.alerts_none()} /></p>
       {/if}

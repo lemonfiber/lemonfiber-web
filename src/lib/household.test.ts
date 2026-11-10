@@ -56,7 +56,7 @@ describe("where a request stands", () => {
 
   it("reads a request's own state", () => {
     expect(
-      standingOf({ id: 1, title: "Arrival", media: "film", state: "here" }),
+      standingOf({ id: "1", title: "Arrival", media: "film", state: "here" }),
     ).toBe(m.request_state_here());
   });
 
@@ -64,9 +64,9 @@ describe("where a request stands", () => {
   // the nearest word it does have.
   it("says so where the request service named a state this build does not know", () => {
     expect(
-      standingOf({ id: 2, title: "Arrival", media: "film", state: null }),
+      standingOf({ id: "2", title: "Arrival", media: "film", state: null }),
     ).toBe(m.request_state_unrecognised());
-    expect(standingOf({ id: 3 })).toBe(m.request_state_unrecognised());
+    expect(standingOf({ id: "3" })).toBe(m.request_state_unrecognised());
   });
 
   // The wire version is one number and the vocabulary under it grows, so the
@@ -75,7 +75,7 @@ describe("where a request stands", () => {
   it("says the same where the state is a word rather than nothing", () => {
     expect(
       standingOf({
-        id: 4,
+        id: "4",
         title: "Arrival",
         media: "film",
         state: unnamedState,
@@ -89,7 +89,7 @@ describe("where a request stands", () => {
 
 describe("what to call a request", () => {
   it("uses the title where a service has been told one", () => {
-    expect(nameOfRequest({ id: 5, title: "Andor", media: "series" })).toBe(
+    expect(nameOfRequest({ id: "5", title: "Andor", media: "series" })).toBe(
       "Andor",
     );
   });
@@ -97,13 +97,13 @@ describe("what to call a request", () => {
   // A request no service holds yet has no title to show, so naming it by what
   // it is keeps the row honest.
   it("names an untitled request by what it is", () => {
-    expect(nameOfRequest({ id: 6, title: null, media: "film" })).toBe(
+    expect(nameOfRequest({ id: "6", title: null, media: "film" })).toBe(
       m.request_a_kind({ media: "film" }),
     );
   });
 
   it("names one that is neither by neither", () => {
-    expect(nameOfRequest({ id: 7, title: null, media: null })).toBe(
+    expect(nameOfRequest({ id: "7", title: null, media: null })).toBe(
       m.request_unnamed(),
     );
   });
@@ -111,7 +111,7 @@ describe("what to call a request", () => {
 
 describe("the kind set beside the name", () => {
   it("says the kind where the name is a title", () => {
-    expect(kindOfRequest({ id: 8, title: "Andor", media: "series" })).toBe(
+    expect(kindOfRequest({ id: "8", title: "Andor", media: "series" })).toBe(
       "series",
     );
   });
@@ -119,13 +119,13 @@ describe("the kind set beside the name", () => {
   // The name is already the kind, and saying it twice says nothing.
   it("says nothing where the name is already the kind", () => {
     expect(
-      kindOfRequest({ id: 9, title: null, media: "film" }),
+      kindOfRequest({ id: "9", title: null, media: "film" }),
     ).toBeUndefined();
   });
 
   it("says nothing where the request service named no kind", () => {
     expect(
-      kindOfRequest({ id: 10, title: "Andor", media: null }),
+      kindOfRequest({ id: "10", title: "Andor", media: null }),
     ).toBeUndefined();
   });
 });
@@ -399,15 +399,15 @@ describe("what is waiting on the operator", () => {
     name: "Kit",
     requests: [
       {
-        id: 44,
+        id: "44",
         title: null,
         media: "film",
         state: "waiting-for-approval",
         waiting_days: 6,
       },
-      { id: 43, title: "Some Film", media: "film", state: "failed" },
-      { id: 41, title: "Arrival", media: "film", state: "here" },
-      { id: 29, title: "An Older Thing", media: null, state: null },
+      { id: "43", title: "Some Film", media: "film", state: "failed" },
+      { id: "41", title: "Arrival", media: "film", state: "here" },
+      { id: "29", title: "An Older Thing", media: null, state: null },
     ],
   });
 

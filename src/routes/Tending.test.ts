@@ -290,7 +290,7 @@ describe("what waits on the operator, for each person", () => {
 
     expect(onask).toHaveBeenCalledWith({
       doing: "household-approve",
-      request: 44,
+      request: "44",
       title,
     });
   });
@@ -319,7 +319,7 @@ describe("what waits on the operator, for each person", () => {
 
     expect(onask).toHaveBeenCalledWith({
       doing: "household-decline",
-      request: 44,
+      request: "44",
       title,
       reason: "We have it on disc.",
     });

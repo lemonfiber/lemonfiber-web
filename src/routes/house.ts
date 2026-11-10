@@ -6,7 +6,7 @@
  * written once here so the two cannot drift, and written against the generated
  * contract rather than invented.
  */
-import type { Door, House, Household } from "../lib/wire";
+import type { Door, House, Household, Member } from "../lib/wire";
 
 /**
  * Where the front door is reached, assembled rather than written.
@@ -52,6 +52,59 @@ export const frontDoor: Door = {
 export const noRequestService =
   "The request service is not answering, so what the house asked for could not be read.";
 
+/**
+ * What Kit asked for that nobody in the house can move: one waiting on the
+ * operator, and one that failed after it was let through.
+ */
+export const kitsWaiting: Member["requests"] = [
+  {
+    id: "44",
+    title: null,
+    media: "film",
+    state: "waiting-for-approval",
+    waiting_days: 6,
+  },
+  {
+    id: "43",
+    title: "Some Film Nobody Filed",
+    media: "film",
+    state: "failed",
+  },
+];
+
+/** Kit, held to a rating and to two libraries, nearly out of what they may ask for. */
+export const kitInTheHouse: Member = {
+  name: "Kit",
+  claimed: true,
+  standing: "active",
+  last_seen: "2026-08-24T19:02:41Z",
+  access: {
+    administrator: false,
+    age_limit: 12,
+    disabled: false,
+    every_library: false,
+    libraries: ["Films", "Series"],
+    rated: { allows: ["U", "PG"], holds_back: ["12A"], fell_back: false },
+    restriction: "both",
+    unrated: "held-back",
+  },
+  asking: {
+    films: { used: 4, limit: 5, remaining: 1, period: "a month" },
+    television: { used: 3, limit: 5, remaining: 2, period: "a month" },
+    frees_up: "2026-09-14T00:00:00Z",
+    policy: "within-a-limit",
+    standing: "near-quota",
+  },
+  requests: [
+    ...kitsWaiting,
+    { id: "29", title: "An Older Thing", media: null, state: null },
+    { id: "22", title: null, media: null, state: "declined" },
+  ],
+  to_hand_over: [
+    "What you ask for waits for an answer. Four of the five films this month are spent.",
+  ],
+};
+
 /** What the house has asked for, and what each of them may watch. */
 export const household: Household = {
   rehearsed: false,
@@ -85,55 +138,18 @@ export const household: Household = {
         standing: "unlimited",
       },
       requests: [
-        { id: 41, title: "The Expanse", media: "series", state: "partly-here" },
-        { id: 38, title: "Arrival", media: "film", state: "here" },
-        { id: 36, title: "Andor", media: "series", state: "getting" },
+        {
+          id: "41",
+          title: "The Expanse",
+          media: "series",
+          state: "partly-here",
+        },
+        { id: "38", title: "Arrival", media: "film", state: "here" },
+        { id: "36", title: "Andor", media: "series", state: "getting" },
       ],
       to_hand_over: [],
     },
-    {
-      name: "Kit",
-      claimed: true,
-      standing: "active",
-      last_seen: "2026-08-24T19:02:41Z",
-      access: {
-        administrator: false,
-        age_limit: 12,
-        disabled: false,
-        every_library: false,
-        libraries: ["Films", "Series"],
-        rated: { allows: ["U", "PG"], holds_back: ["12A"], fell_back: false },
-        restriction: "both",
-        unrated: "held-back",
-      },
-      asking: {
-        films: { used: 4, limit: 5, remaining: 1, period: "a month" },
-        television: { used: 3, limit: 5, remaining: 2, period: "a month" },
-        frees_up: "2026-09-14T00:00:00Z",
-        policy: "within-a-limit",
-        standing: "near-quota",
-      },
-      requests: [
-        {
-          id: 44,
-          title: null,
-          media: "film",
-          state: "waiting-for-approval",
-          waiting_days: 6,
-        },
-        {
-          id: 43,
-          title: "Some Film Nobody Filed",
-          media: "film",
-          state: "failed",
-        },
-        { id: 29, title: "An Older Thing", media: null, state: null },
-        { id: 22, title: null, media: null, state: "declined" },
-      ],
-      to_hand_over: [
-        "What you ask for waits for an answer. Four of the five films this month are spent.",
-      ],
-    },
+    kitInTheHouse,
     {
       name: "Nour",
       claimed: false,

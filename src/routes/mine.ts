@@ -6,7 +6,7 @@
  * against the generated contract rather than invented, and set in the household
  * the console's fixtures describe.
  */
-import { household } from "./house";
+import { household, kitInTheHouse, kitsWaiting } from "./house";
 import type { Household, Member } from "../lib/wire";
 import type { PartWays } from "../lib/partway";
 import type { Told } from "../lib/title";
@@ -17,47 +17,17 @@ export const kitsId = "b41c9e";
 
 /** The member signed in: held to a rating and to two libraries, nearly out. */
 export const kit: Member = {
-  name: "Kit",
-  claimed: true,
-  standing: "active",
-  last_seen: "2026-08-24T19:02:41Z",
-  access: {
-    administrator: false,
-    age_limit: 12,
-    disabled: false,
-    every_library: false,
-    libraries: ["Films", "Series"],
-    rated: { allows: ["U", "PG"], holds_back: ["12A"], fell_back: false },
-    restriction: "both",
-    unrated: "held-back",
-  },
-  asking: {
-    films: { used: 4, limit: 5, remaining: 1, period: "a month" },
-    television: { used: 3, limit: 5, remaining: 2, period: "a month" },
-    frees_up: "2026-09-14T00:00:00Z",
-    policy: "within-a-limit",
-    standing: "near-quota",
-  },
+  ...kitInTheHouse,
   requests: [
+    ...kitsWaiting,
     {
-      id: 44,
-      title: null,
-      media: "film",
-      state: "waiting-for-approval",
-      waiting_days: 6,
-    },
-    { id: 43, title: "Some Film Nobody Filed", media: "film", state: "failed" },
-    {
-      id: 22,
+      id: "22",
       title: "Something Turned Down",
       media: "film",
       state: "declined",
       refused: { reason: "Not this one, it is too late in the evening." },
     },
-    { id: 12, title: "Andor", media: "series", state: "here" },
-  ],
-  to_hand_over: [
-    "What you ask for waits for an answer. Four of the five films this month are spent.",
+    { id: "12", title: "Andor", media: "series", state: "here" },
   ],
 };
 

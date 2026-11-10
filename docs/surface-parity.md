@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 84 kinds of answer, and this console reads 65 of them.
-Another surface can make 68 requests of the stack, and this console offers 52 of
-them. 2 kinds and 2 requests are offered elsewhere by rule, and 17 kinds and 14
+The client carries 91 kinds of answer, and this console reads 65 of them.
+Another surface can make 72 requests of the stack, and this console offers 52 of
+them. 2 kinds and 2 requests are offered elsewhere by rule, and 24 kinds and 18
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -47,7 +47,8 @@ asks for an action by whatever name it is handed, so the suite lists them as
 lemonfiber's action table names them, with the setup walk, serving this
 surface, replacing the certificate a paired phone pins, and minting, listing
 and revoking keys, minting one as a claim and collecting it, and registering,
-challenging, listing and revoking device keys beside them. A request lemonfiber adds is caught there only
+challenging, listing and revoking device keys, and registering, listing and
+removing push endpoints beside them. A request lemonfiber adds is caught there only
 where it answers with a kind the contract did not have before.
 
 ## Kinds read here
@@ -57,7 +58,7 @@ where it answers with a kind the contract did not have before.
 | `admission`    | the door a password opens                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `adoption`     | the checks: what adopting a setup already here would come to, the project, what to back up first and every database a newer version would upgrade, then where the backup went                                                                                                                                                                                                                                                                                                            |
 | `alert`        | every screen: an alert the moment the stream says it started or ended, over whatever is open, with what it means and what to do, until it is put away                                                                                                                                                                                                                                                                                                                                    |
-| `alerts`       | the settings: the preset in force for what the operator is told about and what it means, and each kind of event set apart from it                                                                                                                                                                                                                                                                                                                                                        |
+| `alerts`       | the settings: the preset in force for what the operator is told about and what it means, which sorts of thing the stack tells about as it is set up, and each kind of event set apart from it                                                                                                                                                                                                                                                                                            |
 | `archives`     | the disk: the backups this machine keeps                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | `backup`       | the disk: where a backup was written, and what it covers, under its record                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `bandwidth`    | the settings: where the line stands, what that means, each limit, and what each download client is doing about it                                                                                                                                                                                                                                                                                                                                                                        |
@@ -129,25 +130,32 @@ where it answers with a kind the contract did not have before.
 
 ## Kinds not read yet
 
-| Kind               | Feature  | What it is                                                                                                                                          |
-| ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `askable`          | D4       | Searching and asking: what a member's search found, under their own limits                                                                          |
-| `asked`            | D4       | Searching and asking: what a member's ask came to                                                                                                   |
-| `capabilities`     | ARCH-R78 | What this copy of lemonfiber can do, each named by the path it is served at                                                                         |
-| `certificate`      | N1       | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint                                            |
-| `device-challenge` | C10      | Integration keys: a fresh challenge for a registered device key, good for one mint within a minute                                                  |
-| `device-key`       | C10      | Integration keys: a device key just registered, its fingerprint and where it lives                                                                  |
-| `device-keys`      | C10      | Integration keys: every device key, its backing, when it was registered and last used                                                               |
-| `front-door`       | G5       | The front door, asked for on its own                                                                                                                |
-| `grant`            | D11      | Watching what the house holds: a grant to play on the member's own account, which a member's paired client asks for the device it plays on          |
-| `key-claim`        | C10      | Integration keys: a key minted as a claim, its link and when it lapses, drawn once as a code                                                        |
-| `music`            | D2       | Quality presets: the music format                                                                                                                   |
-| `news`             | N27      | What's new: the newest of each kind, from the stream                                                                                                |
-| `news-items`       | N27      | What's new: everything newer than what was last seen, asked for                                                                                     |
-| `removal`          | D6       | Household identity: somebody taken out of the household                                                                                             |
-| `reset`            | C9       | Drift: what a full reset would revert                                                                                                               |
-| `watched`          | D11      | Watching what the house holds: what handing a member's progress through a title to the media server came to                                         |
-| `word`             | G2       | Plain language: what one word means, asked alone; the console explains every term from the glossary it reads whole, so it asks about no single word |
+| Kind               | Feature   | What it is                                                                                                                                                     |
+| ------------------ | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `askable`          | D4        | Searching and asking: what a member's search found, under their own limits                                                                                     |
+| `askable-kinds`    | D4        | Searching and asking: which kinds a member may ask for now, and the units a title of each is asked for in                                                      |
+| `asked`            | D4        | Searching and asking: what a member's ask came to                                                                                                              |
+| `boot`             | B8        | Starting with the machine: when this machine last started, what the check after it came to, and since when and for how many starts the stack has not come back |
+| `capabilities`     | ARCH-R78  | What this copy of lemonfiber can do, each named by the path it is served at                                                                                    |
+| `certificate`      | N1        | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint                                                       |
+| `device-challenge` | C10       | Integration keys: a fresh challenge for a registered device key, good for one mint within a minute                                                             |
+| `device-key`       | C10       | Integration keys: a device key just registered, its fingerprint and where it lives                                                                             |
+| `device-keys`      | C10       | Integration keys: every device key, its backing, when it was registered and last used                                                                          |
+| `front-door`       | G5        | The front door, asked for on its own                                                                                                                           |
+| `grant`            | D11       | Watching what the house holds: a grant to play on the member's own account, which a member's paired client asks for the device it plays on                     |
+| `key-claim`        | C10       | Integration keys: a key minted as a claim, its link and when it lapses, drawn once as a code                                                                   |
+| `music`            | D2        | Quality presets: the music format                                                                                                                              |
+| `news`             | N27       | What's new: the newest of each kind, from the stream                                                                                                           |
+| `news-items`       | N27       | What's new: everything newer than what was last seen, asked for                                                                                                |
+| `push-endpoint`    | ARCH-R282 | Waking a phone: a push endpoint just registered, its name and the address its distributor gave                                                                 |
+| `push-endpoints`   | ARCH-R282 | Waking a phone: every push endpoint in the order they were registered, and which one a removal took                                                            |
+| `queue`            | H5        | Queue self-healing: whether healing acts, every unhealthy download with its strikes and why, and what the next run would do to it                              |
+| `removal`          | D6        | Household identity: somebody taken out of the household                                                                                                        |
+| `reset`            | C9        | Drift: what a full reset would revert                                                                                                                          |
+| `stack`            | F1        | Customisation: how the stack runs without lemonfiber, the operator's alone                                                                                     |
+| `watched`          | D11       | Watching what the house holds: what handing a member's progress through a title to the media server came to                                                    |
+| `watcher`          | K2        | Uptime monitoring: which plugin watches the stack from outside, whether it answers, what each monitor sees, and what no monitor covers                         |
+| `word`             | G2        | Plain language: what one word means, asked alone; the console explains every term from the glossary it reads whole, so it asks about no single word            |
 
 One of these waits on lemonfiber rather than on this surface: no endpoint
 answers with `certificate`, so nothing here could read it.
@@ -239,19 +247,23 @@ asks for any, naming it.
 
 ## Requests not offered yet
 
-| Request                 | Feature | What it is                                                                                                                       |
-| ----------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `quality-set`           | D2      | Quality presets: choose one; the reading names no presets to choose from                                                         |
-| `reset`                 | C9      | Drift: revert every edit to lemonfiber's own state                                                                               |
-| `remove`                | D6      | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes                   |
-| `grant`                 | D11     | Watching what the house holds: a grant to play, which a member's paired client asks for the device it plays on                   |
-| `watched`               | D11     | Watching what the house holds: how far through a title a member is, handed to the media server from a paired client              |
-| `ask`                   | D4      | Searching and asking: a member asks for a title their search found, under their own limits                                       |
-| `companion-certificate` | N1      | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only                         |
-| `key-claim`             | C10     | Integration keys: mint a key as a claim, answered with the link a program collects it with, shown once as a link and a code      |
-| `device-key-register`   | C10     | Integration keys: register a phone's hardware key with its platform's attestation of where it lives, which a browser cannot give |
-| `device-key-challenge`  | C10     | Integration keys: a challenge a registered device key signs to prove the operator for one mint                                   |
-| `device-key-list`       | C10     | Integration keys: every device key, by name, fingerprint, backing, registration and last use                                     |
-| `device-key-revoke`     | C10     | Integration keys: revoke one device key by name, with effect at its next challenge                                               |
-| `plugin-prove`          | F14     | Plugins: run a plugin's live proof again; a pass clears what it was recorded as failing                                          |
-| `plugin-run`            | F8      | Plugins: run one of a plugin's recipes by name, with its own rehearsal, offer and approvals                                      |
+| Request                        | Feature   | What it is                                                                                                                       |
+| ------------------------------ | --------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `quality-set`                  | D2        | Quality presets: choose one; the reading names no presets to choose from                                                         |
+| `reset`                        | C9        | Drift: revert every edit to lemonfiber's own state                                                                               |
+| `remove`                       | D6        | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes                   |
+| `grant`                        | D11       | Watching what the house holds: a grant to play, which a member's paired client asks for the device it plays on                   |
+| `watched`                      | D11       | Watching what the house holds: how far through a title a member is, handed to the media server from a paired client              |
+| `ask`                          | D4        | Searching and asking: a member asks for a title their search found, under their own limits                                       |
+| `companion-certificate`        | N1        | Companion app: replace the certificate a paired phone pins; lemonfiber takes it at the command line only                         |
+| `key-claim`                    | C10       | Integration keys: mint a key as a claim, answered with the link a program collects it with, shown once as a link and a code      |
+| `device-key-register`          | C10       | Integration keys: register a phone's hardware key with its platform's attestation of where it lives, which a browser cannot give |
+| `device-key-challenge`         | C10       | Integration keys: a challenge a registered device key signs to prove the operator for one mint                                   |
+| `device-key-list`              | C10       | Integration keys: every device key, by name, fingerprint, backing, registration and last use                                     |
+| `device-key-revoke`            | C10       | Integration keys: revoke one device key by name, with effect at its next challenge                                               |
+| `push-endpoint-register`       | ARCH-R282 | Waking a phone: register a push endpoint by name, with its `https` address and the keys a wake is encrypted to                   |
+| `push-endpoint-list`           | ARCH-R282 | Waking a phone: every push endpoint, by name, address and when it was registered                                                 |
+| `push-endpoint-remove`         | ARCH-R282 | Waking a phone: remove one push endpoint by name                                                                                 |
+| `plugin-prove`                 | F14       | Plugins: run a plugin's live proof again; a pass clears what it was recorded as failing                                          |
+| `plugin-run`                   | F8        | Plugins: run one of a plugin's recipes by name, with its own rehearsal, offer and approvals                                      |
+| `internal-certificate-replace` | ARCH-R354 | Credentials: replace the media server's internal certificate, read first, then replaced on a yes naming that reading             |

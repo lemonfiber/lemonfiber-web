@@ -387,7 +387,7 @@ function sinceOf(request: Asked): string | undefined {
 export function waitingOn(members: readonly Person[]): readonly Outstanding[] {
   return members.flatMap((member) =>
     member.requests.filter(waits).map((request): Outstanding => ({
-      key: `${member.name}:${String(request.id)}`,
+      key: `${member.name}:${request.id}`,
       who: member.name,
       what: nameOfRequest(request),
       kind: kindOfRequest(request),

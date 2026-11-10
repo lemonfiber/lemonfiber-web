@@ -67,7 +67,7 @@
   function rows(member: Member): readonly Row[] {
     return member.requests.map((request): Row => ({
       kind: "answered",
-      key: String(request.id),
+      key: request.id,
       cells: [
         {
           kind: "words",
