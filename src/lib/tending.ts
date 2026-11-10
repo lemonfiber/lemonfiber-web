@@ -126,13 +126,13 @@ export type Tend =
   /** One request let through. */
   | {
       readonly doing: "household-approve";
-      readonly request: number;
+      readonly request: string;
       readonly title: string;
     }
   /** One request turned down, and why. */
   | {
       readonly doing: "household-decline";
-      readonly request: number;
+      readonly request: string;
       readonly title: string;
       readonly reason: string;
     }

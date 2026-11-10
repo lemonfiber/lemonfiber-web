@@ -85,9 +85,14 @@ export const household: Household = {
         standing: "unlimited",
       },
       requests: [
-        { id: 41, title: "The Expanse", media: "series", state: "partly-here" },
-        { id: 38, title: "Arrival", media: "film", state: "here" },
-        { id: 36, title: "Andor", media: "series", state: "getting" },
+        {
+          id: "41",
+          title: "The Expanse",
+          media: "series",
+          state: "partly-here",
+        },
+        { id: "38", title: "Arrival", media: "film", state: "here" },
+        { id: "36", title: "Andor", media: "series", state: "getting" },
       ],
       to_hand_over: [],
     },
@@ -115,20 +120,20 @@ export const household: Household = {
       },
       requests: [
         {
-          id: 44,
+          id: "44",
           title: null,
           media: "film",
           state: "waiting-for-approval",
           waiting_days: 6,
         },
         {
-          id: 43,
+          id: "43",
           title: "Some Film Nobody Filed",
           media: "film",
           state: "failed",
         },
-        { id: 29, title: "An Older Thing", media: null, state: null },
-        { id: 22, title: null, media: null, state: "declined" },
+        { id: "29", title: "An Older Thing", media: null, state: null },
+        { id: "22", title: null, media: null, state: "declined" },
       ],
       to_hand_over: [
         "What you ask for waits for an answer. Four of the five films this month are spent.",

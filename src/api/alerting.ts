@@ -16,6 +16,7 @@ export const alerts: Alerts = {
     { kind: "disk-filling", wanted: true },
     { kind: "update-available", wanted: false },
   ],
+  kinds: ["problem", "completion", "update", "backup"],
   changed: false,
   rehearsed: false,
 };

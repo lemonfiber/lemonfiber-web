@@ -258,7 +258,7 @@ describe("what kind of thing a holding is", () => {
 });
 
 describe("what is said beneath where a request stands", () => {
-  const request: Request = { id: 1, title: "Arrival", media: "film" };
+  const request: Request = { id: "1", title: "Arrival", media: "film" };
 
   // They are told it did not work and that the operator has been told, and
   // nothing of the stack's own account of why.

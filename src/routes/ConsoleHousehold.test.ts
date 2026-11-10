@@ -151,7 +151,7 @@ describe("running the household from the requests screen", () => {
     expect(sent.posted).toStrictEqual([
       {
         at: "/api/actions/household-approve",
-        body: JSON.stringify({ request: 44 }),
+        body: JSON.stringify({ request: "44" }),
       },
     ]);
     expect(

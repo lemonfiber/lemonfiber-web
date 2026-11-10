@@ -53,6 +53,7 @@ type Feature =
   | "A7"
   | "B2"
   | "B5"
+  | "B8"
   | "B10"
   | "C1"
   | "C3"
@@ -75,6 +76,7 @@ type Feature =
   | "E2"
   | "E3"
   | "E4"
+  | "F1"
   | "F2"
   | "F4"
   | "F8"
@@ -83,10 +85,14 @@ type Feature =
   | "G5"
   | "G6"
   | "G8"
+  | "H5"
+  | "K2"
   | "N1"
   | "N27"
   | "ARCH-R78"
-  | "ARCH-R156";
+  | "ARCH-R156"
+  | "ARCH-R282"
+  | "ARCH-R354";
 
 /**
  * Every request another surface can make of the stack.
@@ -96,7 +102,8 @@ type Feature =
  * then replacing the certificate a paired phone pins, which only the command
  * line offers, then minting, listing and revoking keys, minting one as a claim
  * and collecting it, then registering, challenging, listing and revoking device
- * keys, which the core serves at routes of their own.
+ * keys, then registering, listing and removing push endpoints, which the core
+ * serves at routes of their own.
  */
 const EVERY_REQUEST = [
   "up",
@@ -155,6 +162,7 @@ const EVERY_REQUEST = [
   "plugin-prove",
   "plugin-run",
   "credentials-revoke",
+  "internal-certificate-replace",
   "setup",
   "ui",
   "companion-certificate",
@@ -167,6 +175,9 @@ const EVERY_REQUEST = [
   "device-key-challenge",
   "device-key-list",
   "device-key-revoke",
+  "push-endpoint-register",
+  "push-endpoint-list",
+  "push-endpoint-remove",
 ] as const;
 
 /** One request another surface can make. */
@@ -386,8 +397,12 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "device-key-challenge": "C10",
   "device-key-list": "C10",
   "device-key-revoke": "C10",
+  "push-endpoint-register": "ARCH-R282",
+  "push-endpoint-list": "ARCH-R282",
+  "push-endpoint-remove": "ARCH-R282",
   "plugin-prove": "F14",
   "plugin-run": "F8",
+  "internal-certificate-replace": "ARCH-R354",
 };
 
 /** Kinds something the page imports reads. */
@@ -482,7 +497,9 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   askable: "D4",
+  "askable-kinds": "D4",
   asked: "D4",
+  boot: "B8",
   capabilities: "ARCH-R78",
   certificate: "N1",
   "device-challenge": "C10",
@@ -494,9 +511,14 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   music: "D2",
   news: "N27",
   "news-items": "N27",
+  "push-endpoint": "ARCH-R282",
+  "push-endpoints": "ARCH-R282",
+  queue: "H5",
   removal: "D6",
   reset: "C9",
+  stack: "F1",
   watched: "D11",
+  watcher: "K2",
   word: "G2",
 };
 

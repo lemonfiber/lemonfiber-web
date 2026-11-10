@@ -84,8 +84,8 @@ export interface Arguments {
   readonly requests?: number;
   /** How many days a period lasts. */
   readonly days?: number;
-  /** The request ruled on, by its number. */
-  readonly request?: number;
+  /** The request ruled on, by the reference the household list names it with. */
+  readonly request?: string;
   /** Why a request is turned down, for the person who asked. */
   readonly reason?: string;
   /** How much of the line downloads may take, as it was typed. */

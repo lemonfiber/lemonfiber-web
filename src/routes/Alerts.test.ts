@@ -3,7 +3,12 @@ import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import Settings from "./Settings.svelte";
 import { alerts } from "../api/alerting";
-import { exceptionLine, presetLines, type Alerts } from "../lib/alerts";
+import {
+  exceptionLine,
+  presetLines,
+  raisedLine,
+  type Alerts,
+} from "../lib/alerts";
 import type { Freshness } from "../lib/freshness";
 import * as m from "../paraglide/messages.js";
 
@@ -28,6 +33,7 @@ describe("what the operator is told about, on the settings screen", () => {
     for (const line of presetLines(alerts)) {
       expect(within(panel()).getByText(line)).toBeVisible();
     }
+    expect(within(panel()).getByText(raisedLine(alerts))).toBeVisible();
     const apart = within(panel()).getByRole("list", {
       name: m.alerts_said(),
     });

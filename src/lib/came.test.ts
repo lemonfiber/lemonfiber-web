@@ -597,6 +597,10 @@ describe("what putting the last repair back came to", () => {
       { does: "reinstate-device", name: "Pixel · 3f2a" },
       m.came_undo_reinstate_device(),
     ],
+    [
+      { does: "push-endpoint", name: "Pixel · 3f2a" },
+      m.came_undo_push_endpoint(),
+    ],
     [{ does: "rehold", name: "sonarr.api_key" }, m.came_undo_rehold()],
     [{ does: "resettle", name: "sonarr.url" }, m.came_undo_resettle()],
     [
@@ -632,6 +636,10 @@ describe("what putting the last repair back came to", () => {
       m.came_undo_reseed(),
     ],
     [{ does: "unmoved", service: "gluetun" }, m.came_undo_unmoved()],
+    [
+      { does: "regrab", kind: "movies", release: "a1b2c3", title: 42 },
+      m.came_undo_regrab(),
+    ],
     [
       { does: "run", service: "sonarr", running: true },
       m.came_undo_run_start(),

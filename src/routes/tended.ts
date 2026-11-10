@@ -37,7 +37,7 @@ export const letThrough: Work = {
   id: "53",
   doing: "household-approve",
   scoped: false,
-  given: { request: 44 },
+  given: { request: "44" },
   at: "done",
   job: undefined,
   came: { kind: "household", report: household },

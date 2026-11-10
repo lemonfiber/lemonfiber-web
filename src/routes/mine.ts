@@ -40,21 +40,26 @@ export const kit: Member = {
   },
   requests: [
     {
-      id: 44,
+      id: "44",
       title: null,
       media: "film",
       state: "waiting-for-approval",
       waiting_days: 6,
     },
-    { id: 43, title: "Some Film Nobody Filed", media: "film", state: "failed" },
     {
-      id: 22,
+      id: "43",
+      title: "Some Film Nobody Filed",
+      media: "film",
+      state: "failed",
+    },
+    {
+      id: "22",
       title: "Something Turned Down",
       media: "film",
       state: "declined",
       refused: { reason: "Not this one, it is too late in the evening." },
     },
-    { id: 12, title: "Andor", media: "series", state: "here" },
+    { id: "12", title: "Andor", media: "series", state: "here" },
   ],
   to_hand_over: [
     "What you ask for waits for an answer. Four of the five films this month are spent.",

@@ -24,8 +24,11 @@
 
   let { member, tender, shelving }: Props = $props();
 
+  /** Their limits, as what is open for them. */
+  const LIMITS = Symbol("limits");
+
   /** What is open for them: their limits, or one request being turned down. */
-  let open = $state<"limits" | number | undefined>(undefined);
+  let open = $state<typeof LIMITS | string | undefined>(undefined);
 
   /** Why a request is being turned down, as typed. */
   let reason = $state("");
@@ -135,7 +138,7 @@
       label={m.action_limits_member({ name: member.name })}
       off={silent}
       onclick={() => {
-        open = "limits";
+        open = LIMITS;
       }}
     />
     <Action
@@ -149,7 +152,7 @@
     <Handing {handoff} {silent} onagain={handOver} />
   {/if}
 
-  {#if open === "limits"}
+  {#if open === LIMITS}
     <div class="form">
       <Limiting
         name={member.name}
