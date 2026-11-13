@@ -3,7 +3,9 @@
  * it left it, in lines a record can carry.
  *
  * An invitation answers with the name they sign in as, the one address to send
- * them, how long the offer stands, and what it wrote on the account, including
+ * them, the link the companion app opens it at or why there is none, the
+ * address that turns it down, how long the offer stands, and what it wrote on
+ * the account, including
  * whether the request service could be held to the same limit yet; unclaimed
  * offers withdrawn and reset accounts switched off on the way past are named
  * rather than done quietly. Saying what somebody may ask for, and letting a
@@ -12,12 +14,15 @@
  *
  * What lemonfiber writes into a report, such as an address, a caution or what a
  * limit is and is not, is its own and is passed through unchanged. The words
- * around them live in `messages/`.
+ * around them live in `messages/`. Each address and link is also offered as a
+ * code drawn from exactly the text lemonfiber gave.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { saidOfPolicy, wordOfUnrated } from "./household";
 import { listed } from "./listed";
+import type { Coded } from "./qr";
 import type { Tending } from "./requested";
+import { said } from "./said";
 import * as m from "../paraglide/messages.js";
 
 /** An account offered to somebody, or what offering one would make. */
@@ -73,8 +78,14 @@ export function invitationLines(report: Invited): readonly string[] {
       hours: String(report.hours),
     }),
   );
-  if (report.caution !== undefined && report.caution !== null) {
-    lines.push(report.caution);
+  if (said(report.caution)) lines.push(report.caution);
+  if (said(report.join)) {
+    lines.push(m.came_invite_join({ join: report.join }));
+  } else if (said(report.unjoinable)) {
+    lines.push(report.unjoinable);
+  }
+  if (said(report.decline)) {
+    lines.push(m.came_invite_decline({ decline: report.decline }));
   }
   const { applied } = report;
   if (applied !== undefined && applied !== null) {
@@ -95,6 +106,23 @@ export function invitationLines(report: Invited): readonly string[] {
     lines.push(m.came_invite_suspended({ names: listed(report.suspended) }));
   }
   return lines;
+}
+
+/** What an invitation hands to somebody, each as the code that carries it. */
+export function invitationCodes(report: Invited): readonly Coded[] {
+  const codes: Coded[] = [
+    { text: report.address, label: m.came_invite_address_said() },
+  ];
+  if (said(report.join)) {
+    codes.push({ text: report.join, label: m.came_invite_join_said() });
+  }
+  if (said(report.decline)) {
+    codes.push({
+      text: report.decline,
+      label: m.came_invite_decline_said(),
+    });
+  }
+  return codes;
 }
 
 /** The household as an act on it left it, line by line. */

@@ -13,6 +13,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { whenOf } from "./history";
+import { said } from "./said";
 import * as m from "../paraglide/messages.js";
 
 /** Every integration key, without its secret. */
@@ -80,11 +81,6 @@ export function stateLine(state: Listed["state"]): string {
     default:
       return m.keys_state_other();
   }
-}
-
-/** A value lemonfiber may leave out, kept where it says something. */
-function said(value: string | null | undefined): value is string {
-  return value !== undefined && value !== null && value !== "";
 }
 
 /** One key, line by line. */

@@ -3,7 +3,16 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import Requests from "./Requests.svelte";
 import { household } from "./house";
-import { madeOffer, readOffer, tender } from "./tended";
+import {
+  handedKit,
+  joinableOffer,
+  madeOffer,
+  readOffer,
+  tender,
+} from "./tended";
+import { claimAt, declineAt, joinAt } from "../api/invitations";
+import { servedAt as handedAt } from "../api/handoffs";
+import { drawn } from "../lib/qr";
 import type { Freshness } from "../lib/freshness";
 import { labelOfPolicy, nameOfRequest } from "../lib/household";
 import type { Tender } from "../lib/tending";
@@ -195,6 +204,36 @@ describe("offering somebody an account", () => {
 
     expect(ondrop).toHaveBeenCalledWith(madeOffer.id);
     expect(asked()).toHaveFocus();
+  });
+
+  it("draws the sign-in address, join link and decline address as codes beside their lines", () => {
+    tending({ work: [joinableOffer] });
+
+    for (const [text, label] of [
+      [claimAt, m.came_invite_address_said()],
+      [joinAt, m.came_invite_join_said()],
+      [declineAt, m.came_invite_decline_said()],
+    ] as const) {
+      expect(
+        within(asked()).getByRole("img", { name: label }).querySelector("path"),
+      ).toHaveAttribute("d", drawn(text).path);
+    }
+    expect(
+      within(asked()).getByText(m.came_invite_join({ join: joinAt })),
+    ).toBeVisible();
+    expect(
+      within(asked()).getByText(m.came_invite_decline({ decline: declineAt })),
+    ).toBeVisible();
+  });
+
+  it("draws the address a hand-off points at as a code on its record", () => {
+    tending({ work: [handedKit] });
+
+    expect(
+      within(asked())
+        .getByRole("img", { name: m.handoff_address_said() })
+        .querySelector("path"),
+    ).toHaveAttribute("d", drawn(handedAt).path);
   });
 });
 

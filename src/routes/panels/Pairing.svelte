@@ -1,6 +1,7 @@
 <script lang="ts">
   import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
+  import Code from "../../components/Code.svelte";
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
   import { linesOf } from "../../lib/came";
@@ -41,7 +42,8 @@
   phone still signs in with the operator's own. What would make every paired
   phone refuse this machine is said with it, now rather than when it happens.
 
-  The code a camera reads is not drawn here; the line it carries is.
+  The line is drawn as the code a phone's camera reads, from exactly the text
+  lemonfiber wrote, with the line itself beside it.
 -->
 <Panel title={m.panel_pairing()} {freshness} flush>
   <div class="scope">
@@ -73,6 +75,7 @@
         <h3 id={materialId}>{m.pairing_title()}</h3>
         <p class="prose"><Said text={m.pairing_written()} /></p>
         <code class="written">{standing.written}</code>
+        <Code text={standing.written} label={m.pairing_code_said()} />
         <p class="prose"><Said text={m.pairing_compare()} /></p>
         <code class="form">{standing.compare}</code>
       </section>

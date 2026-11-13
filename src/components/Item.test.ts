@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/svelte";
 import { createRawSnippet } from "svelte";
 import { describe, expect, it } from "vitest";
 import Item from "./Item.svelte";
+import { drawn } from "../lib/qr";
 import { everyState, toneFor, wordFor } from "../lib/state";
 
 const actions = createRawSnippet(() => ({
@@ -102,6 +103,36 @@ describe("the severity a row carries", () => {
   it("tints the row that wants you now", () => {
     const { container } = render(Item, stuck);
     expect(container.querySelector(".item.alarm")).not.toBeNull();
+  });
+});
+
+describe("what a row hands to somebody", () => {
+  const codes = [
+    {
+      text: ["http:", "", "lemonfiber.local:5055", "join", "7f3a"].join("/"),
+      label: "Code: sign in",
+    },
+    {
+      text: ["http:", "", "lemonfiber.local:5056", "decline", "4b2d"].join("/"),
+      label: "Code: decline",
+    },
+  ] as const;
+
+  it("draws each as a code from exactly its text, named for a reader who cannot see it", () => {
+    render(Item, { ...stuck, codes });
+    for (const { text, label } of codes) {
+      expect(
+        screen.getByRole("img", { name: label }).querySelector("path"),
+      ).toHaveAttribute("d", drawn(text).path);
+    }
+  });
+
+  it("draws no code where it is handed none, or an empty list", () => {
+    for (const handed of [undefined, []]) {
+      const { container, unmount } = render(Item, { ...stuck, codes: handed });
+      expect(container.querySelector("svg.code")).toBeNull();
+      unmount();
+    }
   });
 });
 

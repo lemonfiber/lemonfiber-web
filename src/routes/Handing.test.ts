@@ -7,6 +7,7 @@ import { handedKit, signedInKit, tender } from "./tended";
 import { servedAt, unprovisionedKit } from "../api/handoffs";
 import type { Freshness } from "../lib/freshness";
 import type { Tender } from "../lib/tending";
+import { drawn } from "../lib/qr";
 import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 4 };
@@ -70,6 +71,20 @@ describe("handing somebody a device", () => {
     expect(
       within(apps).getByText(m.handoff_code_address({ code: servedAt })),
     ).toBeVisible();
+  });
+
+  it("draws the address it points at as a code, from exactly that text", () => {
+    tending({ work: [handedKit] });
+
+    const section = handing();
+    expect(
+      within(section).getByText(m.handoff_address({ address: servedAt })),
+    ).toBeVisible();
+    expect(
+      within(section)
+        .getByRole("img", { name: m.handoff_address_said() })
+        .querySelector("path"),
+    ).toHaveAttribute("d", drawn(servedAt).path);
   });
 
   it("lists the steps to sign in, in order", () => {

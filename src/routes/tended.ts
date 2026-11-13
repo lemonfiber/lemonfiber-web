@@ -5,7 +5,7 @@
  * this. The reports inside each record are the ones a suite stands in for a
  * running lemonfiber, in `../api/invitations`, `../api/handoffs` and `./house`.
  */
-import { offered, wouldOffer } from "../api/invitations";
+import { joinable, offered, wouldOffer } from "../api/invitations";
 import { connectedSam, readyForSam } from "../api/handoffs";
 import { household } from "./house";
 import type { Tender } from "../lib/tending";
@@ -30,6 +30,14 @@ export const madeOffer: Work = {
   id: "52",
   given: { ...readOffer.given, confirm: true },
   came: { kind: "invitation", report: offered },
+};
+
+/** A record of the offer made, with its join link and decline address. */
+export const joinableOffer: Work = {
+  ...readOffer,
+  id: "57",
+  given: { ...readOffer.given, confirm: true },
+  came: { kind: "invitation", report: joinable },
 };
 
 /** A record of one request let through, and the household it left. */

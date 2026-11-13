@@ -8,6 +8,7 @@ import {
   wordOfDoorStanding,
   wordOfFacing,
 } from "../lib/door";
+import { drawn } from "../lib/qr";
 import type { Door, Moment } from "../lib/wire";
 import * as m from "../paraglide/messages.js";
 import { answered, board, changed } from "./Dashboard.testing";
@@ -28,6 +29,15 @@ describe("the front door", () => {
     board({ moment, flow: "live" });
     expect(panel()).toHaveTextContent(doorAddress);
     expect(panel()).toHaveTextContent(frontDoor.meaning);
+  });
+
+  it("draws the address as a code beside it, from exactly that text", () => {
+    board({ moment, flow: "live" });
+    expect(
+      within(panel())
+        .getByRole("img", { name: m.door_code_said() })
+        .querySelector("path"),
+    ).toHaveAttribute("d", drawn(doorAddress).path);
   });
 
   it("names the service it is, and what it is to the house", () => {
@@ -62,6 +72,9 @@ describe("the front door", () => {
     });
     expect(panel()).toHaveTextContent(m.door_no_address());
     expect(panel()).not.toHaveTextContent(doorAddress);
+    expect(
+      within(panel()).queryByRole("img", { name: m.door_code_said() }),
+    ).toBeNull();
   });
 
   it("carries what is worth knowing about the address itself", () => {

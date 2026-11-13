@@ -14,6 +14,7 @@ import {
 } from "./served";
 import { material, zeroesForm } from "../api/pairings";
 import { inForce } from "../api/qualities";
+import { drawn } from "../lib/qr";
 import * as m from "../paraglide/messages.js";
 
 /** The stream is never opened in these, so nothing needs to answer it. */
@@ -60,6 +61,11 @@ describe("pairing a phone from the settings screen", () => {
       await within(asked()).findByText(material.written),
     ).toBeInTheDocument();
     expect(within(asked()).getByText(zeroesForm)).toBeInTheDocument();
+    expect(
+      within(asked())
+        .getByRole("img", { name: m.pairing_code_said() })
+        .querySelector("path"),
+    ).toHaveAttribute("d", drawn(material.written).path);
   });
 
   // lemonfiber makes material only while the web interface is served

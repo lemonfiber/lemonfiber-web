@@ -25,6 +25,14 @@ export interface Drawn {
   readonly path: string;
 }
 
+/** A line of text offered as a code, and what the code is to a reader who cannot see it. */
+export interface Coded {
+  /** What the code carries, exactly as lemonfiber gave it. */
+  readonly text: string;
+  /** What the code is, for a reader who cannot see it. */
+  readonly label: string;
+}
+
 /** The text as the encoder takes it: its UTF-8 bytes, one per character. */
 function bytesOf(text: string): string {
   return Array.from(new TextEncoder().encode(text), (byte) =>

@@ -6,7 +6,7 @@
   import Panel from "../../components/Panel.svelte";
   import Switch from "../../components/Switch.svelte";
   import Limiting from "./Limiting.svelte";
-  import { linesOf } from "../../lib/came";
+  import { codesOf, linesOf } from "../../lib/came";
   import type { Freshness } from "../../lib/freshness";
   import {
     offerTyped,
@@ -76,6 +76,10 @@
 
   Saying what the house may ask for is made at once, and is answered with the
   household as it now stands.
+
+  What a record hands to somebody, an invitation's addresses and link or the
+  address a hand-off points at, is drawn as a code under the lines that carry
+  its text, from exactly what lemonfiber gave.
 -->
 <Panel title={m.panel_tending()} {freshness} flush>
   <div class="scope">
@@ -256,6 +260,7 @@
         lines={one.at === "done"
           ? { named: m.came_heading(), said: linesOf(one.came) }
           : undefined}
+        codes={one.at === "done" ? codesOf(one.came) : undefined}
         actions={dropping}
       />
     {/each}

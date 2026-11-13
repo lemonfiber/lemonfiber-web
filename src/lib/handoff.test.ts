@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   clientLine,
   codeLine,
+  handoffCodes,
   handoffLines,
   remedyLine,
   sessionLine,
@@ -123,5 +124,17 @@ describe("each app, its code and each device signed in", () => {
     expect(sessionLine(unseenIphone)).toBe(
       m.handoff_session({ device: "iPhone", client: "Infuse" }),
     );
+  });
+});
+
+describe("what a hand-off hands over beside its apps", () => {
+  it("is the address it points at, as the text lemonfiber gave", () => {
+    expect(handoffCodes(readyForSam)).toStrictEqual([
+      { text: servedAt, label: m.handoff_address_said() },
+    ]);
+  });
+
+  it("is nothing where lemonfiber gave no address", () => {
+    expect(handoffCodes(unprovisionedKit)).toStrictEqual([]);
   });
 });

@@ -151,6 +151,7 @@
   "handoff_remedy_record_address": "Set the address the household reaches the media server at, then check again.",
   "handoff_remedy_other": "What to do next is something this page has no word for.",
   "handoff_address": "The code points at {address}.",
+  "handoff_address_said": "Code: server address",
   "handoff_issued": "A code was first issued {when}.",
   "handoff_quick_connect": "The media server can also sign the device in by a short code, which {name} approves from a device already signed in.",
   "handoff_client": "{device}: {client}",

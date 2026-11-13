@@ -12,13 +12,16 @@
  * own words.
  *
  * The code is an address and nothing more: whoever holds it still has to sign
- * in as somebody.
+ * in as somebody. The address the hand-off points at is offered as a code
+ * too, drawn from exactly the text lemonfiber gave.
  *
  * What lemonfiber writes into the report is its own and is passed through
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { whenOf } from "./history";
+import type { Coded } from "./qr";
+import { said } from "./said";
 import * as m from "../paraglide/messages.js";
 
 /** Where one person's hand-off stands. */
@@ -68,11 +71,6 @@ export function remedyLine(remedy: Remedy, name: string): string {
   }
 }
 
-/** A value lemonfiber may leave out, kept where it says something. */
-function said(value: string | null | undefined): value is string {
-  return value !== undefined && value !== null && value !== "";
-}
-
 /** Where a hand-off stands, line by line, before its apps and steps. */
 export function handoffLines(handoff: Handoff): readonly string[] {
   const lines = [stateLine(handoff)];
@@ -92,6 +90,17 @@ export function handoffLines(handoff: Handoff): readonly string[] {
     lines.push(remedyLine(remedy, handoff.name));
   }
   return lines;
+}
+
+/** What a hand-off hands over beside its apps: the address, as its code. */
+export function handoffCodes(handoff: Handoff): readonly Coded[] {
+  if (!said(handoff.address)) return [];
+  return [
+    {
+      text: handoff.address,
+      label: m.handoff_address_said(),
+    },
+  ];
 }
 
 /** One app, in a line: the device, the app, and whether it is open source. */

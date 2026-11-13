@@ -19,6 +19,7 @@
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { whenOf } from "./history";
 import { listed } from "./listed";
+import { said } from "./said";
 import * as m from "../paraglide/messages.js";
 
 /** The plugins on this machine, and what they fill. */
@@ -60,11 +61,6 @@ export function sourceLine(source: Source): string {
     default:
       return m.plugin_source_other({ from: source.from });
   }
-}
-
-/** A value a record may leave empty, kept where it says something. */
-function said(value: string | null | undefined): value is string {
-  return value !== undefined && value !== null && value !== "";
 }
 
 /** Where one plugin came from and what vouches for it, line by line. */
