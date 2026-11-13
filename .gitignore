@@ -6,3 +6,4 @@ storybook-static/
 *.tsbuildinfo
 .DS_Store
 src/paraglide/
+project.inlang/cache/

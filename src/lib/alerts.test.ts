@@ -24,6 +24,7 @@ describe("what the operator is told about", () => {
     ["backup", m.alerts_kind_backup()],
     ["request", m.alerts_kind_request()],
     ["member", m.alerts_kind_member()],
+    ["ready", m.alerts_kind_ready()],
     ["pondered" as Notification, m.alerts_kind_other()],
   ] as const)("names the sort of thing %s tells about", (kind, words) => {
     expect(raisedLine({ ...alerts, kinds: [kind] })).toBe(

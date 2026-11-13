@@ -134,6 +134,7 @@
   "alerts_kind_backup": "backups",
   "alerts_kind_request": "requests from the household",
   "alerts_kind_member": "invitations accepted, turned down or lapsed",
+  "alerts_kind_ready": "something a member asked for arriving, told to that member",
   "alerts_kind_other": "something this page has no word for",
   "wiring_prose": "What each service in the stack is wired to, and how each link was settled.",
   "wiring_said": "Links",
