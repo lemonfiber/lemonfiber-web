@@ -29,7 +29,7 @@ import {
   type RefusalCode,
 } from "@lemonfiber/sdk-ts";
 import type { Reaching } from "./asking";
-import { reached, succeeded } from "./reached";
+import { reached, succeeded, type Carrying } from "./reached";
 
 /** Who is in the household and what each asked for, narrowed to the one asking. */
 export const REQUESTS = "/api/requests";
@@ -39,6 +39,18 @@ const HELD = "/api/held";
 
 /** What one member was part-way through. */
 const WATCHING = "/api/watching";
+
+/** One page of a member's search for what the household does not hold yet. */
+const ASKABLE = "/api/askable";
+
+/** The action a member asks for one title with. */
+const ASKING = "ask";
+
+/** Where a member asks for one title. */
+const ASK = `/api/actions/${ASKING}`;
+
+/** How many random bytes tell one ask from every other. */
+const ONCE_BYTES = 16;
 
 /** A picture of a title on the shelf: its poster, or the wide one behind it. */
 export type Artwork = "poster" | "backdrop";
@@ -160,13 +172,115 @@ export function titleOf(member: string, id: string): string {
 }
 
 /**
+ * Where one page of a member's search is read: the words searched for, and
+ * where the page a previous one said comes next begins.
+ *
+ * As with the shelf, lemonfiber searches under the limits of the member the
+ * session is for, and the member the door named is named back to it.
+ */
+export function askableOf(
+  member: string,
+  term: string,
+  after?: string,
+): string {
+  const query = new URLSearchParams({ member, term });
+  if (after !== undefined) query.set("after", after);
+  return `${ASKABLE}?${query.toString()}`;
+}
+
+/** Which title a member asks for, as a page of their search named it. */
+export interface Wish {
+  /** The id the page named it by. */
+  readonly id: string;
+  /** Whether it is a series or a film, as the page said. */
+  readonly kind: TitleKind;
+}
+
+/** Whether a title is a series or a film, as a member's search names it. */
+export type TitleKind = ByKind["askable"]["data"]["kinds"][number];
+
+/**
+ * A found title's poster, asked for with this session's key as every read is,
+ * or nothing where it could not be had.
+ *
+ * lemonfiber fetches it from the catalogue and hands it over itself, so the
+ * page never reaches the catalogue's host.
+ */
+export async function takingFoundPoster(
+  reaching: Reaching,
+  member: string,
+  wish: Wish,
+): Promise<Blob | undefined> {
+  const opened = Client.at({
+    url: reaching.at,
+    token: reaching.token,
+    sending: reaching.sending,
+  });
+  if (!opened.ok) return undefined;
+  const pictured = await opened.client.askablePoster(wish.id, {
+    kind: wish.kind,
+    member,
+  });
+  return pictured.ok ? pictured.value.bytes : undefined;
+}
+
+/**
+ * What tells one ask from every other, so an ask sent again after no answer is
+ * carried out once.
+ *
+ * Drawn from the browser's random source, which a page served without
+ * encryption is given too.
+ */
+export function freshOnce(): string {
+  const bytes = globalThis.crypto.getRandomValues(new Uint8Array(ONCE_BYTES));
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
+}
+
+/**
+ * Ask for one title, or rehearse asking for it.
+ *
+ * A rehearsal sends nothing on to whoever fetches it, and says what the ask
+ * would come to: whether it waits for approval and what it would leave of the
+ * member's allowance. The ask itself carries `once`, the same every time it is
+ * sent again, so an ask whose answer never arrived is not asked for twice. Every
+ * judgement is lemonfiber's, and what it said is handed back as it said it.
+ */
+export async function wished(
+  reaching: Reaching,
+  wish: Wish,
+  rehearsing: boolean,
+  once?: string,
+): Promise<Answer<ByKind["asked"]["data"]>> {
+  const came = await knocked(reaching, ASK, {
+    method: "POST",
+    body: JSON.stringify({
+      id: wish.id,
+      kind: wish.kind,
+      dry_run: rehearsing,
+    }),
+    once,
+  });
+  if (came.at !== "answered") return came;
+
+  const read = parse(came.value);
+  if (!read.ok) return { at: "unanswered", problem: read.problem };
+  if (!isKind(read.value, "asked"))
+    return { at: "unanswered", problem: malformed() };
+
+  return { at: "answered", value: read.value.data };
+}
+
+/**
  * Ask for one address, and read no further than whether it was answered.
  */
 export async function knocked(
   reaching: Reaching,
   path: string,
+  carrying: Carrying = { method: "GET" },
 ): Promise<Answer<string>> {
-  const answer = await reached(reaching, path, { method: "GET" });
+  const answer = await reached(reaching, path, carrying);
   if (!answer.ok) return { at: "unanswered", problem: answer.problem };
   if (TURNED_AWAY.has(answer.status))
     return turnedAway(answer.status, answer.said);
@@ -231,4 +345,22 @@ function leavesTheSession(code: RefusalCode | undefined): boolean {
 function sentenceIn(body: string): string | undefined {
   const words = body.trim();
   return words === "" || OPENS_A_STRUCTURE.test(words) ? undefined : words;
+}
+
+/**
+ * The sentence lemonfiber turned a read or an ask down with, or nothing where
+ * it did not turn it down: answered, or not answered at all.
+ *
+ * A refusal carrying one of the contract's codes is lemonfiber's own word on
+ * what was asked — a search too short, an allowance spent, a house with no
+ * room — and is said as it was said. Without a code nothing came back from
+ * lemonfiber to say.
+ */
+export function saidNo(
+  answer: Answer<unknown> | undefined,
+): string | undefined {
+  if (answer?.at === "declined") return answer.said;
+  if (answer?.at === "unanswered" && answer.problem.code !== undefined)
+    return answer.problem.message;
+  return undefined;
 }

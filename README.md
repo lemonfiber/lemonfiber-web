@@ -63,7 +63,9 @@ things hidden:
   household administration.
 - **The household view** — what everyone else gets. What they asked for and where
   each request stands, whether asking needs approval and how much allowance is
-  left, what they can watch, and what the household holds that they can.
+  left, what they can watch, what the household holds that they can, and a
+  search for something new, asked for on their own account and under their own
+  limits.
 
 Both are built from one component library and one set of tokens, so they cannot
 drift apart visually. What differs is which of them a given person is served, and

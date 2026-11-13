@@ -2,20 +2,31 @@
   import { onMount } from "svelte";
   import Asked from "./Asked.svelte";
   import Away from "./Away.svelte";
+  import Find from "./Find.svelte";
   import Shelf from "./Shelf.svelte";
   import Shell from "./Shell.svelte";
   import type { Reaching } from "../api/asking";
   import {
+    askableOf,
+    freshOnce,
     heard,
     knocked,
     REQUESTS,
     shelfOf,
     takingArtwork,
+    takingFoundPoster,
     titleOf,
     watchingOf,
+    wished,
     type Answer,
     type Heard,
   } from "../api/member";
+  import {
+    foundBy,
+    type Asked as Wished,
+    type Found,
+    type FoundTitle,
+  } from "../lib/askable";
   import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
   import {
     memberMenu,
@@ -59,7 +70,29 @@
   let away = $state<Answer<string> | undefined>(undefined);
   let opened = $state<Holding | undefined>(undefined);
   let told = $state<Heard<Told> | undefined>(undefined);
+  let term = $state("");
+  let searchedFor = "";
+  let lastPage = "";
+  let pages = $state<readonly Found[]>([]);
+  let foundAt = $state<number | undefined>(undefined);
+  let reading = $state<"first" | "more" | undefined>(undefined);
+  let unread = $state<Exclude<Heard<Found>, { at: "answered" }> | undefined>(
+    undefined,
+  );
+  let chosen = $state<FoundTitle | undefined>(undefined);
+  let rehearsal = $state<Heard<Wished> | undefined>(undefined);
+  let sent = $state<Heard<Wished> | undefined>(undefined);
+  let sending = $state(false);
   let now = $state(Date.now());
+
+  /** How many searches this screen has made, which is what tells the latest. */
+  let searching = 0;
+
+  /** How many titles have been chosen to ask for, which tells the latest. */
+  let choosing = 0;
+
+  /** What tells the chosen title's ask from every other, the same each time it is sent again. */
+  let once = freshOnce();
 
   /** How many askings this screen has made, which is what tells the latest. */
   let asking = 0;
@@ -84,6 +117,9 @@
   const watched = $derived(own?.at === "answered" ? asked : UNSTAMPED);
   const stocked = $derived(
     shelfAt === undefined ? UNSTAMPED : answeredAt(shelfAt, now),
+  );
+  const searched = $derived(
+    foundAt === undefined ? UNSTAMPED : answeredAt(foundAt, now),
   );
 
   /** What they may watch, as this arrival's asking answered it and no other. */
@@ -134,7 +170,130 @@
     watching = undefined;
     away = undefined;
     close();
+    forget();
     void ask(to);
+  }
+
+  /**
+   * Drop what any search found, and the title chosen from it. What a search
+   * found is what the member's limits let through when it was asked, and is
+   * not kept past the room it was asked in.
+   */
+  function forget(): void {
+    searching += 1;
+    choosing += 1;
+    pages = [];
+    foundAt = undefined;
+    reading = undefined;
+    unread = undefined;
+    chosen = undefined;
+    rehearsal = undefined;
+    sent = undefined;
+    sending = false;
+  }
+
+  /**
+   * Search for some words, from the first page.
+   *
+   * What an earlier search found is dropped on the way in, so a page never
+   * shows titles another search found.
+   */
+  function search(words: string): void {
+    searchedFor = words;
+    pages = [];
+    foundAt = undefined;
+    void page(askableOf(member, words), "first");
+  }
+
+  /** Read the page that begins where the last one said the next begins. */
+  function more(after: string): void {
+    void page(askableOf(member, searchedFor, after), "more");
+  }
+
+  /** Read again the page that went unread. */
+  function again(): void {
+    void page(lastPage, pages.length === 0 ? "first" : "more");
+  }
+
+  /**
+   * Read one page of the search, and take what it came to where no later
+   * reading has overtaken it. Turned away, the session no longer stands.
+   */
+  async function page(path: string, which: "first" | "more"): Promise<void> {
+    searching += 1;
+    const latest = searching;
+    lastPage = path;
+    unread = undefined;
+    reading = which;
+    const came = await heard(reaching, path, "askable");
+    if (came.at === "refused") {
+      turned(came.said);
+      return;
+    }
+    if (latest !== searching) return;
+    reading = undefined;
+    if (came.at !== "answered") {
+      unread = came;
+      return;
+    }
+    foundAt ??= Date.now();
+    pages = [...pages, came.value];
+  }
+
+  /**
+   * Open one title the search found, and rehearse asking for it.
+   *
+   * Each title opened gets an ask of its own, so an ask sent again after no
+   * answer is never mistaken for asking for something else.
+   */
+  async function choose(title: FoundTitle): Promise<void> {
+    choosing += 1;
+    const latest = choosing;
+    chosen = title;
+    rehearsal = undefined;
+    sent = undefined;
+    sending = false;
+    once = freshOnce();
+    const answer = await wished(reaching, title, true);
+    if (answer.at === "refused") {
+      turned(answer.said);
+      return;
+    }
+    if (latest === choosing) rehearsal = answer;
+  }
+
+  /**
+   * Ask for the chosen title.
+   *
+   * Sent again after no answer, it carries the same `once`, so lemonfiber asks
+   * for it once however many times it arrived. Nothing is queued: an ask that
+   * went unanswered is said so, and waits for them to press again.
+   */
+  async function wish(title: FoundTitle): Promise<void> {
+    const latest = choosing;
+    sending = true;
+    const answer = await wished(reaching, title, false, once);
+    if (answer.at === "refused") {
+      turned(answer.said);
+      return;
+    }
+    if (latest !== choosing) return;
+    sending = false;
+    sent = answer;
+  }
+
+  /**
+   * Put the chosen title away. Where it was asked for, the search is read
+   * again, so where each title stands is lemonfiber's answer since.
+   */
+  function putAway(): void {
+    const asked = sent?.at === "answered";
+    choosing += 1;
+    chosen = undefined;
+    rehearsal = undefined;
+    sent = undefined;
+    sending = false;
+    if (asked) search(searchedFor);
   }
 
   /**
@@ -188,7 +347,7 @@
       return;
     }
 
-    if (to.room === "asked") {
+    if (to.room === "asked" || to.room === "find") {
       settled(latest, await theirs);
       return;
     }
@@ -278,6 +437,38 @@
 >
   {#if "away" in where}
     <Away answer={away} />
+  {:else if where.room === "find"}
+    <Find
+      {term}
+      {pages}
+      {reading}
+      {unread}
+      freshness={searched}
+      oninput={(typed: string) => {
+        term = typed;
+      }}
+      onsearch={() => {
+        search(term.trim());
+      }}
+      onmore={more}
+      onagain={again}
+      posters={(key: string) =>
+        takingFoundPoster(reaching, member, foundBy(key))}
+      opened={chosen}
+      {rehearsal}
+      {sent}
+      {sending}
+      onopen={(title: FoundTitle) => {
+        void choose(title);
+      }}
+      onask={(title: FoundTitle) => {
+        void wish(title);
+      }}
+      onrehearse={(title: FoundTitle) => {
+        void choose(title);
+      }}
+      onclose={putAway}
+    />
   {:else if where.room === "held"}
     <Shelf
       {access}
