@@ -45,6 +45,15 @@ an acronym nobody declared ordinary, a fault named beside the person reading, an
 an explanation of a word. It also refuses a key kept in two files, a prefix split
 across files, and a file the settings do not name.
 
+**A label is at most three words.** A message drawn as a control's label, a menu
+item, a strip of places or a section heading — the props `LABEL_SLOTS` in
+`scripts/words.mjs` lists, an `h1`–`h6` or `summary`, a `label:` or `head:` field,
+and every `room_` and `nav_` key — names what it opens or does in three words or
+fewer, and a sentence beside it explains. A new component that draws a label is
+added to `LABEL_SLOTS`. The names this product gives its own things, `form` and
+`stack`, are declared in `DECLARED`, count as one word, and are kept as declared
+in every locale.
+
 **This ecosystem's own words are not among them.** _Indexer, hardlink, retention,
 ratio_ live in one table compiled into the binary and served at `/api/explain`.
 `Term.svelte` asks for one when a reader presses it; `scripts/words.mjs` refuses a
