@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import Settings from "./Settings.svelte";
 import { plugins, subtitles } from "../api/installs";
 import type { Freshness } from "../lib/freshness";
+import { whenOf } from "../lib/history";
 import {
   installedLines,
   nameOf,
@@ -41,6 +42,26 @@ describe("the plugins, on the settings screen", () => {
     for (const line of installedLines(subtitles, plugins.sources ?? [])) {
       expect(within(listed).getByText(line)).toBeVisible();
     }
+  });
+
+  it("lists each grant a plugin holds by its setting, whose it is, what it fills and when it was approved", () => {
+    reading({ ok: true, value: plugins });
+    const listed = within(panel()).getByRole("list", {
+      name: m.plugin_said(),
+    });
+    for (const grant of subtitles.granted ?? []) {
+      expect(
+        within(listed).getByText(
+          m.plugin_granted({
+            credential: grant.credential,
+            of: grant.of,
+            capability: grant.for,
+            when: whenOf(grant.at),
+          }),
+        ),
+      ).toBeVisible();
+    }
+    expect(subtitles.granted).toHaveLength(1);
   });
 
   it("names every capability a plugin fills in place of the stack's own", () => {
