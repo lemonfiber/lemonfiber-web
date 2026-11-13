@@ -18,12 +18,18 @@ import {
 } from "./bodies";
 import {
   artworkAt,
+  askableOf,
+  freshOnce,
   heard,
   knocked,
   REQUESTS,
+  saidNo,
   shelfOf,
   takingArtwork,
+  takingFoundPoster,
+  wished,
 } from "./member";
+import { didAsk, dune, firstPage, wouldAsk } from "../routes/found";
 import { kitsId, kitsShelf, yours } from "../routes/mine";
 
 /** Built rather than written, so no scanner reads it as a real one. */
@@ -333,5 +339,163 @@ describe("taking a title's picture", () => {
         "poster",
       ),
     ).toBeUndefined();
+  });
+});
+
+describe("a member's search", () => {
+  it("is read for the member the door named, with the words as one parameter", () => {
+    expect(askableOf("kit", "dune & co")).toBe(
+      "/api/askable?member=kit&term=dune+%26+co",
+    );
+  });
+
+  it("carries where the next page begins, where a page said one does", () => {
+    expect(askableOf("kit", "dune", "page-2")).toBe(
+      "/api/askable?member=kit&term=dune&after=page-2",
+    );
+  });
+
+  it("answers with the page lemonfiber found", async () => {
+    const came = await heard(
+      reaching(saying(200, enveloped("askable", firstPage))),
+      askableOf("kit", "dune"),
+      "askable",
+    );
+    expect(came).toEqual({ at: "answered", value: firstPage });
+  });
+});
+
+describe("a found title's poster", () => {
+  const handing = (bytes: Blob): Sending =>
+    vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        text: () => Promise.resolve(""),
+        blob: () => Promise.resolve(bytes),
+        headers: { get: () => bytes.type },
+      }),
+    );
+
+  it("is asked of lemonfiber with the session's key, naming its kind and the member", async () => {
+    const poster = new Blob(["x"], { type: "image/jpeg" });
+    const sending = handing(poster);
+
+    const taken = await takingFoundPoster(reaching(sending), "kit", dune);
+
+    expect(taken).toBeInstanceOf(Blob);
+    const [url, init] = vi.mocked(sending).mock.calls[0] ?? [];
+    const asked = new URL(url ?? "");
+    expect(asked.pathname).toBe("/api/askable/438631/poster");
+    expect(Object.fromEntries(asked.searchParams)).toEqual({
+      member: "kit",
+      kind: "movies",
+    });
+    expect(init?.headers[TOKEN_HEADER]).toBe(session);
+  });
+
+  it("is nothing where it was refused or could not be asked", async () => {
+    expect(
+      await takingFoundPoster(
+        reaching(saying(404, refusedAs("NO_PICTURE", "No picture."))),
+        "kit",
+        dune,
+      ),
+    ).toBeUndefined();
+    expect(
+      await takingFoundPoster(
+        reaching(handing(new Blob(["x"], { type: "image/jpeg" })), elsewhere),
+        "kit",
+        dune,
+      ),
+    ).toBeUndefined();
+  });
+});
+
+describe("what tells one ask from every other", () => {
+  it("is drawn afresh each time, long enough never to be guessed", () => {
+    const one = freshOnce();
+    expect(one).toMatch(/^[0-9a-f]{32}$/);
+    expect(freshOnce()).not.toBe(one);
+  });
+});
+
+describe("asking for a title", () => {
+  it("rehearses at the ask's address, naming the title and its kind", async () => {
+    const sending = saying(200, enveloped("asked", wouldAsk));
+
+    const came = await wished(reaching(sending), dune, true);
+
+    expect(came).toEqual({ at: "answered", value: wouldAsk });
+    const [url, init] = vi.mocked(sending).mock.calls[0] ?? [];
+    expect(url).toBe(`${here}/api/actions/ask`);
+    expect(init?.method).toBe("POST");
+    expect(JSON.parse(init?.body ?? "")).toEqual({
+      id: dune.id,
+      kind: "movies",
+      dry_run: true,
+    });
+    expect(init?.headers).not.toHaveProperty("Idempotency-Key");
+  });
+
+  it("sends the ask itself once, under what tells it from every other", async () => {
+    const sending = saying(200, enveloped("asked", didAsk));
+
+    await wished(reaching(sending), dune, false, "once-1");
+
+    const [, init] = vi.mocked(sending).mock.calls[0] ?? [];
+    expect(init?.headers["Idempotency-Key"]).toBe("once-1");
+    expect(JSON.parse(init?.body ?? "")).toMatchObject({ dry_run: false });
+  });
+
+  it("keeps lemonfiber's sentence where it turned the ask down", async () => {
+    const said = "You have asked for all your allowance lets you.";
+    const came = await wished(
+      reaching(saying(409, refusedAs("NOTHING_LEFT", said))),
+      dune,
+      false,
+      "once-1",
+    );
+    expect(saidNo(came)).toBe(said);
+  });
+
+  it("reads a session no longer admitted as turned away", async () => {
+    const came = await wished(
+      reaching(saying(401, "This request carried no token.")),
+      dune,
+      true,
+    );
+    expect(came.at).toBe("refused");
+  });
+
+  it("refuses a body that is not an envelope, and one calling itself something else", async () => {
+    expect(await wished(reaching(saying(200, "{")), dune, true)).toMatchObject({
+      at: "unanswered",
+    });
+    expect(
+      await wished(
+        reaching(saying(200, enveloped("household", yours))),
+        dune,
+        true,
+      ),
+    ).toEqual({ at: "unanswered", problem: malformed() });
+  });
+
+  it("says nothing was asked where nothing came back", async () => {
+    const sending: Sending = vi.fn(() => Promise.reject(new Error("gone")));
+    const came = await wished(reaching(sending), dune, false, "once-1");
+    expect(came).toEqual({ at: "unanswered", problem: unreachable() });
+    expect(saidNo(came)).toBeUndefined();
+  });
+});
+
+describe("the sentence a refusal carried", () => {
+  it("is lemonfiber's where it declined with the session standing", () => {
+    expect(saidNo({ at: "declined", said: notYours })).toBe(notYours);
+  });
+
+  it("is nothing for an answer, or for nothing asked yet", () => {
+    expect(saidNo({ at: "answered", value: 1 })).toBeUndefined();
+    expect(saidNo(undefined)).toBeUndefined();
   });
 });

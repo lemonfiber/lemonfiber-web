@@ -290,6 +290,11 @@ const WALKED: readonly {
     by: ["src/routes/panels/Keys.svelte"],
   },
   {
+    list: ["ask"],
+    named: "movedBy",
+    by: ["src/api/member.ts"],
+  },
+  {
     list: ["setup"],
     named: "movedBy",
     by: ["src/routes/setting.svelte.ts", "src/routes/Setup.svelte"],
@@ -324,6 +329,7 @@ const WALKED: readonly {
 
 /** Requests this console offers. */
 const OFFERED_REQUESTS: readonly Request[] = [
+  "ask",
   "up",
   "down",
   "switch",
@@ -395,7 +401,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   remove: "D6",
   grant: "D11",
   watched: "D11",
-  ask: "D4",
   "notify-choose": "ARCH-R405",
   "push-woken": "ARCH-R404",
   "companion-certificate": "N1",
@@ -419,6 +424,8 @@ const OFFERED_KINDS: readonly Kind[] = [
   "alert",
   "alerts",
   "archives",
+  "askable",
+  "asked",
   "backup",
   "bandwidth",
   "beside",
@@ -503,9 +510,7 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
 
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
-  askable: "D4",
   "askable-kinds": "D4",
-  asked: "D4",
   boot: "B8",
   capabilities: "ARCH-R78",
   certificate: "N1",
@@ -603,6 +608,7 @@ const READERS = [
   /\basked\(\s*[^,]+,\s*[^,]+,\s*"([a-z-]+)"/g,
   /\bheard\(\s*[^,]+,\s*[^,]+,\s*"([a-z-]+)"/g,
   /\bisKind\(\s*[^,]+,\s*"([a-z-]+)"\)/g,
+  /\bnarrowed\(\s*[^,]+,\s*"([a-z-]+)"\)/g,
   /"([a-z-]+)" satisfies Kind\b/g,
 ];
 

@@ -32,7 +32,8 @@ export type IconName =
   | "retry"
   | "quiet"
   | "alert"
-  | "info";
+  | "info"
+  | "search";
 
 /**
  * Every drawing there is, in the order the type declares them.
@@ -59,6 +60,7 @@ export const everyIcon: readonly IconName[] = [
   "quiet",
   "alert",
   "info",
+  "search",
 ];
 
 /**
@@ -194,5 +196,9 @@ export const drawings: Readonly<Record<IconName, readonly Shape[]>> = {
   info: [
     { kind: "circle", cx: 12, cy: 12, r: 8.5 },
     { kind: "path", d: "M12 11v5M12 8.2v.1" },
+  ],
+  search: [
+    { kind: "circle", cx: 10.5, cy: 10.5, r: 6 },
+    { kind: "path", d: "M15 15l5.5 5.5" },
   ],
 };

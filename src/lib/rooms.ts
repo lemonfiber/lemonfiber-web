@@ -18,27 +18,49 @@ import * as m from "../paraglide/messages.js";
  * Somewhere a household member can be.
  *
  * One per read that answers a member: what they asked for, which the household
- * read answers narrowed to them, and what the household holds, which the shelf
- * read answers as the media server shows it to them.
+ * read answers narrowed to them; what the household holds, which the shelf read
+ * answers as the media server shows it to them; and what they may ask for,
+ * which their search answers under their own limits.
  */
-export type Room = "asked" | "held";
+export type Room = "asked" | "held" | "find";
 
 /** Every room there is, in the order the menu shows them. */
-export const everyRoom: readonly Room[] = ["asked", "held"];
+export const everyRoom: readonly Room[] = ["asked", "held", "find"];
 
 /** The address a room is at. What they asked for is the root. */
 export function pathOfRoom(room: Room): string {
-  return room === "asked" ? "/" : "/held";
+  switch (room) {
+    case "asked":
+      return "/";
+    case "held":
+      return "/held";
+    case "find":
+      return "/find";
+  }
 }
 
 /** What a room is called. */
 export function nameOfRoom(room: Room): string {
-  return room === "asked" ? m.room_asked() : m.room_held();
+  switch (room) {
+    case "asked":
+      return m.room_asked();
+    case "held":
+      return m.room_held();
+    case "find":
+      return m.room_find();
+  }
 }
 
 /** The drawing that stands for a room. */
 export function iconOfRoom(room: Room): IconName {
-  return room === "asked" ? "requests" : "overview";
+  switch (room) {
+    case "asked":
+      return "requests";
+    case "held":
+      return "overview";
+    case "find":
+      return "search";
+  }
 }
 
 /** A household member's rooms, as their menu sets them out. */
@@ -71,6 +93,7 @@ export type Whereabouts = { readonly room: Room } | { readonly away: Away };
 export function whereabouts(path: string): Whereabouts {
   const first = path.split("/").find((part) => part !== "");
   if (first === "held") return { room: "held" };
+  if (first === "find") return { room: "find" };
 
   const place = placeAt(path);
   return place === "overview" || place === "requests"
