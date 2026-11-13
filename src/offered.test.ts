@@ -54,6 +54,7 @@ type Feature =
   | "B2"
   | "B5"
   | "B8"
+  | "B9"
   | "B10"
   | "C1"
   | "C3"
@@ -92,7 +93,9 @@ type Feature =
   | "ARCH-R78"
   | "ARCH-R156"
   | "ARCH-R282"
-  | "ARCH-R354";
+  | "ARCH-R354"
+  | "ARCH-R404"
+  | "ARCH-R405";
 
 /**
  * Every request another surface can make of the stack.
@@ -144,6 +147,8 @@ const EVERY_REQUEST = [
   "grant",
   "watched",
   "ask",
+  "notify-choose",
+  "push-woken",
   "support",
   "restore",
   "watch",
@@ -391,6 +396,8 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   grant: "D11",
   watched: "D11",
   ask: "D4",
+  "notify-choose": "ARCH-R405",
+  "push-woken": "ARCH-R404",
   "companion-certificate": "N1",
   "key-claim": "C10",
   "device-key-register": "C10",
@@ -511,6 +518,8 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   music: "D2",
   news: "N27",
   "news-items": "N27",
+  notify: "B9",
+  "notify-mine": "ARCH-R405",
   "push-endpoint": "ARCH-R282",
   "push-endpoints": "ARCH-R282",
   queue: "H5",

@@ -36,6 +36,8 @@ function notificationWords(kind: Notification): string {
       return m.alerts_kind_request();
     case "member":
       return m.alerts_kind_member();
+    case "ready":
+      return m.alerts_kind_ready();
     default:
       return m.alerts_kind_other();
   }
