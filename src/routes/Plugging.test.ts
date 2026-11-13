@@ -12,6 +12,8 @@ import {
   plugger,
   removeRead,
   updateRead,
+  updateReadGranting,
+  updateReadGrantingAgain,
 } from "./pluggings";
 import { plugins, subtitles } from "../api/installs";
 import type { Freshness } from "../lib/freshness";
@@ -293,6 +295,54 @@ describe("acting on a plugin, on the settings screen", () => {
     await press(m.action_plug_install_yes({ offer: installOffer }));
     expect(onask).toHaveBeenLastCalledWith(
       expect.objectContaining({ approved: ["sonarr.api_key@subtitle-fetch"] }),
+    );
+  });
+
+  it("asks again for a grant on every update, off even where the plugin already holds it, and off again on a reading opened anew", async () => {
+    const onask = vi.fn();
+    const held = subtitles.granted?.map((grant) => grant.credential);
+    expect(held).toStrictEqual([crossing.credential]);
+    const { rerender } = render(Settings, {
+      quality: undefined,
+      freshness: answered,
+      plugins: { ok: true, value: plugins },
+      plugger: { ...plugger, work: [updateReadGranting], onask },
+    });
+    const approval = m.plug_approve({ approval: crossing.approval });
+    expect(within(asked()).getByText(grantingLine(crossing))).toBeVisible();
+    expect(screen.getByRole("button", { name: approval })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+
+    await press(m.action_plug_update_yes({ offer: "plugin-update:6a31" }));
+    expect(onask).toHaveBeenLastCalledWith({
+      doing: "plugin-update",
+      plugin: "subtitle-fetch",
+      source: "example.org/subtitle-fetch.git",
+      offer: "plugin-update:6a31",
+      approved: [],
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: approval }));
+    expect(screen.getByRole("button", { name: approval })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await rerender({
+      plugger: {
+        ...plugger,
+        work: [updateReadGrantingAgain, updateReadGranting],
+        onask,
+      },
+    });
+    expect(screen.getByRole("button", { name: approval })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    await press(m.action_plug_update_yes({ offer: "plugin-update:6a32" }));
+    expect(onask).toHaveBeenLastCalledWith(
+      expect.objectContaining({ offer: "plugin-update:6a32", approved: [] }),
     );
   });
 
