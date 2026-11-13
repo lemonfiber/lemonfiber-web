@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { linesOf } from "./came";
 import {
   householdLines,
+  invitationCodes,
   invitationLines,
   type Housed,
   type Invited,
@@ -9,9 +10,14 @@ import {
 import { saidOfPolicy } from "./household";
 import {
   claimAt,
+  declineAt,
   filtering,
+  joinable,
+  joinAt,
+  noJoin,
   offered,
   reissued,
+  unjoinable,
   wouldOffer,
 } from "../api/invitations";
 import * as m from "../paraglide/messages.js";
@@ -91,6 +97,24 @@ describe("what offering an account came to", () => {
     ]);
   });
 
+  it("says the link the companion app opens it at, and where it is turned down", () => {
+    expect(invitationLines(joinable).slice(0, 4)).toStrictEqual([
+      m.came_invite_made({ name: "Sam" }),
+      address,
+      m.came_invite_join({ join: joinAt }),
+      m.came_invite_decline({ decline: declineAt }),
+    ]);
+  });
+
+  it("says why there is no join link, in lemonfiber's words", () => {
+    expect(invitationLines(unjoinable).slice(0, 4)).toStrictEqual([
+      m.came_invite_made({ name: "Sam" }),
+      address,
+      noJoin,
+      m.came_invite_decline({ decline: declineAt }),
+    ]);
+  });
+
   it("passes lemonfiber's caution on as it is", () => {
     const caution =
       "The media server is older than the one this was tested on.";
@@ -134,6 +158,22 @@ describe("what offering an account came to", () => {
       address,
       m.came_invite_withdrawn({ names: "Rory, Lou" }),
       m.came_invite_suspended({ names: "Max" }),
+    ]);
+  });
+});
+
+describe("what an invitation hands to somebody", () => {
+  it("is the sign-in address, the join link and the decline address, as lemonfiber gave them", () => {
+    expect(invitationCodes(joinable)).toStrictEqual([
+      { text: claimAt, label: m.came_invite_address_said() },
+      { text: joinAt, label: m.came_invite_join_said() },
+      { text: declineAt, label: m.came_invite_decline_said() },
+    ]);
+  });
+
+  it("is the sign-in address alone where lemonfiber gave nothing else", () => {
+    expect(invitationCodes(offered)).toStrictEqual([
+      { text: claimAt, label: m.came_invite_address_said() },
     ]);
   });
 });

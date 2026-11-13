@@ -7,6 +7,7 @@ import { home } from "../api/keylists";
 import type { Keyer } from "./keying.svelte";
 import type { Freshness } from "../lib/freshness";
 import { keyLines, mintedLines } from "../lib/keys";
+import { drawn as coded } from "../lib/qr";
 import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 5 };
@@ -131,6 +132,11 @@ describe("the integration keys, on the settings screen", () => {
       name: m.keys_made_title({ name: "home" }),
     });
     expect(within(shown).getByText(made.secret)).toBeVisible();
+    expect(
+      within(shown)
+        .getByRole("img", { name: m.keys_code_said({ name: "home" }) })
+        .querySelector("path"),
+    ).toHaveAttribute("d", coded(made.secret).path);
     for (const line of mintedLines(made)) {
       expect(within(shown).getByText(line)).toBeVisible();
     }

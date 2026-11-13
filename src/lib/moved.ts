@@ -20,6 +20,7 @@ import type { ByKind } from "@lemonfiber/sdk-ts";
 import { listed } from "./listed";
 import type { Moving } from "./requested";
 import { carryingLines } from "./survey";
+import { said } from "./said";
 import * as m from "../paraglide/messages.js";
 
 /** What adopting came to. */
@@ -59,11 +60,6 @@ export function stanceLine(
     default:
       return m.move_stance_other();
   }
-}
-
-/** A value lemonfiber may leave out, kept where it says something. */
-function said(value: string | null | undefined): value is string {
-  return value !== undefined && value !== null && value !== "";
 }
 
 /** What adopting came to, line by line. */

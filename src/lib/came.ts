@@ -24,7 +24,8 @@
  * choosing which service fills a capability in `./substituted`, and acting on
  * a setup already here in `./moved`.
  * Anything else arrives as an outcome nobody here reads, which is said rather
- * than drawn as nothing.
+ * than drawn as nothing. What a record hands to somebody is also offered as a
+ * code, in `codesOf`.
  *
  * The sentences lemonfiber writes into a report are its own and are passed
  * through unchanged. The words around them live in `messages/`.
@@ -64,7 +65,7 @@ import { lettingLines, type Let, type Reckoned } from "./letting";
 import { reclaimedLines } from "./reclaimed";
 import { substitutedLines, type Substituted } from "./substituted";
 import { movedLines, type Moved } from "./moved";
-import { handoffLines, type Handoff } from "./handoff";
+import { handoffCodes, handoffLines, type Handoff } from "./handoff";
 import { undoLines, type Undone } from "./undone";
 import { pluggedLines, type Plugs } from "./plugged";
 import type { Inventory } from "./credentials";
@@ -75,10 +76,12 @@ import { unvettedLines } from "./unvetted";
 export type { Undone } from "./undone";
 import {
   householdLines,
+  invitationCodes,
   invitationLines,
   type Housed,
   type Invited,
 } from "./invited";
+import type { Coded } from "./qr";
 import { gradingOf } from "./verdict";
 import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
@@ -509,4 +512,15 @@ export function linesOf(came: Came): readonly string[] {
     case "unread":
       return [m.came_unread()];
   }
+}
+
+/**
+ * What a record of finished work hands to somebody, each as the code that
+ * carries it: an invitation's addresses and link, and the address a hand-off
+ * points at. Anything else hands nothing over.
+ */
+export function codesOf(came: Came): readonly Coded[] {
+  if (came.kind === "invitation") return invitationCodes(came.report);
+  if (came.kind === "handoff") return handoffCodes(came.report);
+  return [];
 }

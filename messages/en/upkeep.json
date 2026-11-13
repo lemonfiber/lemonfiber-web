@@ -255,6 +255,7 @@
   "keys_address": "Address: {address}",
   "keys_made_title": "Key {name}",
   "keys_made_prose": "This is the only time the secret is shown. Copy it into the program now; closing this or reloading the page drops it.",
+  "keys_code_said": "Code: {name} secret",
   "keys_revoke_prose": "Anything using {name} is refused from the moment it is revoked.",
   "keys_mint_title": "Mint a key",
   "keys_name": "Key name",

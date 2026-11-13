@@ -5,6 +5,7 @@
   import {
     clientLine,
     codeLine,
+    handoffCodes,
     handoffLines,
     sessionLine,
     type Handoff,
@@ -27,11 +28,12 @@
 
 <!--
   Where getting one person's device onto the media server stands, and what to
-  give them: each app with a code that points it at the server, the steps
-  they take on the device, and the devices signed in now. The code is an
-  address and nothing more, so showing it gives away where the server is and
-  no way in. Approving a short-code sign-in is the person's own step, and
-  nothing here takes it for them.
+  give them: the address the server is reached at, as a code beside its line,
+  each app with a code that points it at the server, the steps they take on
+  the device, and the devices signed in now. Each code is an address and
+  nothing more, so showing it gives away where the server is and no way in.
+  Approving a short-code sign-in is the person's own step, and nothing here
+  takes it for them.
 -->
 <section class="handing" aria-labelledby={titleId}>
   <h3 id={titleId}>{m.handoff_said({ name: handoff.name })}</h3>
@@ -40,6 +42,9 @@
       <li><Said text={line} /></li>
     {/each}
   </ul>
+  {#each handoffCodes(handoff) as code, at (at)}
+    <Code text={code.text} label={code.label} />
+  {/each}
 
   {#if handoff.clients.length > 0}
     <ul class="apps" aria-label={m.handoff_apps()}>

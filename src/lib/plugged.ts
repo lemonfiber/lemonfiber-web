@@ -19,6 +19,7 @@ import { installedLines } from "./plugins";
 import type { Plugging } from "./requested";
 import { undoLines } from "./undone";
 import { unvettedLines } from "./unvetted";
+import { said } from "./said";
 import * as m from "../paraglide/messages.js";
 
 /** What is installed, and what one act on a plugin came to. */
@@ -73,11 +74,6 @@ export function titleOfPlug(doing: Plugging): string {
     case "plugin-remove":
       return m.doing_plug_remove_title();
   }
-}
-
-/** A value a report may leave out, kept where it says something. */
-function said(value: string | null | undefined): value is string {
-  return value !== undefined && value !== null && value !== "";
 }
 
 /** One placeholder a starting file names a secret by. */

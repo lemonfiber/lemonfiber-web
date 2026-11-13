@@ -1,8 +1,10 @@
 <script lang="ts">
   import Said from "./Said.svelte";
   import type { Snippet } from "svelte";
+  import Code from "./Code.svelte";
   import Port from "./Port.svelte";
   import StateMark from "./StateMark.svelte";
+  import type { Coded } from "../lib/qr";
   import { toneFor, type State } from "../lib/state";
 
   interface Props {
@@ -20,11 +22,16 @@
      */
     lines?:
       { readonly named: string; readonly said: readonly string[] } | undefined;
+    /**
+     * What it came to that is handed to somebody, each drawn as a code under
+     * the lines that carry its text. Omitted where there is nothing to hand.
+     */
+    codes?: readonly Coded[] | undefined;
     /** Buttons. Omitted where there is nothing to press. */
     actions?: Snippet | undefined;
   }
 
-  let { state, eyebrow, title, prose, lines, actions }: Props = $props();
+  let { state, eyebrow, title, prose, lines, codes, actions }: Props = $props();
 
   const tone = $derived(toneFor(state));
 </script>
@@ -33,6 +40,8 @@
   A row that wants the operator. The port carries the severity, the eyebrow
   carries the state in this row's own words, and the prose carries the rest.
   Where there is more to say, one fact a line, it is a list under the prose.
+  What a line hands to somebody, such as an address, is drawn as a code under
+  it.
 
   The port's icon is decorative here: the eyebrow beside it already says what
   it means, and announcing both would say it twice.
@@ -56,6 +65,13 @@
       <ul class="lines" aria-label={lines.named}>
         {#each lines.said as line, at (at)}
           <li><Said text={line} /></li>
+        {/each}
+      </ul>
+    {/if}
+    {#if codes !== undefined && codes.length > 0}
+      <ul class="codes">
+        {#each codes as code, at (at)}
+          <li><Code text={code.text} label={code.label} /></li>
         {/each}
       </ul>
     {/if}
@@ -137,6 +153,15 @@
      replaced, keeps its breaks. */
   .lines li {
     white-space: pre-line;
+  }
+
+  .codes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    margin: var(--sp-3) 0 0;
+    padding: 0;
+    list-style: none;
   }
 
   /* Stacked, so the prose keeps its measure rather than being squeezed by a

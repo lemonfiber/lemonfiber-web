@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { invitationCodes } from "./invited";
+import { joinable } from "../api/invitations";
 import {
   adoptedLines,
   besideLines,
@@ -12,6 +14,7 @@ import {
   wouldStandBeside,
 } from "../api/moves";
 import {
+  codesOf,
   linesOf,
   type Checked,
   type Lifecycle,
@@ -20,7 +23,7 @@ import {
   type Undone,
 } from "./came";
 import { gradingOf } from "./verdict";
-import { handoffLines } from "./handoff";
+import { handoffCodes, handoffLines } from "./handoff";
 import { readyForSam } from "../api/handoffs";
 import { pluggedLines } from "./plugged";
 import { madeInstall } from "../api/plugs";
@@ -677,5 +680,17 @@ describe("what acting on a setup already here came to", () => {
     expect(
       linesOf({ kind: "replacement", report: wouldReplace }),
     ).toStrictEqual(replacedLines(wouldReplace));
+  });
+});
+
+describe("what a record of finished work hands to somebody", () => {
+  it("is what an invitation and a hand-off hand over, and nothing else", () => {
+    expect(codesOf({ kind: "invitation", report: joinable })).toStrictEqual(
+      invitationCodes(joinable),
+    );
+    expect(codesOf({ kind: "handoff", report: readyForSam })).toStrictEqual(
+      handoffCodes(readyForSam),
+    );
+    expect(codesOf({ kind: "adoption", report: wouldAdopt })).toStrictEqual([]);
   });
 });

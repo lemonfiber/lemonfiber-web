@@ -1,6 +1,7 @@
 <script lang="ts">
   import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
+  import Code from "../../components/Code.svelte";
   import Field from "../../components/Field.svelte";
   import Panel from "../../components/Panel.svelte";
   import Segmented from "../../components/Segmented.svelte";
@@ -73,7 +74,9 @@
   secret, and an active one can be revoked once the operator says so. Minting
   asks for the operator's password every time; it goes in that one request and
   the field is emptied as it is sent. The key just minted is shown once, with
-  its pin and address, and closing it, or reloading, drops its secret.
+  its pin and address, and closing it, or reloading, drops its secret. The
+  secret is drawn as a code beside its text too, from exactly what lemonfiber
+  gave and in the page itself, so nothing is fetched to draw it.
 -->
 <Panel title={m.panel_keys()} {freshness} flush>
   <div class="scope">
@@ -108,6 +111,10 @@
       <p class="secret">
         <Value state="known" figure={keyer.minted.secret} />
       </p>
+      <Code
+        text={keyer.minted.secret}
+        label={m.keys_code_said({ name: keyer.minted.name })}
+      />
       <ul class="lines">
         {#each mintedLines(keyer.minted) as line, at (at)}
           <li><Said text={line} /></li>

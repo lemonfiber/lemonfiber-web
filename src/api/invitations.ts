@@ -55,3 +55,35 @@ export const reissued: Invited = {
   name: "Kit",
   standing: "reset",
 };
+
+/** The link the companion app opens Sam's offer at. */
+export const joinAt =
+  "lemonfiber://join?address=https%3A%2F%2Flemonfiber.local%3A8443&fingerprint=00&stack=c1d2e3f4a5b6&name=Sam&expires=1790000000&claim=9c1e";
+
+/** The one address Sam's offer is turned down at. */
+export const declineAt = [
+  "http:",
+  "",
+  "lemonfiber.local:5056",
+  "decline",
+  "4b2d",
+].join("/");
+
+/** Why an offer came without a join link, in lemonfiber's words. */
+export const noJoin =
+  "There is no join link, because the web interface has not been served encrypted on your network.";
+
+/** The account made, with the link the app opens it at and where it is turned down. */
+export const joinable: Invited = {
+  ...offered,
+  decline: declineAt,
+  join: joinAt,
+};
+
+/** The account made with no join link, and why. */
+export const unjoinable: Invited = {
+  ...offered,
+  decline: declineAt,
+  join: null,
+  unjoinable: noJoin,
+};

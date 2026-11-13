@@ -1,5 +1,6 @@
 <script lang="ts">
   import Said from "../../components/Said.svelte";
+  import Code from "../../components/Code.svelte";
   import DataTable from "../../components/DataTable.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
@@ -62,7 +63,8 @@
   whether or not the service behind it is answering — and a door that is down is
   exactly when an operator is being asked what to open. What the standing says
   is whether arriving there will work, which is a different fact and is set in
-  its own tag.
+  its own tag. The address is drawn as a code beside it too, from exactly the
+  text this machine gave, for a phone to read off the screen.
 
   A door the operator named and this stack refused carries what they wrote and
   why it is not the door. An operator whose setting was refused reads that
@@ -108,6 +110,12 @@
           absent={m.door_no_address()}
         />
       </p>
+
+      {#if address !== undefined}
+        <div class="code">
+          <Code text={address.url} label={m.door_code_said()} />
+        </div>
+      {/if}
 
       {#if caution !== undefined}
         <p class="caution"><Said text={caution} /></p>
@@ -161,6 +169,10 @@
   .address {
     margin: 0 0 var(--sp-1);
     font-size: var(--text-item);
+  }
+
+  .code {
+    margin: 0 0 var(--sp-2);
   }
 
   /* A caption on the address rather than a line of its own: what it says is

@@ -21,6 +21,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const signIn = ["http:", "", "lemonfiber.local:5055", "join", "7f3a"].join("/");
+const declineAt = [
+  "http:",
+  "",
+  "lemonfiber.local:5056",
+  "decline",
+  "4b2d",
+].join("/");
+
 /**
  * Checked, and true. A confirmed row still earns its place: an operator who
  * only ever sees problems has no way to know what was looked at.
@@ -118,5 +127,30 @@ export const WhatItCameTo: Story = {
         }),
       ],
     },
+  },
+};
+
+/**
+ * Finished, with something to hand somebody: each address under the lines is
+ * drawn as a code from exactly the text in them.
+ */
+export const WhatItHandsOver: Story = {
+  args: {
+    state: "known",
+    eyebrow: m.eyebrow_finished(),
+    title: m.doing_invite_title(),
+    prose: m.work_finished({ job: "4d7e20bc91a3f658" }),
+    lines: {
+      named: m.came_heading(),
+      said: [
+        m.came_invite_made({ name: "Sam" }),
+        m.came_invite_address({ address: signIn, hours: "72" }),
+        m.came_invite_decline({ decline: declineAt }),
+      ],
+    },
+    codes: [
+      { text: signIn, label: m.came_invite_address_said() },
+      { text: declineAt, label: m.came_invite_decline_said() },
+    ],
   },
 };

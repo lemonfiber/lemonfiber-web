@@ -27,6 +27,7 @@
   "door_none": "Nothing is published to the house",
   "door_unrecognised": "Standing in a way this page has no word for",
   "door_no_address": "No address to hand out",
+  "door_code_said": "Code: front door",
   "door_derived": "Worked out from what your stack runs.",
   "door_named": "You chose {door}, and this is it.",
   "door_refused": "You chose {named}, and this stack will not send anybody there. {because}",
@@ -44,6 +45,7 @@
   "pairing_prose": "Make a fresh pairing code for the companion app: a line the phone reads or you type, naming where it reaches this machine and the certificate it will be shown. It carries no password, and the phone still signs in with yours. lemonfiber makes it only while the web interface is served encrypted on your network.",
   "pairing_asked": "Pairing requests",
   "pairing_title": "Pairing code",
-  "pairing_written": "Type this on the phone, or paste it:",
+  "pairing_written": "Scan the code with the phone, or type or paste this line:",
+  "pairing_code_said": "Code: pairing line",
   "pairing_compare": "Before the phone trusts this machine, check it shows:"
 }
