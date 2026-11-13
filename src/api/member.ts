@@ -29,7 +29,7 @@ import {
   type RefusalCode,
 } from "@lemonfiber/sdk-ts";
 import type { Reaching } from "./asking";
-import { reached, succeeded, type Carrying } from "./reached";
+import { READING, reached, succeeded, type Carrying } from "./reached";
 
 /** Who is in the household and what each asked for, narrowed to the one asking. */
 export const REQUESTS = "/api/requests";
@@ -262,14 +262,7 @@ export async function wished(
     }),
     once,
   });
-  if (came.at !== "answered") return came;
-
-  const read = parse(came.value);
-  if (!read.ok) return { at: "unanswered", problem: read.problem };
-  if (!isKind(read.value, "asked"))
-    return { at: "unanswered", problem: malformed() };
-
-  return { at: "answered", value: read.value.data };
+  return narrowed(came, "asked");
 }
 
 /**
@@ -278,7 +271,7 @@ export async function wished(
 export async function knocked(
   reaching: Reaching,
   path: string,
-  carrying: Carrying = { method: "GET" },
+  carrying: Carrying = READING,
 ): Promise<Answer<string>> {
   const answer = await reached(reaching, path, carrying);
   if (!answer.ok) return { at: "unanswered", problem: answer.problem };
@@ -301,7 +294,17 @@ export async function heard<K extends Kind>(
   path: string,
   kind: K,
 ): Promise<Answer<ByKind[K]["data"]>> {
-  const came = await knocked(reaching, path);
+  return narrowed(await knocked(reaching, path), kind);
+}
+
+/**
+ * An answer read as the kind it names, and refused as malformed where it is
+ * not one.
+ */
+function narrowed<K extends Kind>(
+  came: Answer<string>,
+  kind: K,
+): Answer<ByKind[K]["data"]> {
   if (came.at !== "answered") return came;
 
   const read = parse(came.value);

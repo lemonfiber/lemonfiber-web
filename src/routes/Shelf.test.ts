@@ -18,6 +18,7 @@ import type { Heard } from "../api/member";
 import type { Freshness } from "../lib/freshness";
 import type { Access } from "../lib/wire";
 import { mediumOf, watchOf, type Shelf as Held } from "../lib/yours";
+import { everythingInView } from "../lib/gallery.testing";
 import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 8 };
@@ -43,26 +44,6 @@ function drawn(
 const panel = (name: string): HTMLElement =>
   screen.getByRole("region", { name });
 
-/** Every place on the page counts as on screen the moment it is watched. */
-function onScreenAtOnce(): void {
-  vi.stubGlobal(
-    "IntersectionObserver",
-    class {
-      readonly #told: (entries: { isIntersecting: boolean }[]) => void;
-      constructor(told: (entries: { isIntersecting: boolean }[]) => void) {
-        this.#told = told;
-      }
-      observe(): undefined {
-        this.#told([{ isIntersecting: true }]);
-        return undefined;
-      }
-      disconnect(): undefined {
-        return undefined;
-      }
-    },
-  );
-}
-
 describe("what the household holds that a member can watch", () => {
   // The server applies their limits before it answers, so every title it sent
   // is drawn and none is held back here.
@@ -86,7 +67,7 @@ describe("what the household holds that a member can watch", () => {
   // from an address the page made for its bytes, and a title whose poster
   // could not be had stays lettered.
   it("draws each poster on screen from the bytes it was handed, and letters the rest", async () => {
-    onScreenAtOnce();
+    everythingInView();
     URL.createObjectURL = (): string => "blob:arrival";
     const revoked = vi.fn();
     URL.revokeObjectURL = revoked;
@@ -121,7 +102,7 @@ describe("what the household holds that a member can watch", () => {
   });
 
   it("letters every title where nothing hands over posters", async () => {
-    onScreenAtOnce();
+    everythingInView();
     drawn({ at: "answered", value: kitsShelf });
     await new Promise((resolve) => {
       setTimeout(resolve, 0);

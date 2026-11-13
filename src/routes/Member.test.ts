@@ -1,7 +1,7 @@
 import { render, screen, waitFor, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { tick } from "svelte";
-import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
+import type { Sending } from "@lemonfiber/sdk-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Member from "./Member.svelte";
 import { enveloped, refusedAs, replying } from "../api/bodies";
@@ -18,24 +18,23 @@ import { household } from "./house";
 import { nameOfRoom } from "../lib/rooms";
 import { everyPlace, nameOf } from "../lib/route";
 import type { Household } from "../lib/wire";
+import { everythingInView } from "../lib/gallery.testing";
+import {
+  fetching,
+  here,
+  nobody,
+  session,
+  signedIn,
+  type Said,
+} from "./Member.testing";
 import * as m from "../paraglide/messages.js";
-
-/** Built rather than written, so no scanner reads it as a real one. */
-const session = ["a", "session", "secret"].join("-");
-const here = "http://127.0.0.1:7777";
 
 /** What lemonfiber says to a member at a door that is not theirs. */
 const notYours = "This is not something this account may ask for.";
 
-/** What lemonfiber says to a session that no longer stands. */
-const nobody = "This request carried no token or session this run admits.";
-
 /** What lemonfiber says where the media server could not be asked about them. */
 const unconfirmed =
   "This account could not be checked with the media server, so nobody was identified. Nothing about the account has changed.";
-
-/** One reply, or a request that never arrives. */
-type Said = { status: number; body: string } | "nothing";
 
 /** A transport answering each address with whatever `say` says of it now. */
 function answering(say: (url: URL) => Said): Sending {
@@ -59,21 +58,6 @@ const answers =
       return { status: 200, body: enveloped("part-way", kitsNothingPartWay) };
     return { status: 403, body: notYours };
   };
-
-/** The stream is refused a member, and nothing here opens it. */
-const fetching: Fetching = vi.fn(() =>
-  Promise.resolve({ ok: false, status: 500, body: null }),
-);
-
-function signedIn(sending: Sending): { onrefused: ReturnType<typeof vi.fn> } {
-  const onrefused = vi.fn();
-  render(Member, {
-    reaching: { at: here, token: session, sending, fetching },
-    member: kitsId,
-    onrefused,
-  });
-  return { onrefused };
-}
 
 /**
  * Text as it is read, passing over a poster's lettering, which repeats the
@@ -273,22 +257,7 @@ describe("what the household holds, for the member signed in", () => {
 
   // A poster is asked for with the session's key, at the console's own address.
   it("asks for each poster on screen at this page's own address, as the member the door named", async () => {
-    vi.stubGlobal(
-      "IntersectionObserver",
-      class {
-        readonly #told: (entries: { isIntersecting: boolean }[]) => void;
-        constructor(told: (entries: { isIntersecting: boolean }[]) => void) {
-          this.#told = told;
-        }
-        observe(): undefined {
-          this.#told([{ isIntersecting: true }]);
-          return undefined;
-        }
-        disconnect(): undefined {
-          return undefined;
-        }
-      },
-    );
+    everythingInView();
     globalThis.history.replaceState(undefined, "", "/held");
     const sending = answering(answers());
     signedIn(sending);

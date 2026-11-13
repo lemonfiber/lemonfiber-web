@@ -41,6 +41,9 @@ export interface Carrying {
   readonly once?: string | undefined;
 }
 
+/** What a read carries: the method alone. */
+export const READING: Carrying = { method: "GET" };
+
 /** The header an action's retry is told from a second action by. */
 const ONCE = "Idempotency-Key";
 

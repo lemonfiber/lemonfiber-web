@@ -608,6 +608,7 @@ const READERS = [
   /\basked\(\s*[^,]+,\s*[^,]+,\s*"([a-z-]+)"/g,
   /\bheard\(\s*[^,]+,\s*[^,]+,\s*"([a-z-]+)"/g,
   /\bisKind\(\s*[^,]+,\s*"([a-z-]+)"\)/g,
+  /\bnarrowed\(\s*[^,]+,\s*"([a-z-]+)"\)/g,
   /"([a-z-]+)" satisfies Kind\b/g,
 ];
 

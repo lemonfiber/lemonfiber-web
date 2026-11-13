@@ -1,19 +1,13 @@
-import { render, screen, waitFor, within } from "@testing-library/svelte";
+import { screen, waitFor, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
-import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
+import type { Sending } from "@lemonfiber/sdk-ts";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import Member from "./Member.svelte";
 import { enveloped, refusedAs, replying } from "../api/bodies";
 import { didAsk, firstPage, lastPage, wouldAsk } from "./found";
 import { kitsId, yours } from "./mine";
+import { everythingInView } from "../lib/gallery.testing";
+import { here, nobody, signedIn, type Said } from "./Member.testing";
 import * as m from "../paraglide/messages.js";
-
-/** Built rather than written, so no scanner reads it as a real one. */
-const session = ["a", "session", "secret"].join("-");
-const here = "http://127.0.0.1:7777";
-
-/** One reply, or a request that never arrives. */
-type Said = { status: number; body: string } | "nothing";
 
 /** What an ask carries, as far as these suites read it. */
 interface Body {
@@ -110,26 +104,27 @@ const answers =
     return { status: 404, body: "" };
   };
 
-const fetching: Fetching = vi.fn(() =>
-  Promise.resolve({ ok: false, status: 500, body: null }),
-);
-
-function signedIn(sending: Sending): { onrefused: ReturnType<typeof vi.fn> } {
-  const onrefused = vi.fn();
-  render(Member, {
-    reaching: { at: here, token: session, sending, fetching },
-    member: kitsId,
-    onrefused,
-  });
-  return { onrefused };
-}
-
 /** Search for some words, the way a member does. */
 async function search(words: string): Promise<void> {
   await userEvent.type(
     await screen.findByRole("searchbox", { name: m.found_label() }),
     `${words}{Enter}`,
   );
+}
+
+/** Open a title the search found, and hand back its card. */
+async function opened(name: string): Promise<HTMLElement> {
+  await userEvent.click(await screen.findByRole("button", { name }));
+  return screen.findByRole("dialog", { name });
+}
+
+/** Open a title the search found and press its ask, and hand back its card. */
+async function askedFor(name: string): Promise<HTMLElement> {
+  const card = await opened(name);
+  await userEvent.click(
+    await within(card).findByRole("button", { name: m.found_ask() }),
+  );
+  return card;
 }
 
 const searches = (sent: readonly Sent[]): readonly URL[] =>
@@ -193,9 +188,8 @@ describe("a household member asking for something", () => {
     const { sending, sent } = answering(answers());
     signedIn(sending);
     await search("dune");
-    await userEvent.click(await screen.findByRole("button", { name: "Dune" }));
 
-    const card = await screen.findByRole("dialog", { name: "Dune" });
+    const card = await opened("Dune");
     expect(await within(card).findByText(wouldAsk.said)).toBeInTheDocument();
     expect(asks(sent)).toHaveLength(1);
     expect(asks(sent)[0]?.body).toEqual({
@@ -209,11 +203,7 @@ describe("a household member asking for something", () => {
     const { sending, sent } = answering(answers());
     signedIn(sending);
     await search("dune");
-    await userEvent.click(await screen.findByRole("button", { name: "Dune" }));
-    const card = await screen.findByRole("dialog", { name: "Dune" });
-    await userEvent.click(
-      await within(card).findByRole("button", { name: m.found_ask() }),
-    );
+    const card = await askedFor("Dune");
 
     expect(await within(card).findByRole("status")).toHaveTextContent(
       didAsk.said,
@@ -236,11 +226,7 @@ describe("a household member asking for something", () => {
     );
     signedIn(sending);
     await search("dune");
-    await userEvent.click(await screen.findByRole("button", { name: "Dune" }));
-    const card = await screen.findByRole("dialog", { name: "Dune" });
-    await userEvent.click(
-      await within(card).findByRole("button", { name: m.found_ask() }),
-    );
+    const card = await askedFor("Dune");
     expect(await within(card).findByRole("alert")).toHaveTextContent(
       m.found_ask_unanswered(),
     );
@@ -262,11 +248,7 @@ describe("a household member asking for something", () => {
     signedIn(sending);
     await search("dune");
     for (const name of ["Dune", "Severance"]) {
-      await userEvent.click(await screen.findByRole("button", { name }));
-      const card = await screen.findByRole("dialog", { name });
-      await userEvent.click(
-        await within(card).findByRole("button", { name: m.found_ask() }),
-      );
+      const card = await askedFor(name);
       await within(card).findByRole("status");
       await userEvent.click(
         within(card).getByRole("button", { name: m.member_title_close() }),
@@ -282,11 +264,7 @@ describe("a household member asking for something", () => {
     const { sending, sent } = answering(answers());
     signedIn(sending);
     await search("dune");
-    await userEvent.click(await screen.findByRole("button", { name: "Dune" }));
-    const card = await screen.findByRole("dialog", { name: "Dune" });
-    await userEvent.click(
-      await within(card).findByRole("button", { name: m.found_ask() }),
-    );
+    const card = await askedFor("Dune");
     await within(card).findByRole("status");
     await userEvent.click(
       within(card).getByRole("button", { name: m.member_title_close() }),
@@ -300,8 +278,7 @@ describe("a household member asking for something", () => {
     const { sending, sent } = answering(answers());
     signedIn(sending);
     await search("dune");
-    await userEvent.click(await screen.findByRole("button", { name: "Dune" }));
-    const card = await screen.findByRole("dialog", { name: "Dune" });
+    const card = await opened("Dune");
     await within(card).findByText(wouldAsk.said);
     await userEvent.click(
       within(card).getByRole("button", { name: m.member_title_close() }),
@@ -321,8 +298,7 @@ describe("a household member asking for something", () => {
     );
     signedIn(sending);
     await search("dune");
-    await userEvent.click(await screen.findByRole("button", { name: "Dune" }));
-    const card = await screen.findByRole("dialog", { name: "Dune" });
+    const card = await opened("Dune");
     silent = false;
     await userEvent.click(
       await within(card).findByRole("button", { name: m.action_try_again() }),
@@ -348,27 +324,26 @@ describe("a household member asking for something", () => {
       one.url.pathname === "/api/askable"
         ? {
             status: 401,
-            body: "This request carried no token or session this run admits.",
+            body: nobody,
           }
         : answers()(one),
     );
     const { onrefused } = signedIn(sending);
     await search("dune");
     await waitFor(() => {
-      expect(onrefused).toHaveBeenCalledWith(
-        "This request carried no token or session this run admits.",
-      );
+      expect(onrefused).toHaveBeenCalledWith(nobody);
     });
   });
 
   it("is signed out where lemonfiber stops taking the session at the ask", async () => {
-    const said = "This request carried no token or session this run admits.";
-    const { sending } = answering(answers(() => ({ status: 401, body: said })));
+    const { sending } = answering(
+      answers(() => ({ status: 401, body: nobody })),
+    );
     const { onrefused } = signedIn(sending);
     await search("dune");
     await userEvent.click(await screen.findByRole("button", { name: "Dune" }));
     await waitFor(() => {
-      expect(onrefused).toHaveBeenCalledWith(said);
+      expect(onrefused).toHaveBeenCalledWith(nobody);
     });
   });
 
@@ -424,16 +399,11 @@ describe("a household member asking for something", () => {
     });
     signedIn(sending);
     await search("dune");
-    await userEvent.click(await screen.findByRole("button", { name: "Dune" }));
-    let card = await screen.findByRole("dialog", { name: "Dune" });
-    await userEvent.click(
-      await within(card).findByRole("button", { name: m.found_ask() }),
-    );
+    let card = await askedFor("Dune");
     await userEvent.click(
       within(card).getByRole("button", { name: m.member_title_close() }),
     );
-    await userEvent.click(screen.getByRole("button", { name: "Severance" }));
-    card = await screen.findByRole("dialog", { name: "Severance" });
+    card = await opened("Severance");
     release({ status: 200, body: enveloped("asked", didAsk) });
     await Promise.resolve();
     expect(within(card).queryByText(didAsk.said)).toBeNull();
@@ -466,43 +436,23 @@ describe("a household member asking for something", () => {
   });
 
   it("is signed out where lemonfiber stops taking the session as the ask is sent", async () => {
-    const said = "This request carried no token or session this run admits.";
     const { sending } = answering(
       answers((one) =>
         one.body?.dry_run === true
           ? { status: 200, body: enveloped("asked", wouldAsk) }
-          : { status: 401, body: said },
+          : { status: 401, body: nobody },
       ),
     );
     const { onrefused } = signedIn(sending);
     await search("dune");
-    await userEvent.click(await screen.findByRole("button", { name: "Dune" }));
-    const card = await screen.findByRole("dialog", { name: "Dune" });
-    await userEvent.click(
-      await within(card).findByRole("button", { name: m.found_ask() }),
-    );
+    await askedFor("Dune");
     await waitFor(() => {
-      expect(onrefused).toHaveBeenCalledWith(said);
+      expect(onrefused).toHaveBeenCalledWith(nobody);
     });
   });
 
   it("asks lemonfiber for each found title's poster, never the catalogue", async () => {
-    vi.stubGlobal(
-      "IntersectionObserver",
-      class {
-        readonly #told: (entries: { isIntersecting: boolean }[]) => void;
-        constructor(told: (entries: { isIntersecting: boolean }[]) => void) {
-          this.#told = told;
-        }
-        observe(): undefined {
-          this.#told([{ isIntersecting: true }]);
-          return undefined;
-        }
-        disconnect(): undefined {
-          return undefined;
-        }
-      },
-    );
+    everythingInView();
     const { sending, sent } = answering(answers());
     signedIn(sending);
     await search("dune");

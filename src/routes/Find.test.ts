@@ -7,6 +7,7 @@ import { dune, firstPage, lastPage, nothingFound, wouldAsk } from "./found";
 import type { Heard } from "../api/member";
 import type { Asked, Found, FoundTitle } from "../lib/askable";
 import type { Freshness } from "../lib/freshness";
+import { everythingInView } from "../lib/gallery.testing";
 import * as m from "../paraglide/messages.js";
 
 const fresh: Freshness = { kind: "never" };
@@ -16,26 +17,6 @@ const onasked = vi.fn();
 afterEach(() => {
   vi.unstubAllGlobals();
 });
-
-/** Every place on the page counts as on screen the moment it is watched. */
-function onScreenAtOnce(): void {
-  vi.stubGlobal(
-    "IntersectionObserver",
-    class {
-      readonly #told: (entries: { isIntersecting: boolean }[]) => void;
-      constructor(told: (entries: { isIntersecting: boolean }[]) => void) {
-        this.#told = told;
-      }
-      observe(): undefined {
-        this.#told([{ isIntersecting: true }]);
-        return undefined;
-      }
-      disconnect(): undefined {
-        return undefined;
-      }
-    },
-  );
-}
 
 /** What lemonfiber said where the words were too few. */
 const tooShort: Problem = {
@@ -203,7 +184,7 @@ describe("what a search found", () => {
   });
 
   it("asks for each poster on screen by the key that tells the title apart", async () => {
-    onScreenAtOnce();
+    everythingInView();
     const posters = vi.fn(() => Promise.resolve(undefined));
     drawn({ pages: [firstPage], posters });
     await waitFor(() => {
@@ -212,7 +193,7 @@ describe("what a search found", () => {
   });
 
   it("letters every title where nothing asks for posters", () => {
-    onScreenAtOnce();
+    everythingInView();
     drawn({ pages: [firstPage] });
     expect(found().querySelector("img")).toBeNull();
   });
