@@ -471,7 +471,7 @@ const DECLARED = new Map([
  * English plural is the same name.
  */
 function naming(line, name) {
-  return new RegExp(`\\b${name}s?\\b`, "iu").test(line);
+  return new RegExp(String.raw`\b${name}s?\b`, "iu").test(line);
 }
 
 /**
@@ -558,7 +558,7 @@ function tagEnd(source, at) {
 /** Every message one prop of a tag reads, however the value is put together. */
 function messagesOf(tag, prop) {
   const found = [];
-  const opening = new RegExp(`(?<![\\w-])${prop}=\\{`, "gu");
+  const opening = new RegExp(String.raw`(?<![\w-])${prop}=\{`, "gu");
   for (const match of tag.matchAll(opening)) {
     let depth = 1;
     let end = match.index + match[0].length;
@@ -577,7 +577,9 @@ function messagesOf(tag, prop) {
 function labelsIn(source) {
   const found = [];
   for (const [component, prop] of LABEL_SLOTS) {
-    for (const match of source.matchAll(new RegExp(`<${component}\\b`, "gu"))) {
+    for (const match of source.matchAll(
+      new RegExp(String.raw`<${component}\b`, "gu"),
+    )) {
       const tag = source.slice(match.index, tagEnd(source, match.index));
       found.push(...messagesOf(tag, prop));
     }
