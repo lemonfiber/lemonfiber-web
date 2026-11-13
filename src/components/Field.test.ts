@@ -125,6 +125,17 @@ describe("a box holding a secret", () => {
   });
 });
 
+describe("a box a search is typed into", () => {
+  const asked = { label: "Search", value: "", purpose: "search" } as const;
+
+  it("is a search box, kept by nothing", () => {
+    render(Field, asked);
+    const box = screen.getByRole("searchbox", { name: asked.label });
+    expect(box).toHaveAttribute("autocomplete", "off");
+    expect(box).not.toHaveAttribute("autocapitalize");
+  });
+});
+
 describe("what typing in a box asks for", () => {
   it("hands over what the box now holds", async () => {
     const typed = vi.fn();

@@ -29,7 +29,7 @@ import { parse, refusalIn } from "@lemonfiber/sdk-ts";
 import type { Came } from "../lib/came";
 import type { Reaching } from "./asking";
 import { outcomeOf } from "./outcome";
-import { reached, succeeded } from "./reached";
+import { READING, reached, succeeded } from "./reached";
 
 /** Where a name is redeemed. */
 const JOBS = "/api/jobs/";
@@ -76,9 +76,11 @@ export async function redeeming(
   reaching: Reaching,
   job: string,
 ): Promise<Redeemed> {
-  const answer = await reached(reaching, `${JOBS}${encodeURIComponent(job)}`, {
-    method: "GET",
-  });
+  const answer = await reached(
+    reaching,
+    `${JOBS}${encodeURIComponent(job)}`,
+    READING,
+  );
   if (!answer.ok) return { at: "adrift", said: answer.problem.message };
 
   const { status, said } = answer;
