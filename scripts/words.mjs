@@ -15,6 +15,12 @@
  * A drawn screen is deliberately not the corpus. It carries another service's
  * name, a release title and whatever a daemon said back, and a sweep reading it
  * would be scanning words this product did not write.
+ *
+ * Two rules read beyond the base locale's words, and only to place them. A
+ * label is told from a sentence by where its key is drawn, so the screens'
+ * sources are read for the props and elements that draw one (`G2-R15`). A
+ * declared name is held to every other locale the settings name, each read
+ * against the base locale it translates (`G2-R14`).
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
@@ -25,12 +31,19 @@ const SETTINGS = JSON.parse(
   readFileSync(join(ROOT, "project.inlang", "settings.json"), "utf8"),
 );
 
+/** Every catalogue file one locale is compiled from, in the order named. */
+const catalogueOf = (locale) =>
+  [SETTINGS["plugin.inlang.messageFormat"].pathPattern]
+    .flat()
+    .map((pattern) => join(ROOT, pattern.replace("{locale}", locale)));
+
 /** Every catalogue file the base locale is compiled from, in the order named. */
-const CORPUS = [SETTINGS["plugin.inlang.messageFormat"].pathPattern]
-  .flat()
-  .map((pattern) =>
-    join(ROOT, pattern.replace("{locale}", SETTINGS.baseLocale)),
-  );
+const CORPUS = catalogueOf(SETTINGS.baseLocale);
+
+/** Every locale beside the base one, each of which is a translation of it. */
+const TRANSLATIONS = SETTINGS.locales.filter(
+  (locale) => locale !== SETTINGS.baseLocale,
+);
 
 /** The key inlang uses for the file's own schema, which nobody reads. */
 const SCHEMA = "$schema";
@@ -43,17 +56,20 @@ const fail = (where, message) => {
 // ── What a message says, with the parts nobody reads taken out ───────────
 
 /**
- * The text with every `{…}` removed, a placeholder being data inside a sentence.
+ * The text with every `{…}` removed, a placeholder being data inside a sentence,
+ * or put in place of `standIn` where it is to be counted rather than read.
  *
  * What arrives in one is a release title, a service name, a path or a figure —
  * words this product did not write and cannot be answerable for.
  */
-function withoutPlaceholders(said) {
+function withoutPlaceholders(said, standIn = "") {
   let prose = "";
   let depth = 0;
   for (const character of said) {
-    if (character === "{") depth += 1;
-    else if (character === "}") depth = Math.max(0, depth - 1);
+    if (character === "{") {
+      if (depth === 0) prose += standIn;
+      depth += 1;
+    } else if (character === "}") depth = Math.max(0, depth - 1);
     else if (depth === 0) prose += character;
   }
   return prose;
@@ -336,7 +352,11 @@ function blaming(said) {
 const EXPLAINS =
   /_(?:meaning|definition|explanation|explained|glossary|jargon)$/;
 
-/** How many words a term's own message may hold before it is a sentence. */
+/**
+ * The most words a label holds before it is a sentence: a term's own message,
+ * and anything drawn as a control's label or a heading, a declared name
+ * counting as one (`G2-R15`).
+ */
 const A_LABEL = 3;
 
 /**
@@ -418,6 +438,162 @@ function keptTwice(text) {
   }
   return [...twice];
 }
+
+// ── The names this product gives its own things ─────────────────────────
+
+/**
+ * The words that also name a file, a command or an argument, each with where it
+ * names one (`G2-R14`).
+ *
+ * Declared rather than inferred: nothing in a sentence says whether a noun is
+ * text or a name, and a name nobody wrote down here is one a translator will
+ * reasonably translate. A translation that turns one into the ordinary word a
+ * dictionary gives hands the reader a word that appears in no compose file, no
+ * command and no page of the documentation they would search.
+ */
+const DECLARED = new Map([
+  [
+    "form",
+    "a group of services that start and stop together, and the argument the verbs acting on one take",
+  ],
+  [
+    "stack",
+    "the machine every command acts on, in every path and every page of the documentation",
+  ],
+]);
+
+/**
+ * Whether a line uses a name as a word rather than as the start of one.
+ *
+ * Both edges, and the near miss is why: a translation beginning with the name,
+ * the way _formulier_ begins with _form_, is the exact mistranslation this rule
+ * is for, and a rule anchored at the front alone would read it as a match. An
+ * English plural is the same name.
+ */
+function naming(line, name) {
+  return new RegExp(String.raw`\b${name}s?\b`, "iu").test(line);
+}
+
+/**
+ * The declared names a translation of one message drops.
+ *
+ * No list of wrong words: where the base locale names a thing, the translation
+ * must name it too, and whatever a translator wrote instead never has to be
+ * guessed at.
+ */
+function namesDropped(source, translated) {
+  return [...DECLARED.keys()].filter(
+    (name) =>
+      naming(withoutPlaceholders(source), name) &&
+      !naming(withoutPlaceholders(translated), name),
+  );
+}
+
+// ── A label names what it opens or does ─────────────────────────────────
+
+/**
+ * How many words a label holds as it is read.
+ *
+ * A placeholder is one word: what fills it is a name or a figure, and it is the
+ * thing the label names. A declared name is one word by being one.
+ */
+function labelLength(said) {
+  return words(withoutPlaceholders(said, " placeholder")).filter(
+    (word) => word !== "",
+  ).length;
+}
+
+/** A label that has grown into a sentence, as the words that make it one. */
+function sentenced(said) {
+  return labelLength(said) > A_LABEL ? [said] : [];
+}
+
+/**
+ * Where a message is drawn as a label: the component and the prop that names a
+ * control, a menu item, a strip of places or a section, and the elements a
+ * section heading and a disclosure are drawn in.
+ *
+ * Known by where it is used rather than by how its key is spelled, since a key
+ * says which area a message belongs to and nothing about what it is drawn as.
+ */
+const LABEL_SLOTS = [
+  ["Action", "label"],
+  ["MenuItem", "label"],
+  ["Switch", "label"],
+  ["CheckLine", "label"],
+  ["Field", "label"],
+  ["Segmented", "label"],
+  ["SubNav", "label"],
+  ["Panel", "title"],
+  ["SettingRow", "title"],
+  ["WizardStep", "title"],
+];
+
+/** The elements whose own words are a heading or what a disclosure opens. */
+const LABEL_ELEMENTS = /<(h[1-6]|summary)\b[^>]*>\s*\{\s*m\.(\w+)\(/gu;
+
+/** A field of an option, a place or a column that is drawn as its label. */
+const LABEL_FIELDS = /\b(?:label|head):\s*m\.(\w+)\(/gu;
+
+/** A message read inside an expression. */
+const MESSAGE = /\bm\.(\w+)\(/gu;
+
+/** Where the tag that opens at `at` closes, stepping over braces and quotes. */
+function tagEnd(source, at) {
+  let depth = 0;
+  let quote;
+  for (let end = at; end < source.length; end += 1) {
+    const character = source[end];
+    if (quote !== undefined) {
+      if (character === quote) quote = undefined;
+    } else if (character === '"' || character === "'" || character === "`") {
+      quote = character;
+    } else if (character === "{") depth += 1;
+    else if (character === "}") depth -= 1;
+    else if (character === ">" && depth === 0) return end;
+  }
+  return source.length;
+}
+
+/** Every message one prop of a tag reads, however the value is put together. */
+function messagesOf(tag, prop) {
+  const found = [];
+  const opening = new RegExp(String.raw`(?<![\w-])${prop}=\{`, "gu");
+  for (const match of tag.matchAll(opening)) {
+    let depth = 1;
+    let end = match.index + match[0].length;
+    while (end < tag.length && depth > 0) {
+      if (tag[end] === "{") depth += 1;
+      else if (tag[end] === "}") depth -= 1;
+      end += 1;
+    }
+    const value = tag.slice(match.index + match[0].length, end - 1);
+    for (const [, key] of value.matchAll(MESSAGE)) found.push(key);
+  }
+  return found;
+}
+
+/** Every message one source file draws as a label. */
+function labelsIn(source) {
+  const found = [];
+  for (const [component, prop] of LABEL_SLOTS) {
+    for (const match of source.matchAll(
+      new RegExp(String.raw`<${component}\b`, "gu"),
+    )) {
+      const tag = source.slice(match.index, tagEnd(source, match.index));
+      found.push(...messagesOf(tag, prop));
+    }
+  }
+  for (const [, , key] of source.matchAll(LABEL_ELEMENTS)) found.push(key);
+  for (const [, key] of source.matchAll(LABEL_FIELDS)) found.push(key);
+  return found;
+}
+
+/**
+ * The areas whose every message names a place in a menu: a member's rooms and
+ * the console's places, which `src/lib/rooms.ts` and `src/lib/route.ts` name.
+ */
+const MENU_AREAS = new Set(["room", "nav"]);
 
 // ── Every rule, shown refusing before it is relied on ────────────────────
 
@@ -512,6 +688,49 @@ const PROVEN = [
     ],
   },
   {
+    rule: "declared name",
+    find: (translated, source) => namesDropped(source, translated),
+    refuses: [
+      ["Start the form", "Start het formulier"],
+      ["The stack is answering", "Die Anlage antwortet"],
+      ["Every form in the stack", "Elk formulier in de stapel"],
+    ],
+    allows: [
+      ["Start the form", "Start de form"],
+      ["Both forms are running", "Beide forms draaien"],
+      ["Nothing is running", "Er draait niets"],
+    ],
+  },
+  {
+    rule: "label",
+    find: sentenced,
+    refuses: [
+      "Why it is not the door",
+      "Opened from a terminal?",
+      "Show me {count} more of them",
+    ],
+    allows: ["Ask for something", "Found for {term}", "Try again", "Search"],
+  },
+  {
+    rule: "label slot",
+    find: labelsIn,
+    refuses: [
+      '<Action label={m.found_ask()} weight="firm" />',
+      "<Action\n  label={sending ? m.found_asking() : m.found_ask()}\n  onclick={() => go(a > b)}\n/>",
+      '<Panel stamped="quiet" title={m.found_for({ term })} {freshness}>',
+      '<h2 id="{uid}-title" class="said">{m.found_title()}</h2>',
+      "<summary>{m.wayin_key_open()}</summary>",
+      "{ head: m.head_asked_for() },",
+      '{ value: "a", label: m.policy_label_trusted() }',
+    ],
+    allows: [
+      '<Banner tone="watch" lead={m.member_unanswered_lead()} />',
+      '<Skeleton width="16rem" label={m.waiting_answer()} />',
+      '<p class="line">{m.found_first()}</p>',
+      "<Action label={label} onclick={go} />",
+    ],
+  },
+  {
     rule: "blame",
     find: blaming,
     refuses: [
@@ -530,7 +749,10 @@ const PROVEN = [
   },
 ];
 
-/** One proving case, as the key it is filed under and what it says. */
+/**
+ * One proving case, as the key it is filed under and what it says, or as the
+ * line a translation is of and the translation.
+ */
 const filed = (one) => (typeof one === "string" ? ["proved", one] : one);
 
 for (const { rule, find, refuses, allows } of PROVEN) {
@@ -654,11 +876,73 @@ for (const [file, key, message] of said) {
     );
 }
 
+// ── Each translation keeps the declared names ───────────────────────────
+
+const base = new Map(said.map(([, key, message]) => [key, message]));
+
+for (const locale of TRANSLATIONS) {
+  for (const path of catalogueOf(locale)) {
+    const file = relative(ROOT, path);
+    for (const [key, translated] of Object.entries(
+      JSON.parse(readFileSync(path, "utf8")),
+    )) {
+      const source = base.get(key);
+      if (key === SCHEMA || source === undefined) continue;
+      for (const name of namesDropped(source, translated))
+        fail(
+          `${file}  ${key}`,
+          `translates "${name}", a name this product gives one of its own things — it names ${String(DECLARED.get(name))}, and is rendered as declared in every locale`,
+        );
+    }
+  }
+}
+
+// ── Every label names what it opens or does ─────────────────────────────
+
+/** Where the screens are, which is where a message is drawn as a label. */
+const SOURCES = join(ROOT, "src");
+
+/** A file a screen is drawn from, rather than a suite, a story or compiled words. */
+const DRAWS = /\.(?:svelte|ts)$/u;
+const NOT_DRAWN = /(?:\.test\.ts|\.testing\.ts|\.stories\.ts)$|^paraglide\//u;
+
+/** Each message drawn as a label, with the first place it is drawn. */
+const labels = new Map();
+for (const name of readdirSync(SOURCES, { recursive: true })) {
+  const file = String(name);
+  if (!DRAWS.test(file) || NOT_DRAWN.test(file)) continue;
+  const source = readFileSync(join(SOURCES, file), "utf8");
+  for (const key of labelsIn(source))
+    if (!labels.has(key)) labels.set(key, `src/${file}`);
+}
+for (const key of base.keys())
+  if (MENU_AREAS.has(key.split("_")[0]) && !labels.has(key))
+    labels.set(key, "a menu");
+
+/** How few labels the sweep may find before it is reading the wrong thing. */
+const FLOOR_LABELS = 150;
+
+if (labels.size < FLOOR_LABELS)
+  fail(
+    "the label sweep",
+    `found ${String(labels.size)} labels, under the floor of ${String(FLOOR_LABELS)} — it is reading the wrong files, or no longer recognises where a label is drawn`,
+  );
+
+for (const [key, where] of labels) {
+  const message = base.get(key);
+  if (message === undefined) continue;
+  for (const label of sentenced(message))
+    fail(
+      `${String(keptIn.get(key))}  ${key}`,
+      `"${label}" is drawn as a label in ${where} and holds ${String(labelLength(label))} words — a label names what it opens or does in at most ${String(A_LABEL)}, and a sentence may explain beside it`,
+    );
+}
+
 if (failures.length > 0) {
   console.error(`words: ${String(failures.length)} violation(s)\n`);
   for (const found of failures) console.error(`  ${found}`);
   process.exit(1);
 }
 console.log(
-  `words: clean (${String(said.length)} messages, ${String(characters)} characters)`,
+  `words: clean (${String(said.length)} messages, ${String(characters)} characters, ${String(labels.size)} labels)`,
 );

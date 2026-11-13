@@ -14,7 +14,7 @@
   "wayin_not_recognised_prose": "Try them again. This page is not told which of the two was not recognised, and it is not told which accounts exist.",
   "wayin_declined_lead": "lemonfiber would not open this page.",
   "wayin_key_title": "The terminal's key",
-  "wayin_key_open": "Opened from a terminal?",
+  "wayin_key_open": "Use a key",
   "unlock_label": "Printed key",
   "unlock_refused_lead": "This run would not take what this page was holding.",
   "unlock_refused_prose": "A key lasts as long as the run that printed it, and a session lasts until it runs out or the password behind it changes. Sign in again, or paste the key the run now serving printed.",

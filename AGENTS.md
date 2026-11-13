@@ -45,17 +45,23 @@ an acronym nobody declared ordinary, a fault named beside the person reading, an
 an explanation of a word. It also refuses a key kept in two files, a prefix split
 across files, and a file the settings do not name.
 
+**A label is at most three words.** A message drawn as a label — a prop named in
+`LABEL_SLOTS` in `scripts/words.mjs`, an `h1`–`h6` or `summary`, a `label:` or
+`head:` field, every `room_` and `nav_` key — names what it opens or does in three
+words or fewer; a sentence beside it explains. A new component that draws a label
+joins `LABEL_SLOTS`. This product's own names, `form` and `stack`, are declared in
+`DECLARED`, count as one word, and stay as declared in every locale.
+
 **This ecosystem's own words are not among them.** _Indexer, hardlink, retention,
 ratio_ live in one table compiled into the binary and served at `/api/explain`.
 `Term.svelte` asks for one when a reader presses it; `scripts/words.mjs` refuses a
 message here that explains one of them again.
 
-**Accessibility is a gate, not an aspiration.** A Svelte `a11y_*` compiler
-warning stops the compile (`onwarn` in `svelte.config.js`, and again in
-`scripts/guards.mjs`). `npm run a11y` renders every story in five themes and
-contrast modes and runs axe over each at WCAG 2.2 AA, then checks each story for
-keyboard traps, missing focus rings, flashing or unstoppable motion, and sideways
-scroll at 320 pixels.
+**Accessibility is a gate, not an aspiration.** A Svelte `a11y_*` compiler warning
+stops the build (`onwarn` in `svelte.config.js`) and `scripts/guards.mjs` too.
+`npm run a11y` renders every story in five themes and contrast modes, runs axe
+over each at WCAG 2.2 AA, then checks each for keyboard traps, missing focus
+rings, flashing or unstoppable motion, and sideways scroll at 320 pixels.
 
 ## Two Svelte traps the coverage gate will not forgive
 
@@ -77,11 +83,7 @@ Give the interpolation its own element and `display: contents` so nothing moves.
 
 ## Before you commit
 
-```
-npm run ci
-```
-
-paraglide compile · prettier · eslint (0 warnings) · svelte-check
+`npm run ci`: paraglide compile · prettier · eslint (0 warnings) · svelte-check
 (`--fail-on-warnings`) · `scripts/guards.mjs` · `scripts/words.mjs` ·
 dependency-cruiser · vitest at **100% statements, branches, functions and lines** ·
 app build · Storybook build · the accessibility sweep. All of it, green.
@@ -108,12 +110,10 @@ scripts/          the gate's tooling: guards, words, the accessibility sweep
 ```
 
 `src/lib` never imports from `src/components` or `src/routes` — the words must not
-depend on their presentation. dependency-cruiser enforces it.
-
-A screen never fetches. `src/routes/Console.svelte` and `src/routes/Member.svelte`
-ask and follow; every screen and panel below them is handed what it draws, which is
-what lets the same screen be drawn from a fixture in a story and swept by
-`npm run a11y`.
+depend on their presentation. dependency-cruiser enforces it. A screen never
+fetches. `src/routes/Console.svelte` and `src/routes/Member.svelte` ask and
+follow; every screen and panel below them is handed what it draws, so the same
+screen is drawn from a fixture in a story and swept by `npm run a11y`.
 
 Shared files — `messages/en/*.json`, `src/app.css`, `.storybook/snippets.ts` — are
 merged by whoever is coordinating parallel work, not by each agent. A worktree's
