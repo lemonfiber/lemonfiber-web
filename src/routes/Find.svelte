@@ -167,15 +167,12 @@
       {#if titles.length > 0}
         <ul class="posters" aria-label={m.found_for({ term: first.term })}>
           {#each titles as title (keyOf(title))}
-            {@const tagged = stateOfFound(title.stands)}
             <li {@attach onScreen(gallery, keyOf(title))}>
               <Poster
                 title={title.title}
                 artwork={gallery.drawnFrom(keyOf(title))}
-                state={tagged}
-                label={tagged === undefined
-                  ? undefined
-                  : standsOf(title.stands)}
+                state={stateOfFound(title.stands)}
+                label={standsOf(title.stands)}
                 note={captionOfFound(title)}
                 onopen={() => {
                   onopen(title);

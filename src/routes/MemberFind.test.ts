@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import type { Sending } from "@lemonfiber/sdk-ts";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { enveloped, refusedAs, replying } from "../api/bodies";
-import { didAsk, firstPage, lastPage, wouldAsk } from "./found";
+import { didAsk, dune, firstPage, lastPage, wouldAsk } from "./found";
 import { kitsId, yours } from "./mine";
 import { everythingInView } from "../lib/gallery.testing";
 import { here, nobody, signedIn, type Said } from "./Member.testing";
@@ -433,6 +433,59 @@ describe("a household member asking for something", () => {
       "page-2",
       "page-2",
     ]);
+  });
+
+  it("reads the first page again where it went unread", async () => {
+    let silent = true;
+    const { sending, sent } = answering((one) =>
+      one.url.pathname === "/api/askable" && silent
+        ? "nothing"
+        : answers()(one),
+    );
+    signedIn(sending);
+    await search("dune");
+    expect(await screen.findByText(m.found_unread())).toBeInTheDocument();
+    silent = false;
+    await userEvent.click(
+      screen.getByRole("button", { name: m.action_try_again() }),
+    );
+    expect(
+      await screen.findByRole("button", { name: "Dune" }),
+    ).toBeInTheDocument();
+    expect(searches(sent).map((url) => url.searchParams.get("after"))).toEqual([
+      null,
+      null,
+    ]);
+  });
+
+  it("draws no rehearsal for a title put away before it came over the one opened next", async () => {
+    const duneWaits = "Asking for Dune waits for somebody to approve it.";
+    let release: (said: Said) => void = () => undefined;
+    const late = new Promise<Said>((resolve) => {
+      release = resolve;
+    });
+    const { sending } = answeringLater(async (one) =>
+      one.url.pathname === "/api/actions/ask" && one.body?.id === dune.id
+        ? late
+        : answers()(one),
+    );
+    signedIn(sending);
+    await search("dune");
+    const first = await opened("Dune");
+    await userEvent.click(
+      within(first).getByRole("button", { name: m.member_title_close() }),
+    );
+    const card = await opened("Severance");
+    expect(await within(card).findByText(wouldAsk.said)).toBeInTheDocument();
+
+    release({
+      status: 200,
+      body: enveloped("asked", { ...wouldAsk, said: duneWaits }),
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(within(card).queryByText(duneWaits)).toBeNull();
+    expect(within(card).getByText(wouldAsk.said)).toBeInTheDocument();
   });
 
   it("is signed out where lemonfiber stops taking the session as the ask is sent", async () => {

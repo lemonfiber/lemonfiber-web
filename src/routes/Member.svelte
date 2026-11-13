@@ -74,7 +74,7 @@
   let searchedFor = "";
   let lastPage = "";
   let pages = $state<readonly Found[]>([]);
-  let foundAt = $state<number | undefined>(undefined);
+  let foundAt = $state(0);
   let reading = $state<"first" | "more" | undefined>(undefined);
   let unread = $state<Exclude<Heard<Found>, { at: "answered" }> | undefined>(
     undefined,
@@ -118,9 +118,7 @@
   const stocked = $derived(
     shelfAt === undefined ? UNSTAMPED : answeredAt(shelfAt, now),
   );
-  const searched = $derived(
-    foundAt === undefined ? UNSTAMPED : answeredAt(foundAt, now),
-  );
+  const searched = $derived(answeredAt(foundAt, now));
 
   /** What they may watch, as this arrival's asking answered it and no other. */
   const access = $derived(accessOf(own));
@@ -183,7 +181,6 @@
     searching += 1;
     choosing += 1;
     pages = [];
-    foundAt = undefined;
     reading = undefined;
     unread = undefined;
     chosen = undefined;
@@ -201,7 +198,6 @@
   function search(words: string): void {
     searchedFor = words;
     pages = [];
-    foundAt = undefined;
     void page(askableOf(member, words), "first");
   }
 
@@ -236,7 +232,7 @@
       unread = came;
       return;
     }
-    foundAt ??= Date.now();
+    if (pages.length === 0) foundAt = Date.now();
     pages = [...pages, came.value];
   }
 
