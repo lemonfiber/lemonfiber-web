@@ -261,8 +261,8 @@ asks for any, naming it.
 | `remove`                       | D6        | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes                   |
 | `grant`                        | D11       | Watching what the house holds: a grant to play, which a member's paired client asks for the device it plays on                   |
 | `watched`                      | D11       | Watching what the house holds: how far through a title a member is, handed to the media server from a paired client              |
-| `play`                         | ARCH-R420 | Watching what the house holds: where a title plays from in a member's browser, or a fresh pass for it                            |
 | `tune`                         | ARCH-R420 | Watching live TV: open a channel's live stream for a member, renew its passes, or close it                                       |
+| `play`                         | ARCH-R420 | Watching what the house holds: where a title plays from in a member's browser, or a fresh pass for it                            |
 | `ask`                          | D4        | Searching and asking: a member asks for a title their search found, under their own limits                                       |
 | `notify-choose`                | ARCH-R405 | Hearing what you asked for: a member chooses which of the ways the operator offered they receive on                              |
 | `push-woken`                   | ARCH-R404 | Waking a phone: the phone a wake reached sends back its id, which marks that delivery confirmed                                  |
