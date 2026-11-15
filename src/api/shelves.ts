@@ -5,6 +5,7 @@
  * whether each field is one the contract has rather than whoever wrote the
  * reader and the body agreeing with each other.
  */
+import { serverSilent, unseasoned } from "./obstacles";
 import type { Holding, Shelf } from "../lib/yours";
 
 /** A film the server knows the year of. */
@@ -23,14 +24,14 @@ export const series: Holding = {
   year: null,
 };
 
-/** What Kit can watch: two titles, and one thing worth saying about them. */
+/** What Kit can watch: two titles, and one thing in the way of reading them. */
 export const kitsShelf: Shelf = {
   id: "kit-1",
   member: "Kit",
   available: true,
   rehearsed: false,
   holdings: [film, series],
-  findings: ["Titles with no rating are held back from Kit."],
+  findings: [unseasoned],
 };
 
 /** A shelf the media server would not give up. */
@@ -40,5 +41,5 @@ export const unreadShelf: Shelf = {
   available: false,
   rehearsed: false,
   holdings: [],
-  findings: ["The media server did not answer."],
+  findings: [serverSilent],
 };

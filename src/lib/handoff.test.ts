@@ -10,7 +10,7 @@ import {
   type Handoff,
   type Remedy,
 } from "./handoff";
-import { whenOf } from "./history";
+import { whenOf } from "./instant";
 import {
   onAndroid,
   onIphone,
@@ -64,7 +64,7 @@ describe("a hand-off, line by line", () => {
       m.handoff_ready({ name: "Sam" }),
       m.handoff_address({ address: servedAt }),
       "Anyone on the home network who holds the code can find the server.",
-      m.handoff_issued({ when: whenOf("2026-10-08T09:30:00Z") }),
+      m.handoff_issued({ when: whenOf(1_791_451_800) }),
       m.handoff_quick_connect({ name: "Sam" }),
       m.handoff_remedy_ask_again({ name: "Sam" }),
     ]);
@@ -118,7 +118,7 @@ describe("each app, its code and each device signed in", () => {
       m.handoff_session_seen({
         device: "Android phone",
         client: "Jellyfin",
-        when: whenOf("2026-10-08T09:41:00Z"),
+        when: whenOf(1_791_452_460),
       }),
     );
     expect(sessionLine(unseenIphone)).toBe(

@@ -8,6 +8,7 @@
   import Value from "../../components/Value.svelte";
   import {
     saidOfChosen,
+    saidOfReaches,
     stateOfDoor,
     toneOfDoor,
     wordOfDoorStanding,
@@ -39,6 +40,8 @@
   const service = $derived(shown?.service ?? undefined);
   const facing = $derived(shown?.facing ?? undefined);
   const caution = $derived(address?.caution ?? undefined);
+  const unaddressed = $derived(shown?.unaddressed ?? m.door_no_address());
+  const chosen = $derived(shown?.chosen ?? undefined);
 
   /** Everything else the house can reach, as the table's rows. */
   function rows(read: Door): readonly Row[] {
@@ -104,17 +107,16 @@
       </p>
 
       <p class="address">
-        <Value
-          state="known"
-          figure={address?.url}
-          absent={m.door_no_address()}
-        />
+        <Value state="known" figure={address?.url} absent={unaddressed} />
       </p>
 
       {#if address !== undefined}
         <div class="code">
           <Code text={address.url} label={m.door_code_said()} />
         </div>
+        <p class="caution">
+          <span class="word">{saidOfReaches(shown.reaches)}</span>
+        </p>
       {/if}
 
       {#if caution !== undefined}
@@ -122,9 +124,11 @@
       {/if}
 
       <p class="prose"><Said text={shown.meaning} /></p>
-      <p class="quiet">
-        <span class="word">{saidOfChosen(shown.chosen)}</span>
-      </p>
+      {#if chosen !== undefined}
+        <p class="quiet">
+          <span class="word">{saidOfChosen(chosen)}</span>
+        </p>
+      {/if}
     </div>
 
     {#if shown.beside.length > 0}

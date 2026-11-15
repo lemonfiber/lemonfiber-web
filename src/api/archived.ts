@@ -37,7 +37,7 @@ export const listing: Restored = {
     agreement: listed,
     downgrade: false,
     manifest: {
-      created_at: "2026-09-28T16:15:00Z",
+      created_at: 1_790_612_100,
       data_root: "/srv/media",
       members: [{ archive_path: "config/sonarr", label: "sonarr" }],
       product_version: "0.18.0",
@@ -78,7 +78,7 @@ export const described: Bundled = {
       { name: "logs/sonarr.txt", body: "Starting Sonarr\nListening on 8989" },
     ],
     taken: {
-      at: "2026-09-28T16:20:00Z",
+      at: 1_790_612_400,
       lemonfiber: "0.18.0",
       stack: "home",
     },

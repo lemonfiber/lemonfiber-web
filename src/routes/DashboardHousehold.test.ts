@@ -2,6 +2,7 @@ import { screen, within } from "@testing-library/svelte";
 import { describe, expect, it } from "vitest";
 import { moment, unavailable } from "./fixture";
 import { house } from "./house";
+import { requestsUnreachable } from "../api/obstacles";
 import {
   allowanceOf,
   saidOfAccess,
@@ -44,6 +45,11 @@ describe("who is in the house", () => {
   it("says what the limits on this house are and are not", () => {
     board({ moment, flow: "live" });
     expect(panel()).toHaveTextContent(house.filtering ?? "");
+  });
+
+  it("says what else is worth the operator's attention about the house", () => {
+    board({ moment, flow: "live" });
+    for (const note of house.noted) expect(panel()).toHaveTextContent(note);
   });
 
   it("says a policy the request service could not be asked for was not read", () => {
@@ -168,10 +174,13 @@ describe("who is in the house", () => {
   });
 
   it("keeps what could not be read apart from what was", () => {
-    const missed = "One account's libraries could not be read.";
-    board({ moment: houseAs({ findings: [missed] }), flow: "live" });
+    board({
+      moment: houseAs({ findings: [requestsUnreachable] }),
+      flow: "live",
+    });
     expect(panel()).toHaveTextContent(m.panel_unread());
-    expect(panel()).toHaveTextContent(missed);
+    expect(panel()).toHaveTextContent(requestsUnreachable.said);
+    expect(panel()).toHaveTextContent(requestsUnreachable.remedy);
   });
 
   it("says nothing about what could not be read where everything was", () => {

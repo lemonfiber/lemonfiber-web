@@ -26,6 +26,7 @@
   } from "../lib/household";
   import type { Column, Row } from "../lib/table";
   import type { Finder } from "../lib/finding";
+  import { obstacleLines } from "../lib/obstacle";
   import type { Tender } from "../lib/tending";
   import type { Household, Member } from "../lib/wire";
   import * as m from "../paraglide/messages.js";
@@ -86,7 +87,7 @@
   );
   const members = $derived(report?.members);
   const read = $derived(askingWasRead(report?.policy));
-  const unread = $derived(report?.findings ?? []);
+  const unread = $derived(obstacleLines(report?.findings ?? []));
 
   /**
    * Why the list of members is empty, or nothing where it is not empty.
@@ -203,8 +204,8 @@
   {#if unread.length > 0}
     <Panel title={m.panel_unread()} {freshness}>
       <ul class="unread">
-        {#each unread as finding, at (at)}
-          <li><Said text={finding} /></li>
+        {#each unread as line, at (at)}
+          <li><Said text={line} /></li>
         {/each}
       </ul>
     </Panel>

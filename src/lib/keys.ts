@@ -12,7 +12,7 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
-import { whenOf } from "./history";
+import { stamped, whenOf } from "./instant";
 import { said } from "./said";
 import * as m from "../paraglide/messages.js";
 
@@ -90,12 +90,12 @@ export function keyLines(key: Listed): readonly string[] {
     m.keys_purpose({ purpose: wordOfPurpose(key.purpose) }),
     stateLine(key.state),
     m.keys_minted({ when: whenOf(key.minted) }),
-    said(key.used)
+    stamped(key.used)
       ? m.keys_used({ when: whenOf(key.used) })
       : m.keys_never_used(),
   ];
   if (key.member_minted) lines.push(m.keys_member_minted());
-  if (said(key.revoked)) {
+  if (stamped(key.revoked)) {
     lines.push(m.keys_revoked_at({ when: whenOf(key.revoked) }));
   }
   return lines;

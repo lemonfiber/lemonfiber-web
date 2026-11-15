@@ -115,7 +115,7 @@ describe("a household member signed in", () => {
     }
     expect(screen.queryByRole("button")).toBeNull();
     for (const finding of yours.findings) {
-      expect(screen.queryByText(finding)).toBeNull();
+      expect(screen.queryByText(finding.said)).toBeNull();
     }
   });
 

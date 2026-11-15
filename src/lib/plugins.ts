@@ -17,7 +17,7 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
-import { whenOf } from "./history";
+import { stamped, whenOf } from "./instant";
 import { listed } from "./listed";
 import { said } from "./said";
 import * as m from "../paraglide/messages.js";
@@ -70,7 +70,7 @@ function originLines(plugin: Installed): readonly string[] {
   if (said(from)) lines.push(m.plugin_from({ from }));
   if (said(revision)) lines.push(m.plugin_revision({ revision }));
   if (said(signed)) lines.push(m.plugin_signed({ signed }));
-  if (said(at)) lines.push(m.plugin_installed_at({ when: whenOf(at) }));
+  if (stamped(at)) lines.push(m.plugin_installed_at({ when: whenOf(at) }));
   return lines;
 }
 
@@ -111,12 +111,14 @@ export function installedLines(
 
 /** One credential of another service the plugin holds, in a line. */
 function grantedLine(grant: Grant): string {
-  return m.plugin_granted({
+  const held = {
     credential: grant.credential,
     of: grant.of,
     capability: grant.for,
-    when: whenOf(grant.at),
-  });
+  };
+  return stamped(grant.at)
+    ? m.plugin_granted({ ...held, when: whenOf(grant.at) })
+    : m.plugin_granted_unapproved(held);
 }
 
 /** A capability a plugin's service fills by the operator's choice. */

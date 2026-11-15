@@ -216,7 +216,7 @@ export const moment: Moment = {
         summary: "Prowlarr is not answering its health check.",
         meaning:
           "Nothing new is being found, and anything waiting on a search stays where it is.",
-        onset: "1787650862",
+        onset: 1_787_650_862,
         remedies: [
           "Read what it said for itself, then start it again.",
           "Check that nothing else holds the port it binds to.",
@@ -229,7 +229,7 @@ export const moment: Moment = {
         summary: "Less than a tenth of the data volume is free.",
         meaning:
           "A download large enough to fill the rest will fail partway and leave what it wrote.",
-        onset: "1787564462",
+        onset: 1_787_564_462,
         remedies: [],
         downstream: [],
       },
@@ -501,25 +501,25 @@ export const scrollback: readonly Logged[] = [
   {
     service: "sonarr",
     stream: "stdout",
-    at: "2026-08-25T09:41:02.113Z",
+    stamped: "2026-08-25T09:41:02.113Z",
     line: "INFO grabbed The.Expanse.S06E01.2160p.WEB-DL",
   },
   {
     service: "calibre-web-automated",
     stream: "stdout",
-    at: "2026-08-25T09:41:04.887Z",
+    stamped: "2026-08-25T09:41:04.887Z",
     line: "INFO shelved The Long Way to a Small Angry Planet",
   },
   {
     service: "qbittorrent",
     stream: "stderr",
-    at: null,
+    stamped: null,
     line: "saved /downloads/complete/Some.Release.2160p.WEB-DL.DDP5.1.H.265-GROUP/some.release.2160p.mkv",
   },
   {
     service: "sonarr",
     stream: "stderr",
-    at: "2026-08-25T09:41:09.004Z",
+    stamped: "2026-08-25T09:41:09.004Z",
     line: "WARN import failed: permission denied writing into the library folder",
   },
 ];

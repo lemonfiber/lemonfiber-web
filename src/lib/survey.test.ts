@@ -20,18 +20,22 @@ import {
 import * as m from "../paraglide/messages.js";
 
 describe("one container of somebody else's", () => {
-  it("says it runs, the ports it publishes, and that lemonfiber could take it over", () => {
+  it("says it runs, the ports it publishes, where it keeps things, and that lemonfiber could take it over", () => {
     expect(occupantLines(sonarr)).toStrictEqual([
       m.survey_running({ service: "sonarr" }),
       m.survey_publishes({ ports: "8989" }),
+      m.survey_config_at({ path: "/srv/docker/sonarr/config" }),
+      m.survey_library_at({ path: "/srv/media/tv" }),
       m.survey_adoptable(),
     ]);
   });
 
-  it("says it is stopped, publishes nothing, and could not be taken over", () => {
+  it("says it is stopped, publishes nothing, why its places are not named, and could not be taken over", () => {
     expect(occupantLines(helper)).toStrictEqual([
       m.survey_stopped({ service: "cron-helper" }),
       m.survey_publishes_nothing(),
+      "The container engine would not say what it mounts.",
+      "It keeps no library.",
       m.survey_not_adoptable(),
     ]);
   });

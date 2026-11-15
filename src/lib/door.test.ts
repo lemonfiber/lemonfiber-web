@@ -2,14 +2,16 @@ import { describe, expect, it } from "vitest";
 import {
   everyDoorStanding,
   everyFacing,
+  everyReach,
   saidOfChosen,
+  saidOfReaches,
   stateOfDoor,
   toneOfDoor,
   wordOfDoorStanding,
   wordOfFacing,
 } from "./door";
 import { everyState, everyTone } from "./state";
-import type { Chosen, DoorStanding, Facing } from "./wire";
+import type { Chosen, DoorStanding, Facing, Reaches } from "./wire";
 import * as m from "../paraglide/messages.js";
 
 /**
@@ -22,6 +24,7 @@ import * as m from "../paraglide/messages.js";
 const unnamedStanding = "half-open" as unknown as DoorStanding;
 const unnamedFacing = "browsing" as unknown as Facing;
 const unnamedChoice = { chosen: "inherited" } as unknown as Chosen;
+const unnamedReach = "half-way" as unknown as Reaches;
 
 describe("stateOfDoor", () => {
   it.each(everyDoorStanding)(
@@ -132,6 +135,16 @@ describe("how this came to be the door", () => {
   });
 });
 
+describe("whether the address answers from where the asking came from", () => {
+  it("says each answer in a sentence of its own", () => {
+    expect(everyReach.map(saidOfReaches)).toStrictEqual([
+      m.door_reaches_here(),
+      m.door_reaches_not_here(),
+      m.door_reaches_unknown(),
+    ]);
+  });
+});
+
 describe("a word this build has no entry for", () => {
   it("reads a standing it does not know as one it has not measured", () => {
     expect(stateOfDoor(unnamedStanding)).toBe("unknown");
@@ -157,5 +170,9 @@ describe("a word this build has no entry for", () => {
 
   it("says how a door it cannot account for came to be one", () => {
     expect(saidOfChosen(unnamedChoice)).toBe(m.door_chosen_unrecognised());
+  });
+
+  it("says it cannot account for whether the address answers from here", () => {
+    expect(saidOfReaches(unnamedReach)).toBe(m.door_reaches_unrecognised());
   });
 });

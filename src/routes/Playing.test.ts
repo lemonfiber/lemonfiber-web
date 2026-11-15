@@ -3,6 +3,7 @@ import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import Dashboard from "./Dashboard.svelte";
 import { controls } from "./fixture";
+import { serverSilent } from "../api/obstacles";
 import { episode, playing } from "../api/playings";
 import type { Freshness } from "../lib/freshness";
 import { playedOf, sessionLine, type Playing } from "../lib/playing";
@@ -53,13 +54,18 @@ describe("what is playing now, on the overview", () => {
 
   // A server that would not say is not a quiet house.
   it("says the media server could not be asked, and what lemonfiber found", () => {
-    const found = "The media server did not answer.";
     reading({
       ok: true,
-      value: { ...playing, available: false, sessions: [], findings: [found] },
+      value: {
+        ...playing,
+        available: false,
+        sessions: [],
+        findings: [serverSilent],
+      },
     });
     expect(within(panel()).getByText(m.playing_unasked())).toBeVisible();
-    expect(within(panel()).getByText(found)).toBeVisible();
+    expect(within(panel()).getByText(serverSilent.said)).toBeVisible();
+    expect(within(panel()).getByText(serverSilent.remedy)).toBeVisible();
     expect(within(panel()).queryByText(m.playing_none())).toBeNull();
   });
 

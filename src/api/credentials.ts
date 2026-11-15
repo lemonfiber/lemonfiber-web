@@ -39,7 +39,7 @@ export const komgaGrant: Granted = {
   credential: staleKey.setting,
   of: "komga",
   for: "library.read",
-  at: "1790000000",
+  at: 1_790_000_000,
 };
 
 /** Every credential, and what keeping them in files protects against. */

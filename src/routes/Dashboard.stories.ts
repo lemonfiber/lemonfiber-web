@@ -18,6 +18,7 @@ import {
   wouldNot,
 } from "./fixture";
 import { doorNumbered, frontDoor, house, unaskedHouse } from "./house";
+import { serverSilent } from "../api/obstacles";
 import { playing } from "../api/playings";
 import { everyFlow } from "../lib/flow";
 
@@ -368,9 +369,24 @@ export const TheDoorHasNowhereToBeReachedAt: Story = {
           ...frontDoor,
           standing: "stranded",
           address: null,
+          unaddressed:
+            "This machine will say neither what it is called nor where it is.",
           meaning:
             "The request surface is answering here, and nothing on this machine can say what address another device would reach it at.",
         },
+      },
+    },
+  },
+};
+
+/** A door whose address does not answer from where the operator is asking. */
+export const TheDoorDoesNotAnswerFromHere: Story = {
+  args: {
+    moment: {
+      ...moment,
+      door: {
+        panel: "ready",
+        data: { ...frontDoor, reaches: "not-here" },
       },
     },
   },
@@ -393,6 +409,7 @@ export const NoFrontDoorAtAll: Story = {
           service: null,
           facing: null,
           address: null,
+          reaches: "unknown",
           meaning:
             "This stack publishes nothing anybody in the house could begin at.",
           beside: [],
@@ -460,9 +477,7 @@ export const TheHouseCouldNotBeRead: Story = {
           ...house,
           available: false,
           members: [],
-          findings: [
-            "The media server answered, and its list of accounts could not be read.",
-          ],
+          findings: [serverSilent],
         },
       },
     },

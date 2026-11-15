@@ -4,7 +4,7 @@
  * Putting the recorded preset back over a config edited by hand answers with
  * the choice in force and, where it replaced something, the file and the lines
  * that went. Fetching the library again answers, unconfirmed, with what each
- * kind of media would be fetched at and what an hour of it takes, and,
+ * kind of media would be fetched at and what fetching it all again takes, and,
  * confirmed, with whether the search for each started.
  *
  * What lemonfiber writes into a report, such as a preset's name, a size or a
@@ -12,6 +12,7 @@
  * around them live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { bytes } from "./figures";
 import * as m from "../paraglide/messages.js";
 
 /** The choice in force, or what putting it back came to. */
@@ -59,16 +60,18 @@ export function qualityLines(report: Tuned): readonly string[] {
   return lines;
 }
 
+/** What fetching one kind of media again would cost, or why that is not known. */
+function costWords(media: Upgrading): string {
+  const { total, media_type: kind, preset } = media;
+  return "bytes" in total
+    ? m.came_upgrade_cost({ kind, preset, size: bytes(total.bytes) })
+    : m.came_upgrade_cost_unknown({ kind, preset, why: total.unknown });
+}
+
 /** What became of fetching one kind of media again, where it was asked. */
 function outcomeWords(media: Upgrading): string {
   const { outcome, media_type: kind } = media;
-  if (outcome === undefined || outcome === null) {
-    return m.came_upgrade_cost({
-      kind,
-      preset: media.preset,
-      size: media.size_per_hour,
-    });
-  }
+  if (outcome === undefined || outcome === null) return costWords(media);
   switch (outcome.state) {
     case "started":
       return m.came_upgrade_started({ kind, preset: media.preset });

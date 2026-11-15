@@ -47,6 +47,7 @@ import written from "../docs/surface-parity.md?raw";
 
 /** A feature of the spec, which is what a request still waiting belongs to. */
 type Feature =
+  | "A2"
   | "A4"
   | "A5"
   | "A6"
@@ -91,11 +92,13 @@ type Feature =
   | "N1"
   | "N27"
   | "ARCH-R78"
+  | "ARCH-R132"
   | "ARCH-R156"
   | "ARCH-R282"
   | "ARCH-R354"
   | "ARCH-R404"
-  | "ARCH-R405";
+  | "ARCH-R405"
+  | "ARCH-R420";
 
 /**
  * Every request another surface can make of the stack.
@@ -146,6 +149,8 @@ const EVERY_REQUEST = [
   "household-handoff",
   "grant",
   "watched",
+  "play",
+  "tune",
   "ask",
   "notify-choose",
   "push-woken",
@@ -395,6 +400,8 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   remove: "D6",
   grant: "D11",
   watched: "D11",
+  play: "ARCH-R420",
+  tune: "ARCH-R420",
   ask: "D4",
   "notify-choose": "ARCH-R405",
   "push-woken": "ARCH-R404",
@@ -496,6 +503,14 @@ const THROUGH_THE_CLIENT: Partial<Record<Kind, string>> = {
  * to.
  */
 const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
+  "plugin-claims":
+    "G1-R1 — what `lemonfiber plugin claims` writes under `--json`, a plugin author's read of their own source answered with no stack, which no route serves",
+  "plugin-conformance":
+    "G1-R1 — what `lemonfiber plugin conform` writes under `--json`, a plugin author's read of their own recordings answered with no stack, which no route serves",
+  "plugin-provenance":
+    "G1-R1 — what `lemonfiber plugin provenance` writes under `--json`, a plugin author's read of their own images answered with no stack, which no route serves",
+  "plugin-recording":
+    "G1-R1 — what `lemonfiber plugin record` writes under `--json`, a plugin author's recordings of their own adapters made with no stack, which no route serves",
   pull: "G1-R1 — the lines the command line writes while it fetches, under `--json`, which is how a command writes its answer to a pipe; the web offers fetching through the `pull` request, answered with `lifecycle`",
   setup:
     "G1-R1 — what the command line's own setup writes under `--json`; the setup a browser walks answers with `wizard`",
@@ -509,9 +524,11 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   boot: "B8",
   capabilities: "ARCH-R78",
   certificate: "N1",
+  channels: "ARCH-R420",
   "device-challenge": "C10",
   "device-key": "C10",
   "device-keys": "C10",
+  ended: "ARCH-R132",
   "front-door": "G5",
   grant: "D11",
   "key-claim": "C10",
@@ -520,12 +537,15 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   "news-items": "N27",
   notify: "B9",
   "notify-mine": "ARCH-R405",
+  play: "ARCH-R420",
   "push-endpoint": "ARCH-R282",
   "push-endpoints": "ARCH-R282",
   queue: "H5",
   removal: "D6",
   reset: "C9",
+  settled: "A2",
   stack: "F1",
+  tuned: "ARCH-R420",
   watched: "D11",
   watcher: "K2",
   word: "G2",

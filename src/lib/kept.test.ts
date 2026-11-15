@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { linesOf } from "./came";
 import { bytes } from "./figures";
+import { whenOf } from "./instant";
 import {
   backupLines,
   bundleLines,
@@ -79,7 +80,7 @@ describe("what putting an archive back would do, or did", () => {
     expect(restoreLines(listing)).toStrictEqual([
       m.came_restore_would({
         scope: m.came_scope_whole(),
-        taken: manifest.created_at,
+        taken: whenOf(manifest.created_at),
         version: manifest.product_version,
       }),
       m.came_restore_relocation({ now: "/mnt/media", was: "/srv/media" }),
@@ -100,7 +101,7 @@ describe("what putting an archive back would do, or did", () => {
     expect(restoreLines(older)).toStrictEqual([
       m.came_restore_would({
         scope: m.came_scope_whole(),
-        taken: manifest.created_at,
+        taken: whenOf(manifest.created_at),
         version: manifest.product_version,
       }),
       m.came_restore_downgrade(),
@@ -146,7 +147,7 @@ describe("what a support bundle holds", () => {
   const size = bytes(described.bytes);
   const made = [
     m.came_bundle_taken({
-      at: contents.taken.at,
+      when: whenOf(contents.taken.at),
       lemonfiber: "0.18.0",
       stack: "home",
     }),

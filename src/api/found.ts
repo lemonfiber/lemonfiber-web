@@ -19,12 +19,12 @@ export const traced: Traced = {
   coverage: { have: 12, wanted: 24, unmonitored: 0, seasons: [] },
   findings: ["Jellyfin holds an episode Sonarr has no record of."],
   history: [
-    { outcome: "grabbed", at: "2026-09-20 21:04" },
-    { outcome: "download-failed", at: "2026-09-21 03:10" },
+    { outcome: "grabbed", at: 1_789_938_240 },
+    { outcome: "download-failed", at: null },
   ],
   stages: [
     { stage: "monitored", service: "sonarr" },
-    { stage: "grabbed", service: "sonarr", at: "2026-09-20 21:04" },
+    { stage: "grabbed", service: "sonarr", at: 1_789_938_240 },
   ],
 };
 

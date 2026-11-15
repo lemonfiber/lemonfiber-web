@@ -4,7 +4,9 @@ import { leaking, moment, tunnel, unavailable } from "./fixture";
 import { doorAddress, frontDoor } from "./house";
 import {
   everyDoorStanding,
+  everyReach,
   saidOfChosen,
+  saidOfReaches,
   wordOfDoorStanding,
   wordOfFacing,
 } from "../lib/door";
@@ -75,7 +77,29 @@ describe("the front door", () => {
     expect(
       within(panel()).queryByRole("img", { name: m.door_code_said() }),
     ).toBeNull();
+    for (const reaches of everyReach) {
+      expect(panel()).not.toHaveTextContent(saidOfReaches(reaches));
+    }
   });
+
+  it("says why there is no address where lemonfiber says why", () => {
+    const unaddressed =
+      "This machine will say neither what it is called nor where it is.";
+    board({
+      moment: doorAs({ standing: "stranded", address: null, unaddressed }),
+      flow: "live",
+    });
+    expect(panel()).toHaveTextContent(unaddressed);
+    expect(panel()).not.toHaveTextContent(m.door_no_address());
+  });
+
+  it.each(everyReach)(
+    "says whether an address that reaches %s answers from where you are",
+    (reaches) => {
+      board({ moment: doorAs({ reaches }), flow: "live" });
+      expect(panel()).toHaveTextContent(saidOfReaches(reaches));
+    },
+  );
 
   it("carries what is worth knowing about the address itself", () => {
     const caution = "This one is a number and may change on its own.";
@@ -89,6 +113,12 @@ describe("the front door", () => {
   it("says a door nobody named was worked out", () => {
     board({ moment, flow: "live" });
     expect(panel()).toHaveTextContent(saidOfChosen({ chosen: "derived" }));
+  });
+
+  it("says nothing of how it came to be the door where that is not said", () => {
+    board({ moment: doorAs({ chosen: null }), flow: "live" });
+    expect(panel()).not.toHaveTextContent(saidOfChosen({ chosen: "derived" }));
+    expect(panel()).toHaveTextContent(frontDoor.meaning);
   });
 
   it("names the door the operator named", () => {

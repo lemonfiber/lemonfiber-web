@@ -6,6 +6,7 @@
  * written once here so the two cannot drift, and written against the generated
  * contract rather than invented.
  */
+import { requestsUnreachable } from "../api/obstacles";
 import type { Door, House, Household, Member } from "../lib/wire";
 
 /**
@@ -32,25 +33,24 @@ export const frontDoor: Door = {
   meaning:
     "Anybody in the house opens this, asks for what they want, and follows what they asked for from the same page.",
   address: { url: doorAddress, caution: null },
+  reaches: "here",
   beside: [
     {
       service: "Jellyfin",
       facing: "watching",
+      reaches: "here",
       because:
         "Somebody sent here can watch what has arrived and has no way to ask for anything.",
     },
     {
       service: "Homepage",
       facing: "operators",
+      reaches: "unknown",
       because:
         "It lists every service, including the ones nobody in the house should learn exist.",
     },
   ],
 };
-
-/** What the request service was asked and would not answer. */
-export const noRequestService =
-  "The request service is not answering, so what the house asked for could not be read.";
 
 /**
  * What Kit asked for that nobody in the house can move: one waiting on the
@@ -77,7 +77,7 @@ export const kitInTheHouse: Member = {
   name: "Kit",
   claimed: true,
   standing: "active",
-  last_seen: "2026-08-24T19:02:41Z",
+  last_seen: 1_787_598_161,
   access: {
     administrator: false,
     age_limit: 12,
@@ -91,7 +91,7 @@ export const kitInTheHouse: Member = {
   asking: {
     films: { used: 4, limit: 5, remaining: 1, period: "a month" },
     television: { used: 3, limit: 5, remaining: 2, period: "a month" },
-    frees_up: "2026-09-14T00:00:00Z",
+    frees_up: 1_789_344_000,
     policy: "within-a-limit",
     standing: "near-quota",
   },
@@ -110,6 +110,7 @@ export const household: Household = {
   rehearsed: false,
   available: true,
   findings: [],
+  noted: ["Kit has used four of the five films this month allows."],
   policy: "everything-waits",
   allows: "five things a month",
   filtering:
@@ -119,7 +120,7 @@ export const household: Household = {
       name: "Ada",
       claimed: true,
       standing: "active",
-      last_seen: "2026-08-25T21:14:07Z",
+      last_seen: 1_787_692_447,
       access: {
         administrator: true,
         age_limit: null,
@@ -186,8 +187,12 @@ export const unread: Household = {
   rehearsed: false,
   available: false,
   findings: [
-    "The request service answered, but its list of requests could not be read.",
+    {
+      ...requestsUnreachable,
+      said: "The request service answered, but its list of requests could not be read.",
+    },
   ],
+  noted: [],
   members: [],
 };
 
@@ -203,7 +208,7 @@ export const unasked: Household = {
   ...household,
   policy: null,
   allows: null,
-  findings: [noRequestService],
+  findings: [requestsUnreachable],
   members: household.members.map((member) => ({
     ...member,
     asking: null,

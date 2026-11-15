@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 93 kinds of answer, and this console reads 65 of them.
-Another surface can make 74 requests of the stack, and this console offers 52 of
-them. 2 kinds and 2 requests are offered elsewhere by rule, and 26 kinds and 20
+The client carries 102 kinds of answer, and this console reads 65 of them.
+Another surface can make 76 requests of the stack, and this console offers 52 of
+them. 6 kinds and 2 requests are offered elsewhere by rule, and 31 kinds and 22
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -123,10 +123,14 @@ where it answers with a kind the contract did not have before.
 
 ## Kinds served by no endpoint
 
-| Kind    | Rule    | Why                                                                                                                                                              |
-| ------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pull`  | `G1-R1` | the lines the command line writes while it fetches, under `--json`; G1 lists `--json` as unsuited to the web, and fetching is offered through the `pull` request |
-| `setup` | `G1-R1` | what the command line's own setup writes under `--json`; the setup a browser walks answers with `wizard`                                                         |
+| Kind                 | Rule    | Why                                                                                                                                                              |
+| -------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `plugin-claims`      | `G1-R1` | what `lemonfiber plugin claims` writes under `--json`: a plugin author's read of their own source, answered with no stack, which no route serves                 |
+| `plugin-conformance` | `G1-R1` | what `lemonfiber plugin conform` writes under `--json`: a plugin author's read of their own recordings, answered with no stack, which no route serves            |
+| `plugin-provenance`  | `G1-R1` | what `lemonfiber plugin provenance` writes under `--json`: a plugin author's read of their own images, answered with no stack, which no route serves             |
+| `plugin-recording`   | `G1-R1` | what `lemonfiber plugin record` writes under `--json`: a plugin author's recordings of their own adapters, made with no stack, which no route serves             |
+| `pull`               | `G1-R1` | the lines the command line writes while it fetches, under `--json`; G1 lists `--json` as unsuited to the web, and fetching is offered through the `pull` request |
+| `setup`              | `G1-R1` | what the command line's own setup writes under `--json`; the setup a browser walks answers with `wizard`                                                         |
 
 ## Kinds not read yet
 
@@ -138,9 +142,11 @@ where it answers with a kind the contract did not have before.
 | `boot`             | B8        | Starting with the machine: when this machine last started, what the check after it came to, and since when and for how many starts the stack has not come back                                    |
 | `capabilities`     | ARCH-R78  | What this copy of lemonfiber can do, each named by the path it is served at                                                                                                                       |
 | `certificate`      | N1        | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint                                                                                          |
+| `channels`         | ARCH-R420 | Watching live TV: the channels one member may watch, each with what is on it now                                                                                                                  |
 | `device-challenge` | C10       | Integration keys: a fresh challenge for a registered device key, good for one mint within a minute                                                                                                |
 | `device-key`       | C10       | Integration keys: a device key just registered, its fingerprint and where it lives                                                                                                                |
 | `device-keys`      | C10       | Integration keys: every device key, its backing, when it was registered and last used                                                                                                             |
+| `ended`            | ARCH-R132 | A job's outcome: work that ended before it finished, because its name was released, it was let go, or the services it followed went quiet                                                         |
 | `front-door`       | G5        | The front door, asked for on its own                                                                                                                                                              |
 | `grant`            | D11       | Watching what the house holds: a grant to play on the member's own account, which a member's paired client asks for the device it plays on                                                        |
 | `key-claim`        | C10       | Integration keys: a key minted as a claim, its link and when it lapses, drawn once as a code                                                                                                      |
@@ -149,12 +155,15 @@ where it answers with a kind the contract did not have before.
 | `news-items`       | N27       | What's new: everything newer than what was last seen, asked for                                                                                                                                   |
 | `notify`           | B9        | Notification back-ends: each back-end the core delivers to, where it reaches, whether it is proven, its newest delivery and every failure since its last confirmed one                            |
 | `notify-mine`      | ARCH-R405 | Hearing what you asked for: the ways the operator offered the household, each by its household name and whether this member receives on it, and whether their own phone is registered to be woken |
+| `play`             | ARCH-R420 | Watching what the house holds: where one title plays from for a member, carrying a pass, and when the pass lapses                                                                                 |
 | `push-endpoint`    | ARCH-R282 | Waking a phone: a push endpoint just registered, its name and the address its distributor gave                                                                                                    |
 | `push-endpoints`   | ARCH-R282 | Waking a phone: every push endpoint in the order they were registered, and which one a removal took                                                                                               |
 | `queue`            | H5        | Queue self-healing: whether healing acts, every unhealthy download with its strikes and why, and what the next run would do to it                                                                 |
 | `removal`          | D6        | Household identity: somebody taken out of the household                                                                                                                                           |
 | `reset`            | C9        | Drift: what a full reset would revert                                                                                                                                                             |
+| `settled`          | A2        | Setup: what setup settled, the data root, the protocols and the service user, and whether this stack is set up                                                                                    |
 | `stack`            | F1        | Customisation: how the stack runs without lemonfiber, the operator's alone                                                                                                                        |
+| `tuned`            | ARCH-R420 | Watching live TV: where one channel streams from for a member, carrying its passes, and when they lapse                                                                                           |
 | `watched`          | D11       | Watching what the house holds: what handing a member's progress through a title to the media server came to                                                                                       |
 | `watcher`          | K2        | Uptime monitoring: which plugin watches the stack from outside, whether it answers, what each monitor sees, and what no monitor covers                                                            |
 | `word`             | G2        | Plain language: what one word means, asked alone; the console explains every term from the glossary it reads whole, so it asks about no single word                                               |
@@ -219,13 +228,11 @@ answers with `certificate`, so nothing here could read it.
 | `settings-clear`     | the settings: values the operator gave put among those taken away, beside each setting, and read together, so each default is written again; what it rewrites, restarts and starts read first the same way, then cleared on a yes naming that reading                                                                                                                              |
 | `setup`              | first-run setup, in place of the console until setup is written: each answer, the tunnel answer carrying every setting and secret the tunnel service asks for and nothing else, on, back, apply and the way out of a stopped apply, then starting and connecting the stack                                                                                                         |
 
-Eight of these are offered in part. `backup` takes the whole stack; lemonfiber
+Seven of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
 yet. `support` writes the bundle where lemonfiber keeps its own files, and the
 newest one written is handed to the browser to be saved; showing a setting as
 it is (`reveal`) has no control yet.
-`quality-upgrade` states what an hour of each kind of media takes at the preset
-in force, and no total, because the `upgrade` reading carries none.
 `quality-reapply` lists the lines it replaced once it has, and not before,
 because no action takes a rehearsal over the web API.
 `invite` names no libraries, because no reading this console takes lists them;
@@ -254,6 +261,8 @@ asks for any, naming it.
 | `remove`                       | D6        | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes                   |
 | `grant`                        | D11       | Watching what the house holds: a grant to play, which a member's paired client asks for the device it plays on                   |
 | `watched`                      | D11       | Watching what the house holds: how far through a title a member is, handed to the media server from a paired client              |
+| `play`                         | ARCH-R420 | Watching what the house holds: where a title plays from in a member's browser, or a fresh pass for it                            |
+| `tune`                         | ARCH-R420 | Watching live TV: open a channel's live stream for a member, renew its passes, or close it                                       |
 | `ask`                          | D4        | Searching and asking: a member asks for a title their search found, under their own limits                                       |
 | `notify-choose`                | ARCH-R405 | Hearing what you asked for: a member chooses which of the ways the operator offered they receive on                              |
 | `push-woken`                   | ARCH-R404 | Waking a phone: the phone a wake reached sends back its id, which marks that delivery confirmed                                  |

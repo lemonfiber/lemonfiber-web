@@ -54,11 +54,11 @@ describe("what putting the recorded quality back came to", () => {
 describe("what fetching the library again costs, or started", () => {
   it("states what each kind of media would be fetched at, and that nothing was", () => {
     expect(upgradeLines(costed)).toStrictEqual([
-      m.came_upgrade_cost({ kind: "tv", preset: "balanced", size: "2 GB" }),
-      m.came_upgrade_cost({
+      m.came_upgrade_cost({ kind: "tv", preset: "balanced", size: "1.5 TB" }),
+      m.came_upgrade_cost_unknown({
         kind: "movies",
         preset: "maximum",
-        size: "30 GB",
+        why: "Radarr would not say how long its films run.",
       }),
       m.came_upgrade_unconfirmed(),
     ]);
@@ -83,7 +83,7 @@ describe("what fetching the library again costs, or started", () => {
           media_type: "tv",
           outcome: { state: "not-started" },
           preset: "balanced",
-          size_per_hour: "2 GB",
+          total: { bytes: 0 },
         },
       ],
     };
@@ -100,7 +100,7 @@ describe("what fetching the library again costs, or started", () => {
           media_type: "tv",
           outcome: { state: "elsewhere" },
           preset: "balanced",
-          size_per_hour: "2 GB",
+          total: { bytes: 0 },
         },
       ],
     } as unknown as Upgraded;

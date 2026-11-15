@@ -6,9 +6,9 @@
  * rather than to the screen.
  */
 import * as m from "../paraglide/messages.js";
+import { A_SECOND } from "./instant";
 import type { State } from "./state";
 
-const A_SECOND = 1000;
 const A_MINUTE = 60;
 const AN_HOUR = 3600;
 

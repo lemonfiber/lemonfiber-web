@@ -18,7 +18,7 @@ const password = ["a", "chosen", "password"].join("-");
 
 const admitted = enveloped("admission", {
   token: session,
-  until: "2026-09-19T21:00:00Z",
+  until: 1_789_851_600,
 });
 
 const answering = (status: number, body: string): Sending =>
@@ -48,7 +48,7 @@ describe("handing over a credential at the door", () => {
           enveloped("admission", {
             member: "b41c9e",
             token: session,
-            until: "2026-09-19T21:00:00Z",
+            until: 1_789_851_600,
           }),
         ),
       ),
@@ -66,7 +66,7 @@ describe("handing over a credential at the door", () => {
           enveloped("admission", {
             member: null,
             token: session,
-            until: "2026-09-19T21:00:00Z",
+            until: 1_789_851_600,
           }),
         ),
       ),

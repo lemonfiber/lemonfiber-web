@@ -1,30 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { changeLines, whenOf, wordOfReversal, type Change } from "./history";
+import { changeLines, wordOfReversal, type Change } from "./history";
+import { whenOf } from "./instant";
 import { fixed, written } from "../api/histories";
 import * as m from "../paraglide/messages.js";
-import { getLocale } from "../paraglide/runtime.js";
-
-describe("when a change was made", () => {
-  it("is a day and a time in the reader's own calendar", () => {
-    expect(whenOf("1791400000")).toBe(
-      new Intl.DateTimeFormat(getLocale(), {
-        dateStyle: "long",
-        timeStyle: "short",
-      }).format(new Date(1_791_400_000_000)),
-    );
-  });
-
-  // A stamp of zero is how a machine whose clock would not answer stamps a
-  // change, and showing it as a day in 1970 would be inventing one.
-  it("says the clock could not say, rather than naming the epoch", () => {
-    expect(whenOf("0")).toBe(m.history_when_unread());
-  });
-
-  it("is shown as it arrived where it does not read as seconds", () => {
-    expect(whenOf("yesterday")).toBe("yesterday");
-    expect(whenOf("99999999999999999999")).toBe("99999999999999999999");
-  });
-});
 
 describe("one change lemonfiber made", () => {
   it("says what made it, when, and that it can be put back whole", () => {

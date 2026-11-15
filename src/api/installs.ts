@@ -20,7 +20,7 @@ export const subtitles: Installed = {
   from: "example.org/subtitle-fetch.git",
   revision: "9f2c1e7",
   signed: "lemonfiber catalogue key SHA256:4kQ2",
-  installed_at: "1790000000",
+  installed_at: 1_790_000_000,
   services: [
     {
       service: "subfetch",
@@ -37,7 +37,7 @@ export const subtitles: Installed = {
       credential: "sonarr.api_key",
       of: "sonarr",
       for: "subtitles",
-      at: "1790000100",
+      at: 1_790_000_100,
     },
   ],
 };
@@ -51,7 +51,7 @@ export const bare: Installed = {
   name: null,
   version: "0.1.0",
   from: "",
-  installed_at: "",
+  installed_at: null,
   services: [],
 };
 

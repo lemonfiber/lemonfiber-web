@@ -6,7 +6,8 @@ import { kit, yours, yoursSpent, yoursUnasked, yoursUnread } from "./mine";
 import type { Freshness } from "../lib/freshness";
 import { wordOfRequestState } from "../lib/household";
 import type { Household } from "../lib/wire";
-import { approvalOf, dayOf, leftOf } from "../lib/yours";
+import { dayOf } from "../lib/instant";
+import { approvalOf, leftOf } from "../lib/yours";
 import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 8 };
@@ -49,7 +50,7 @@ describe("before a member asks", () => {
     drawn(yoursSpent);
     const before = panel(m.member_asking_title());
     expect(before).toHaveTextContent(m.member_allowance_spent());
-    expect(before).toHaveTextContent(dayOf("2026-09-14T12:00:00Z"));
+    expect(before).toHaveTextContent(dayOf(1_789_387_200));
   });
 
   // An unread answer is not an unlimited member.
@@ -92,7 +93,7 @@ describe("what a member asked for", () => {
   it("shows none of what the operator is told about the household", () => {
     drawn(yours);
     for (const finding of yours.findings) {
-      expect(screen.queryByText(finding)).toBeNull();
+      expect(screen.queryByText(finding.said)).toBeNull();
     }
     expect(screen.queryByText(yours.filtering ?? "")).toBeNull();
     expect(screen.queryByRole("button")).toBeNull();

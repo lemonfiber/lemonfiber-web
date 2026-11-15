@@ -13,7 +13,7 @@ export const written: Change = {
   did: "Set Sonarr's download client to qBittorrent",
   operation: "seed",
   target: "sonarr",
-  at: "1791400000",
+  at: 1_791_400_000,
   reversal: "whole",
   alongside: 1,
 };
@@ -23,7 +23,7 @@ export const fixed: Change = {
   did: "Moved the downloads folder onto the library's filesystem",
   operation: "an applied fix",
   target: "qbittorrent",
-  at: "0",
+  at: 0,
   reversal: "partial",
   alongside: 3,
   because: "The files already moved stay where they are.",

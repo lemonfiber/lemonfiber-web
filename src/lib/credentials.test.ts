@@ -10,7 +10,7 @@ import {
   wordOfState,
   type Held,
 } from "./credentials";
-import { whenOf } from "./history";
+import { whenOf } from "./instant";
 import {
   inventory,
   komgaGrant,
@@ -110,7 +110,7 @@ describe("each grant of a credential to a plugin", () => {
       m.credential_granted({
         plugin: "comic-shelf",
         capability: "library.read",
-        when: whenOf("1790000000"),
+        when: whenOf(1_790_000_000),
       }),
     );
   });
@@ -124,7 +124,24 @@ describe("each grant of a credential to a plugin", () => {
         of: "sonarr",
         plugin: "comic-shelf",
         capability: "library.read",
-        when: whenOf("1790000000"),
+        when: whenOf(1_790_000_000),
+      }),
+    );
+  });
+
+  it("says the record does not say when a grant was approved, where it does not", () => {
+    expect(grantLine({ ...komgaGrant, at: null })).toBe(
+      m.credential_granted_undated({
+        plugin: "comic-shelf",
+        capability: "library.read",
+      }),
+    );
+    expect(strayGrantLine({ ...elsewhere, at: null })).toBe(
+      m.credential_granted_stray_undated({
+        credential: "sonarr.api_key",
+        of: "sonarr",
+        plugin: "comic-shelf",
+        capability: "library.read",
       }),
     );
   });

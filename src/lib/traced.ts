@@ -13,6 +13,7 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { stamped, whenOf } from "./instant";
 import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
@@ -34,9 +35,9 @@ type Passed = Traced["stages"][number];
 /** One stage an item reached, with the service and, where known, the time. */
 function stageLine(passed: Passed): string {
   const said = { stage: wordOfStage(passed.stage), service: passed.service };
-  return passed.at === undefined || passed.at === null
-    ? m.trace_stage(said)
-    : m.trace_stage_at({ ...said, at: passed.at });
+  return stamped(passed.at)
+    ? m.trace_stage_at({ ...said, when: whenOf(passed.at) })
+    : m.trace_stage(said);
 }
 
 /** One notable thing that happened to an item. */
@@ -70,20 +71,28 @@ export function wordOfStage(stage: Stage): string {
   }
 }
 
-/** One notable thing that happened to an item, in one line. */
-function momentLine(moment: Moment): string {
-  switch (moment.outcome) {
+/** What happened to an item, in a few words. */
+function wordOfMoment(outcome: Moment["outcome"]): string {
+  switch (outcome) {
     case "grabbed":
-      return m.trace_grabbed({ at: moment.at });
+      return m.trace_grabbed();
     case "download-failed":
-      return m.trace_download_failed({ at: moment.at });
+      return m.trace_download_failed();
     case "imported":
-      return m.trace_imported({ at: moment.at });
+      return m.trace_imported();
     case "removed":
-      return m.trace_removed({ at: moment.at });
+      return m.trace_removed();
     default:
-      return m.trace_other({ at: moment.at });
+      return m.trace_other();
   }
+}
+
+/** One notable thing that happened to an item, and when where known. */
+function momentLine(moment: Moment): string {
+  const happened = wordOfMoment(moment.outcome);
+  return stamped(moment.at)
+    ? m.trace_moment_at({ moment: happened, when: whenOf(moment.at) })
+    : m.trace_moment({ moment: happened });
 }
 
 /** Where one item is, line by line. */

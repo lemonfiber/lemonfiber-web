@@ -65,6 +65,10 @@ function reversalWords(action: Reversal): string {
       return m.came_undo_unmoved();
     case "regrab":
       return m.came_undo_regrab();
+    case "unask":
+      return action.whole
+        ? m.came_undo_unask_whole()
+        : m.came_undo_unask_kept();
     case "run":
       return action.running ? m.came_undo_run_start() : m.came_undo_run_stop();
     default:

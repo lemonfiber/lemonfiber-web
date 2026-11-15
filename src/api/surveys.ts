@@ -14,6 +14,8 @@ export const sonarr: Occupant = {
   running: true,
   ports: [8989],
   adoptable: true,
+  config: { at: "/srv/docker/sonarr/config" },
+  library: { at: "/srv/media/tv" },
 };
 
 /** A helper container lemonfiber does not know, stopped and publishing nothing. */
@@ -22,6 +24,8 @@ export const helper: Occupant = {
   running: false,
   ports: [],
   adoptable: false,
+  config: { unread: "The container engine would not say what it mounts." },
+  library: { none: "It keeps no library." },
 };
 
 /** Sonarr is older here, so its database is backed up before it is opened. */

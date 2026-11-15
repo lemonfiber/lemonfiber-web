@@ -20,6 +20,7 @@
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { saidOfPolicy, wordOfUnrated } from "./household";
 import { listed } from "./listed";
+import { obstacleLines } from "./obstacle";
 import type { Coded } from "./qr";
 import type { Tending } from "./requested";
 import { said } from "./said";
@@ -131,7 +132,7 @@ export function householdLines(report: Housed): readonly string[] {
   if (report.allows !== undefined && report.allows !== null) {
     lines.push(report.allows);
   }
-  lines.push(...report.findings);
+  lines.push(...report.noted, ...obstacleLines(report.findings));
   return lines;
 }
 

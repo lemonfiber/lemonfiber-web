@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { whenOf } from "./history";
+import { whenOf } from "./instant";
 import {
   installedLines,
   nameOf,
@@ -29,17 +29,32 @@ describe("one installed plugin", () => {
       m.plugin_from({ from }),
       m.plugin_revision({ revision: "9f2c1e7" }),
       m.plugin_signed({ signed: "lemonfiber catalogue key SHA256:4kQ2" }),
-      m.plugin_installed_at({ when: whenOf("1790000000") }),
+      m.plugin_installed_at({ when: whenOf(1_790_000_000) }),
       m.plugin_places({ services: "subfetch" }),
       m.plugin_fills({ capabilities: "subtitles" }),
       m.plugin_granted({
         credential: "sonarr.api_key",
         of: "sonarr",
         capability: "subtitles",
-        when: whenOf("1790000100"),
+        when: whenOf(1_790_000_100),
       }),
       m.plugin_source_reachable({ from }),
     ]);
+  });
+
+  it("says a grant nobody has approved yet as that", () => {
+    const [grant] = subtitles.granted ?? [];
+    const offered = {
+      ...subtitles,
+      granted: grant === undefined ? [] : [{ ...grant, at: null }],
+    };
+    expect(installedLines(offered, [])).toContain(
+      m.plugin_granted_unapproved({
+        credential: "sonarr.api_key",
+        of: "sonarr",
+        capability: "subtitles",
+      }),
+    );
   });
 
   it("leaves out what its record does not say, and says it runs and fills nothing", () => {

@@ -13,6 +13,7 @@
  * What lemonfiber writes into the reading is its own and is passed through
  * unchanged. The words around it live in `messages/`.
  */
+import { obstacleLines } from "./obstacle";
 import type { Holding, Medium, Shelf } from "./yours";
 import * as m from "../paraglide/messages.js";
 
@@ -53,6 +54,6 @@ export function shelfLines(shelf: Shelf): readonly string[] {
   } else if (shelf.holdings.length === 0) {
     lines.push(m.watch_none({ name: shelf.member }));
   }
-  lines.push(...shelf.findings);
+  lines.push(...obstacleLines(shelf.findings));
   return lines;
 }
