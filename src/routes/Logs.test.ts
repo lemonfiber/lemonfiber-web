@@ -59,13 +59,13 @@ describe("what the services said", () => {
     const forged: Logged = {
       service: "sonarr",
       stream: "stdout",
-      at: null,
+      stamped: null,
       line: "innocent\nqbittorrent   leaked the password",
     };
     const plain: Logged = {
       service: "sonarr",
       stream: "stdout",
-      at: null,
+      stamped: null,
       line: "INFO grabbed something",
     };
 

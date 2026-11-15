@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { linesOf } from "./came";
+import { whenOf } from "./instant";
 import { pairingLines } from "./paired";
 import { material, reachAt, replacing } from "../api/pairings";
 import * as m from "../paraglide/messages.js";
@@ -8,7 +9,7 @@ describe("what making pairing material came to", () => {
   it("says where the phone reaches, until when, and what would undo it", () => {
     expect(pairingLines(material)).toStrictEqual([
       m.came_pairing_address({ address: reachAt }),
-      m.came_pairing_until({ until: material.until }),
+      m.came_pairing_until({ until: whenOf(material.until) }),
       replacing,
     ]);
   });

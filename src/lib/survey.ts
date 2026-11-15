@@ -3,11 +3,12 @@
  * lines a reader can carry.
  *
  * The survey names every project on this machine that is not lemonfiber's,
- * each container in it with whether it runs, the ports it publishes and
- * whether lemonfiber could take it over as it stands. Then the ports both want
- * and where lemonfiber would listen instead to run beside them, what adopting
- * each recognised service would come to for its data, what the existing
- * layout costs where it cannot hold a hardlink, what may be done about it all,
+ * each container in it with whether it runs, the ports it publishes, where it
+ * keeps its configuration and its library, and whether lemonfiber could take
+ * it over as it stands. Then the ports both want and where lemonfiber would
+ * listen instead to run beside them, what adopting each recognised service
+ * would come to for its data, what the existing layout costs where it cannot
+ * hold a hardlink, what may be done about it all,
  * least destructive first, and what was found that cannot be adopted or that
  * no migration carries across. A survey that could not ask the container
  * engine says so, and never reads as an empty machine.
@@ -27,6 +28,9 @@ export type Standing = Survey["standing"][number];
 
 /** One container of somebody else's project. */
 export type Occupant = Standing["services"][number];
+
+/** Where something a container keeps is on this machine, or why that is not said. */
+type Place = Occupant["config"];
 
 /** What adopting one recognised service would come to. */
 export type Carrying = Survey["carrying"][number];
@@ -59,7 +63,22 @@ export function occupantLines(occupant: Occupant): readonly string[] {
   const taken = occupant.adoptable
     ? m.survey_adoptable()
     : m.survey_not_adoptable();
-  return [runs, publishes, taken];
+  return [
+    runs,
+    publishes,
+    placeLine(occupant.config, (path) => m.survey_config_at({ path })),
+    placeLine(occupant.library, (path) => m.survey_library_at({ path })),
+    taken,
+  ];
+}
+
+/**
+ * Where a container keeps one thing, in a line: the path, or lemonfiber's own
+ * sentence for why it could not be read or why there is none.
+ */
+function placeLine(place: Place, at: (path: string) => string): string {
+  if ("at" in place) return at(place.at);
+  return "unread" in place ? place.unread : place.none;
 }
 
 /** What adopting one service would come to, line by line. */

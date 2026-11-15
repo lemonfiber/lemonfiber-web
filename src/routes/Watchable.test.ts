@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi, type Mock } from "vitest";
 import Watchable from "./panels/Watchable.svelte";
+import { unseasoned } from "../api/obstacles";
 import { kitsShelf } from "../api/shelves";
 import type { Shelving } from "./shelving";
 import { holdingLine } from "../lib/watchable";
@@ -34,7 +35,8 @@ describe("what one member can watch", () => {
     for (const holding of kitsShelf.holdings) {
       expect(listed).toHaveTextContent(holdingLine(holding));
     }
-    expect(screen.getByText(kitsShelf.findings[0] ?? "")).toBeVisible();
+    expect(screen.getByText(unseasoned.said)).toBeVisible();
+    expect(screen.getByText(unseasoned.remedy)).toBeVisible();
   });
 
   it("holds a place while it is being asked", async () => {

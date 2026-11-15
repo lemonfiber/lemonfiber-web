@@ -530,7 +530,7 @@ const putBackAs = (over: Partial<Undone>): readonly string[] =>
 
 /** A credential of another service granted to a plugin, as the journal names it. */
 const grant = {
-  at: "1767225600",
+  at: 1_767_225_600,
   credential: "sonarr.api_key",
   for: "subtitles",
   of: "sonarr",
@@ -642,6 +642,26 @@ describe("what putting the last repair back came to", () => {
     [
       { does: "regrab", kind: "movies", release: "a1b2c3", title: 42 },
       m.came_undo_regrab(),
+    ],
+    [
+      {
+        does: "unask",
+        unit: { medium: "music", unit: "album" },
+        reference: "112",
+        kept: "music-7",
+        whole: true,
+      },
+      m.came_undo_unask_whole(),
+    ],
+    [
+      {
+        does: "unask",
+        unit: { medium: "books", unit: "series" },
+        reference: "40",
+        kept: "books-3",
+        whole: false,
+      },
+      m.came_undo_unask_kept(),
     ],
     [
       { does: "run", service: "sonarr", running: true },

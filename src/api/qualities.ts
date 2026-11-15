@@ -67,8 +67,16 @@ export const costed: Upgraded = {
   rehearsed: false,
   confirmed: false,
   media: [
-    { media_type: "tv", preset: "balanced", size_per_hour: "2 GB" },
-    { media_type: "movies", preset: "maximum", size_per_hour: "30 GB" },
+    {
+      media_type: "tv",
+      preset: "balanced",
+      total: { bytes: 1_649_267_441_664 },
+    },
+    {
+      media_type: "movies",
+      preset: "maximum",
+      total: { unknown: "Radarr would not say how long its films run." },
+    },
   ],
 };
 
@@ -81,13 +89,13 @@ export const fetched: Upgraded = {
       media_type: "tv",
       outcome: { state: "started" },
       preset: "balanced",
-      size_per_hour: "2 GB",
+      total: { bytes: 1_649_267_441_664 },
     },
     {
       media_type: "movies",
       outcome: { state: "failed", detail: "Radarr did not answer." },
       preset: "maximum",
-      size_per_hour: "30 GB",
+      total: { bytes: 2_199_023_255_552 },
     },
   ],
 };

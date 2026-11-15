@@ -13,8 +13,8 @@ export const home: Listed = {
   scope: "read",
   purpose: "home-assistant",
   state: "active",
-  minted: "1790000000",
-  used: "1790003600",
+  minted: 1_790_000_000,
+  used: 1_790_003_600,
   member_minted: false,
 };
 
@@ -24,7 +24,7 @@ export const kits: Listed = {
   scope: "member:kit",
   purpose: "other",
   state: "active",
-  minted: "1790000100",
+  minted: 1_790_000_100,
   member_minted: true,
 };
 
@@ -34,9 +34,9 @@ export const old: Listed = {
   scope: "act",
   purpose: "mcp",
   state: "revoked",
-  minted: "1780000000",
+  minted: 1_780_000_000,
   used: null,
-  revoked: "1789000000",
+  revoked: 1_789_000_000,
   member_minted: false,
 };
 

@@ -8,6 +8,7 @@ import {
   type Invited,
 } from "./invited";
 import { saidOfPolicy } from "./household";
+import { requestsUnreachable } from "../api/obstacles";
 import {
   claimAt,
   declineAt,
@@ -29,6 +30,7 @@ const household: Housed = {
   rehearsed: false,
   available: true,
   findings: [],
+  noted: [],
   members: [],
   policy: "everything-waits",
   allows: "five things a month",
@@ -38,7 +40,8 @@ const household: Housed = {
 const unread: Housed = {
   rehearsed: false,
   available: false,
-  findings: ["The list of requests could not be read."],
+  findings: [requestsUnreachable],
+  noted: [],
   members: [],
 };
 
@@ -188,20 +191,24 @@ describe("the household as an act on it left it", () => {
     );
   });
 
-  it("says the policy, what it allows, and what could not be read", () => {
+  it("says the policy, what it allows, what else is worth saying, and what could not be read", () => {
+    const noted = ["Kit has used every film this month allows."];
     expect(
-      householdLines({ ...household, findings: ["Kit's list was cut short."] }),
+      householdLines({ ...household, noted, findings: [requestsUnreachable] }),
     ).toStrictEqual([
       saidOfPolicy("everything-waits"),
       "five things a month",
-      "Kit's list was cut short.",
+      ...noted,
+      requestsUnreachable.said,
+      requestsUnreachable.remedy,
     ]);
   });
 
   it("says a policy nobody could read as that", () => {
     expect(householdLines(unread)).toStrictEqual([
       saidOfPolicy(undefined),
-      ...unread.findings,
+      requestsUnreachable.said,
+      requestsUnreachable.remedy,
     ]);
   });
 });

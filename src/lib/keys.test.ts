@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { whenOf } from "./history";
+import { whenOf } from "./instant";
 import {
   everyPurpose,
   keyLines,
@@ -20,8 +20,8 @@ describe("one integration key", () => {
       m.keys_scope({ scope: "read" }),
       m.keys_purpose({ purpose: m.keys_purpose_home_assistant() }),
       m.keys_active(),
-      m.keys_minted({ when: whenOf("1790000000") }),
-      m.keys_used({ when: whenOf("1790003600") }),
+      m.keys_minted({ when: whenOf(1_790_000_000) }),
+      m.keys_used({ when: whenOf(1_790_003_600) }),
     ]);
   });
 
@@ -32,7 +32,7 @@ describe("one integration key", () => {
 
   it("says when it was revoked", () => {
     expect(keyLines(old)).toContain(
-      m.keys_revoked_at({ when: whenOf("1789000000") }),
+      m.keys_revoked_at({ when: whenOf(1_789_000_000) }),
     );
     expect(keyLines(old)).toContain(m.keys_never_used());
   });

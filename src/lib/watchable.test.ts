@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { holdingLine, shelfLines, wordOfKind } from "./watchable";
 import type { Medium } from "./yours";
+import { serverSilent, unseasoned } from "../api/obstacles";
 import { film, kitsShelf, series, unreadShelf } from "../api/shelves";
 import * as m from "../paraglide/messages.js";
 
@@ -30,13 +31,17 @@ describe("one title a member can watch", () => {
 
 describe("what a shelf came to", () => {
   it("says only what lemonfiber found where the shelf holds something", () => {
-    expect(shelfLines(kitsShelf)).toStrictEqual(kitsShelf.findings);
+    expect(shelfLines(kitsShelf)).toStrictEqual([
+      unseasoned.said,
+      unseasoned.remedy,
+    ]);
   });
 
   it("says it could not be read, rather than that it holds nothing", () => {
     expect(shelfLines(unreadShelf)).toStrictEqual([
       m.watch_unread({ name: "Kit" }),
-      ...unreadShelf.findings,
+      serverSilent.said,
+      serverSilent.remedy,
     ]);
   });
 

@@ -8,6 +8,7 @@ import {
   type Walked,
 } from "./traced";
 import { guarded, stoppedWalk, traced, unmatched, walked } from "../api/found";
+import { whenOf } from "./instant";
 import * as m from "../paraglide/messages.js";
 
 describe("where one item is", () => {
@@ -21,11 +22,14 @@ describe("where one item is", () => {
       m.trace_stage_at({
         stage: m.stage_grabbed(),
         service: "sonarr",
-        at: "2026-09-20 21:04",
+        when: whenOf(1_789_938_240),
       }),
       ...traced.findings,
-      m.trace_grabbed({ at: "2026-09-20 21:04" }),
-      m.trace_download_failed({ at: "2026-09-21 03:10" }),
+      m.trace_moment_at({
+        moment: m.trace_grabbed(),
+        when: whenOf(1_789_938_240),
+      }),
+      m.trace_moment({ moment: m.trace_download_failed() }),
     ]);
   });
 
@@ -67,13 +71,13 @@ describe("where one item is", () => {
     expect(said.at(-1)).toContain(m.stage_unrecognised());
 
     const moments = ["imported", "removed", "lost"] as const;
-    const history = moments.map((outcome) => ({ outcome, at: "then" }));
+    const history = moments.map((outcome) => ({ outcome }));
     expect(
       traceLines({ ...quiet, history } as unknown as Traced).slice(1),
     ).toStrictEqual([
-      m.trace_imported({ at: "then" }),
-      m.trace_removed({ at: "then" }),
-      m.trace_other({ at: "then" }),
+      m.trace_moment({ moment: m.trace_imported() }),
+      m.trace_moment({ moment: m.trace_removed() }),
+      m.trace_moment({ moment: m.trace_other() }),
     ]);
   });
 

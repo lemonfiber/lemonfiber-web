@@ -156,7 +156,7 @@ describe("what the household holds that a member can watch", () => {
     expect(shelf).toHaveTextContent(m.member_shelf_unread());
     expect(shelf).not.toHaveTextContent(m.member_shelf_empty());
     for (const finding of kitsUnreadShelf.findings) {
-      expect(screen.queryByText(finding)).toBeNull();
+      expect(screen.queryByText(finding.said)).toBeNull();
     }
   });
 

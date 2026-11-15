@@ -2,9 +2,10 @@
  * The household's front door, in the words this interface already has.
  *
  * Five standings, six things a published service can be to the people in the
- * house, and three ways a door came to be the one it is. The interface has five
- * states and three severities, so the readings here are what keep a screen from
- * inventing a sixth.
+ * house, three ways a door came to be the one it is, and three answers to
+ * whether its address answers from where the asking came from. The interface
+ * has five states and three severities, so the readings here are what keep a
+ * screen from inventing a sixth.
  *
  * A running lemonfiber's vocabulary can be wider than the contract this build
  * was generated against, so every reading says so rather than falling off the
@@ -13,7 +14,7 @@
  * The words live in `messages/`, so no screen holds one.
  */
 import type { State, Tone } from "./state";
-import type { Chosen, DoorStanding, Facing } from "./wire";
+import type { Chosen, DoorStanding, Facing, Reaches } from "./wire";
 import * as m from "../paraglide/messages.js";
 
 /**
@@ -40,6 +41,9 @@ export const everyFacing: readonly Facing[] = [
   "carriage",
   "unstated",
 ];
+
+/** Every answer to whether the address answers from where the asking came from. */
+export const everyReach: readonly Reaches[] = ["here", "not-here", "unknown"];
 
 /**
  * How much the door's own standing lets the address beside it be trusted.
@@ -148,5 +152,21 @@ export function saidOfChosen(chosen: Chosen): string {
       });
     default:
       return m.door_chosen_unrecognised();
+  }
+}
+
+/**
+ * Whether the address answers from where the asking came from, as a sentence.
+ */
+export function saidOfReaches(reaches: Reaches): string {
+  switch (reaches) {
+    case "here":
+      return m.door_reaches_here();
+    case "not-here":
+      return m.door_reaches_not_here();
+    case "unknown":
+      return m.door_reaches_unknown();
+    default:
+      return m.door_reaches_unrecognised();
   }
 }

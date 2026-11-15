@@ -5,6 +5,7 @@ import Requests from "./Requests.svelte";
 import { household, unasked, unread } from "./house";
 import type { Freshness } from "../lib/freshness";
 import { wordOfRequestState } from "../lib/household";
+import { obstacleLines } from "../lib/obstacle";
 import type { Household } from "../lib/wire";
 import * as m from "../paraglide/messages.js";
 
@@ -79,7 +80,13 @@ describe("a household that has asked for nothing", () => {
   it("says so where the record was read", () => {
     asked({
       ok: true,
-      value: { rehearsed: false, available: true, findings: [], members: [] },
+      value: {
+        rehearsed: false,
+        available: true,
+        findings: [],
+        noted: [],
+        members: [],
+      },
     });
 
     expect(screen.getByText(m.requests_nobody())).toBeInTheDocument();
@@ -100,10 +107,11 @@ describe("what could not be read", () => {
       value: { ...household, findings: [...unread.findings] },
     });
 
+    const [missed] = obstacleLines(unread.findings);
     const apart = screen.getByRole("region", { name: m.panel_unread() });
-    expect(apart).toHaveTextContent(unread.findings[0] ?? "");
+    expect(apart).toHaveTextContent(missed ?? "");
     expect(screen.getByRole("region", { name: "Ada" })).not.toHaveTextContent(
-      unread.findings[0] ?? "",
+      missed ?? "",
     );
   });
 

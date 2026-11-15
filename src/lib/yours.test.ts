@@ -3,21 +3,20 @@ import {
   approvalOf,
   besideOf,
   countOf,
-  dayOf,
   leftOf,
   mediumOf,
   watchOf,
   type Medium,
 } from "./yours";
+import { dayOf } from "./instant";
 import type { Access, Allowance, Policy, Request } from "./wire";
-import { getLocale } from "../paraglide/runtime.js";
 import * as m from "../paraglide/messages.js";
 
 /** A member who may ask within a limit and has room left. */
 const within: Allowance = {
   films: { used: 4, limit: 5, remaining: 1, period: "a month" },
   television: { used: 3, limit: 5, remaining: 2 },
-  frees_up: "2026-09-14T12:00:00Z",
+  frees_up: 1_789_387_200,
   policy: "within-a-limit",
   standing: "near-quota",
 };
@@ -79,7 +78,7 @@ describe("whether they have allowance left", () => {
     const said = leftOf({ ...within, standing: "quota-exhausted" });
     expect(said).toContain(m.member_allowance_spent());
     expect(said).toContain(
-      m.member_allowance_frees({ day: dayOf("2026-09-14T12:00:00Z") }),
+      m.member_allowance_frees({ day: dayOf(1_789_387_200) }),
     );
   });
 
@@ -138,22 +137,6 @@ describe("one count", () => {
     expect(countOf({ used: 4, limit: 5, remaining: null }, what)).toBe(
       m.member_count_unread({ what }),
     );
-  });
-});
-
-describe("the day an instant falls on", () => {
-  it("reads it in the page's own language", () => {
-    const instant = "2026-09-14T12:00:00Z";
-    expect(dayOf(instant)).toBe(
-      new Intl.DateTimeFormat(getLocale(), { dateStyle: "long" }).format(
-        new Date(instant),
-      ),
-    );
-    expect(dayOf(instant)).toContain("2026");
-  });
-
-  it("shows an instant that does not read as one as it arrived", () => {
-    expect(dayOf("the fourteenth")).toBe("the fourteenth");
   });
 });
 

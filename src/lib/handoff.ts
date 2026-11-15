@@ -19,7 +19,7 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
-import { whenOf } from "./history";
+import { stamped, whenOf } from "./instant";
 import type { Coded } from "./qr";
 import { said } from "./said";
 import * as m from "../paraglide/messages.js";
@@ -79,7 +79,7 @@ export function handoffLines(handoff: Handoff): readonly string[] {
     lines.push(m.handoff_address({ address: handoff.address }));
   }
   if (said(handoff.caution)) lines.push(handoff.caution);
-  if (said(handoff.issued)) {
+  if (stamped(handoff.issued)) {
     lines.push(m.handoff_issued({ when: whenOf(handoff.issued) }));
   }
   if (handoff.quick_connect) {
@@ -122,7 +122,7 @@ export function codeLine(client: HandoffClient): string {
 export function sessionLine(session: HandoffSession): string {
   const { last_seen: seen } = session;
   const named = { device: session.device, client: session.client };
-  return said(seen)
+  return stamped(seen)
     ? m.handoff_session_seen({ ...named, when: whenOf(seen) })
     : m.handoff_session(named);
 }

@@ -192,7 +192,7 @@ describe("fetching the library again", () => {
     ).toBeInTheDocument();
     expect(
       within(asked()).getByText(
-        m.came_upgrade_cost({ kind: "tv", preset: "balanced", size: "2 GB" }),
+        m.came_upgrade_cost({ kind: "tv", preset: "balanced", size: "1.5 TB" }),
       ),
     ).toBeInTheDocument();
 

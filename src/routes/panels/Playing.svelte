@@ -4,6 +4,7 @@
   import Value from "../../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../../lib/freshness";
+  import { obstacleLines } from "../../lib/obstacle";
   import { playedOf, sessionLine, type Playing } from "../../lib/playing";
   import * as m from "../../paraglide/messages.js";
 
@@ -30,8 +31,8 @@
       {:else if playing.value.sessions.length === 0}
         <p><Said text={m.playing_none()} /></p>
       {/if}
-      {#each playing.value.findings as finding, at (at)}
-        <p>{finding}</p>
+      {#each obstacleLines(playing.value.findings) as line, at (at)}
+        <p>{line}</p>
       {/each}
     {/if}
     {#if !playing.ok}

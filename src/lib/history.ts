@@ -13,8 +13,8 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { whenOf } from "./instant";
 import * as m from "../paraglide/messages.js";
-import { getLocale } from "../paraglide/runtime.js";
 
 /** Everything lemonfiber changed, and how far back the record goes. */
 export type History = ByKind["history"]["data"];
@@ -23,23 +23,16 @@ export type History = ByKind["history"]["data"];
 export type Change = History["changes"][number];
 
 /** The stamp a change carries when the clock would not answer. */
-const UNREAD_CLOCK = "0";
+const UNREAD_CLOCK = 0;
 
 /**
  * When a change was made, in the reader's own calendar.
  *
  * A change stamped while the clock would not answer says so, rather than
- * being shown as made at the epoch, and a stamp that does not read as a count
- * of seconds is shown as it arrived.
+ * being shown as made at the epoch.
  */
-export function whenOf(at: string): string {
-  if (at === UNREAD_CLOCK) return m.history_when_unread();
-  const seconds = Number(at);
-  if (!/^\d+$/.test(at) || !Number.isSafeInteger(seconds)) return at;
-  return new Intl.DateTimeFormat(getLocale(), {
-    dateStyle: "long",
-    timeStyle: "short",
-  }).format(new Date(seconds * 1000));
+function whenMade(at: Change["at"]): string {
+  return at === UNREAD_CLOCK ? m.history_when_unread() : whenOf(at);
 }
 
 /** How far a change could be put back, in a sentence. */
@@ -60,7 +53,7 @@ export function wordOfReversal(reversal: Change["reversal"]): string {
 export function changeLines(change: Change): readonly string[] {
   const lines = [
     m.history_made({ operation: change.operation, target: change.target }),
-    m.history_when({ when: whenOf(change.at) }),
+    m.history_when({ when: whenMade(change.at) }),
     wordOfReversal(change.reversal),
   ];
   const { because, instead } = change;

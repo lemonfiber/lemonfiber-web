@@ -13,6 +13,7 @@
     waitingOn,
     type Outstanding,
   } from "../../lib/household";
+  import { obstacleLines } from "../../lib/obstacle";
   import type { State } from "../../lib/state";
   import type { Column, Row } from "../../lib/table";
   import { reasonOf, type Folk, type House } from "../../lib/wire";
@@ -120,6 +121,7 @@
 >
   {#if shown !== undefined}
     {@const waiting = waitingOn(shown.members)}
+    {@const unread = obstacleLines(shown.findings)}
     <div class="says">
       <p class="prose">
         <span class="word">{saidOfPolicy(shown.policy)}</span>
@@ -132,6 +134,9 @@
       {#if filtering !== undefined}
         <p class="quiet"><Said text={filtering} /></p>
       {/if}
+      {#each shown.noted as note, at (at)}
+        <p class="quiet"><Said text={note} /></p>
+      {/each}
     </div>
 
     {#if nothing === undefined}
@@ -172,11 +177,11 @@
       </div>
     {/if}
 
-    {#if shown.findings.length > 0}
+    {#if unread.length > 0}
       <p class="eyebrow"><span class="word">{m.panel_unread()}</span></p>
       <ul class="unread">
-        {#each shown.findings as finding, at (at)}
-          <li><Said text={finding} /></li>
+        {#each unread as line, at (at)}
+          <li><Said text={line} /></li>
         {/each}
       </ul>
     {/if}

@@ -32,6 +32,6 @@ export const material: Paired = {
     stack: "c1d2e3f4a5b6",
   },
   replacing,
-  until: "28 September 2026 at 21:00",
+  until: 1_790_629_200,
   written: "lemonfiber-pair:v1:c1d2e3f4a5b6",
 };

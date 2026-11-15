@@ -153,7 +153,10 @@ export type Facing = NonNullable<Door["facing"]>;
 export type Beside = Door["beside"][number];
 
 /** How the front door came to be the one it is. */
-export type Chosen = Door["chosen"];
+export type Chosen = NonNullable<Door["chosen"]>;
+
+/** Whether the door's address answers from where the asking came from. */
+export type Reaches = Door["reaches"];
 
 /** Who is in the house, or the reason it could not be read. */
 export type Folk = Moment["household"];

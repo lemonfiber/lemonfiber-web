@@ -13,6 +13,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { bytes } from "./figures";
+import { whenOf } from "./instant";
 import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
@@ -91,7 +92,7 @@ export function restoreLines(report: Restored): readonly string[] {
   const lines = [
     m.came_restore_would({
       scope: scopeWords(would.manifest.scope),
-      taken: would.manifest.created_at,
+      taken: whenOf(would.manifest.created_at),
       version: would.manifest.product_version,
     }),
   ];
@@ -115,7 +116,7 @@ export function bundleLines(report: Bundled): readonly string[] {
   }
   lines.push(
     m.came_bundle_taken({
-      at: contents.taken.at,
+      when: whenOf(contents.taken.at),
       lemonfiber: contents.taken.lemonfiber,
       stack: contents.taken.stack,
     }),

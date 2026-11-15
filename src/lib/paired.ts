@@ -13,6 +13,7 @@
  * passed through unchanged. The words around them live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { whenOf } from "./instant";
 import * as m from "../paraglide/messages.js";
 
 /** Pairing material, and what the operator is told beside it. */
@@ -22,7 +23,7 @@ export type Paired = ByKind["pairing"]["data"];
 export function pairingLines(report: Paired): readonly string[] {
   const lines: string[] = [
     m.came_pairing_address({ address: report.material.address }),
-    m.came_pairing_until({ until: report.until }),
+    m.came_pairing_until({ until: whenOf(report.until) }),
   ];
   if (report.caution !== undefined && report.caution !== null) {
     lines.push(report.caution);

@@ -243,6 +243,7 @@ describe("whether the household has changed", () => {
           rehearsed: false,
           available: true,
           findings: [],
+          noted: [],
           members: [],
         },
       }),

@@ -157,7 +157,7 @@ const someone = (over: Partial<Person> = {}): Person => ({
   name: "Ada",
   claimed: true,
   standing: "active",
-  last_seen: "2026-08-25T21:14:07Z",
+  last_seen: 1_787_692_447,
   access: mayWatch(),
   asking: null,
   requests: [],

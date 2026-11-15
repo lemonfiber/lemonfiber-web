@@ -7,6 +7,7 @@
  * the console's fixtures describe.
  */
 import { household, kitInTheHouse, kitsWaiting } from "./house";
+import { faultToMembers, serverSilentToMembers } from "../api/obstacles";
 import type { Household, Member } from "../lib/wire";
 import type { PartWays } from "../lib/partway";
 import type { Told } from "../lib/title";
@@ -37,7 +38,8 @@ export const kit: Member = {
  */
 export const yours: Household = {
   ...household,
-  findings: ["The request service answered, but slowly."],
+  findings: [faultToMembers],
+  noted: [],
   members: [kit],
 };
 
@@ -56,7 +58,7 @@ export const yoursSpent: Household = {
       asking: {
         films: { used: 5, limit: 5, remaining: 0, period: "a month" },
         television: { used: 5, limit: 5, remaining: 0, period: "a month" },
-        frees_up: "2026-09-14T12:00:00Z",
+        frees_up: 1_789_387_200,
         policy: "within-a-limit",
         standing: "quota-exhausted",
       },
@@ -68,7 +70,8 @@ export const yoursSpent: Household = {
 export const yoursUnread: Household = {
   rehearsed: false,
   available: false,
-  findings: ["The media server did not answer."],
+  findings: [serverSilentToMembers],
+  noted: [],
   members: [],
 };
 
@@ -93,9 +96,7 @@ export const kitsEmptyShelf: Shelf = { ...kitsShelf, holdings: [] };
 export const kitsUnreadShelf: Shelf = {
   rehearsed: false,
   available: false,
-  findings: [
-    "the media server would not say what this member holds, so the shelf is reported as unread rather than as empty",
-  ],
+  findings: [serverSilentToMembers],
   id: kitsId,
   member: "Kit",
   holdings: [],
@@ -193,7 +194,5 @@ export const kitsNothingPartWay: PartWays = { ...kitsPartWay, part_way: [] };
 export const kitsUnreadPartWay: PartWays = {
   ...kitsNothingPartWay,
   available: false,
-  findings: [
-    "the media server would not say what this member was part-way through",
-  ],
+  findings: [serverSilentToMembers],
 };

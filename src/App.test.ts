@@ -42,7 +42,7 @@ const admitting: Sending = (url) =>
         url.endsWith("/api/session")
           ? enveloped("admission", {
               token: session,
-              until: "2026-09-19T21:00:00Z",
+              until: 1_789_851_600,
             })
           : readOf(url),
       ),
@@ -209,7 +209,7 @@ function aMembersRun(state: { removed: boolean }): Sending {
         enveloped("admission", {
           member: kitsId,
           token: session,
-          until: "2026-09-19T21:00:00Z",
+          until: 1_789_851_600,
         }),
       );
     if (state.removed) return answer(403, nobody);

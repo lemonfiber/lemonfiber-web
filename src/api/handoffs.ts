@@ -33,7 +33,7 @@ export const onIphone: HandoffClient = {
 export const seenAndroid: HandoffSession = {
   client: "Jellyfin",
   device: "Android phone",
-  last_seen: "2026-10-08T09:41:00Z",
+  last_seen: 1_791_452_460,
 };
 
 /** A device signed in that lemonfiber has not seen since. */
@@ -48,7 +48,7 @@ export const readyForSam: Handoff = {
   address: servedAt,
   caution: "Anyone on the home network who holds the code can find the server.",
   clients: [onAndroid, onIphone],
-  issued: "2026-10-08T09:30:00Z",
+  issued: 1_791_451_800,
   name: "Sam",
   quick_connect: true,
   reason: null,

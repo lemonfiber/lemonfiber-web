@@ -12,7 +12,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import type { Access, Allowance, Request } from "./wire";
-import { getLocale } from "../paraglide/runtime.js";
+import { dayOf } from "./instant";
 import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
@@ -94,18 +94,6 @@ export function countOf(counted: Counted, what: string): string {
   return period === undefined
     ? m.member_count_left({ remaining, limit, what })
     : m.member_count_left_in({ remaining, limit, what, period });
-}
-
-/**
- * The day an instant falls on, in the reader's own calendar.
- *
- * An instant that does not read as one is shown as it arrived rather than as a
- * day nobody named.
- */
-export function dayOf(instant: string): string {
-  const at = new Date(instant);
-  if (Number.isNaN(at.getTime())) return instant;
-  return new Intl.DateTimeFormat(getLocale(), { dateStyle: "long" }).format(at);
 }
 
 /**

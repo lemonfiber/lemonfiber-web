@@ -14,7 +14,7 @@
  * unchanged. The words around it live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
-import { whenOf } from "./history";
+import { stamped, whenOf } from "./instant";
 import { listed } from "./listed";
 import * as m from "../paraglide/messages.js";
 
@@ -117,20 +117,21 @@ export function strayGrants(inventory: Inventory): readonly Granted[] {
  * granted to, what for, and when it was approved.
  */
 export function grantLine(grant: Granted): string {
-  return m.credential_granted({
-    plugin: grant.plugin,
-    capability: grant.for,
-    when: whenOf(grant.at),
-  });
+  const held = { plugin: grant.plugin, capability: grant.for };
+  return stamped(grant.at)
+    ? m.credential_granted({ ...held, when: whenOf(grant.at) })
+    : m.credential_granted_undated(held);
 }
 
 /** One grant on its own, in a line that also names the credential and whose it is. */
 export function strayGrantLine(grant: Granted): string {
-  return m.credential_granted_stray({
+  const held = {
     credential: grant.credential,
     of: grant.of,
     plugin: grant.plugin,
     capability: grant.for,
-    when: whenOf(grant.at),
-  });
+  };
+  return stamped(grant.at)
+    ? m.credential_granted_stray({ ...held, when: whenOf(grant.at) })
+    : m.credential_granted_stray_undated(held);
 }
