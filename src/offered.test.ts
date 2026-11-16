@@ -536,6 +536,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   ended: "ARCH-R132",
   "front-door": "G5",
   grant: "D11",
+  guide: "D11",
   "key-claim": "C10",
   music: "D2",
   news: "N27",
