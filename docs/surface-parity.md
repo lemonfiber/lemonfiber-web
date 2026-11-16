@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 102 kinds of answer, and this console reads 67 of them.
+The client carries 103 kinds of answer, and this console reads 67 of them.
 Another surface can make 76 requests of the stack, and this console offers 53 of
-them. 6 kinds and 2 requests are offered elsewhere by rule, and 29 kinds and 21
+them. 6 kinds and 2 requests are offered elsewhere by rule, and 30 kinds and 21
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -149,6 +149,7 @@ where it answers with a kind the contract did not have before.
 | `ended`            | ARCH-R132 | A job's outcome: work that ended before it finished, because its name was released, it was let go, or the services it followed went quiet                                                         |
 | `front-door`       | G5        | The front door, asked for on its own                                                                                                                                                              |
 | `grant`            | D11       | Watching what the house holds: a grant to play on the member's own account, which a member's paired client asks for the device it plays on                                                        |
+| `guide`            | D11       | Watching live TV: the guide one member reads, each channel they may watch with its programmes from now across the hours the operator sets                                                         |
 | `key-claim`        | C10       | Integration keys: a key minted as a claim, its link and when it lapses, drawn once as a code                                                                                                      |
 | `music`            | D2        | Quality presets: the music format                                                                                                                                                                 |
 | `news`             | N27       | What's new: the newest of each kind, from the stream                                                                                                                                              |
