@@ -34,7 +34,18 @@ export interface Carrying {
   readonly method: string;
   /** The body, for a request that has one. */
   readonly body?: string | undefined;
+  /**
+   * What tells a retry of this request from a second one: lemonfiber carries out
+   * an action sent twice under one of these once.
+   */
+  readonly once?: string | undefined;
 }
+
+/** What a read carries: the method alone. */
+export const READING: Carrying = { method: "GET" };
+
+/** The header an action's retry is told from a second action by. */
+const ONCE = "Idempotency-Key";
 
 /**
  * Whether a status says the request was answered rather than refused.
@@ -61,6 +72,7 @@ export async function reached(
   if (carrying.body !== undefined) {
     headers["Content-Type"] = "application/json";
   }
+  if (carrying.once !== undefined) headers[ONCE] = carrying.once;
 
   try {
     const answer = await reaching.sending(`${where.base}${path}`, {

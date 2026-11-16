@@ -17,6 +17,7 @@ describe("a household member's rooms", () => {
   it("puts what they asked for at the root, and the shelf at an address of its own", () => {
     expect(pathOfRoom("asked")).toBe("/");
     expect(pathOfRoom("held")).toBe("/held");
+    expect(pathOfRoom("find")).toBe("/find");
   });
 
   it("gives no two rooms the same address", () => {
@@ -26,6 +27,7 @@ describe("a household member's rooms", () => {
   it("names every room in the member's words", () => {
     expect(nameOfRoom("asked")).toBe(m.room_asked());
     expect(nameOfRoom("held")).toBe(m.room_held());
+    expect(nameOfRoom("find")).toBe(m.room_find());
   });
 
   it.each(everyRoom)("draws %s with a drawing the interface has", (room) => {

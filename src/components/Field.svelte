@@ -21,10 +21,13 @@
      * hidden too and kept by nothing: it opens this run alone, and a browser
      * that remembered it would hand it to whoever sits here next. An address
      * and a path are typed as written, with no capital and no correction, and
-     * an address brings up the keyboard for one. A box with no purpose, such as
-     * a port or a count, is left alone.
+     * an address brings up the keyboard for one. A search is offered as one, so
+     * a phone's keyboard says so and a browser offers to clear it, and is kept
+     * by nothing. A box with no purpose, such as a port or a count, is left
+     * alone.
      */
-    purpose?: "who" | "secret" | "key" | "address" | "path" | undefined;
+    purpose?:
+      "who" | "secret" | "key" | "address" | "path" | "search" | undefined;
     /** What typing in it asks for. */
     oninput?: ((value: string) => void) | undefined;
   }
@@ -45,6 +48,7 @@
     key: "off",
     address: "off",
     path: "off",
+    search: "off",
   } as const;
 
   const fills = $derived(purpose === undefined ? undefined : FILLS[purpose]);
@@ -53,7 +57,14 @@
   const hidden = $derived(purpose === "secret" || purpose === "key");
 
   /** Whether what is typed is a name or a place, kept exactly as typed. */
-  const literal = $derived(purpose !== undefined && purpose !== "secret");
+  const literal = $derived(
+    purpose !== undefined && purpose !== "secret" && purpose !== "search",
+  );
+
+  /** What kind of box it is, to the browser. */
+  const type = $derived(
+    hidden ? "password" : purpose === "search" ? "search" : "text",
+  );
 
   const uid = $props.id();
   const boxId = `${uid}-box`;
@@ -88,7 +99,7 @@
   <input
     id={boxId}
     class:figure
-    type={hidden ? "password" : "text"}
+    {type}
     autocomplete={fills}
     autocapitalize={literal ? "none" : undefined}
     inputmode={purpose === "address" ? "url" : undefined}
