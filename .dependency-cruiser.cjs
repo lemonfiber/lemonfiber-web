@@ -32,6 +32,19 @@ module.exports = {
       to: { path: "node_modules/(node-fetch|axios|undici|superagent)" },
     },
     {
+      name: "grants-stay-with-the-operator",
+      severity: "error",
+      comment:
+        "A plugin's grants of credentials, and revoking them, are the " +
+        "operator's alone. Nothing a household member is shown may reach " +
+        "what draws a grant or ends one.",
+      from: { path: "^src/routes/Member\\.svelte$" },
+      to: {
+        reachable: true,
+        path: "^src/(routes/panels/(Credentials|Granted|Revoking|Plugins|Plugging|PlugOffer)\\.svelte|lib/(credentials|revoking|revoked|plugins|plugging|plugged)\\.ts)$",
+      },
+    },
+    {
       name: "no-orphans",
       severity: "error",
       comment: "A module nothing imports is either dead or wired up wrong.",

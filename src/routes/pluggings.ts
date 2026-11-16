@@ -88,6 +88,39 @@ export const updateRead: Work = {
   },
 };
 
+/**
+ * A record of reading an update of the fetcher, whose new version asks for the
+ * series manager's key the installed one already holds.
+ */
+export const updateReadGranting: Work = {
+  ...updateRead,
+  id: "65",
+  came: {
+    kind: "plugins",
+    report: {
+      ...readInstall,
+      agreement: "plugin-update:6a31",
+      install: null,
+      update: { ...wouldUpdate, install: wouldInstallGranting },
+    },
+  },
+};
+
+/** A record of reading that update again, under a reading of its own. */
+export const updateReadGrantingAgain: Work = {
+  ...updateReadGranting,
+  id: "66",
+  came: {
+    kind: "plugins",
+    report: {
+      ...readInstall,
+      agreement: "plugin-update:6a32",
+      install: null,
+      update: { ...wouldUpdate, install: wouldInstallGranting },
+    },
+  },
+};
+
 /** A record of what removing the fetcher would come to. */
 export const removeRead: Work = {
   ...updateRead,
