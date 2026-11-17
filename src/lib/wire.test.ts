@@ -277,6 +277,7 @@ describe("servicesOf", () => {
     waiting: [],
     forms: [],
     services,
+    scheduled: [],
     filtered: [
       {
         id: "sabnzbd",

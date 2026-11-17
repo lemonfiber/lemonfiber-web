@@ -135,6 +135,7 @@ export const stack: Stack = {
   waiting: [],
   forms: [],
   services: [...services],
+  scheduled: [],
   // The stack is set up for torrents alone, so what downloads over usenet is
   // left out of both forms that asked for it.
   filtered: [
@@ -246,6 +247,7 @@ export const moment: Moment = {
       { service: "radarr", depth: 2, stuck: 0 },
     ],
   },
+  scheduled: [],
   services: { panel: "ready", data: [...services] },
   storage: {
     panel: "ready",

@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 103 kinds of answer, and this console reads 67 of them.
-Another surface can make 76 requests of the stack, and this console offers 53 of
-them. 6 kinds and 2 requests are offered elsewhere by rule, and 30 kinds and 21
+The client carries 105 kinds of answer, and this console reads 67 of them.
+Another surface can make 77 requests of the stack, and this console offers 53 of
+them. 6 kinds and 2 requests are offered elsewhere by rule, and 32 kinds and 22
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -160,9 +160,11 @@ where it answers with a kind the contract did not have before.
 | `push-endpoint`    | ARCH-R282 | Waking a phone: a push endpoint just registered, its name and the address its distributor gave                                                                                                    |
 | `push-endpoints`   | ARCH-R282 | Waking a phone: every push endpoint in the order they were registered, and which one a removal took                                                                                               |
 | `queue`            | H5        | Queue self-healing: whether healing acts, every unhealthy download with its strikes and why, and what the next run would do to it                                                                 |
+| `ran`              | ARCH-R438 | Running a run-and-exit service: what `lemonfiber run` came to for one service, whether a run was due and what held it back                                                                        |
 | `removal`          | D6        | Household identity: somebody taken out of the household                                                                                                                                           |
 | `reset`            | C9        | Drift: what a full reset would revert                                                                                                                                                             |
 | `settled`          | A2        | Setup: what setup settled, the data root, the protocols and the service user, and whether this stack is set up                                                                                    |
+| `sign-in-code`     | ARCH-R441 | Signing in by a code: the code a member approves and where, when it lapses, and the handle that finishes signing in                                                                               |
 | `stack`            | F1        | Customisation: how the stack runs without lemonfiber, the operator's alone                                                                                                                        |
 | `tuned`            | ARCH-R420 | Watching live TV: where one channel streams from for a member, carrying its passes, and when they lapse                                                                                           |
 | `watched`          | D11       | Watching what the house holds: what handing a member's progress through a title to the media server came to                                                                                       |
@@ -278,4 +280,5 @@ asks for any, naming it.
 | `push-endpoint-remove`         | ARCH-R282 | Waking a phone: remove one push endpoint by name                                                                                 |
 | `plugin-prove`                 | F14       | Plugins: run a plugin's live proof again; a pass clears what it was recorded as failing                                          |
 | `plugin-run`                   | F8        | Plugins: run one of a plugin's recipes by name, with its own rehearsal, offer and approvals                                      |
+| `run`                          | ARCH-R438 | Running a run-and-exit service at once, as `lemonfiber run <service>` runs it                                                    |
 | `internal-certificate-replace` | ARCH-R354 | Credentials: replace the media server's internal certificate, read first, then replaced on a yes naming that reading             |
