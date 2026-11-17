@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import Requests from "./Requests.svelte";
 import { household, unasked, unread } from "./house";
 import type { Freshness } from "../lib/freshness";
-import { wordOfRequestState } from "../lib/household";
+import { wordOfRequestState } from "../lib/standing";
 import { obstacleLines } from "../lib/obstacle";
 import type { Household } from "../lib/wire";
 import * as m from "../paraglide/messages.js";

@@ -24,18 +24,15 @@
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const SETTINGS = JSON.parse(
-  readFileSync(join(ROOT, "project.inlang", "settings.json"), "utf8"),
-);
-
-/** Every catalogue file one locale is compiled from, in the order named. */
-const catalogueOf = (locale) =>
-  [SETTINGS["plugin.inlang.messageFormat"].pathPattern]
-    .flat()
-    .map((pattern) => join(ROOT, pattern.replace("{locale}", locale)));
+import { HOUSEHOLD_WORDS } from "@lemonfiber/sdk-ts/contract";
+import {
+  catalogueOf,
+  MESSAGE,
+  NOT_DRAWN,
+  ROOT,
+  SETTINGS,
+  withoutPlaceholders,
+} from "./catalogue.mjs";
 
 /** Every catalogue file the base locale is compiled from, in the order named. */
 const CORPUS = catalogueOf(SETTINGS.baseLocale);
@@ -54,26 +51,6 @@ const fail = (where, message) => {
 };
 
 // ── What a message says, with the parts nobody reads taken out ───────────
-
-/**
- * The text with every `{…}` removed, a placeholder being data inside a sentence,
- * or put in place of `standIn` where it is to be counted rather than read.
- *
- * What arrives in one is a release title, a service name, a path or a figure —
- * words this product did not write and cannot be answerable for.
- */
-function withoutPlaceholders(said, standIn = "") {
-  let prose = "";
-  let depth = 0;
-  for (const character of said) {
-    if (character === "{") {
-      if (depth === 0) prose += standIn;
-      depth += 1;
-    } else if (character === "}") depth = Math.max(0, depth - 1);
-    else if (depth === 0) prose += character;
-  }
-  return prose;
-}
 
 /** Whether this character is part of a word rather than the punctuation around it. */
 function spells(character) {
@@ -442,25 +419,21 @@ function keptTwice(text) {
 // ── The names this product gives its own things ─────────────────────────
 
 /**
- * The words that also name a file, a command or an argument, each with where it
- * names one (`G2-R14`).
+ * The words that also name a file, a command or an argument, each with what it
+ * names, as the contract's household words publish them (`G2-R14`).
  *
  * Declared rather than inferred: nothing in a sentence says whether a noun is
- * text or a name, and a name nobody wrote down here is one a translator will
+ * text or a name, and a name nobody wrote down is one a translator will
  * reasonably translate. A translation that turns one into the ordinary word a
  * dictionary gives hands the reader a word that appears in no compose file, no
  * command and no page of the documentation they would search.
  */
-const DECLARED = new Map([
-  [
-    "form",
-    "a group of services that start and stop together, and the argument the verbs acting on one take",
-  ],
-  [
-    "stack",
-    "the machine every command acts on, in every path and every page of the documentation",
-  ],
-]);
+const DECLARED = new Map(Object.entries(HOUSEHOLD_WORDS.declared ?? {}));
+if (DECLARED.size === 0)
+  fail(
+    "@lemonfiber/sdk-ts",
+    "HOUSEHOLD_WORDS.declared is empty — the SDK does not carry the names the contract declares",
+  );
 
 /**
  * Whether a line uses a name as a word rather than as the start of one.
@@ -534,9 +507,6 @@ const LABEL_ELEMENTS = /<(h[1-6]|summary)\b[^>]*>\s*\{\s*m\.(\w+)\(/gu;
 
 /** A field of an option, a place or a column that is drawn as its label. */
 const LABEL_FIELDS = /\b(?:label|head):\s*m\.(\w+)\(/gu;
-
-/** A message read inside an expression. */
-const MESSAGE = /\bm\.(\w+)\(/gu;
 
 /** Where the tag that opens at `at` closes, stepping over braces and quotes. */
 function tagEnd(source, at) {
@@ -891,7 +861,7 @@ for (const locale of TRANSLATIONS) {
       for (const name of namesDropped(source, translated))
         fail(
           `${file}  ${key}`,
-          `translates "${name}", a name this product gives one of its own things — it names ${String(DECLARED.get(name))}, and is rendered as declared in every locale`,
+          `translates "${name}", a name this product gives one of its own things, which ${String(DECLARED.get(name))}, and is rendered as declared in every locale`,
         );
     }
   }
@@ -904,7 +874,6 @@ const SOURCES = join(ROOT, "src");
 
 /** A file a screen is drawn from, rather than a suite, a story or compiled words. */
 const DRAWS = /\.(?:svelte|ts)$/u;
-const NOT_DRAWN = /(?:\.test\.ts|\.testing\.ts|\.stories\.ts)$|^paraglide\//u;
 
 /** Each message drawn as a label, with the first place it is drawn. */
 const labels = new Map();

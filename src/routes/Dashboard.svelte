@@ -11,6 +11,7 @@
   import Programs from "./panels/Programs.svelte";
   import Rehearsal from "./panels/Rehearsal.svelte";
   import Running from "./panels/Running.svelte";
+  import Scheduled from "./panels/Scheduled.svelte";
   import Space from "./panels/Space.svelte";
   import Standing from "./panels/Standing.svelte";
   import Told from "./panels/Told.svelte";
@@ -136,6 +137,10 @@
   lives here, and what the people who were handed it are waiting on. A request
   nobody has ruled on is waiting on the operator as much as a stalled import is,
   and it appears nowhere else on this screen.
+
+  What runs and exits on a schedule follows the programs kept running, apart
+  from them because its standing is how its last run ended rather than what it
+  is doing now. It is left out where the stack runs nothing on a schedule.
 -->
 <Board>
   {#if said !== undefined}
@@ -209,6 +214,10 @@
   <Household household={moment?.household} freshness={live} />
 
   <Programs {programs} forms={controls.forms} freshness={read} />
+
+  {#if moment !== undefined && moment.scheduled.length > 0}
+    <Scheduled scheduled={moment.scheduled} freshness={live} />
+  {/if}
 
   <div class="pair">
     <Coming transfers={moment?.transfers} freshness={live} />

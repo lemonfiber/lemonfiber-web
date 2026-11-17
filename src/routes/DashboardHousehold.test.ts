@@ -3,12 +3,8 @@ import { describe, expect, it } from "vitest";
 import { moment, unavailable } from "./fixture";
 import { house } from "./house";
 import { requestsUnreachable } from "../api/obstacles";
-import {
-  allowanceOf,
-  saidOfAccess,
-  saidOfPolicy,
-  wordOfRequestState,
-} from "../lib/household";
+import { allowanceOf, saidOfAccess, saidOfPolicy } from "../lib/household";
+import { wordOfRequestState } from "../lib/standing";
 import type { House, Moment } from "../lib/wire";
 import * as m from "../paraglide/messages.js";
 import { board, changed } from "./Dashboard.testing";

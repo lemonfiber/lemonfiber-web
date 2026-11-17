@@ -7,12 +7,12 @@
   import Value from "../../components/Value.svelte";
   import type { Freshness } from "../../lib/freshness";
   import {
-    askingWasRead,
     saidOfPolicy,
     shownOf,
     waitingOn,
     type Outstanding,
   } from "../../lib/household";
+  import { askingWasRead } from "../../lib/standing";
   import { obstacleLines } from "../../lib/obstacle";
   import type { State } from "../../lib/state";
   import type { Column, Row } from "../../lib/table";

@@ -8,16 +8,27 @@
  * building.
  *
  * So the one build that is needed is run by name. `npm pack` clones the commit
- * the manifest pins, runs that package's own build and packs the result; the
- * install that follows runs no scripts, writes no lockfile, and leaves the rest
- * of the tree alone.
+ * the manifest pins, runs that package's own build and packs the result, which is
+ * unpacked in its place: it depends on nothing, so nothing else in the tree is
+ * resolved again, and the formatter, the linter and the types the lockfile pins
+ * are the ones every gate runs.
  *
  * Nothing calls this after an ordinary `npm install`, which has already built it.
  */
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+/** The archiver, by the one path it has on every machine this runs on. */
+const TAR = "/usr/bin/tar";
 
 /** The dependency that arrives as a commit rather than as a published build. */
 const NAME = "@lemonfiber/sdk-ts";
@@ -59,17 +70,23 @@ if (packed.length !== 1) {
   process.exit(1);
 }
 
-rmSync(new URL(`../node_modules/${NAME}`, import.meta.url), {
-  recursive: true,
-  force: true,
-});
-npm(
-  "install",
-  "--no-save",
-  "--no-package-lock",
-  "--ignore-scripts",
+const target = new URL(`../node_modules/${NAME}/`, import.meta.url);
+rmSync(target, { recursive: true, force: true });
+mkdirSync(target, { recursive: true });
+execFileSync(TAR, [
+  "-xzf",
   join(into, packed[0]),
-);
+  "-C",
+  fileURLToPath(target),
+  "--strip-components=1",
+]);
+const built = JSON.parse(readFileSync(new URL("package.json", target), "utf8"));
+if (Object.keys(built.dependencies ?? {}).length > 0) {
+  console.error(
+    `client: ${NAME} now depends on other packages, so unpacking it alone would leave them out`,
+  );
+  process.exit(1);
+}
 rmSync(into, { recursive: true, force: true });
 
 console.log(`client: built ${NAME} from ${spec}`);

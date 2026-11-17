@@ -16,7 +16,8 @@ import {
 } from "./mine";
 import { household } from "./house";
 import { nameOfRoom } from "../lib/rooms";
-import { everyPlace, nameOf } from "../lib/route";
+import { everyPlace } from "../lib/places";
+import { nameOf } from "../lib/route";
 import type { Household } from "../lib/wire";
 import { everythingInView } from "../lib/gallery.testing";
 import {
@@ -101,6 +102,14 @@ describe("a household member signed in", () => {
     for (const finding of yours.findings) {
       expect(screen.queryByText(finding.said)).toBeNull();
     }
+  });
+
+  it("is headed by the house, not the brand", async () => {
+    signedIn(answering(answers()));
+    await screen.findByText("Andor");
+
+    expect(screen.getByText(m.member_house())).toBeInTheDocument();
+    expect(screen.queryByRole("img", { name: m.product_name() })).toBeNull();
   });
 
   // What is drawn is what lemonfiber sent. It narrows a member's read to their

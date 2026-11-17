@@ -36,7 +36,7 @@
     type Room,
     type Whereabouts,
   } from "../lib/rooms";
-  import { ours } from "../lib/route";
+  import { ours } from "../lib/places";
   import type { Access, Household } from "../lib/wire";
   import type { PartWays } from "../lib/partway";
   import type { Told } from "../lib/title";
@@ -431,6 +431,9 @@
   menu={memberMenu}
   ongo={go}
 >
+  {#snippet brand()}
+    {m.member_house()}
+  {/snippet}
   {#if "away" in where}
     <Away answer={away} />
   {:else if where.room === "find"}

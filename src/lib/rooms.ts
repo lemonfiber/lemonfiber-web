@@ -11,7 +11,7 @@
  * The words live in `messages/`, so no screen holds one.
  */
 import type { IconName } from "./icons";
-import { placeAt, type Menu, type Place } from "./route";
+import { placeAt, type Menu, type Place } from "./places";
 import * as m from "../paraglide/messages.js";
 
 /**

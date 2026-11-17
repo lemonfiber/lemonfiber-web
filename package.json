@@ -23,19 +23,20 @@
     "arch": "depcruise src --config .dependency-cruiser.cjs",
     "guard": "node scripts/guards.mjs",
     "words": "node scripts/words.mjs",
+    "household": "node scripts/household.mjs",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "storybook": "storybook dev -p 6006 --no-open",
     "storybook:build": "storybook build",
     "a11y": "node scripts/a11y.mjs",
     "client": "node scripts/client.mjs",
-    "ci": "npm run messages && npm run format:check && npm run lint && npm run types && npm run guard && npm run words && npm run arch && npm run coverage && npm run build && npm run storybook:build && npm run a11y",
+    "ci": "npm run messages && npm run format:check && npm run lint && npm run types && npm run guard && npm run words && npm run household && npm run arch && npm run coverage && npm run build && npm run storybook:build && npm run a11y",
     "messages": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "@lemonfiber/brand": "github:lemonfiber/brand#09457ab5db4cdb37bb09b09bb47623c911a0d53e",
-    "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#f9e4cd4244574eae80808246f6f75d183dbde04a",
+    "@lemonfiber/sdk-ts": "github:lemonfiber/sdk-ts#2ae7b6270359e8723a121c407c8c3d01c591a86d",
     "qrcode-generator": "2.0.4"
   },
   "devDependencies": {

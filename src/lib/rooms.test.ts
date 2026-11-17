@@ -10,7 +10,8 @@ import {
   type Away,
 } from "./rooms";
 import { everyIcon } from "./icons";
-import { consoleMenu, everyPlace, pathOf } from "./route";
+import { everyPlace, pathOf } from "./places";
+import { consoleMenu } from "./route";
 import * as m from "../paraglide/messages.js";
 
 describe("a household member's rooms", () => {

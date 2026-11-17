@@ -7,6 +7,7 @@
   import Requests from "./Requests.svelte";
   import Settings from "./Settings.svelte";
   import Shell from "./Shell.svelte";
+  import Lockup from "../components/Lockup.svelte";
   import Storage from "./Storage.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import { asked, scrollback, turnedAway, type Reaching } from "../api/asking";
@@ -53,7 +54,8 @@
   import { lettingGo } from "../lib/seeding";
   import { agreedRestart, type Offered } from "../lib/restarting";
   import { placeChangedBy } from "../lib/rereading";
-  import { consoleMenu, ours, pathOf, placeAt, type Place } from "../lib/route";
+  import { ours, pathOf, placeAt, type Place } from "../lib/places";
+  import { consoleMenu } from "../lib/route";
   import type {
     Diagnosis,
     Forms,
@@ -463,6 +465,7 @@
   asked for together.
 -->
 <Shell {place} menu={consoleMenu} ongo={go}>
+  {#snippet brand()}<Lockup />{/snippet}
   {#if stream.told !== undefined}
     <Raised
       told={stream.told}
