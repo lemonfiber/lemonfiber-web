@@ -98,7 +98,9 @@ type Feature =
   | "ARCH-R354"
   | "ARCH-R404"
   | "ARCH-R405"
-  | "ARCH-R420";
+  | "ARCH-R420"
+  | "ARCH-R438"
+  | "ARCH-R441";
 
 /**
  * Every request another surface can make of the stack.
@@ -169,6 +171,7 @@ const EVERY_REQUEST = [
   "plugin-remove",
   "plugin-prove",
   "plugin-run",
+  "run",
   "credentials-revoke",
   "internal-certificate-replace",
   "settings-set",
@@ -421,6 +424,7 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "push-endpoint-remove": "ARCH-R282",
   "plugin-prove": "F14",
   "plugin-run": "F8",
+  run: "ARCH-R438",
   "internal-certificate-replace": "ARCH-R354",
 };
 
@@ -547,9 +551,11 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   "push-endpoint": "ARCH-R282",
   "push-endpoints": "ARCH-R282",
   queue: "H5",
+  ran: "ARCH-R438",
   removal: "D6",
   reset: "C9",
   settled: "A2",
+  "sign-in-code": "ARCH-R441",
   stack: "F1",
   tuned: "ARCH-R420",
   watched: "D11",
