@@ -21,7 +21,7 @@ import { changedByRevoking } from "./revoking";
 import { changedByValuing } from "./valuing";
 import { changedByMoving } from "./moving";
 import { changedBySeeding } from "./seeding";
-import type { Place } from "./route";
+import type { Place } from "./places";
 import { changedTheLine } from "./sharing";
 import { changedTheHousehold } from "./tending";
 import { changedTheQuality } from "./tuning";

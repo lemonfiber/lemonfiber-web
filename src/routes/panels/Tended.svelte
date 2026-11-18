@@ -5,7 +5,7 @@
   import Watchable from "./Watchable.svelte";
   import Handing from "./Handing.svelte";
   import type { Shelving } from "../shelving";
-  import { nameOfRequest } from "../../lib/household";
+  import { nameOfRequest } from "../../lib/standing";
   import { standingHandoff, type Limits, type Tender } from "../../lib/tending";
   import type { Member } from "../../lib/wire";
   import * as m from "../../paraglide/messages.js";

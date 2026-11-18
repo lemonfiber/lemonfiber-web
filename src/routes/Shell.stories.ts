@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
+import { createRawSnippet } from "svelte";
 import Shell from "./Shell.svelte";
 import {
   controls,
@@ -21,7 +22,8 @@ import {
   storing,
 } from "../../.storybook/snippets";
 import { memberMenu } from "../lib/rooms";
-import { consoleMenu, everyPlace } from "../lib/route";
+import { everyPlace } from "../lib/places";
+import { consoleMenu } from "../lib/route";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
 
@@ -57,11 +59,19 @@ const requests = requesting({
   freshness: answered,
 });
 
+const brand = createRawSnippet(() => ({
+  render: () => `<span>lemonfiber</span>`,
+}));
+
+const house = createRawSnippet(() => ({
+  render: () => `<span>The house</span>`,
+}));
+
 const meta = {
   title: "Surfaces/Shell",
   component: Shell,
   argTypes: { place: { control: "select", options: everyPlace } },
-  args: { place: "overview", menu: consoleMenu, children: overview },
+  args: { place: "overview", menu: consoleMenu, brand, children: overview },
 } satisfies Meta<typeof Shell>;
 
 export default meta;
@@ -149,6 +159,7 @@ export const AMembersRequests: Story = {
   args: {
     place: "asked",
     menu: memberMenu,
+    brand: house,
     children: asking({
       household: yours,
       freshness: answered,
@@ -165,6 +176,7 @@ export const AMembersShelf: Story = {
   args: {
     place: "held",
     menu: memberMenu,
+    brand: house,
     children: shelving({
       access: { at: "answered", value: [kit.access] },
       watched: answered,

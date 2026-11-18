@@ -15,7 +15,7 @@ import {
   type Says,
 } from "./served";
 import { offered, reissued, wouldOffer } from "../api/invitations";
-import { nameOfRequest } from "../lib/household";
+import { nameOfRequest } from "../lib/standing";
 import * as m from "../paraglide/messages.js";
 
 /** Where the requests screen reads the household. */

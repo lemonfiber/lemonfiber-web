@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import Asked from "./Asked.svelte";
 import { kit, yours, yoursSpent, yoursUnasked, yoursUnread } from "./mine";
 import type { Freshness } from "../lib/freshness";
-import { wordOfRequestState } from "../lib/household";
+import { wordOfRequestState } from "../lib/standing";
 import type { Household } from "../lib/wire";
 import { dayOf } from "../lib/instant";
 import { approvalOf, leftOf } from "../lib/yours";

@@ -12,7 +12,7 @@
     kindOfRequest,
     nameOfRequest,
     standingOf,
-  } from "../lib/household";
+  } from "../lib/standing";
   import type { Column, Row } from "../lib/table";
   import type { Household, Member } from "../lib/wire";
   import { approvalOf, besideOf, leftOf } from "../lib/yours";

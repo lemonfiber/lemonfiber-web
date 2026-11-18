@@ -4,8 +4,13 @@ import { createRawSnippet } from "svelte";
 import { describe, expect, it } from "vitest";
 import Shell from "./Shell.svelte";
 import { everyRoom, memberMenu, nameOfRoom, pathOfRoom } from "../lib/rooms";
-import { consoleMenu, everyPlace, nameOf, pathOf } from "../lib/route";
+import { everyPlace, pathOf } from "../lib/places";
+import { consoleMenu, nameOf } from "../lib/route";
 import * as m from "../paraglide/messages.js";
+
+const brand = createRawSnippet(() => ({
+  render: () => `<span>what heads the chrome</span>`,
+}));
 
 const body = createRawSnippet(() => ({
   render: () => `<p data-testid="screen">what this place shows</p>`,
@@ -23,7 +28,12 @@ const answering = (
 
 describe("Shell", () => {
   it("puts the screen in the page's one main landmark", () => {
-    render(Shell, { menu: consoleMenu, place: "overview", children: body });
+    render(Shell, {
+      menu: consoleMenu,
+      place: "overview",
+      brand,
+      children: body,
+    });
     expect(screen.getByRole("main")).toContainElement(
       screen.getByTestId("screen"),
     );
@@ -32,7 +42,12 @@ describe("Shell", () => {
   // Each place is an address of its own, so a screen reader lists them, a
   // second tab opens one, and the back button leaves one behind.
   it("leads to every place with a link to its own address", () => {
-    render(Shell, { menu: consoleMenu, place: "overview", children: body });
+    render(Shell, {
+      menu: consoleMenu,
+      place: "overview",
+      brand,
+      children: body,
+    });
 
     for (const place of everyPlace) {
       expect(
@@ -42,21 +57,26 @@ describe("Shell", () => {
   });
 
   it("names the menu, so it is reachable on its own", () => {
-    render(Shell, { menu: consoleMenu, place: "overview", children: body });
+    render(Shell, {
+      menu: consoleMenu,
+      place: "overview",
+      brand,
+      children: body,
+    });
     expect(
       screen.getByRole("navigation", { name: m.nav_console() }),
     ).toBeInTheDocument();
   });
 
   it("says which of the addresses is the one being read", () => {
-    render(Shell, { menu: consoleMenu, place: "logs", children: body });
+    render(Shell, { menu: consoleMenu, place: "logs", brand, children: body });
     expect(
       screen.getByRole("link", { name: new RegExp(nameOf("logs")) }),
     ).toHaveAttribute("aria-current", "page");
   });
 
   it("marks one place and no more", () => {
-    render(Shell, { menu: consoleMenu, place: "logs", children: body });
+    render(Shell, { menu: consoleMenu, place: "logs", brand, children: body });
     expect(screen.getAllByRole("link", { current: "page" })).toHaveLength(1);
   });
 
@@ -66,6 +86,7 @@ describe("Shell", () => {
       menu: consoleMenu,
       place: "overview",
       ongo: answering(taken),
+      brand,
       children: body,
     });
 
@@ -79,7 +100,12 @@ describe("Shell", () => {
   // The menu is a set of links whether or not anything is listening to it, so
   // pressing one where nothing is asks the browser for the address instead.
   it("leaves the address to the browser where nothing answers", async () => {
-    render(Shell, { menu: consoleMenu, place: "overview", children: body });
+    render(Shell, {
+      menu: consoleMenu,
+      place: "overview",
+      brand,
+      children: body,
+    });
     const link = screen.getByRole("link", {
       name: new RegExp(nameOf("checks")),
     });
@@ -93,7 +119,7 @@ describe("Shell", () => {
   // A household member is handed their own menu in the same chrome, and the
   // chrome knows nothing of either.
   it("leads a household member to their own rooms and to nothing of the console's", () => {
-    render(Shell, { menu: memberMenu, place: "asked", children: body });
+    render(Shell, { menu: memberMenu, place: "asked", brand, children: body });
 
     for (const room of everyRoom) {
       expect(
@@ -113,7 +139,12 @@ describe("Shell", () => {
   // An address that is none of the menu's places is not one of them, so no
   // link claims to be the page being read.
   it("marks no place where the address is none of the menu's", () => {
-    render(Shell, { menu: memberMenu, place: undefined, children: body });
+    render(Shell, {
+      menu: memberMenu,
+      place: undefined,
+      brand,
+      children: body,
+    });
     expect(screen.queryAllByRole("link", { current: "page" })).toHaveLength(0);
   });
 });

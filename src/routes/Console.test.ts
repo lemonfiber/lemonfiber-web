@@ -126,6 +126,14 @@ describe("the console", () => {
     expect(await screen.findByText(worstService.name)).toBeInTheDocument();
   });
 
+  it("is headed by the brand", async () => {
+    console_();
+    await screen.findByText(worstService.name);
+    expect(
+      screen.getAllByRole("img", { name: m.product_name() }).length,
+    ).toBeGreaterThan(0);
+  });
+
   it("says the live connection was never made", async () => {
     console_();
     expect(

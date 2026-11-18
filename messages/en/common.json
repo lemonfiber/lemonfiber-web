@@ -156,7 +156,7 @@
   "nav_console": "Screens",
   "nav_storage": "The disk",
   "nav_requests": "Requests",
-  "waiting_answer": "Waiting for lemonfiber to answer",
+  "waiting_answer": "Waiting for the house to answer",
   "flow_opening_lead": "Opening the live connection.",
   "flow_opening_prose": "Everything below is what lemonfiber said when the page was asked to draw it.",
   "flow_stale_lead": "The live connection dropped.",

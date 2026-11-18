@@ -14,7 +14,8 @@ import { claimAt, declineAt, joinAt } from "../api/invitations";
 import { servedAt as handedAt } from "../api/handoffs";
 import { drawn } from "../lib/qr";
 import type { Freshness } from "../lib/freshness";
-import { labelOfPolicy, nameOfRequest } from "../lib/household";
+import { labelOfPolicy } from "../lib/household";
+import { nameOfRequest } from "../lib/standing";
 import type { Tender } from "../lib/tending";
 import * as m from "../paraglide/messages.js";
 

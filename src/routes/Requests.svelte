@@ -23,7 +23,7 @@
     kindOfRequest,
     nameOfRequest,
     standingOf,
-  } from "../lib/household";
+  } from "../lib/standing";
   import type { Column, Row } from "../lib/table";
   import type { Finder } from "../lib/finding";
   import { obstacleLines } from "../lib/obstacle";
