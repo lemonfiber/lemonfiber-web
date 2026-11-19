@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 110 kinds of answer, and this console reads 67 of them.
+The client carries 112 kinds of answer, and this console reads 67 of them.
 Another surface can make 77 requests of the stack, and this console offers 53 of
-them. 9 kinds and 2 requests are offered elsewhere by rule, and 34 kinds and 22
+them. 11 kinds and 2 requests are offered elsewhere by rule, and 34 kinds and 22
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -125,17 +125,19 @@ where it answers with a kind the contract did not have before.
 
 ## Kinds served by no endpoint
 
-| Kind                 | Rule    | Why                                                                                                                                                                  |
-| -------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `logs`               | `G1-R1` | what `lemonfiber logs` writes under `--json` once its scrollback ends; G1 lists `--json` as unsuited to the web, and the console reads the lines themselves as `log` |
-| `password`           | `G1-R1` | what setting this surface's password came to, which `lemonfiber ui` asks for before it serves; G1 lists serving the web interface as unsuited to it                  |
-| `plugin-claims`      | `G1-R1` | what `lemonfiber plugin claims` writes under `--json`: a plugin author's read of their own source, answered with no stack, which no route serves                     |
-| `plugin-conformance` | `G1-R1` | what `lemonfiber plugin conform` writes under `--json`: a plugin author's read of their own recordings, answered with no stack, which no route serves                |
-| `plugin-provenance`  | `G1-R1` | what `lemonfiber plugin provenance` writes under `--json`: a plugin author's read of their own images, answered with no stack, which no route serves                 |
-| `plugin-recording`   | `G1-R1` | what `lemonfiber plugin record` writes under `--json`: a plugin author's recordings of their own adapters, made with no stack, which no route serves                 |
-| `pull`               | `G1-R1` | the lines the command line writes while it fetches, under `--json`; G1 lists `--json` as unsuited to the web, and fetching is offered through the `pull` request     |
-| `served`             | `G1-R1` | how `lemonfiber ui` serves this surface, the certificate it presents and the name it answers to; G1 lists serving the web interface as unsuited to it                |
-| `setup`              | `G1-R1` | what the command line's own setup writes under `--json`; the setup a browser walks answers with `wizard`                                                             |
+| Kind                 | Rule       | Why                                                                                                                                                                  |
+| -------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `caller`             | `ARCH-R42` | who the session or key a request carried proves to be, which the web API asks the core through dispatch before it answers anything; no route serves it               |
+| `logs`               | `G1-R1`    | what `lemonfiber logs` writes under `--json` once its scrollback ends; G1 lists `--json` as unsuited to the web, and the console reads the lines themselves as `log` |
+| `password`           | `G1-R1`    | what setting this surface's password came to, which `lemonfiber ui` asks for before it serves; G1 lists serving the web interface as unsuited to it                  |
+| `plugin-claims`      | `G1-R1`    | what `lemonfiber plugin claims` writes under `--json`: a plugin author's read of their own source, answered with no stack, which no route serves                     |
+| `plugin-conformance` | `G1-R1`    | what `lemonfiber plugin conform` writes under `--json`: a plugin author's read of their own recordings, answered with no stack, which no route serves                |
+| `plugin-provenance`  | `G1-R1`    | what `lemonfiber plugin provenance` writes under `--json`: a plugin author's read of their own images, answered with no stack, which no route serves                 |
+| `plugin-recording`   | `G1-R1`    | what `lemonfiber plugin record` writes under `--json`: a plugin author's recordings of their own adapters, made with no stack, which no route serves                 |
+| `pull`               | `G1-R1`    | the lines the command line writes while it fetches, under `--json`; G1 lists `--json` as unsuited to the web, and fetching is offered through the `pull` request     |
+| `served`             | `G1-R1`    | how `lemonfiber ui` serves this surface, the certificate it presents and the name it answers to; G1 lists serving the web interface as unsuited to it                |
+| `setup`              | `G1-R1`    | what the command line's own setup writes under `--json`; the setup a browser walks answers with `wizard`                                                             |
+| `standing`           | `ARCH-R42` | what the web API composes its routes and its answers from, which it reads from the core through dispatch; no route serves it                                         |
 
 ## Kinds not read yet
 

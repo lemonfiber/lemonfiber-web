@@ -515,6 +515,8 @@ const THROUGH_THE_CLIENT: Partial<Record<Kind, string>> = {
  * to.
  */
 const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
+  caller:
+    "ARCH-R42 — who the session or key a request carried proves to be, which the web API asks the core through dispatch before it answers anything; no route serves it",
   logs: "G1-R1 — what `lemonfiber logs` writes under `--json` once its scrollback ends, which is how a command writes its answer to a pipe; the console reads the lines themselves as `log`",
   password:
     "G1-R1 — what setting this surface's password came to, which `lemonfiber ui` asks for before it serves; serving the web interface is the command line's, since a surface cannot start itself",
@@ -531,6 +533,8 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
     "G1-R1 — how `lemonfiber ui` serves this surface, the certificate it presents and the name it answers to; serving the web interface is the command line's, since a surface cannot start itself",
   setup:
     "G1-R1 — what the command line's own setup writes under `--json`; the setup a browser walks answers with `wizard`",
+  standing:
+    "ARCH-R42 — what the web API composes its routes and its answers from, which it reads from the core through dispatch; no route serves it",
 };
 
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
