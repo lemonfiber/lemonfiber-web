@@ -66,6 +66,7 @@ type Feature =
   | "C10"
   | "D1"
   | "D2"
+  | "D3"
   | "D4"
   | "D5"
   | "D6"
@@ -514,6 +515,9 @@ const THROUGH_THE_CLIENT: Partial<Record<Kind, string>> = {
  * to.
  */
 const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
+  logs: "G1-R1 — what `lemonfiber logs` writes under `--json` once its scrollback ends, which is how a command writes its answer to a pipe; the console reads the lines themselves as `log`",
+  password:
+    "G1-R1 — what setting this surface's password came to, which `lemonfiber ui` asks for before it serves; serving the web interface is the command line's, since a surface cannot start itself",
   "plugin-claims":
     "G1-R1 — what `lemonfiber plugin claims` writes under `--json`, a plugin author's read of their own source answered with no stack, which no route serves",
   "plugin-conformance":
@@ -523,6 +527,8 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
   "plugin-recording":
     "G1-R1 — what `lemonfiber plugin record` writes under `--json`, a plugin author's recordings of their own adapters made with no stack, which no route serves",
   pull: "G1-R1 — the lines the command line writes while it fetches, under `--json`, which is how a command writes its answer to a pipe; the web offers fetching through the `pull` request, answered with `lifecycle`",
+  served:
+    "G1-R1 — how `lemonfiber ui` serves this surface, the certificate it presents and the name it answers to; serving the web interface is the command line's, since a surface cannot start itself",
   setup:
     "G1-R1 — what the command line's own setup writes under `--json`; the setup a browser walks answers with `wizard`",
 };
@@ -541,6 +547,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   "front-door": "G5",
   grant: "D11",
   guide: "D11",
+  "in-flight": "A6",
   "key-claim": "C10",
   music: "D2",
   news: "N27",
@@ -558,6 +565,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   "sign-in-code": "ARCH-R441",
   stack: "F1",
   tuned: "ARCH-R420",
+  "walkthrough-offer": "D3",
   watched: "D11",
   watcher: "K2",
   word: "G2",
