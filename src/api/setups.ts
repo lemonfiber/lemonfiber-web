@@ -19,6 +19,7 @@ export const setUp: Wizard = {
   proof: null,
   ready_for_review: false,
   rehearsed: false,
+  setup: "done",
   unanswered: [],
   written: [],
 };
@@ -29,6 +30,7 @@ export const fresh: Wizard = {
   at: "welcome",
   offered: true,
   phase: "in-progress",
+  setup: "none",
   unanswered: [
     "protocols",
     "data-location",
@@ -45,6 +47,7 @@ export const reviewing: Wizard = {
   at: "review",
   phase: "reviewing",
   ready_for_review: true,
+  setup: "part-way",
   unanswered: [],
   plan: [
     {
@@ -74,6 +77,7 @@ export const tunnelling: Wizard = {
   ...fresh,
   at: "vpn",
   asks: true,
+  setup: "part-way",
   guard: [
     {
       asks: "choice",
