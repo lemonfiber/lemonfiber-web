@@ -264,6 +264,8 @@ const everyBare: readonly Bare[] = [
   "would-wire",
   "would-adopt",
   "adopted",
+  "would-take-back",
+  "taken-back",
   "already-wired",
   "unmanaged",
 ];
@@ -283,6 +285,10 @@ function bareWords(state: Bare, connections: string): string {
       return m.came_wiring_would_adopt({ connections });
     case "adopted":
       return m.came_wiring_adopted({ connections });
+    case "would-take-back":
+      return m.came_wiring_would_take_back({ connections });
+    case "taken-back":
+      return m.came_wiring_taken_back({ connections });
     case "already-wired":
       return m.came_wiring_already({ connections });
     case "unmanaged":
@@ -323,6 +329,8 @@ function ownLine(wiring: Wired): string | undefined {
     case "would-wire":
     case "would-adopt":
     case "adopted":
+    case "would-take-back":
+    case "taken-back":
     case "already-wired":
     case "unmanaged":
       return undefined;

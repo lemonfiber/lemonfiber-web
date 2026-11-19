@@ -147,6 +147,7 @@
   "wiring_chosen_by_you": "It reaches {services}, which you chose over {over}.",
   "wiring_chosen_by_stack": "It reaches {services}, which the stack chose over {over}.",
   "wiring_unfilled": "Nothing does it, so it reaches nothing.",
+  "wiring_declined": "You chose that nothing does it, over {over}, so it reaches nothing.",
   "wiring_settled_other": "How it was settled is something this page has no word for.",
   "wiring_brought": "{service} came with the plugin {named}.",
   "wiring_by_name": "It is kept to {service} by name: {why}",

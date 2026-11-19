@@ -67,6 +67,23 @@ describe("one link", () => {
     ]);
   });
 
+  it("says the operator chose that nothing does it, over whom", () => {
+    const declined: Link = {
+      by: "qbittorrent",
+      origin: { origin: "bundled" },
+      reaches: {
+        how: "asked",
+        capability: "network.egress-guard",
+        services: [],
+        settled: { settled: "declined", over: ["gluetun"] },
+        origins: {},
+      },
+    };
+    expect(linkLines(declined)).toContain(
+      m.wiring_declined({ over: "gluetun" }),
+    );
+  });
+
   it("says nothing does it, and has words for a settling it does not know", () => {
     const unfilled: Link = {
       by: "lidarr",

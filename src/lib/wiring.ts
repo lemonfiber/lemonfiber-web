@@ -45,6 +45,8 @@ function settledLine(asked: Asked): string {
         : m.wiring_chosen_by_stack({ services, over: listed(settled.over) });
     case "unfilled":
       return m.wiring_unfilled();
+    case "declined":
+      return m.wiring_declined({ over: listed(settled.over) });
     default:
       return m.wiring_settled_other();
   }
