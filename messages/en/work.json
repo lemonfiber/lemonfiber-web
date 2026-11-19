@@ -83,6 +83,8 @@
   "came_wiring_unmatched": "{connection} was not wired, because nothing lemonfiber does connects these two: {reason}",
   "came_wiring_kept": "{connection} keeps the change made by hand in {path}. Only reapplying the preset puts it back.",
   "came_wiring_adopted": "Kept as they were set by hand: {connections}.",
+  "came_wiring_would_take_back": "A real run would take these download clients lemonfiber added back out, because nothing here answers where they point any more: {connections}.",
+  "came_wiring_taken_back": "Download clients lemonfiber added, taken back out because nothing here answers where they point any more: {connections}.",
   "came_wiring_already": "Already connected: {connections}.",
   "came_wiring_unmanaged": "Set before lemonfiber was, and taken as they are: {connections}.",
   "came_wiring_other": "Turned out in a way this page has no words for: {connections}.",

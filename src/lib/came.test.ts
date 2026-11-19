@@ -343,6 +343,8 @@ describe("what wiring the programs to each other came to", () => {
     ["would-wire", m.came_wiring_would],
     ["would-adopt", m.came_wiring_would_adopt],
     ["adopted", m.came_wiring_adopted],
+    ["would-take-back", m.came_wiring_would_take_back],
+    ["taken-back", m.came_wiring_taken_back],
     ["already-wired", m.came_wiring_already],
     ["unmanaged", m.came_wiring_unmanaged],
   ] as const)(
