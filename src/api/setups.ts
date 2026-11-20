@@ -13,6 +13,7 @@ export const setUp: Wizard = {
   asks: false,
   at: "review",
   guard: [],
+  house: { zone: "Europe/Amsterdam", locale: "en-US" },
   offered: false,
   phase: "applied",
   plan: [],
