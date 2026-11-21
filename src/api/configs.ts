@@ -8,9 +8,40 @@
  */
 import type { Configured } from "../lib/configured";
 
+/**
+ * What setup decided, as every answer of this kind lists it: a decision the
+ * configuration holds, a credential held and never shown, and one the settings
+ * store keeps that nothing holds yet.
+ */
+const decided: Configured["decisions"] = [
+  {
+    affects: "where every download and every library file lives",
+    cost: "consequential",
+    credential: false,
+    held: true,
+    key: "DATA_ROOT",
+  },
+  {
+    affects: "the password the account is reached with",
+    cost: "cheap",
+    credential: true,
+    held: true,
+    key: "USENET_PASS",
+  },
+  {
+    affects: "the language and region the house says it has",
+    cost: "cheap",
+    credential: false,
+    held: false,
+    key: "LEMONFIBER_LOCALE",
+    setting: "LEMONFIBER_LOCALE",
+  },
+];
+
 /** Every setting, as a listing answers with them. */
 export const everySetting: Configured = {
   changed: false,
+  decisions: decided,
   rehearsed: false,
   settings: [
     {
@@ -38,6 +69,7 @@ export const everySetting: Configured = {
 export const staged: Configured = {
   changed: true,
   consequence: "Moving the library takes as long as copying it.",
+  decisions: decided,
   rehearsed: false,
   review: {
     change: {
@@ -84,6 +116,7 @@ export const applied: Configured = {
 /** A cheap change, made at once. */
 export const madeAtOnce: Configured = {
   changed: true,
+  decisions: decided,
   rehearsed: false,
   review: {
     change: {
