@@ -94,6 +94,7 @@ type Feature =
   | "N27"
   | "ARCH-R78"
   | "ARCH-R132"
+  | "ARCH-R153"
   | "ARCH-R156"
   | "ARCH-R282"
   | "ARCH-R354"
@@ -559,6 +560,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   notify: "B9",
   "notify-mine": "ARCH-R405",
   play: "ARCH-R420",
+  "plugin-catalogue": "ARCH-R153",
   "push-endpoint": "ARCH-R282",
   "push-endpoints": "ARCH-R282",
   queue: "H5",
