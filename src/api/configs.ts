@@ -38,6 +38,33 @@ const decided: Configured["decisions"] = [
   },
 ];
 
+/**
+ * The areas the operator said to leave alone, as every answer of this kind
+ * lists them: one covering a service and a file beneath it, and a misspelt one
+ * covering nothing.
+ */
+const leftAlone: Configured["unmanaged"] = [
+  {
+    area: "config",
+    area_cut: false,
+    covers: [
+      { kind: "service", name: "config" },
+      { kind: "path", name: "config/recyclarr/recyclarr.yml" },
+    ],
+    covers_more: 0,
+    why: "my own profiles live in here",
+    why_cut: false,
+  },
+  {
+    area: "radar",
+    area_cut: false,
+    covers: [],
+    covers_more: 0,
+    why: "I tune this one by hand",
+    why_cut: false,
+  },
+];
+
 /** Every setting, as a listing answers with them. */
 export const everySetting: Configured = {
   changed: false,
@@ -63,6 +90,8 @@ export const everySetting: Configured = {
       value: "on",
     },
   ],
+  unmanaged: leftAlone,
+  unmanaged_more: 0,
 };
 
 /** A consequential change, staged for a yes, and everything it costs. */
@@ -97,6 +126,8 @@ export const staged: Configured = {
     stance: "pending",
   },
   settings: [],
+  unmanaged: leftAlone,
+  unmanaged_more: 0,
 };
 
 /** The same change, made. */
@@ -128,4 +159,6 @@ export const madeAtOnce: Configured = {
     stance: "applied",
   },
   settings: [],
+  unmanaged: leftAlone,
+  unmanaged_more: 0,
 };
