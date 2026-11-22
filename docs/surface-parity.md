@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 112 kinds of answer, and this console reads 67 of them.
+The client carries 113 kinds of answer, and this console reads 67 of them.
 Another surface can make 77 requests of the stack, and this console offers 53 of
-them. 11 kinds and 2 requests are offered elsewhere by rule, and 34 kinds and 22
+them. 11 kinds and 2 requests are offered elsewhere by rule, and 35 kinds and 22
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -163,6 +163,7 @@ where it answers with a kind the contract did not have before.
 | `notify`            | B9        | Notification back-ends: each back-end the core delivers to, where it reaches, whether it is proven, its newest delivery and every failure since its last confirmed one                            |
 | `notify-mine`       | ARCH-R405 | Hearing what you asked for: the ways the operator offered the household, each by its household name and whether this member receives on it, and whether their own phone is registered to be woken |
 | `play`              | ARCH-R420 | Watching what the house holds: where one title plays from for a member, carrying a pass, and when the pass lapses                                                                                 |
+| `plugin-catalogue`  | ARCH-R153 | Browsing plugins: what the plugin catalogue offers to install, with what is installed of each, or that asking it is switched off or failed                                                        |
 | `push-endpoint`     | ARCH-R282 | Waking a phone: a push endpoint just registered, its name and the address its distributor gave                                                                                                    |
 | `push-endpoints`    | ARCH-R282 | Waking a phone: every push endpoint in the order they were registered, and which one a removal took                                                                                               |
 | `queue`             | H5        | Queue self-healing: whether healing acts, every unhealthy download with its strikes and why, and what the next run would do to it                                                                 |
