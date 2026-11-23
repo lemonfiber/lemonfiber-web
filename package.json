@@ -51,7 +51,7 @@
     "@testing-library/svelte": "^5.4.2",
     "@testing-library/user-event": "^14.6.10",
     "@typescript/native": "npm:typescript@^7.0.2",
-    "@vitest/coverage-v8": "^5.1.0",
+    "@vitest/coverage-v8": "^5.1.1",
     "@vitest/eslint-plugin": "^1.6.28",
     "dependency-cruiser": "^18.7.2",
     "eslint": "^10.14.0",
