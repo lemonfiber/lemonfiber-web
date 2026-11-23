@@ -100,9 +100,9 @@
           <Tag label={service} />
         {/if}
         {#if facing !== undefined}
-          <span class="what"
-            ><span class="word">{wordOfFacing(facing)}</span></span
-          >
+          <span class="what">
+            <span class="word">{wordOfFacing(facing)}</span>
+          </span>
         {/if}
       </p>
 

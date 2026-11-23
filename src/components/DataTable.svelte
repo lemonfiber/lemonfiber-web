@@ -155,9 +155,9 @@
                   <span class="word">{laid.text}</span>
                 {/if}
                 {#if laid.caption !== undefined}
-                  <span class="caption" class:below={laid.below}
-                    >{laid.caption}</span
-                  >
+                  <span class="caption" class:below={laid.below}>
+                    {laid.caption}
+                  </span>
                 {/if}
                 {#if laid.draw !== undefined}
                   {@render laid.draw()}

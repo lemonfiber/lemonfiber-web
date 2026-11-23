@@ -27,9 +27,9 @@
   nothing else is marked; otherwise each term in it can be pressed for what it
   means.
 -->
-{#each pieces as piece, at (at)}{#if piece.code === true}<code class="lit"
-      >{piece.text}</code
-    >{:else if piece.word === undefined || explained === undefined}{piece.text}{:else}<Term
+{#each pieces as piece, at (at)}{#if piece.code === true}<code class="lit">
+      {piece.text}
+    </code>{:else if piece.word === undefined || explained === undefined}{piece.text}{:else}<Term
       term={piece.text}
       word={piece.word}
       explain={explained.explain}

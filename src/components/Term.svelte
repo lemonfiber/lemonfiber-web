@@ -91,8 +91,10 @@
     onclick={press}
     onkeydown={(event) => {
       if (event.key === "Escape") open = false;
-    }}>{term}</button
-  >{#if open}
+    }}
+  >
+    {term}
+  </button>{#if open}
     <span class="pop" id={popId} role="note">
       {#if said !== undefined}
         <span class="pop-name">{said.word}</span>
@@ -107,8 +109,10 @@
               class="more"
               onclick={() => {
                 deeper = true;
-              }}>{m.word_more()}</button
+              }}
             >
+              {m.word_more()}
+            </button>
           {/if}
         {/if}
       {:else if asking}
@@ -119,8 +123,8 @@
         <span class="pop-meaning">{unanswered}</span>
       {/if}
     </span>
-  {/if}</span
->
+  {/if}
+</span>
 
 <style>
   .wrap {

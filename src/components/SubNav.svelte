@@ -44,8 +44,10 @@
           aria-current={item.id === selected ? "true" : undefined}
           onclick={() => {
             onselect(item.id);
-          }}>{item.label}</button
+          }}
         >
+          {item.label}
+        </button>
       </li>
     {/each}
   </ul>
