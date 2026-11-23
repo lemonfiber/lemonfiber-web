@@ -1,4 +1,9 @@
-import { problem, type Fetching, type Sending } from "@lemonfiber/sdk-ts";
+import {
+  API_VERSION,
+  problem,
+  type Fetching,
+  type Sending,
+} from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import { asked, carrying, scrollback, turnedAway, watching } from "./asking";
 import { enveloped, failure, notFromLemonfiber } from "./bodies";
@@ -141,11 +146,25 @@ describe("watching", () => {
 describe("carrying", () => {
   it("is true for a live or a stale arrival of the kind it names", () => {
     expect(
-      carrying({ at: "live", kind: "dashboard", data: moment }, "dashboard"),
+      carrying(
+        {
+          at: "live",
+          api_version: API_VERSION,
+          kind: "dashboard",
+          data: moment,
+        },
+        "dashboard",
+      ),
     ).toBe(true);
     expect(
       carrying(
-        { at: "stale", kind: "dashboard", data: moment, quietForMs: 1 },
+        {
+          at: "stale",
+          api_version: API_VERSION,
+          kind: "dashboard",
+          data: moment,
+          quietForMs: 1,
+        },
         "dashboard",
       ),
     ).toBe(true);
@@ -153,7 +172,15 @@ describe("carrying", () => {
 
   it("is false for an arrival of another kind", () => {
     expect(
-      carrying({ at: "live", kind: "start", data: "Starting" }, "dashboard"),
+      carrying(
+        {
+          at: "live",
+          api_version: API_VERSION,
+          kind: "start",
+          data: "Starting",
+        },
+        "dashboard",
+      ),
     ).toBe(false);
   });
 
