@@ -89,7 +89,10 @@ export async function asked<
   });
   if (!opened.ok) return { ok: false, problem: opened.problem };
 
-  const reading = await opened.client.read(read, query);
+  const reading = await opened.client.read(
+    read,
+    query === undefined ? undefined : { query },
+  );
   if (!reading.ok) return { ok: false, problem: reading.problem };
   if (!isKind(reading.value, kind)) return { ok: false, problem: malformed() };
 

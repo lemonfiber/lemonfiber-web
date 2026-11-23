@@ -218,8 +218,7 @@ export async function takingFoundPoster(
   });
   if (!opened.ok) return undefined;
   const pictured = await opened.client.askablePoster(wish.id, {
-    kind: wish.kind,
-    member,
+    query: { kind: wish.kind, member },
   });
   return pictured.ok ? pictured.value.bytes : undefined;
 }
