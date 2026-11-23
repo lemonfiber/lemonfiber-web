@@ -53,8 +53,10 @@
     <span
       class="lbl"
       class:plain={!drawn}
-      aria-hidden={drawn ? "true" : undefined}>{quota}</span
+      aria-hidden={drawn ? "true" : undefined}
     >
+      {quota}
+    </span>
     {#if part !== undefined}
       <Meter {part} label={quota} />
     {/if}

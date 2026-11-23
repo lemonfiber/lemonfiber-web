@@ -78,9 +78,9 @@
       </p>
 
       <p class="prose">
-        <span class="word"
-          >{matches ? m.tunnel_leaving_from() : m.tunnel_mismatch()}</span
-        >
+        <span class="word">
+          {matches ? m.tunnel_leaving_from() : m.tunnel_mismatch()}
+        </span>
       </p>
       <p class="quiet"><Said text={port(shown)} /></p>
     </div>
