@@ -96,6 +96,7 @@ type Feature =
   | "ARCH-R132"
   | "ARCH-R153"
   | "ARCH-R156"
+  | "ARCH-R281"
   | "ARCH-R282"
   | "ARCH-R354"
   | "ARCH-R404"
@@ -519,6 +520,8 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
   caller:
     "ARCH-R42 — who the session or key a request carried proves to be, which the web API asks the core through dispatch before it answers anything; no route serves it",
   logs: "G1-R1 — what `lemonfiber logs` writes under `--json` once its scrollback ends, which is how a command writes its answer to a pipe; the console reads the lines themselves as `log`",
+  "notify-heard":
+    "N1-R80 — the web surface handing on an event a service posted to it, which the core answers the surface alone; no route serves it",
   password:
     "G1-R1 — what setting this surface's password came to, which `lemonfiber ui` asks for before it serves; serving the web interface is the command line's, since a surface cannot start itself",
   "plugin-claims":
@@ -530,12 +533,16 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
   "plugin-recording":
     "G1-R1 — what `lemonfiber plugin record` writes under `--json`, a plugin author's recordings of their own adapters made with no stack, which no route serves",
   pull: "G1-R1 — the lines the command line writes while it fetches, under `--json`, which is how a command writes its answer to a pipe; the web offers fetching through the `pull` request, answered with `lifecycle`",
+  renewed:
+    "N1-R80 — the web surface renewing the grant to play of a member whose client spoke to it, which the core answers the surface alone; no route serves it",
   served:
     "G1-R1 — how `lemonfiber ui` serves this surface, the certificate it presents and the name it answers to; serving the web interface is the command line's, since a surface cannot start itself",
   setup:
     "G1-R1 — what the command line's own setup writes under `--json`; the setup a browser walks answers with `wizard`",
   standing:
     "ARCH-R42 — what the web API composes its routes and its answers from, which it reads from the core through dispatch; no route serves it",
+  untuned:
+    "N1-R80 — the web surface closing the live streams whose passes lapsed unrenewed, which the core answers the surface alone; no route serves it",
 };
 
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
@@ -545,6 +552,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   capabilities: "ARCH-R78",
   certificate: "N1",
   channels: "ARCH-R420",
+  copying: "E3",
   "device-challenge": "C10",
   "device-key": "C10",
   "device-keys": "C10",
@@ -566,6 +574,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   queue: "H5",
   ran: "ARCH-R438",
   removal: "D6",
+  replay: "ARCH-R281",
   reset: "C9",
   settled: "A2",
   "sign-in-code": "ARCH-R441",
