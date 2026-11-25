@@ -11,6 +11,7 @@
   import Storage from "./Storage.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import { asked, scrollback, turnedAway, type Reaching } from "../api/asking";
+  import { heldIn, runningOf } from "../lib/copying";
   import { Explained, handExplained } from "../lib/explained.svelte";
   import { pausing as waiting, type Pausing } from "../api/redeeming";
   import { Asked, Desk } from "./desk.svelte";
@@ -26,14 +27,13 @@
     type SettingsRead,
     type StorageRead,
   } from "./readings";
-  import type { Flow } from "../lib/flow";
   import type { History } from "../lib/history";
   import type { Survey } from "../lib/survey";
   import type { Playing } from "../lib/playing";
   import type { Stuck } from "../lib/stuck";
   import type { Guidance } from "../lib/clients";
   import { mending, type Mend, type Mender } from "../lib/mending";
-  import { answeredAt, silentSince, type Freshness } from "../lib/freshness";
+  import { answeredAt, carriedAt, type Freshness } from "../lib/freshness";
   import { configuring } from "../lib/configuring";
   import { finding } from "../lib/finding";
   import { pairing } from "../lib/pairing";
@@ -124,22 +124,6 @@
   let here = true;
 
   /**
-   * What the live connection's own stamp says.
-   *
-   * A connection that is carrying dates its figures from when they arrived; one
-   * that has stopped dates them from the same moment and says how long it has
-   * been quiet since. One that has never carried has nothing to date.
-   */
-  function dated(
-    at: number | undefined,
-    doing: Flow,
-    clock: number,
-  ): Freshness {
-    if (at === undefined) return UNSTAMPED;
-    return doing === "live" ? answeredAt(at, clock) : silentSince(at, clock);
-  }
-
-  /**
    * Every stamp on the screen, worked out against the clock rather than written
    * down when the source answered.
    */
@@ -149,7 +133,14 @@
   const read = $derived(
     readAt === undefined ? UNSTAMPED : answeredAt(readAt, now),
   );
-  const live = $derived(dated(stream.carriedAt, stream.flow, now));
+  const live = $derived(carriedAt(stream.carriedAt, stream.flow, now));
+
+  /**
+   * The backup or restore running now: as the stream last said it where it
+   * has said it, and as the disk screen's reading answered where it has not.
+   */
+  const running = $derived(runningOf(stream.copying ?? heldIn(disk?.copying)));
+  const copied = $derived(stream.copying === undefined ? stamped : live);
   const previewed = $derived(
     previewedAt === undefined ? UNSTAMPED : answeredAt(previewedAt, now),
   );
@@ -170,9 +161,11 @@
    *
    * The stamp is dropped on the way in. It says when the reading behind the
    * screen being read answered, and the one left behind by the screen before it
-   * would date this one by another screen's clock.
+   * would date this one by another screen's clock. Leaving the overview puts
+   * away the word that alerts may be missing, which its being open has shown.
    */
   function arrive(to: Place): void {
+    if (place === "overview" && to !== "overview") stream.seen();
     place = to;
     stampedAt = undefined;
     void askFor(to);
@@ -480,6 +473,7 @@
       {programs}
       moment={stream.moment}
       flow={stream.flow}
+      missing={stream.missing}
       {read}
       {live}
       {controls}
@@ -512,6 +506,9 @@
       remover={removeAsks.asker}
       letting={{ letter: letAsks.asker, space: disk?.space }}
       reclaiming={{ reclaimer: reclaimAsks.asker, space: disk?.space }}
+      copying={running === undefined
+        ? undefined
+        : { running, freshness: copied }}
     />
   {:else if place === "logs"}
     <Logs scrollback={lines} freshness={stamped} />

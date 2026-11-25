@@ -199,5 +199,6 @@
   "panel_removal": "Taking lemonfiber off",
   "panel_letting": "Completed downloads",
   "panel_room": "Room to recover",
-  "panel_clients": "Watching apps"
+  "panel_clients": "Watching apps",
+  "told_missing": "Some alerts raised while this page was away may be missing."
 }

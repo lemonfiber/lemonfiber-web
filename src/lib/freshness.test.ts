@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   answeredAt,
+  carriedAt,
   deadStampFor,
   deadStateFor,
   silentSince,
@@ -62,6 +63,14 @@ describe("dating a source against the clock", () => {
       kind: "silent",
       secondsAgo: 60,
     });
+  });
+
+  it("dates a live connection by what it carried, and how long it has been quiet", () => {
+    expect(carriedAt(undefined, "live", aMinuteOn)).toEqual({ kind: "never" });
+    expect(carriedAt(at, "live", aMinuteOn)).toEqual(answeredAt(at, aMinuteOn));
+    expect(carriedAt(at, "stale", aMinuteOn)).toEqual(
+      silentSince(at, aMinuteOn),
+    );
   });
 
   // Two clocks disagreeing is ordinary, and the words a span is read as floor

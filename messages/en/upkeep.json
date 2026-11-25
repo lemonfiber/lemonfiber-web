@@ -563,5 +563,13 @@
   "values_restarts": "Restarts {services}.",
   "values_restarts_none": "Restarts nothing.",
   "values_starts": "Starts {services}, which waited for it.",
-  "values_asked": "Setting readings"
+  "values_asked": "Setting readings",
+  "copying_backup": "Backup running",
+  "copying_restore": "Restore running",
+  "copying_written": "{written} of {whole} written",
+  "copying_working": "Copying at full speed.",
+  "copying_paced": "Slowed on purpose to {limit}, the limit you set.",
+  "copying_stalled": "Stuck: nothing has been written since {wrote}.",
+  "copying_part": "Now copying: {part}",
+  "copying_started": "Started {when}"
 }

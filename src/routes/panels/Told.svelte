@@ -2,6 +2,7 @@
   import ShowAll from "../../components/ShowAll.svelte";
   import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
+  import Note from "../../components/Note.svelte";
   import Port from "../../components/Port.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Tag from "../../components/Tag.svelte";
@@ -18,9 +19,11 @@
     alerts: readonly Alert[] | undefined;
     /** When this panel's source last answered. */
     freshness: Freshness;
+    /** Whether alerts raised while the connection was broken may be missing. */
+    missing: boolean;
   }
 
-  let { alerts, freshness }: Props = $props();
+  let { alerts, freshness, missing }: Props = $props();
 
   /** One interruption, and everything the row sets out for it. */
   interface Reading {
@@ -80,8 +83,17 @@
   are named under it, rather than the event being drawn once per service — which
   is the same thing said several times, and how a screen of alerts becomes one
   nobody reads.
+
+  Where the stream broke and the stack said the alerts it sent again are not
+  all of those raised meanwhile, a quiet note above the list says so. The list
+  is left as it was told.
 -->
 <Panel title={m.panel_told()} {freshness} flush={listed}>
+  {#if missing}
+    <div class="missing" class:flush={listed}>
+      <Note prose={m.told_missing()} />
+    </div>
+  {/if}
   {#if said !== undefined && listed}
     {#each short.of(said) as one, at (at)}
       <article class="told" class:alarm={one.tone === "alarm"}>
@@ -121,6 +133,10 @@
 </Panel>
 
 <style>
+  .missing.flush {
+    padding: var(--sp-4) var(--panel-pad) 0;
+  }
+
   .told {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);

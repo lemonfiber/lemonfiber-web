@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/svelte";
+import { cleanup, screen, within } from "@testing-library/svelte";
 import { describe, expect, it } from "vitest";
 import { moment, stack, unavailable, worst, cleared } from "./fixture";
 import { stampFor } from "../lib/freshness";
@@ -315,6 +315,28 @@ describe("what needs the operator", () => {
 describe("what the operator has been told", () => {
   const panel = (): HTMLElement =>
     screen.getByRole("region", { name: m.panel_told() });
+
+  const toldOf = (): readonly (string | null)[] =>
+    within(panel())
+      .getAllByRole("heading", { level: 3 })
+      .map((heading) => heading.textContent);
+
+  it("says quietly that alerts may be missing, and leaves the alerts as told", () => {
+    board({ moment, flow: "live" });
+    const told = toldOf();
+    expect(screen.queryByText(m.told_missing())).not.toBeInTheDocument();
+    cleanup();
+
+    board({ moment, flow: "live", missing: true });
+    expect(within(panel()).getByText(m.told_missing())).toBeInTheDocument();
+    expect(toldOf()).toStrictEqual(told);
+  });
+
+  it("says alerts may be missing where none has been told", () => {
+    board({ moment: changed({ alerts: [] }), flow: "live", missing: true });
+    expect(panel()).toHaveTextContent(m.told_missing());
+    expect(panel()).toHaveTextContent(m.told_none());
+  });
 
   // The one channel that needs nothing set up. A condition carried only by a
   // channel somebody has to configure is one nobody was told about.

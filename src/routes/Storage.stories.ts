@@ -6,6 +6,7 @@ import { keeper, kept, readListing, tookBackup } from "./keeping";
 import { remover, storedRecord, surveyRecord } from "./removals";
 import { letter, offerRecord, reckoned } from "./lettings";
 import { reclaimedRecord, reclaimer, roomy } from "./reclaims";
+import { backingUp, stalledRestore } from "../api/copyings";
 
 const answered = { kind: "answered", secondsAgo: 4 } as const;
 const never = { kind: "never" } as const;
@@ -148,4 +149,20 @@ export const RoomToGetBack: Story = {
       space: { ok: true, value: roomy },
     },
   },
+};
+
+/**
+ * A backup while it runs: how much it has written of how much it will, the
+ * part it is writing, and that it is working.
+ */
+export const ABackupRunning: Story = {
+  args: { copying: { running: backingUp, freshness: answered } },
+};
+
+/**
+ * A restore that has written nothing for a while, said as stuck with when it
+ * last wrote.
+ */
+export const ARestoreStalled: Story = {
+  args: { copying: { running: stalledRestore, freshness: answered } },
 };

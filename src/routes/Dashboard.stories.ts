@@ -85,6 +85,14 @@ export const TheConnectionDropped: Story = {
 };
 
 /**
+ * The connection broke and came back, and the stack said the alerts it sent
+ * again are not all of those raised meanwhile: a quiet note above the alerts.
+ */
+export const AlertsMayBeMissing: Story = {
+  args: { missing: true },
+};
+
+/**
  * Nothing answered at all, and nothing is opening the connection again: a first
  * opening is tried once. The banner interrupts, carries the one control that
  * asks for the connection again, and each panel says in the source's own words

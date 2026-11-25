@@ -22,6 +22,21 @@ describe("Meter", () => {
     expect(bar).toHaveAttribute("aria-valuemax", "100");
   });
 
+  it("is read in the words it is given, in place of its percentage", () => {
+    render(Meter, { part: 0.5, label, said: "1 GB of 2 GB written" });
+    expect(screen.getByRole("progressbar", { name: label })).toHaveAttribute(
+      "aria-valuetext",
+      "1 GB of 2 GB written",
+    );
+  });
+
+  it("is read as its percentage where it is given no words", () => {
+    render(Meter, { part: 0.5, label });
+    expect(
+      screen.getByRole("progressbar", { name: label }),
+    ).not.toHaveAttribute("aria-valuetext");
+  });
+
   it("draws the same share it reports", () => {
     const { container } = render(Meter, { part: 0.64, label });
     expect(container.querySelector<HTMLElement>(".fill")?.style.width).toBe(

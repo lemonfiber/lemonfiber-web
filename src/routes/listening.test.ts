@@ -1,6 +1,7 @@
 import { API_VERSION, type Fetching, type Kind } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import { cleared, raised } from "./fixture";
+import { copyingNone, copyingNow } from "../api/copyings";
 import { Listening } from "./listening.svelte";
 import { here, key } from "./served";
 import { saying } from "./Console.testing";
@@ -50,6 +51,28 @@ describe("what the stream says while a walk goes, and as alerts start and end", 
     expect(listening.told).toStrictEqual(cleared);
     listening.dismiss();
     expect(listening.told).toBeUndefined();
+  });
+
+  it("holds the copy running as the stream last said it, an end included", async () => {
+    const running = await heard([said("copying", copyingNow)]);
+    expect(running.copying).toStrictEqual(copyingNow);
+    const ended = await heard([
+      said("copying", copyingNow),
+      said("copying", copyingNone),
+    ]);
+    expect(ended.copying).toStrictEqual(copyingNone);
+  });
+
+  it("says alerts may be missing after a partial replay, until that is seen", async () => {
+    const listening = await heard([said("replay", { alerts: "partial" })]);
+    expect(listening.missing).toBe(true);
+    listening.seen();
+    expect(listening.missing).toBe(false);
+  });
+
+  it("says nothing of missing alerts after a whole replay", async () => {
+    const listening = await heard([said("replay", { alerts: "whole" })]);
+    expect(listening.missing).toBe(false);
   });
 
   // After a break the stream hands the last of each kind over again, stale.

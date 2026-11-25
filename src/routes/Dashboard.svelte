@@ -43,6 +43,8 @@
     moment: Moment | undefined;
     /** What the live connection is doing. */
     flow: Flow;
+    /** Whether alerts raised while the connection was broken may be missing. */
+    missing?: boolean | undefined;
     /** When the two readings last answered. */
     read: Freshness;
     /** When the live connection last delivered. */
@@ -76,6 +78,7 @@
     programs,
     moment,
     flow,
+    missing = false,
     read,
     live,
     controls,
@@ -207,7 +210,7 @@
 
   <Attention stuck={moment?.stuck} freshness={live} />
 
-  <Told alerts={moment?.alerts} freshness={live} />
+  <Told alerts={moment?.alerts} freshness={live} {missing} />
 
   <Door door={moment?.door} freshness={live} />
 

@@ -8,9 +8,11 @@
     label: string;
     /** How much the figure behind the bar can be trusted. */
     state?: State | undefined;
+    /** What the bar stands for in words, read in place of its percentage. */
+    said?: string | undefined;
   }
 
-  let { part, label, state = "known" }: Props = $props();
+  let { part, label, state = "known", said }: Props = $props();
 
   // A share outside its own bounds would draw a bar past its track and read to
   // a screen reader as more than all of something.
@@ -35,6 +37,7 @@
   aria-valuemin={0}
   aria-valuemax={100}
   aria-valuenow={percent}
+  aria-valuetext={said}
 >
   <span class="fill" class:dim={!current} style:width></span>
 </div>
