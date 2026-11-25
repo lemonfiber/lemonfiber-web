@@ -1,6 +1,7 @@
 <script lang="ts">
   import Board from "./Board.svelte";
   import Backups from "./panels/Backups.svelte";
+  import Copying from "./panels/Copying.svelte";
   import Findings from "./panels/Findings.svelte";
   import Letting from "./panels/Letting.svelte";
   import Reclaim from "./panels/Reclaim.svelte";
@@ -8,6 +9,7 @@
   import Space from "./panels/Space.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../lib/freshness";
+  import type { Running } from "../lib/copying";
   import type { Archives } from "../lib/kept";
   import type { Reckoned } from "../lib/letting";
   import type { Reclaimer } from "../lib/reclaiming";
@@ -61,6 +63,16 @@
           readonly space: Reading<Reckoned> | undefined;
         }
       | undefined;
+    /**
+     * The backup or restore running now, and when that was last said. Left
+     * out where none runs, which draws no panel for one.
+     */
+    copying?:
+      | {
+          readonly running: Running;
+          readonly freshness: Freshness;
+        }
+      | undefined;
   }
 
   let {
@@ -72,14 +84,15 @@
     remover,
     letting,
     reclaiming,
+    copying,
   }: Props = $props();
 </script>
 
 <!--
-  The disk: what is left of it, everything the checks about it found, the
-  backups kept on it, the completed downloads on it and letting one go, what of
-  it could be got back and taking back what costs nothing, and taking
-  lemonfiber off it.
+  The disk: what is left of it, everything the checks about it found, a backup
+  or restore while it runs, the backups kept on it, the completed downloads on
+  it and letting one go, what of it could be got back and taking back what
+  costs nothing, and taking lemonfiber off it.
 
   Two sources fill this screen and neither waits for the other. The figures come
   off the live connection, which is where a volume is measured; the checks and
@@ -96,6 +109,10 @@
     title={m.panel_disk_findings()}
     absent={m.storage_none()}
   />
+
+  {#if copying !== undefined}
+    <Copying running={copying.running} freshness={copying.freshness} />
+  {/if}
 
   {#if keeping !== undefined}
     <Backups

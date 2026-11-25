@@ -4,13 +4,16 @@
  *
  * The stream carries the figures the overview and the disk are drawn from, the
  * line a wait says while it is still waiting, each step a walk takes while it
- * takes it, and each alert as it starts and as it ends. A connection that carried
- * figures and stopped leaves them in place and dates them; one that never
- * carried any has nothing to date. Whether anything is still listening is held,
- * so the screen can offer to open it again only when nothing is.
+ * takes it, each alert as it starts and as it ends, a backup or restore while
+ * it runs, and whether the alerts sent again after a break are all of them. A
+ * connection that carried figures and stopped leaves them in place and dates
+ * them; one that never carried any has nothing to date. Whether anything is
+ * still listening is held, so the screen can offer to open it again only when
+ * nothing is.
  */
 import type { Arrival, Kind } from "@lemonfiber/sdk-ts";
 import { carrying, watching, type Reaching } from "../api/asking";
+import type { Copying } from "../lib/copying";
 import type { Flow } from "../lib/flow";
 import { heardWith, type Heard } from "../lib/stepping";
 import type { Alert, Moment } from "../lib/wire";
@@ -26,6 +29,12 @@ const STEP = "step" satisfies Kind;
 
 /** What the stream calls an alert starting or ending. */
 const ALERT = "alert" satisfies Kind;
+
+/** What the stream calls the backup or restore running now, or none. */
+const COPYING = "copying" satisfies Kind;
+
+/** What the stream calls its word on whether a replay holds every alert. */
+const REPLAY = "replay" satisfies Kind;
 
 /** The live connection, as the console holds it. */
 export class Listening {
@@ -46,6 +55,12 @@ export class Listening {
 
   /** The latest alert the stream said start or end, until it is put away. */
   told = $state<Alert | undefined>(undefined);
+
+  /** The backup or restore running now, as the stream last said it. */
+  copying = $state<Copying | undefined>(undefined);
+
+  /** Whether alerts raised during a break may be missing, until seen. */
+  missing = $state(false);
 
   /** Whether anything is still listening. */
   listening = $state(false);
@@ -118,19 +133,29 @@ export class Listening {
     this.told = undefined;
   };
 
+  /** Put away the word that alerts may be missing, once it has been seen. */
+  readonly seen = (): void => {
+    this.missing = false;
+  };
+
   /**
-   * A step or an alert that has just arrived.
+   * A step, an alert, a running copy or a replay that has just arrived.
    *
    * Only what arrives live is taken: what the stream hands over again after a
    * break is the last of each kind held from before it, already heard once,
-   * and taking it twice would narrate a step twice or raise an alert again.
-   * A step said for no job belongs to no walk this console can show.
+   * and taking it twice would narrate a step twice, raise an alert again or
+   * say again that alerts may be missing after it was seen. A step said for no
+   * job belongs to no walk this console can show.
    */
   #heard(arrival: Extract<Arrival, { at: "live" }>): void {
     if (carrying(arrival, STEP) && arrival.job !== undefined) {
       this.steps = heardWith(this.steps, arrival.job, arrival.data);
     } else if (carrying(arrival, ALERT)) {
       this.told = arrival.data;
+    } else if (carrying(arrival, COPYING)) {
+      this.copying = arrival.data;
+    } else if (carrying(arrival, REPLAY) && arrival.data.alerts === "partial") {
+      this.missing = true;
     }
   }
 

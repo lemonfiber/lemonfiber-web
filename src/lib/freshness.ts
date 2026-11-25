@@ -6,6 +6,7 @@
  * rather than to the screen.
  */
 import * as m from "../paraglide/messages.js";
+import type { Flow } from "./flow";
 import { A_SECOND } from "./instant";
 import type { State } from "./state";
 
@@ -53,6 +54,22 @@ export function answeredAt(at: number, now: number): Freshness {
  */
 export function silentSince(at: number, now: number): Freshness {
   return { kind: "silent", secondsAgo: (now - at) / A_SECOND };
+}
+
+/**
+ * What a live connection's own stamp says.
+ *
+ * A connection that is carrying dates its figures from when they arrived; one
+ * that has stopped dates them from the same moment and says how long it has
+ * been quiet since. One that has never carried has nothing to date.
+ */
+export function carriedAt(
+  at: number | undefined,
+  flow: Flow,
+  now: number,
+): Freshness {
+  if (at === undefined) return { kind: "never" };
+  return flow === "live" ? answeredAt(at, now) : silentSince(at, now);
 }
 
 /**

@@ -1,10 +1,13 @@
-import { render, screen } from "@testing-library/svelte";
+import { render, screen, within } from "@testing-library/svelte";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
 import Storage from "./Storage.svelte";
 import { moment, unavailable } from "./fixture";
 import { diskChecks } from "./findings";
-import { bytes } from "../lib/figures";
+import { backingUp, pacedBackup, stalledRestore } from "../api/copyings";
+import type { Running } from "../lib/copying";
+import { bytes, rate } from "../lib/figures";
+import { whenOf } from "../lib/instant";
 import type { Freshness } from "../lib/freshness";
 import type { Diagnosis, Disk } from "../lib/wire";
 import * as m from "../paraglide/messages.js";
@@ -19,6 +22,7 @@ function disk(
     live?: Freshness;
     diagnosis?: Reading<Diagnosis> | undefined;
     read?: Freshness;
+    copying?: { running: Running; freshness: Freshness } | undefined;
   } = {},
 ): void {
   render(Storage, {
@@ -27,6 +31,7 @@ function disk(
     diagnosis:
       "diagnosis" in over ? over.diagnosis : { ok: true, value: diskChecks },
     read: over.read ?? answered,
+    copying: over.copying,
   });
 }
 
@@ -104,5 +109,62 @@ describe("before anything has answered", () => {
   it("holds a place on both panels", () => {
     disk({ disk: undefined, live: never, diagnosis: undefined, read: never });
     expect(screen.getAllByText(m.waiting_answer())).toHaveLength(2);
+  });
+});
+
+describe("a backup or restore while it runs", () => {
+  const copying = (running: Running): void => {
+    disk({ copying: { running, freshness: answered } });
+  };
+
+  it("draws no panel for one where none runs", () => {
+    disk();
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("region", { name: m.copying_backup() }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("says how much it has written of how much it will, as a bar and in words", () => {
+    copying(backingUp);
+    const panel = screen.getByRole("region", { name: m.copying_backup() });
+    const figures = m.copying_written({
+      written: bytes(backingUp.written),
+      whole: bytes(backingUp.whole),
+    });
+    expect(panel).toHaveTextContent(figures);
+    const bar = within(panel).getByRole("progressbar", {
+      name: m.copying_backup(),
+    });
+    expect(bar).toHaveAttribute("aria-valuetext", figures);
+    expect(bar).toHaveAttribute("aria-valuenow", "34");
+    expect(panel).toHaveTextContent(
+      m.copying_started({ when: whenOf(backingUp.started) }),
+    );
+  });
+
+  it("announces its state and part alone, never the figures", () => {
+    copying(backingUp);
+    const told = within(
+      screen.getByRole("region", { name: m.copying_backup() }),
+    ).getByRole("status");
+    expect(told).toHaveTextContent(m.copying_working());
+    expect(told).toHaveTextContent(m.copying_part({ part: backingUp.part }));
+    expect(told).not.toHaveTextContent(bytes(backingUp.written));
+  });
+
+  it("says a backup slowed on purpose, with the limit set", () => {
+    copying(pacedBackup);
+    expect(screen.getByRole("status")).toHaveTextContent(
+      m.copying_paced({ limit: rate(52428800) }),
+    );
+  });
+
+  it("says a restore that has stalled, with when it last wrote", () => {
+    copying(stalledRestore);
+    const panel = screen.getByRole("region", { name: m.copying_restore() });
+    expect(within(panel).getByRole("status")).toHaveTextContent(
+      m.copying_stalled({ wrote: whenOf(stalledRestore.wrote) }),
+    );
   });
 });

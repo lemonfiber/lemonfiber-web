@@ -12,6 +12,7 @@ import type { Alerts } from "../lib/alerts";
 import type { Catalogue, Provenance } from "../lib/catalogue";
 import type { Configured } from "../lib/configured";
 import type { Standing, Versions } from "../lib/copy";
+import type { Copying } from "../lib/copying";
 import type { Inventory } from "../lib/credentials";
 import type { Archives } from "../lib/kept";
 import type { Leaving } from "../lib/leaving";
@@ -31,6 +32,8 @@ export interface StorageRead {
   readonly archives: Reading<Archives>;
   /** The disk accounting. */
   readonly space: Reading<Reckoned>;
+  /** The backup or restore running now, or none. */
+  readonly copying: Reading<Copying>;
 }
 
 /** What the settings screen is drawn from. */
@@ -75,14 +78,15 @@ export interface Answered<T> {
 export async function readStorage(
   reaching: Reaching,
 ): Promise<Answered<StorageRead>> {
-  const [diagnosis, archives, space] = await Promise.all([
+  const [diagnosis, archives, space, copying] = await Promise.all([
     asked(reaching, "storage", "doctor"),
     asked(reaching, "backups", "archives"),
     asked(reaching, "space", "space"),
+    asked(reaching, "copying", "copying"),
   ]);
   return {
-    read: { diagnosis, archives, space },
-    refused: turnedAway(diagnosis, archives, space),
+    read: { diagnosis, archives, space, copying },
+    refused: turnedAway(diagnosis, archives, space, copying),
   };
 }
 
