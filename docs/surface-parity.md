@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 113 kinds of answer, and this console reads 67 of them.
+The client carries 118 kinds of answer, and this console reads 67 of them.
 Another surface can make 77 requests of the stack, and this console offers 53 of
-them. 11 kinds and 2 requests are offered elsewhere by rule, and 35 kinds and 22
+them. 14 kinds and 2 requests are offered elsewhere by rule, and 37 kinds and 22
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -129,15 +129,18 @@ where it answers with a kind the contract did not have before.
 | -------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `caller`             | `ARCH-R42` | who the session or key a request carried proves to be, which the web API asks the core through dispatch before it answers anything; no route serves it               |
 | `logs`               | `G1-R1`    | what `lemonfiber logs` writes under `--json` once its scrollback ends; G1 lists `--json` as unsuited to the web, and the console reads the lines themselves as `log` |
+| `notify-heard`       | `N1-R80`   | the web surface handing on an event a service posted to it, which the core answers the surface alone; no route serves it                                             |
 | `password`           | `G1-R1`    | what setting this surface's password came to, which `lemonfiber ui` asks for before it serves; G1 lists serving the web interface as unsuited to it                  |
 | `plugin-claims`      | `G1-R1`    | what `lemonfiber plugin claims` writes under `--json`: a plugin author's read of their own source, answered with no stack, which no route serves                     |
 | `plugin-conformance` | `G1-R1`    | what `lemonfiber plugin conform` writes under `--json`: a plugin author's read of their own recordings, answered with no stack, which no route serves                |
 | `plugin-provenance`  | `G1-R1`    | what `lemonfiber plugin provenance` writes under `--json`: a plugin author's read of their own images, answered with no stack, which no route serves                 |
 | `plugin-recording`   | `G1-R1`    | what `lemonfiber plugin record` writes under `--json`: a plugin author's recordings of their own adapters, made with no stack, which no route serves                 |
 | `pull`               | `G1-R1`    | the lines the command line writes while it fetches, under `--json`; G1 lists `--json` as unsuited to the web, and fetching is offered through the `pull` request     |
+| `renewed`            | `N1-R80`   | the web surface renewing the grant to play of a member whose client spoke to it, which the core answers the surface alone; no route serves it                        |
 | `served`             | `G1-R1`    | how `lemonfiber ui` serves this surface, the certificate it presents and the name it answers to; G1 lists serving the web interface as unsuited to it                |
 | `setup`              | `G1-R1`    | what the command line's own setup writes under `--json`; the setup a browser walks answers with `wizard`                                                             |
 | `standing`           | `ARCH-R42` | what the web API composes its routes and its answers from, which it reads from the core through dispatch; no route serves it                                         |
+| `untuned`            | `N1-R80`   | the web surface closing the live streams whose passes lapsed unrenewed, which the core answers the surface alone; no route serves it                                 |
 
 ## Kinds not read yet
 
@@ -148,6 +151,7 @@ where it answers with a kind the contract did not have before.
 | `capabilities`      | ARCH-R78  | What this copy of lemonfiber can do, each named by the path it is served at                                                                                                                       |
 | `certificate`       | N1        | Companion app: what replacing the certificate a paired phone pins came to; lemonfiber serves no endpoint                                                                                          |
 | `channels`          | ARCH-R420 | Watching live TV: the channels one member may watch, each with what is on it now                                                                                                                  |
+| `copying`           | E3        | Backup & restore: the backup or restore running on this machine now, how far it has got, the part it is writing and whether it is working, paced or stalled                                       |
 | `device-challenge`  | C10       | Integration keys: a fresh challenge for a registered device key, good for one mint within a minute                                                                                                |
 | `device-key`        | C10       | Integration keys: a device key just registered, its fingerprint and where it lives                                                                                                                |
 | `device-keys`       | C10       | Integration keys: every device key, its backing, when it was registered and last used                                                                                                             |
@@ -169,6 +173,7 @@ where it answers with a kind the contract did not have before.
 | `queue`             | H5        | Queue self-healing: whether healing acts, every unhealthy download with its strikes and why, and what the next run would do to it                                                                 |
 | `ran`               | ARCH-R438 | Running a run-and-exit service: what `lemonfiber run` came to for one service, whether a run was due and what held it back                                                                        |
 | `removal`           | D6        | Household identity: somebody taken out of the household                                                                                                                                           |
+| `replay`            | ARCH-R281 | Resuming the stream: whether the alerts sent again after a break in it are all of those raised while it was away                                                                                  |
 | `reset`             | C9        | Drift: what a full reset would revert                                                                                                                                                             |
 | `settled`           | A2        | Setup: what setup settled, the data root, the protocols and the service user, and whether this stack is set up                                                                                    |
 | `sign-in-code`      | ARCH-R441 | Signing in by a code: the code a member approves and where, when it lapses, and the handle that finishes signing in                                                                               |
