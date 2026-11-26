@@ -6,6 +6,7 @@ import { movedRecord, plan, planRecord, updater } from "./lined";
 import type { Freshness } from "../lib/freshness";
 import { stepLine } from "../lib/updated";
 import type { Updater } from "../lib/updating";
+import { coming, expanse } from "../api/inflights";
 import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 5 };
@@ -57,29 +58,43 @@ describe("updating the stack from the settings screen", () => {
   // still coming down is let finish first.
   it("moves on a yes under what was read, letting downloads finish where asked", async () => {
     const onask = vi.fn();
-    updating({ work: [planRecord], onask });
+    updating({ work: [planRecord], onask, inflight: () => coming });
 
-    await press(m.update_wait());
-    await press(m.action_update_yes());
-
-    expect(onask).toHaveBeenCalledWith({
+    expect(
+      screen.getByRole("progressbar", { name: expanse.name }),
+    ).toBeInTheDocument();
+    await press(m.inflight_finish());
+    expect(onask).toHaveBeenLastCalledWith({
       doing: "update",
       confirm: true,
       wait: true,
       offer: plan.offer,
     });
+    await press(m.action_update_yes());
+    expect(onask).toHaveBeenLastCalledWith({
+      doing: "update",
+      confirm: true,
+      wait: false,
+      offer: plan.offer,
+    });
   });
 
-  it("asks about downloads only where something is coming down", () => {
-    const quiet = {
-      ...planRecord,
-      came: {
-        kind: "update" as const,
-        report: { ...plan, in_flight: [] },
-      },
-    };
-    updating({ work: [quiet] });
-    expect(screen.queryByRole("button", { name: m.update_wait() })).toBeNull();
+  it("holds the yes until what is still downloading has been checked", () => {
+    updating({ work: [planRecord], inflight: () => undefined });
+    expect(screen.getByText(m.inflight_checking())).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: m.action_update_yes() }),
+    ).toBeNull();
+  });
+
+  it("adds nothing about downloads where the stack names none", () => {
+    updating({ work: [planRecord] });
+    expect(
+      screen.queryByRole("button", { name: m.inflight_finish() }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("heading", { name: m.inflight_heading() }),
+    ).toBeNull();
   });
 
   it("puts the plan away when it is left as it is", async () => {

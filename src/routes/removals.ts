@@ -5,6 +5,7 @@
  * this. The reports inside each record are the ones a suite stands in for a
  * running lemonfiber, in `../api/removals`.
  */
+import { quietStack } from "../api/inflights";
 import { guardKept, removed, stored, surveyed } from "../api/removals";
 import type { Hoster } from "../lib/hosting";
 import type { Remover } from "../lib/removing";
@@ -90,6 +91,7 @@ export const remover: Remover = {
   work: [],
   asked: undefined,
   busy: false,
+  inflight: quietStack,
   onask: nothing,
   onleave: nothing,
   ondrop: nothing,

@@ -13,7 +13,8 @@
  * own and is passed through unchanged.
  */
 import type { Arguments } from "../api/acting";
-import { sameDoing, type Asker, type Family } from "./asker";
+import { sameDoing, type Asker, type Family, type Stopper } from "./asker";
+import { wholeStack } from "./inflight";
 import type { Came } from "./came";
 import type { Configured } from "./configured";
 import type { Configuring, Requested, Work } from "./work";
@@ -58,6 +59,7 @@ export const configuring: Family<Change> = {
   question: () => undefined,
   given: givenForChange,
   same: sameDoing,
+  stops: (change) => ("confirm" in change ? undefined : wholeStack),
 };
 
 /**
@@ -76,8 +78,6 @@ export interface Staged {
   readonly key: string;
   /** The value proposed, which the yes sends again. */
   readonly value: string;
-  /** Whether something is still coming down that the change would interrupt. */
-  readonly interrupts: boolean;
 }
 
 /** The review a change came back with, where it staged one. */
@@ -100,12 +100,11 @@ export function standingChange(work: readonly Work[]): Staged | undefined {
   if (staged === undefined || key === undefined || value === undefined) {
     return undefined;
   }
-  const active = staged.review?.findings?.active ?? [];
-  return { id: newest.id, key, value, interrupts: active.length > 0 };
+  return { id: newest.id, key, value };
 }
 
 /**
  * Everything the settings panel is given to act with, and what pressing its
  * controls asks for.
  */
-export type Configurer = Asker<Change>;
+export type Configurer = Asker<Change> & Stopper;

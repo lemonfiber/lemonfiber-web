@@ -10,6 +10,7 @@ import {
   stagedChange,
 } from "./configured";
 import { inForce } from "./tuned";
+import { coming, expanse, unreachable } from "../api/inflights";
 import type { Configured } from "../lib/configured";
 import type { Configurer } from "../lib/configuring";
 import type { Freshness } from "../lib/freshness";
@@ -176,14 +177,49 @@ describe("a change that costs something", () => {
 
   // What is still coming down is interrupted by the change unless it is let
   // finish, and the yes carries which.
-  it("carries letting what is coming down finish first, where chosen", async () => {
+  it("names what is still downloading, and lets it finish first or goes ahead now", async () => {
     const onask = vi.fn();
-    configuring({ work: [stagedChange], onask });
+    configuring({ work: [stagedChange], onask, inflight: () => coming });
 
-    await press(m.config_wait());
+    expect(
+      within(asked()).getByRole("heading", { name: m.inflight_heading() }),
+    ).toBeInTheDocument();
+    expect(
+      within(asked()).getByRole("progressbar", { name: expanse.name }),
+    ).toBeInTheDocument();
+    await press(m.inflight_finish());
+    expect(onask).toHaveBeenLastCalledWith(
+      expect.objectContaining({ confirm: true, wait: true }),
+    );
     await press(m.action_config_yes({ key: "data_location" }));
+    expect(onask).toHaveBeenLastCalledWith(
+      expect.objectContaining({ confirm: true, wait: false }),
+    );
+  });
 
-    expect(onask).toHaveBeenCalledWith(expect.objectContaining({ wait: true }));
+  it("holds the yes while what is still downloading is being checked", () => {
+    configuring({ work: [stagedChange], inflight: () => undefined });
+    expect(
+      within(asked()).getByText(m.inflight_checking()),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {
+        name: m.action_config_yes({ key: "data_location" }),
+      }),
+    ).toBeNull();
+  });
+
+  it("still offers both choices where what is downloading could not be found out", () => {
+    configuring({ work: [stagedChange], inflight: () => unreachable });
+    expect(within(asked()).getByText(m.inflight_unknown())).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: m.inflight_finish() }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: m.action_config_yes({ key: "data_location" }),
+      }),
+    ).toBeInTheDocument();
   });
 
   it("offers no waiting under a review where nothing is coming down", () => {
@@ -209,12 +245,16 @@ describe("a change that costs something", () => {
         name: m.config_review_title({ key: "data_location" }),
       }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: m.config_wait() })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: m.inflight_finish() }),
+    ).toBeNull();
   });
 
   it("offers no waiting where nothing is coming down", () => {
     configuring({ work: [changedAtOnce] });
-    expect(screen.queryByRole("button", { name: m.config_wait() })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: m.inflight_finish() }),
+    ).toBeNull();
     expect(
       within(asked()).getByText(
         m.came_config_applied({

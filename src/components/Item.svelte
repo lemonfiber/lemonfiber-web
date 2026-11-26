@@ -27,11 +27,14 @@
      * the lines that carry its text. Omitted where there is nothing to hand.
      */
     codes?: readonly Coded[] | undefined;
+    /** What else it says, drawn under the lines. Omitted where there is none. */
+    more?: Snippet | undefined;
     /** Buttons. Omitted where there is nothing to press. */
     actions?: Snippet | undefined;
   }
 
-  let { state, eyebrow, title, prose, lines, codes, actions }: Props = $props();
+  let { state, eyebrow, title, prose, lines, codes, more, actions }: Props =
+    $props();
 
   const tone = $derived(toneFor(state));
 </script>
@@ -74,6 +77,9 @@
           <li><Code text={code.text} label={code.label} /></li>
         {/each}
       </ul>
+    {/if}
+    {#if more !== undefined}
+      {@render more()}
     {/if}
   </div>
   {#if actions !== undefined}

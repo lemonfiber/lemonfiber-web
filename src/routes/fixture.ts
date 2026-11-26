@@ -6,6 +6,7 @@
  * a field that changes shape a compiler error here before it is a blank space on
  * a panel.
  */
+import { quietStack } from "../api/inflights";
 import { frontDoor, house } from "./house";
 import type { Lifecycle } from "../lib/came";
 import type {
@@ -351,6 +352,8 @@ export const controls: Controls = {
   busy: false,
   onchoose: () => undefined,
   onpress: () => undefined,
+  onfinish: () => undefined,
+  inflight: quietStack,
   onleave: () => undefined,
   ondrop: () => undefined,
   onhush: () => undefined,

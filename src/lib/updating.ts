@@ -10,7 +10,8 @@
  * names anything they are.
  */
 import type { Arguments } from "../api/acting";
-import { sameDoing, type Asker, type Family } from "./asker";
+import { sameDoing, type Asker, type Family, type Stopper } from "./asker";
+import { wholeStack } from "./inflight";
 import type { Step } from "./updated";
 import type { Requested, Updating, Work } from "./work";
 
@@ -49,6 +50,7 @@ export const updating: Family<Update> = {
   question: () => undefined,
   given: givenForUpdate,
   same: sameDoing,
+  stops: (update) => ("confirm" in update ? undefined : wholeStack),
 };
 
 /** A plan standing for a yes, and the record it came on. */
@@ -57,8 +59,6 @@ export interface Plan {
   readonly id: string;
   /** Every step it would take. */
   readonly steps: readonly Step[];
-  /** What the download clients are still working on. */
-  readonly inFlight: readonly string[];
   /** The name the offer gave itself, which the yes carries. */
   readonly offer: string;
 }
@@ -77,7 +77,6 @@ export function standingPlan(work: readonly Work[]): Plan | undefined {
   return {
     id: newest.id,
     steps: report.changes,
-    inFlight: report.in_flight,
     offer: report.offer,
   };
 }
@@ -86,4 +85,4 @@ export function standingPlan(work: readonly Work[]): Plan | undefined {
  * Everything the updates panel is given to act with, and what pressing its
  * controls asks for.
  */
-export type Updater = Asker<Update>;
+export type Updater = Asker<Update> & Stopper;

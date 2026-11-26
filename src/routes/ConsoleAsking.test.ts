@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { chosenForm, declared, job, restartOffered } from "./fixture";
 import { titleOfDoing, wordOfDoing } from "../lib/work";
 import * as m from "../paraglide/messages.js";
+import type { Sending } from "@lemonfiber/sdk-ts";
+import { expanse, twoComing } from "../api/inflights";
 import { enveloped } from "./served";
 import {
   console_,
@@ -22,6 +24,108 @@ const rehearsed = {
       ? enveloped("lifecycle", restartOffered.came.report)
       : "",
 };
+
+/** A switch rehearsed: one program it would stop, and no offer. */
+const switchRehearsed = {
+  status: 200,
+  body:
+    restartOffered.at === "done" && restartOffered.came.kind === "lifecycle"
+      ? enveloped("lifecycle", {
+          ...restartOffered.came.report,
+          action: "switch",
+          offer: null,
+          switched: { kept: [], started: ["sonarr"], stopped: ["qbittorrent"] },
+        })
+      : "",
+};
+
+/** A stack still downloading two things, whatever a stop is asked about. */
+const downloading =
+  (inner: Sending, asked: string[]): Sending =>
+  (url, init) => {
+    if (!url.includes("/api/in-flight")) return inner(url, init);
+    asked.push(url);
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      text: () => Promise.resolve(enveloped("in-flight", twoComing)),
+    });
+  };
+
+describe("what a stop, a restart or a switch would interrupt", () => {
+  beforeEach(() => {
+    globalThis.history.replaceState(undefined, "", "/");
+  });
+
+  it("names each download a stop would interrupt, and lets them finish first", async () => {
+    const sent: Sent = { bodies: [], redeemed: [] };
+    const asked: string[] = [];
+    console_({ sending: downloading(acting(accepted, sent), asked) });
+
+    await press(wordOfDoing("down", false));
+    expect(
+      await screen.findByRole("progressbar", { name: expanse.name }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(m.inflight_choose())).toBeInTheDocument();
+    expect(new URL(asked[0] ?? "").search).toBe("");
+
+    await press(m.inflight_finish());
+    expect(sent.bodies).toStrictEqual([
+      JSON.stringify({ forms: [], wait: true }),
+    ]);
+  });
+
+  it("goes back to the door where asking what a stop would interrupt is turned away", async () => {
+    const refused = vi.fn();
+    const inner = acting(accepted);
+    console_({
+      sending: (url, init) =>
+        url.includes("/api/in-flight")
+          ? Promise.resolve({
+              ok: false,
+              status: 401,
+              text: () => Promise.resolve(""),
+            })
+          : inner(url, init),
+      onrefused: refused,
+    });
+
+    await press(wordOfDoing("down", false));
+    await waitFor(() => {
+      expect(refused).toHaveBeenCalled();
+    });
+  });
+
+  it("reads a switch first, names what stopping its programs would interrupt, and offers no finishing", async () => {
+    const sent: Sent = { bodies: [], redeemed: [] };
+    const asked: string[] = [];
+    console_({
+      sending: downloading(acting(accepted, sent, [switchRehearsed]), asked),
+    });
+    await screen.findByText(declared[0]?.description ?? "");
+
+    await choose(chosenForm);
+    await press(wordOfDoing("switch", true));
+    expect(
+      await screen.findByText(m.confirm_switch_title()),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText(m.inflight_interrupted()),
+    ).toBeInTheDocument();
+    expect(
+      new URL(asked[0] ?? "").searchParams.getAll("services"),
+    ).toStrictEqual(["qbittorrent"]);
+    expect(
+      screen.queryByRole("button", { name: m.inflight_finish() }),
+    ).toBeNull();
+
+    await press(m.action_switch_these());
+    expect(sent.bodies).toStrictEqual([
+      JSON.stringify({ forms: [chosenForm], dry_run: true }),
+      JSON.stringify({ forms: [chosenForm] }),
+    ]);
+  });
+});
 
 describe("asking lemonfiber to do something", () => {
   beforeEach(() => {
@@ -145,7 +249,9 @@ describe("asking for something costly", () => {
     await press(wordOfDoing("down", false));
     await press(m.action_stop_everything());
 
-    expect(sent.bodies).toStrictEqual([JSON.stringify({ forms: [] })]);
+    expect(sent.bodies).toStrictEqual([
+      JSON.stringify({ forms: [], wait: false }),
+    ]);
   });
 
   it("sends nothing at all when the answer is no", async () => {

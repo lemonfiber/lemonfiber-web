@@ -1,5 +1,6 @@
 /**
- * What the quality choice came to, in lines a record can carry.
+ * What the quality choice came to, in lines a record can carry, and what its
+ * record is headed by.
  *
  * Putting the recorded preset back over a config edited by hand answers with
  * the choice in force and, where it replaced something, the file and the lines
@@ -13,6 +14,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { bytes } from "./figures";
+import type { Tuning } from "./requested";
 import * as m from "../paraglide/messages.js";
 
 /** The choice in force, or what putting it back came to. */
@@ -89,4 +91,16 @@ export function upgradeLines(report: Upgraded): readonly string[] {
   const lines = report.media.map(outcomeWords);
   if (!report.confirmed) lines.push(m.came_upgrade_unconfirmed());
   return lines;
+}
+
+/** What a record of a change to the quality is headed by. */
+export function titleOfTuning(doing: Tuning): string {
+  switch (doing) {
+    case "quality-set":
+      return m.doing_quality_set_title();
+    case "quality-reapply":
+      return m.doing_reapply_title();
+    case "quality-upgrade":
+      return m.doing_upgrade_title();
+  }
 }

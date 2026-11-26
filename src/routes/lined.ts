@@ -5,6 +5,7 @@
  * this. The reports inside each record are the ones a suite stands in for a
  * running lemonfiber, in `../api/lines`.
  */
+import { quietStack } from "../api/inflights";
 import { declared, moved, paused, plan } from "../api/lines";
 import type { Sharer } from "../lib/sharing";
 import type { Updater } from "../lib/updating";
@@ -79,6 +80,7 @@ export const updater: Updater = {
   work: [],
   asked: undefined,
   busy: false,
+  inflight: quietStack,
   onask: nothing,
   onleave: nothing,
   ondrop: nothing,

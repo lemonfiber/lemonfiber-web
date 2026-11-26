@@ -104,16 +104,33 @@ describe("what an action is asked for with", () => {
   // An argument a command has nowhere to put is refused rather than dropped,
   // so a body carrying one is a request that will not be carried out at all.
   it("sends the chosen forms to the actions whose command holds them", () => {
-    for (const doing of takesForms.filter((one) => one !== "restart")) {
-      expect(givenFor(doing, chosen)).toStrictEqual({ forms: chosen });
+    const plain = takesForms.filter(
+      (one) => !["restart", "switch", "down"].includes(one),
+    );
+    expect(plain).not.toStrictEqual([]);
+    for (const doing of plain) {
+      expect(givenFor(doing, chosen, false)).toStrictEqual({ forms: chosen });
     }
   });
 
-  // A restart cuts off whoever is using what it reaches, so it is read first.
-  it("rehearses a restart of the chosen forms rather than making it", () => {
-    expect(givenFor("restart", chosen)).toStrictEqual({
+  it.each(["restart", "switch"] as const)(
+    "rehearses a %s of the chosen forms rather than making it",
+    (doing) => {
+      expect(givenFor(doing, chosen, false)).toStrictEqual({
+        forms: chosen,
+        dry_run: true,
+      });
+    },
+  );
+
+  it("sends a stop whether the downloads are let finish first", () => {
+    expect(givenFor("down", chosen, true)).toStrictEqual({
       forms: chosen,
-      dry_run: true,
+      wait: true,
+    });
+    expect(givenFor("down", chosen, false)).toStrictEqual({
+      forms: chosen,
+      wait: false,
     });
   });
 
@@ -122,7 +139,7 @@ describe("what an action is asked for with", () => {
 
     expect(whole).not.toStrictEqual([]);
     for (const doing of whole) {
-      expect(givenFor(doing, chosen)).toStrictEqual({});
+      expect(givenFor(doing, chosen, false)).toStrictEqual({});
     }
   });
 
@@ -130,7 +147,9 @@ describe("what an action is asked for with", () => {
   // and none of the seven offered here takes it.
   it("never sends an agreement with any of them", () => {
     for (const doing of everyDoing) {
-      expect(Object.keys(givenFor(doing, chosen))).not.toContain("confirm");
+      expect(Object.keys(givenFor(doing, chosen, true))).not.toContain(
+        "confirm",
+      );
     }
   });
 });

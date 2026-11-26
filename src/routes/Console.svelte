@@ -53,7 +53,8 @@
   import { removing } from "../lib/removing";
   import { reclaiming } from "../lib/reclaiming";
   import { lettingGo } from "../lib/seeding";
-  import { agreedRestart, type Offered } from "../lib/restarting";
+  import { agreedStop, type Offered } from "../lib/restarting";
+  import { stoppingForms } from "../lib/inflight";
   import { placeChangedBy } from "../lib/rereading";
   import { ours, pathOf, placeAt, type Place } from "../lib/places";
   import { consoleMenu } from "../lib/route";
@@ -293,13 +294,14 @@
    * sending only what the action's command takes: lemonfiber refuses anything
    * else rather than dropping it.
    */
-  async function press(doing: Doing): Promise<void> {
+  async function press(doing: Doing, wait = false): Promise<void> {
     if (costly(doing) && confirming !== doing) {
       confirming = doing;
+      void desk.interrupting.read(stoppingForms(chosen));
       return;
     }
     confirming = undefined;
-    await desk.send(doing, chosen.length > 0, givenFor(doing, chosen));
+    await desk.send(doing, chosen.length > 0, givenFor(doing, chosen, wait));
   }
 
   /**
@@ -395,9 +397,6 @@
     confirming,
     busy: desk.busy,
     onchoose: (form: string) => {
-      // A question names what it is about, and what it is about is what has
-      // been chosen. Changing that leaves a question standing over a different
-      // request from the one it asked, so it is withdrawn rather than answered.
       confirming = undefined;
       chosen = chosen.includes(form)
         ? chosen.filter((one) => one !== form)
@@ -407,6 +406,10 @@
     onpress: (doing: Doing) => {
       void press(doing);
     },
+    onfinish: () => {
+      void press("down", true);
+    },
+    inflight: desk.interrupting.of,
     onleave: () => {
       confirming = undefined;
     },
@@ -417,7 +420,7 @@
       stream.waitingSaid = undefined;
     },
     onrestart: (offered: Offered) => {
-      void desk.answer(offered, "restart", agreedRestart(offered));
+      void desk.answer(offered, offered.doing, agreedStop(offered));
     },
   });
 

@@ -15,6 +15,7 @@ import type { Freshness } from "../lib/freshness";
 import { labelOfTier, storedLines, uninstallLines } from "../lib/removed";
 import type { Remover } from "../lib/removing";
 import type { Work } from "../lib/work";
+import { coming, expanse } from "../api/inflights";
 import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 8 };
@@ -143,22 +144,40 @@ describe("a removal, under its listing", () => {
   // read or refuses; and it carries whether what is coming down finishes first.
   it("removes on a yes naming the listing, letting downloads finish where asked", async () => {
     const onask = vi.fn();
-    removing({ work: [surveyRecord], onask });
+    removing({ work: [surveyRecord], onask, inflight: () => coming });
 
-    await press(m.remove_wait());
-    await press(m.action_remove_yes());
-
-    expect(onask).toHaveBeenCalledWith({
+    expect(
+      screen.getByRole("progressbar", { name: expanse.name }),
+    ).toBeInTheDocument();
+    await press(m.inflight_finish());
+    expect(onask).toHaveBeenLastCalledWith({
       doing: "uninstall",
       tier: "services",
       offer: "services-4f1a",
       wait: true,
     });
+    await press(m.action_remove_yes());
+    expect(onask).toHaveBeenLastCalledWith({
+      doing: "uninstall",
+      tier: "services",
+      offer: "services-4f1a",
+      wait: false,
+    });
   });
 
-  it("asks about downloads only where something is coming down", () => {
+  it("holds the yes until what is still downloading has been checked", () => {
+    removing({ work: [surveyRecord], inflight: () => undefined });
+    expect(screen.getByText(m.inflight_checking())).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: m.action_remove_yes() }),
+    ).toBeNull();
+  });
+
+  it("adds nothing about downloads where the stack names none", () => {
     removing({ work: [quietRecord] });
-    expect(screen.queryByRole("button", { name: m.remove_wait() })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: m.inflight_finish() }),
+    ).toBeNull();
     expect(
       screen.queryByText(
         m.remove_media_prose({ size: bytes(settledSurvey.manifest.bytes) }),

@@ -4,7 +4,18 @@
   import Panel from "../../components/Panel.svelte";
   import { linesOf } from "../../lib/came";
   import type { Freshness } from "../../lib/freshness";
-  import { offeredRestart } from "../../lib/restarting";
+  import Unfinished from "./Unfinished.svelte";
+  import {
+    interruptedBy,
+    interruptsNothing,
+    stoppingForms,
+    stoppingServices,
+  } from "../../lib/inflight";
+  import {
+    offeredStop,
+    rehearsalTitle,
+    stopQuestion,
+  } from "../../lib/restarting";
   import {
     askable,
     askingOf,
@@ -29,6 +40,8 @@
     confirming,
     busy,
     onpress,
+    onfinish,
+    inflight,
     onleave,
     ondrop,
     onhush,
@@ -92,10 +105,15 @@
   The stamp is the stream's. A record is this tab's own and has no source to be
   fresh against; the wait's line is the one thing here that came from one.
 
-  A restart is read before it is made: pressing it rehearses it, and the row
-  that comes back names every program it would restart, with the yes beside
-  them. The yes carries back the offer they were read under, so what restarts
-  is what was read, or nothing where that has changed.
+  A restart and a switch are read before they are made: pressing one rehearses
+  it, and the row that comes back names every program it would restart or stop,
+  with the yes beside them. A restart's yes carries back the offer they were
+  read under, so what restarts is what was read, or nothing where that has
+  changed.
+
+  A stop, a restart and a switch each name the downloads they would interrupt,
+  above the yes, and the yes waits until the stack has said. A stop also offers
+  letting them finish first.
 
   What puts a row away names what it puts away. A reader listing the controls on
   a screen is given the names and nothing around them, and four of one name is
@@ -143,15 +161,31 @@
     bind:this={asked}
   >
     {#if asking !== undefined}
+      {@const told = interruptedBy(inflight(stoppingForms(chosen)), true)}
+      {#snippet stopping()}
+        <Unfinished {told} />
+      {/snippet}
       {#snippet answering()}
-        <Action
-          label={asking.question.yes}
-          weight="firm"
-          onclick={() => {
-            onpress(asking.doing);
-            landing();
-          }}
-        />
+        {#if told.finishing}
+          <Action
+            label={m.inflight_finish()}
+            weight="firm"
+            onclick={() => {
+              onfinish();
+              landing();
+            }}
+          />
+        {/if}
+        {#if told.ready}
+          <Action
+            label={asking.question.yes}
+            weight="firm"
+            onclick={() => {
+              onpress(asking.doing);
+              landing();
+            }}
+          />
+        {/if}
         <Action
           label={m.action_leave_running()}
           onclick={() => {
@@ -165,6 +199,7 @@
         eyebrow={asking.question.eyebrow}
         title={asking.question.title}
         prose={asking.question.prose}
+        more={stopping}
         actions={answering}
       />
     {/if}
@@ -190,42 +225,22 @@
 
     {#each work as one (one.id)}
       {@const read = readingOf(one)}
-      {@const offered = offeredRestart(one)}
-      {#snippet restarting()}
-        {#if offered !== undefined && offered.services.length > 0}
+      {@const offered = offeredStop(one)}
+      {#if offered === undefined}
+        {#snippet dropping()}
           <Action
-            label={m.action_restart_these()}
-            weight="firm"
-            off={busy}
+            label={m.action_hide_record()}
             onclick={() => {
-              onrestart(offered);
+              ondrop(one.id);
               landing();
             }}
           />
-        {/if}
-        <Action
-          label={m.action_leave_running()}
-          onclick={() => {
-            ondrop(one.id);
-            landing();
-          }}
-        />
-      {/snippet}
-      {#snippet dropping()}
-        <Action
-          label={m.action_hide_record()}
-          onclick={() => {
-            ondrop(one.id);
-            landing();
-          }}
-        />
-      {/snippet}
-      {#if offered === undefined}
+        {/snippet}
         <Item
           state={read.state}
           eyebrow={read.eyebrow}
           title={one.given.dry_run === true
-            ? m.doing_restart_reading()
+            ? rehearsalTitle(one.doing)
             : titleOfDoing(one.doing, one.scoped)}
           prose={read.prose}
           lines={one.at === "done"
@@ -234,18 +249,42 @@
           actions={dropping}
         />
       {:else}
+        {@const asked = stopQuestion(offered)}
+        {@const told =
+          offered.stops.length === 0
+            ? interruptsNothing
+            : interruptedBy(inflight(stoppingServices(offered.stops)), false)}
+        {#snippet interrupting()}
+          <Unfinished {told} />
+        {/snippet}
+        {#snippet agreeing()}
+          {#if asked.yes !== undefined && told.ready}
+            <Action
+              label={asked.yes}
+              weight="firm"
+              off={busy}
+              onclick={() => {
+                onrestart(offered);
+                landing();
+              }}
+            />
+          {/if}
+          <Action
+            label={m.action_leave_running()}
+            onclick={() => {
+              ondrop(one.id);
+              landing();
+            }}
+          />
+        {/snippet}
         <Item
           state="stopped"
-          eyebrow={m.confirm_restart_eyebrow()}
-          title={m.confirm_restart_title()}
-          prose={offered.services.length > 0
-            ? m.confirm_restart_prose()
-            : m.confirm_restart_nothing()}
-          lines={{
-            named: m.confirm_restart_heading(),
-            said: offered.services,
-          }}
-          actions={restarting}
+          eyebrow={asked.eyebrow}
+          title={asked.title}
+          prose={asked.prose}
+          lines={{ named: asked.heading, said: offered.stops }}
+          more={interrupting}
+          actions={agreeing}
         />
       {/if}
     {/each}
