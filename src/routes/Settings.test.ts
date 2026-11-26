@@ -10,6 +10,9 @@ import {
   readCost,
   recyclarr,
   tuner,
+  readChoice,
+  readHeld,
+  readReapply,
 } from "./tuned";
 import type { Freshness } from "../lib/freshness";
 import type { Tuned } from "../lib/tuned";
@@ -114,36 +117,40 @@ describe("the quality in force", () => {
 });
 
 describe("putting the recorded quality back", () => {
-  it("asks for it when pressed", async () => {
+  it("reads what it would replace when pressed", async () => {
     const onask = vi.fn();
     tuning({ onask });
 
     await press(m.action_reapply());
 
-    expect(onask).toHaveBeenCalledWith({ doing: "quality-reapply" });
+    expect(onask).toHaveBeenCalledWith({
+      doing: "quality-reapply",
+      rehearse: true,
+    });
   });
 
-  // Nothing comes back to read before the edits are replaced, so what is lost
-  // is said before the yes.
-  it("says the edits are lost before the yes, and silences the rest meanwhile", async () => {
+  it("puts it back on a yes under what was read, or puts the reading away", async () => {
     const onask = vi.fn();
-    const onleave = vi.fn();
-    tuning({ asked: { doing: "quality-reapply" }, onask, onleave });
+    const ondrop = vi.fn();
+    tuning({ work: [readReapply], onask, ondrop });
 
-    expect(
-      within(asked()).getByText(m.confirm_reapply_prose()),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: m.action_upgrade_cost() }),
-    ).toHaveAttribute("aria-disabled", "true");
-
+    expect(within(asked()).getByText(m.quality_reapply_prose())).toBeVisible();
     await press(m.action_reapply_yes());
     expect(onask).toHaveBeenCalledWith({ doing: "quality-reapply" });
     await press(m.action_leave_as_is());
-    expect(onleave).toHaveBeenCalled();
+    expect(ondrop).toHaveBeenCalledWith(readReapply.id);
     expect(asked()).toHaveFocus();
   });
 
+  it("silences every control while something is asked", () => {
+    tuning({ busy: true, work: [readReapply] });
+    expect(
+      screen.getByRole("button", { name: m.action_upgrade_cost() }),
+    ).toHaveAttribute("aria-disabled", "true");
+    expect(
+      screen.getByRole("button", { name: m.action_reapply_yes() }),
+    ).toHaveAttribute("aria-disabled", "true");
+  });
   it("lists the file and the lines it replaced under its record", () => {
     tuning({ work: [putQualityBack] });
     const lines = within(asked()).getByRole("list", { name: m.came_heading() });
@@ -219,5 +226,73 @@ describe("fetching the library again", () => {
     expect(
       screen.getByRole("button", { name: m.action_upgrade_cost() }),
     ).toHaveAttribute("aria-disabled", "true");
+  });
+});
+
+describe("choosing a quality", () => {
+  it("offers what the reading offers, and reads the choice made", async () => {
+    const onask = vi.fn();
+    tuning({ onask });
+
+    await press(m.action_quality_choose());
+    const chooser = screen.getByRole("group", { name: m.quality_chooser() });
+    expect(
+      within(chooser)
+        .getAllByRole("radio")
+        .map((one) => one.textContent.trim()),
+    ).toStrictEqual([
+      m.quality_for_everything(),
+      ...inForce.offered.media_types,
+      ...inForce.offered.presets,
+    ]);
+    await userEvent.click(
+      within(chooser).getByRole("radio", { name: "maximum" }),
+    );
+    await press(m.action_quality_read());
+
+    expect(onask).toHaveBeenCalledWith({
+      doing: "quality-set",
+      rehearse: true,
+      preset: "maximum",
+      media_type: undefined,
+    });
+    expect(
+      screen.queryByRole("group", { name: m.quality_chooser() }),
+    ).toBeNull();
+  });
+
+  it("is put away again when pressed twice, and not offered before the reading answers", async () => {
+    tuning();
+    await press(m.action_quality_choose());
+    await press(m.action_quality_choose());
+    expect(
+      screen.queryByRole("group", { name: m.quality_chooser() }),
+    ).toBeNull();
+  });
+
+  it("uses a choice read on a yes, or anyway where the stack held it", async () => {
+    const onask = vi.fn();
+    tuning({ work: [readChoice], onask });
+    expect(within(asked()).getByText(m.quality_choice_prose())).toBeVisible();
+    await press(m.action_quality_use());
+    expect(onask).toHaveBeenCalledWith({
+      doing: "quality-set",
+      preset: "maximum",
+      media_type: "movies",
+      confirm: false,
+    });
+  });
+
+  it("says a held choice needs transcoding here, and puts it away when asked", async () => {
+    const onask = vi.fn();
+    const ondrop = vi.fn();
+    tuning({ work: [readHeld], onask, ondrop });
+    expect(within(asked()).getByText(m.quality_choice_held())).toBeVisible();
+    await press(m.action_quality_anyway());
+    expect(onask).toHaveBeenCalledWith(
+      expect.objectContaining({ confirm: true }),
+    );
+    await press(m.action_leave_as_is());
+    expect(ondrop).toHaveBeenCalledWith(readHeld.id);
   });
 });

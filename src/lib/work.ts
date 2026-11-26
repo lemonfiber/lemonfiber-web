@@ -234,10 +234,10 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_restore_title();
     case "support":
       return m.doing_support_title();
+    case "quality-set":
     case "quality-reapply":
-      return m.doing_reapply_title();
     case "quality-upgrade":
-      return m.doing_upgrade_title();
+      return titleOfQuality(doing);
     case "config-set":
       return m.doing_config_title();
     case "invite":
@@ -290,6 +290,20 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_values_set_title();
     case "settings-clear":
       return m.doing_values_clear_title();
+  }
+}
+
+/** What a record of a change to the quality is headed by. */
+function titleOfQuality(
+  doing: "quality-set" | "quality-reapply" | "quality-upgrade",
+): string {
+  switch (doing) {
+    case "quality-set":
+      return m.doing_quality_set_title();
+    case "quality-reapply":
+      return m.doing_reapply_title();
+    case "quality-upgrade":
+      return m.doing_upgrade_title();
   }
 }
 
