@@ -11,6 +11,12 @@ import { getLocale } from "../paraglide/runtime.js";
 /** A second, in the milliseconds a clock counts. */
 export const A_SECOND = 1000;
 
+/** A minute, in seconds. */
+export const A_MINUTE = 60;
+
+/** An hour, in seconds. */
+export const AN_HOUR = 3600;
+
 /** An instant, written in the reader's own language in the style given. */
 function written(at: Instant, style: Intl.DateTimeFormatOptions): string {
   return new Intl.DateTimeFormat(getLocale(), style).format(

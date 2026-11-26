@@ -21,14 +21,15 @@
   import { shelving } from "./shelving";
   import { Keying } from "./keying.svelte";
   import {
+    readChecks,
     readSettings,
     readStorage,
     type Answered,
+    type ChecksRead,
     type SettingsRead,
     type StorageRead,
   } from "./readings";
-  import type { History } from "../lib/history";
-  import type { Survey } from "../lib/survey";
+  import type { Sought } from "../lib/finding";
   import type { Playing } from "../lib/playing";
   import type { Stuck } from "../lib/stuck";
   import type { Guidance } from "../lib/clients";
@@ -101,8 +102,7 @@
   let previewedAt = $state<number | undefined>(undefined);
   let diagnosis = $state<Reading<Diagnosis> | undefined>(undefined);
   let disk = $state<StorageRead | undefined>(undefined);
-  let history = $state<Reading<History> | undefined>(undefined);
-  let survey = $state<Reading<Survey> | undefined>(undefined);
+  let checked = $state<ChecksRead | undefined>(undefined);
   let stuck = $state<Reading<Stuck> | undefined>(undefined);
   let clients = $state<Reading<Guidance> | undefined>(undefined);
   let lines = $state<Reading<readonly Logged[]> | undefined>(undefined);
@@ -184,14 +184,8 @@
         await ask();
         return;
       case "checks": {
-        const [found, changed, already] = await Promise.all([
-          asked(reaching, "checks", "doctor"),
-          asked(reaching, "history", "history"),
-          asked(reaching, "migration", "migration"),
-        ]);
-        diagnosis = noted(where, found);
-        history = noted(where, changed);
-        survey = noted(where, already);
+        checked = all(where, await readChecks(reaching));
+        diagnosis = checked.diagnosis;
         return;
       }
       case "storage":
@@ -378,6 +372,13 @@
   const saver = $derived(saving.saver);
   const tracing = new Tracing(handing);
   const tracer = $derived(tracing.tracer);
+
+  /** Follow one item to its trace, which the requests screen draws. */
+  function follow(sought: Sought): void {
+    void tracing.look(sought);
+    globalThis.history.pushState(undefined, "", pathOf("requests"));
+    arrive("requests");
+  }
   const shelves = shelving(handing);
   const keying = new Keying(handing);
   const keyer = $derived(keying.keyer);
@@ -487,9 +488,9 @@
     />
   {:else if place === "checks"}
     <Checks
+      {...checked}
       {diagnosis}
-      {history}
-      {survey}
+      onfollow={follow}
       mover={moveAsks.asker}
       freshness={stamped}
       {mender}

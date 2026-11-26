@@ -22,7 +22,7 @@ export type Exception = Alerts["exceptions"][number];
 export type Notification = Alerts["kinds"][number];
 
 /** What sort of thing an alert tells, in a few words. */
-function notificationWords(kind: Notification): string {
+export function notificationWords(kind: Notification): string {
   switch (kind) {
     case "problem":
       return m.alerts_kind_problem();

@@ -7,11 +7,8 @@
  */
 import * as m from "../paraglide/messages.js";
 import type { Flow } from "./flow";
-import { A_SECOND } from "./instant";
+import { AN_HOUR, A_MINUTE, A_SECOND } from "./instant";
 import type { State } from "./state";
-
-const A_MINUTE = 60;
-const AN_HOUR = 3600;
 
 /**
  * A source that answered, one that has stopped answering, and one that never

@@ -4,10 +4,16 @@
   import Findings from "./panels/Findings.svelte";
   import History from "./panels/History.svelte";
   import Mend from "./panels/Mend.svelte";
+  import Readout from "./panels/Readout.svelte";
   import Support from "./panels/Support.svelte";
   import Survey from "./panels/Survey.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
+  import { bootReadout, type Boot } from "../lib/boot";
+  import type { Sought } from "../lib/finding";
   import type { Freshness } from "../lib/freshness";
+  import { healingReadout, type Healing } from "../lib/healing";
+  import { toldBy } from "../lib/readout";
+  import { watcherReadout, type Watcher } from "../lib/watcher";
   import type { History as Changes } from "../lib/history";
   import type { Mender } from "../lib/mending";
   import type { Survey as Found } from "../lib/survey";
@@ -50,6 +56,26 @@
     keeper?: Keeper | undefined;
     /** What handing a written bundle to the browser asks for. */
     saver?: Saver | undefined;
+    /**
+     * When this machine last started and what the check after it came to, or
+     * why it could not be read. Left out until it answers.
+     */
+    boot?: Reading<Boot> | undefined;
+    /**
+     * What watches the stack from outside it, or why it could not be read.
+     * Left out until it answers.
+     */
+    watcher?: Reading<Watcher> | undefined;
+    /**
+     * The self-healing of stuck downloads, or why it could not be read. Left
+     * out until it answers.
+     */
+    healing?: Reading<Healing> | undefined;
+    /**
+     * What following an unhealthy download to its trace asks for. Left out
+     * where nothing answers it.
+     */
+    onfollow?: ((sought: Sought) => void) | undefined;
   }
 
   let {
@@ -61,7 +87,15 @@
     mender,
     keeper,
     saver,
+    boot,
+    watcher,
+    healing,
+    onfollow,
   }: Props = $props();
+
+  const started = $derived(toldBy(boot, bootReadout));
+  const watched = $derived(toldBy(watcher, watcherReadout));
+  const healed = $derived(toldBy(healing, healingReadout));
 
   /** The run's own grading, and how loudly it is drawn. */
   const graded = $derived(
@@ -86,8 +120,9 @@
   one would be a claim about a run that has not happened.
 
   What can be done about the findings stands under them, so what is on offer is
-  read after what it is for, and everything lemonfiber changed after that, then
-  what else is on this machine.
+  read after what it is for. Starting with the machine, what watches the stack
+  from outside and the self-healing of stuck downloads follow, then everything
+  lemonfiber changed, then what else is on this machine.
   Gathering what somebody helping would need comes last, being what is left
   when nothing here puts it right.
 -->
@@ -105,6 +140,35 @@
 
   {#if mender !== undefined}
     <Mend {mender} {diagnosis} {freshness} />
+  {/if}
+
+  {#if started !== undefined}
+    <Readout
+      title={m.panel_boot()}
+      prose={m.boot_prose()}
+      named={m.boot_said()}
+      readout={started}
+      {freshness}
+    />
+  {/if}
+  {#if watched !== undefined}
+    <Readout
+      title={m.panel_watcher()}
+      prose={m.watcher_prose()}
+      named={m.watcher_said()}
+      readout={watched}
+      {freshness}
+    />
+  {/if}
+  {#if healed !== undefined}
+    <Readout
+      title={m.panel_queue()}
+      prose={m.queue_prose()}
+      named={m.queue_said()}
+      readout={healed}
+      {freshness}
+      {onfollow}
+    />
   {/if}
 
   {#if history !== undefined}

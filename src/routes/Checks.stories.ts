@@ -3,6 +3,7 @@ import Checks from "./Checks.svelte";
 import { allWell, attributed, diagnosis } from "./findings";
 import { keeper, readBundle } from "./keeping";
 import { mender, offered, putBack } from "./mended";
+import { blind, healing, notBack, quiet, watched } from "../api/health";
 import { changed } from "../api/histories";
 import { survey, unread } from "../api/surveys";
 import { adoptOffer, mover } from "./movings";
@@ -174,5 +175,30 @@ export const MovingIn: Story = {
   args: {
     survey: { ok: true, value: survey },
     mover: { ...mover, work: [adoptOffer] },
+  },
+};
+
+/**
+ * The machine's health: a start with no check after it and a stack that has
+ * not come back, what watches it from outside with a heartbeat nothing checks
+ * in with, and stuck downloads healed by strikes, each followed to its trace.
+ */
+export const HowTheMachineStands: Story = {
+  args: {
+    boot: { ok: true, value: notBack },
+    watcher: { ok: true, value: watched },
+    healing: { ok: true, value: healing },
+    onfollow: () => undefined,
+  },
+};
+
+/**
+ * A watcher that does not answer, which is no all-clear, and healing that
+ * only looks, with nothing unhealthy.
+ */
+export const NothingSeenFromOutside: Story = {
+  args: {
+    watcher: { ok: true, value: blind },
+    healing: { ok: true, value: quiet },
   },
 };

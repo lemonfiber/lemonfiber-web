@@ -1,6 +1,7 @@
 <script lang="ts">
   import Board from "./Board.svelte";
   import Alerts from "./panels/Alerts.svelte";
+  import Readout from "./panels/Readout.svelte";
   import Catalogue from "./panels/Catalogue.svelte";
   import Configuration from "./panels/Configuration.svelte";
   import Copy from "./panels/Copy.svelte";
@@ -20,6 +21,8 @@
   import type { Configured } from "../lib/configured";
   import type { Configurer } from "../lib/configuring";
   import type { Alerts as Told } from "../lib/alerts";
+  import { notifiedReadout, type Notified } from "../lib/notifying";
+  import { toldBy } from "../lib/readout";
   import type { Catalogue as Held, Provenance } from "../lib/catalogue";
   import type { Standing, Versions } from "../lib/copy";
   import type { Inventory } from "../lib/credentials";
@@ -39,6 +42,7 @@
   import type { Wiring as Wired } from "../lib/wiring";
   import type { Plugins as Installs } from "../lib/plugins";
   import type { Vocabulary } from "../lib/glossary";
+  import * as m from "../paraglide/messages.js";
 
   interface Props {
     /** The quality choice in force, or why it could not be read. */
@@ -61,6 +65,8 @@
     provenance?: Reading<Provenance> | undefined;
     /** What the operator is told about, or why it could not be read. */
     alerts?: Reading<Told> | undefined;
+    /** Where alerts go, or why it could not be read. */
+    notify?: Reading<Notified> | undefined;
     /** What the stack wires to what, or why it could not be read. */
     wiring?: Reading<Wired> | undefined;
     /** The plugins on this machine, or why they could not be read. */
@@ -110,6 +116,7 @@
     catalogue,
     provenance,
     alerts,
+    notify,
     wiring,
     plugins,
     values,
@@ -126,6 +133,8 @@
     updater,
     pairer,
   }: Props = $props();
+
+  const delivered = $derived(toldBy(notify, notifiedReadout));
 </script>
 
 <!--
@@ -133,7 +142,7 @@
   quality new media is fetched at, every setting lemonfiber keeps, every
   setting and secret the services read with each service held back, how the line
   is shared, everything that leaves this machine, what the operator is told
-  about, every credential the stack holds and each grant of one to a plugin,
+  about and where it goes, every credential the stack holds and each grant of one to a plugin,
   the versions the stack stands on, what the stack holds and where each service
   comes from, what it wires to what, the plugins on this machine, this copy of
   lemonfiber, pairing the companion app, the integration keys, and every word
@@ -153,6 +162,15 @@
   {/if}
   <Outbound {outbound} {freshness} {configurer} />
   <Alerts {alerts} {freshness} />
+  {#if delivered !== undefined}
+    <Readout
+      title={m.panel_notify()}
+      prose={m.notify_prose()}
+      named={m.notify_said()}
+      readout={delivered}
+      {freshness}
+    />
+  {/if}
   <Credentials {credentials} {freshness} {revoker} />
 
   {#if updater !== undefined}

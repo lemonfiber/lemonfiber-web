@@ -58,6 +58,20 @@ module.exports = {
       },
     },
     {
+      name: "the-machines-health-stays-with-the-operator",
+      severity: "error",
+      comment:
+        "Starting with the machine, what watches the stack from outside, the " +
+        "self-healing of stuck downloads and where alerts go are the " +
+        "operator's alone. Nothing a household member is shown may reach " +
+        "what reads or draws them.",
+      from: { path: "^src/routes/Member\\.svelte$" },
+      to: {
+        reachable: true,
+        path: "^src/(routes/panels/Readout\\.svelte|lib/(boot|watcher|healing|notifying|readout)\\.ts)$",
+      },
+    },
+    {
       name: "no-orphans",
       severity: "error",
       comment: "A module nothing imports is either dead or wired up wrong.",
