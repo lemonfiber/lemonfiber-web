@@ -67,13 +67,14 @@ describe("App", () => {
   beforeEach(() => {
     sessionStorage.clear();
     globalThis.history.replaceState(undefined, "", "/");
+    document.title = "";
   });
 
   // There is no cookie, no session and nowhere to look the key up.
   it("asks for the key before it asks lemonfiber for anything", () => {
     app();
     expect(
-      screen.getByRole("heading", { level: 1, name: m.unlock_title() }),
+      screen.getByRole("heading", { level: 1, name: m.member_house() }),
     ).toBeInTheDocument();
   });
 
@@ -150,10 +151,11 @@ describe("App", () => {
     expect(
       await screen.findByRole("heading", {
         level: 1,
-        name: m.unlock_title(),
+        name: m.member_house(),
       }),
     ).toBeInTheDocument();
     expect(remembered(sessionStorage)).toBeUndefined();
+    expect(document.title).toBe(m.member_house());
   });
 
   // The whole page is swapped under whoever was reading the console. A reader
@@ -166,7 +168,7 @@ describe("App", () => {
 
     const heading = await screen.findByRole("heading", {
       level: 1,
-      name: m.unlock_title(),
+      name: m.member_house(),
     });
 
     expect(screen.getByRole("alert")).toHaveTextContent(
@@ -181,7 +183,7 @@ describe("App", () => {
 
     expect(screen.queryByRole("alert")).toBeNull();
     expect(
-      screen.getByRole("heading", { level: 1, name: m.unlock_title() }),
+      screen.getByRole("heading", { level: 1, name: m.member_house() }),
     ).not.toHaveFocus();
   });
 });
@@ -245,6 +247,7 @@ describe("what is drawn follows who signed in", () => {
     await signIn("Kit");
 
     expect(await screen.findByText("Andor")).toBeInTheDocument();
+    expect(document.title).toBe(m.member_house());
     expect(
       screen.getByRole("link", { name: new RegExp(nameOfRoom("held")) }),
     ).toBeInTheDocument();
@@ -277,6 +280,16 @@ describe("what is drawn follows who signed in", () => {
     expect(memberOf(sessionStorage)).toBeUndefined();
   });
 
+  it("names the house in the tab, and the product only once the operator is in", async () => {
+    app(admitting);
+    expect(document.title).toBe(m.member_house());
+
+    await signIn();
+
+    await screen.findByText(worstService.name);
+    expect(document.title).toBe(m.product_name());
+  });
+
   it("opens a member's own surface again after a reload", async () => {
     remember(sessionStorage, session, kitsId);
     app(aMembersRun({ removed: false }));
@@ -299,12 +312,13 @@ describe("what is drawn follows who signed in", () => {
 
     const heading = await screen.findByRole("heading", {
       level: 1,
-      name: m.unlock_title(),
+      name: m.member_house(),
     });
     expect(screen.getByRole("alert")).toHaveTextContent(
       m.unlock_signed_out_lead(),
     );
     expect(screen.getByText(nobody)).toBeInTheDocument();
+    expect(document.title).toBe(m.member_house());
     expect(screen.queryByText("Andor")).toBeNull();
     expect(screen.queryByText("Arrival")).toBeNull();
     expect(heading).toHaveFocus();

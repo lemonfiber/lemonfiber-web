@@ -3,10 +3,13 @@
  * The words a member's screens show, held to what the contract says a member
  * may not be shown.
  *
- * A member's screens are `src/routes/Member.svelte` and every module it reaches
- * through a relative import. Each message they draw is read in the base locale
- * with its placeholders taken out, and refused where it names a service, a term
- * for how the stack is built and run, a size, a rate, an address or a version.
+ * A member's screens are `src/routes/Member.svelte`, the door every member signs
+ * in at and is signed out to, `src/routes/Unlock.svelte`, and every module either
+ * reaches through a relative import, with the page's title in `index.html`. Each
+ * message they draw is read in the base locale with its placeholders taken out,
+ * and refused where it names a service, a term for how the stack is built and
+ * run, a size, a rate, an address or a version. The title is held to the same
+ * words, and to the message a member's tab is named by once the page has drawn.
  * The lists are the contract's `household_words`, as the SDK ships them, so the
  * core and every surface hold a member's text to the one list.
  */
@@ -23,7 +26,15 @@ import {
 } from "./catalogue.mjs";
 
 /** Where a member's screens start. */
-const MEMBER = join(ROOT, "src", "routes", "Member.svelte");
+const STARTS = ["Member.svelte", "Unlock.svelte"].map((screen) =>
+  join(ROOT, "src", "routes", screen),
+);
+
+/** The page every screen is drawn into, whose title names a member's tab. */
+const PAGE = join(ROOT, "index.html");
+
+/** The message a member's tab is named by once the page has drawn. */
+const TAB = "member_house";
 
 /** The relative module a statement names after `from`. */
 const FROM = /\bfrom\s+"(\.{1,2}\/[^"]+)"/u;
@@ -54,7 +65,7 @@ function imported(source) {
 }
 
 /** How few member messages the sweep may read before it is reading the wrong thing. */
-const FLOOR_MESSAGES = 100;
+const FLOOR_MESSAGES = 120;
 
 /** Sentences a member may be shown, which every rule must let through. */
 const HOUSEHOLD = [
@@ -174,7 +185,7 @@ function resolved(from, specifier) {
 
 /** Every module a member's screens are drawn from. */
 const reached = new Set();
-const waiting = [MEMBER];
+const waiting = [...STARTS];
 while (waiting.length > 0) {
   const file = waiting.pop();
   if (reached.has(file) || NOT_DRAWN.test(file)) continue;
@@ -201,6 +212,20 @@ if (drawn.size < FLOOR_MESSAGES)
   fail(
     "the sweep",
     `read ${String(drawn.size)} member messages, under the floor of ${String(FLOOR_MESSAGES)} — it is reading the wrong files, or no longer finds a member's screens`,
+  );
+
+const title = /<title>([^<]*)<\/title>/u.exec(readFileSync(PAGE, "utf8"))?.[1];
+if (title === undefined)
+  fail("index.html", "has no title, and a member's tab is named by it");
+else if (unhoused(title) !== undefined)
+  fail(
+    "index.html",
+    `the title "${title}" shows "${String(unhoused(title))}" in a member's tab — name the house`,
+  );
+else if (title !== base.get(TAB))
+  fail(
+    "index.html",
+    `the title "${title}" is not ${TAB}, "${String(base.get(TAB))}", which names the tab once the page has drawn`,
   );
 
 for (const [key, where] of drawn) {

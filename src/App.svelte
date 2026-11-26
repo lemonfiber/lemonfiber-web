@@ -6,6 +6,7 @@
   import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
   import { admitting, type Offered } from "./api/admitting";
   import { forget, memberOf, remember, remembered } from "./api/token";
+  import * as m from "./paraglide/messages.js";
 
   interface Props {
     /** Where lemonfiber is listening: the address this page was served from. */
@@ -24,6 +25,13 @@
   let member = $state<string | undefined>(untrack(() => memberOf(store)));
   let refused = $state(false);
   let said = $state<string | undefined>(undefined);
+
+  $effect(() => {
+    document.title =
+      token !== undefined && member === undefined
+        ? m.product_name()
+        : m.member_house();
+  });
 
   /**
    * Put away whatever was drawn, and ask at the door again.
