@@ -12,6 +12,7 @@
       "./messages/{locale}/common.json",
       "./messages/{locale}/dashboard.json",
       "./messages/{locale}/door.json",
+      "./messages/{locale}/health.json",
       "./messages/{locale}/household.json",
       "./messages/{locale}/plugging.json",
       "./messages/{locale}/setup.json",

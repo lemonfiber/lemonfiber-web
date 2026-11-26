@@ -8,6 +8,7 @@
  * The words live in `messages/`, so no screen holds one.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { A_MINUTE } from "./instant";
 import { minutesOf } from "./title";
 import type { Holding } from "./yours";
 import * as m from "../paraglide/messages.js";
@@ -17,9 +18,6 @@ export type PartWays = ByKind["part-way"]["data"];
 
 /** One title or episode they were part-way through. */
 export type PartWay = PartWays["part_way"][number];
-
-/** Seconds in a minute, as the server counts how far in in seconds. */
-const MINUTE = 60;
 
 /** How long it runs, where the server knows a length worth measuring against. */
 function lengthOf(one: PartWay): number | undefined {
@@ -41,11 +39,11 @@ export function farOf(one: PartWay): string {
   const length = lengthOf(one);
   if (length === undefined) {
     return m.member_partway_in({
-      far: minutesOf(Math.floor(one.position / MINUTE)),
+      far: minutesOf(Math.floor(one.position / A_MINUTE)),
     });
   }
   const left = Math.max(0, length - one.position);
-  return m.member_partway_left({ left: minutesOf(Math.ceil(left / MINUTE)) });
+  return m.member_partway_left({ left: minutesOf(Math.ceil(left / A_MINUTE)) });
 }
 
 /**

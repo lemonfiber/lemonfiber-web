@@ -4,6 +4,7 @@ import { configurer, everySetting, stagedChange } from "./configured";
 import { inForce, putQualityBack, readCost, tuner } from "./tuned";
 import { made, pairer } from "./paired";
 import { alerts } from "../api/alerting";
+import { notified } from "../api/health";
 import { wiring } from "../api/wirings";
 import { filler, fillOffer } from "./fillings";
 import { keyer, made as justMinted } from "./keyings";
@@ -329,4 +330,13 @@ export const APluginInstalled: Story = {
     plugins: { ok: true, value: plugins },
     plugger: { ...plugger, work: [installMade] },
   },
+};
+
+/**
+ * Where alerts go: one way the operator chose, proven and hosted elsewhere,
+ * that failed its last delivery and is being tried again, one a member chose
+ * that is held until it is proven again, and a record that could not be read.
+ */
+export const WhereAlertsGo: Story = {
+  args: { notify: { ok: true, value: notified } },
 };

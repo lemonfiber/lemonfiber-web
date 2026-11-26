@@ -451,6 +451,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "backup",
   "bandwidth",
   "beside",
+  "boot",
   "bundle",
   "clients",
   "catalogue",
@@ -474,6 +475,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "log",
   "migration",
   "minted-key",
+  "notify",
   "outbound",
   "pairing",
   "part-way",
@@ -483,6 +485,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "preview",
   "provenance",
   "quality",
+  "queue",
   "repair",
   "replacement",
   "replay",
@@ -507,6 +510,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "version",
   "walkthrough",
   "watch",
+  "watcher",
   "wiring",
   "wizard",
 ];
@@ -566,7 +570,6 @@ const UNSERVED_KINDS: readonly Kind[] = [
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   "askable-kinds": "D4",
-  boot: "B8",
   capabilities: "ARCH-R78",
   certificate: "N1",
   channels: "ARCH-R420",
@@ -583,13 +586,11 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   music: "D2",
   news: "N27",
   "news-items": "N27",
-  notify: "B9",
   "notify-mine": "ARCH-R405",
   play: "ARCH-R420",
   "plugin-catalogue": "ARCH-R153",
   "push-endpoint": "ARCH-R282",
   "push-endpoints": "ARCH-R282",
-  queue: "H5",
   ran: "ARCH-R438",
   removal: "D6",
   reset: "C9",
@@ -600,7 +601,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   tuned: "ARCH-R420",
   "walkthrough-offer": "D3",
   watched: "D11",
-  watcher: "K2",
   word: "G2",
 };
 

@@ -498,6 +498,7 @@ const LABEL_SLOTS = [
   ["Segmented", "label"],
   ["SubNav", "label"],
   ["Panel", "title"],
+  ["Readout", "title"],
   ["SettingRow", "title"],
   ["WizardStep", "title"],
 ];
