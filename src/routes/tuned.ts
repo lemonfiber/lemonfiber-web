@@ -5,7 +5,13 @@
  * this. The reports inside each record are the ones a suite stands in for a
  * running lemonfiber, in `../api/qualities`.
  */
-import { costed, reapplied } from "../api/qualities";
+import {
+  costed,
+  heldBack,
+  reapplied,
+  wouldChoose,
+  wouldReapply,
+} from "../api/qualities";
 import type { Tuner } from "../lib/tuning";
 import type { Work } from "../lib/work";
 
@@ -40,6 +46,35 @@ export const putQualityBack: Work = {
   at: "done",
   job,
   came: { kind: "quality", report: reapplied },
+};
+
+/** A record of reading what putting the recorded preset back would replace. */
+export const readReapply: Work = {
+  id: "33",
+  doing: "quality-reapply",
+  scoped: false,
+  given: { dry_run: true },
+  at: "done",
+  job,
+  came: { kind: "quality", report: wouldReapply },
+};
+
+/** A record of reading a choice of the maximum preset for movies. */
+export const readChoice: Work = {
+  id: "34",
+  doing: "quality-set",
+  scoped: false,
+  given: { preset: "maximum", media_type: "movies", dry_run: true },
+  at: "done",
+  job: undefined,
+  came: { kind: "quality", report: wouldChoose },
+};
+
+/** A record of reading a choice the stack held for transcoding. */
+export const readHeld: Work = {
+  ...readChoice,
+  id: "35",
+  came: { kind: "quality", report: heldBack },
 };
 
 /** What pressing anything asks for, where nothing answers it. */

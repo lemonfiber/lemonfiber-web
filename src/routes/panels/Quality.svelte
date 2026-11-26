@@ -3,13 +3,20 @@
   import Action from "../../components/Action.svelte";
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
+  import Segmented from "../../components/Segmented.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import { linesOf } from "../../lib/came";
   import type { Freshness } from "../../lib/freshness";
   import type { Tuned } from "../../lib/tuned";
-  import { questionOfTune, standingCost, type Tuner } from "../../lib/tuning";
+  import {
+    MUSIC,
+    standingChoice,
+    standingCost,
+    standingReapply,
+    type Tuner,
+  } from "../../lib/tuning";
   import { readingOf, titleOfDoing } from "../../lib/work";
   import * as m from "../../paraglide/messages.js";
 
@@ -28,6 +35,18 @@
   let { quality, freshness, tuner }: Props = $props();
 
   const costId = $props.id();
+  const choiceId = `${costId}-choice`;
+  const reapplyId = `${costId}-reapply`;
+
+  /** What a choice applies to when it is not one kind of media. */
+  const EVERYTHING = "";
+
+  /** Whether a choice is being made. */
+  let choosing = $state(false);
+  /** The kind of media chosen for, or everything. */
+  let scope = $state(EVERYTHING);
+  /** The preset or format chosen, or none yet. */
+  let preset = $state("");
 
   /** The region a row sits in, bound as soon as the panel draws one. */
   let asked!: HTMLDivElement;
@@ -43,13 +62,15 @@
   );
   const work = $derived(tuner?.work ?? []);
   const standing = $derived(standingCost(work));
-  const question = $derived(
-    tuner?.asked === undefined ? undefined : questionOfTune(tuner.asked),
-  );
-  const silent = $derived(tuner?.busy === true || question !== undefined);
-  const parted = $derived(
-    question !== undefined || standing !== undefined || work.length > 0,
-  );
+  const weighed = $derived(standingChoice(work));
+  const replacing = $derived(standingReapply(work));
+  const silent = $derived(tuner?.busy === true);
+  const parted = $derived(work.length > 0);
+
+  /** What a choice for one scope may be made from, as the reading offers it. */
+  function offeredFor(tuned: Tuned, chosen: string): readonly string[] {
+    return chosen === MUSIC ? tuned.offered.formats : tuned.offered.presets;
+  }
 </script>
 
 <!--
@@ -60,13 +81,17 @@
   hour of it takes and what playing it costs. Where this machine would have to
   transcode it in software, the row says so.
 
-  Choosing another preset is not offered here: the reading names the choices
-  in force and not the presets there are to choose from.
+  Choosing another quality offers what the reading offers and nothing else:
+  a preset for everything or for one kind of media, or a format for music.
+  The choice is read first, and the yes is under what it would come to; where
+  the stack held it for transcoding this machine cannot do well, the yes says
+  it is chosen anyway.
 
   Putting the recorded preset back replaces edits made to the config by hand,
-  so it is offered only where the reading says there are some, and asked about
-  before it is sent. Fetching the library again is read first, which fetches
-  nothing and answers with what it would cost, and the yes is under that.
+  so it is offered only where the reading says there are some, and read first:
+  the record names each file it would replace with the lines that go and the
+  lines that land, and the yes is under that. Fetching the library again is
+  read first too, which fetches nothing and answers with what it would cost.
 -->
 <Panel title={m.panel_quality()} {freshness} flush>
   <div class="scope">
@@ -126,6 +151,15 @@
 
   {#if tuner !== undefined}
     <div class="controls" role="group" aria-label={m.quality_controls()}>
+      {#if read !== undefined}
+        <Action
+          label={m.action_quality_choose()}
+          off={silent}
+          onclick={() => {
+            choosing = !choosing;
+          }}
+        />
+      {/if}
       <Action
         label={m.action_upgrade_cost()}
         off={silent}
@@ -138,11 +172,56 @@
           label={m.action_reapply()}
           off={silent}
           onclick={() => {
-            tuner.onask({ doing: "quality-reapply" });
+            tuner.onask({ doing: "quality-reapply", rehearse: true });
           }}
         />
       {/if}
     </div>
+    {#if choosing && read !== undefined}
+      <div class="chooser" role="group" aria-label={m.quality_chooser()}>
+        <Segmented
+          label={m.quality_for()}
+          options={[
+            { value: EVERYTHING, label: m.quality_for_everything() },
+            ...read.offered.media_types.map((one) => ({
+              value: one,
+              label: one,
+            })),
+          ]}
+          selected={scope}
+          onselect={(value: string) => {
+            scope = value;
+            preset = "";
+          }}
+        />
+        <Segmented
+          label={m.quality_at()}
+          options={offeredFor(read, scope).map((one) => ({
+            value: one,
+            label: one,
+          }))}
+          selected={preset}
+          onselect={(value: string) => {
+            preset = value;
+          }}
+        />
+        <div>
+          <Action
+            label={m.action_quality_read()}
+            off={silent || preset === ""}
+            onclick={() => {
+              tuner.onask({
+                doing: "quality-set",
+                rehearse: true,
+                preset,
+                media_type: scope === EVERYTHING ? undefined : scope,
+              });
+              choosing = false;
+            }}
+          />
+        </div>
+      </div>
+    {/if}
   {/if}
 
   <div
@@ -154,32 +233,69 @@
     bind:this={asked}
   >
     {#if tuner !== undefined}
-      {#if tuner.asked !== undefined && question !== undefined}
-        {@const asking = tuner.asked}
-        {#snippet answering()}
-          <Action
-            label={question.yes}
-            weight="firm"
-            onclick={() => {
-              tuner.onask(asking);
-              landing();
-            }}
-          />
-          <Action
-            label={m.action_leave_as_is()}
-            onclick={() => {
-              tuner.onleave();
-              landing();
-            }}
-          />
-        {/snippet}
-        <Item
-          state="stopped"
-          eyebrow={question.eyebrow}
-          title={question.title}
-          prose={question.prose}
-          actions={answering}
-        />
+      {#if weighed !== undefined}
+        {@const choice = weighed}
+        <section class="cost" aria-labelledby={choiceId}>
+          <h3 id={choiceId}>{m.quality_choice_title()}</h3>
+          <p class="prose">
+            <Said
+              text={choice.held
+                ? m.quality_choice_held()
+                : m.quality_choice_prose()}
+            />
+          </p>
+          <div class="controls">
+            <Action
+              label={choice.held
+                ? m.action_quality_anyway()
+                : m.action_quality_use()}
+              weight="firm"
+              off={tuner.busy}
+              onclick={() => {
+                tuner.onask({
+                  doing: "quality-set",
+                  preset: choice.preset,
+                  media_type: choice.media_type,
+                  confirm: choice.held,
+                });
+                landing();
+              }}
+            />
+            <Action
+              label={m.action_leave_as_is()}
+              onclick={() => {
+                tuner.ondrop(choice.id);
+                landing();
+              }}
+            />
+          </div>
+        </section>
+      {/if}
+
+      {#if replacing !== undefined}
+        {@const record = replacing}
+        <section class="cost" aria-labelledby={reapplyId}>
+          <h3 id={reapplyId}>{m.quality_reapply_title()}</h3>
+          <p class="prose"><Said text={m.quality_reapply_prose()} /></p>
+          <div class="controls">
+            <Action
+              label={m.action_reapply_yes()}
+              weight="firm"
+              off={tuner.busy}
+              onclick={() => {
+                tuner.onask({ doing: "quality-reapply" });
+                landing();
+              }}
+            />
+            <Action
+              label={m.action_leave_as_is()}
+              onclick={() => {
+                tuner.ondrop(record);
+                landing();
+              }}
+            />
+          </div>
+        </section>
       {/if}
 
       {#if standing !== undefined}
@@ -273,6 +389,12 @@
     margin: var(--sp-1) 0 0;
     font-size: var(--text-note);
     color: var(--faint);
+  }
+
+  .chooser {
+    display: grid;
+    gap: var(--sp-3);
+    padding: 0 var(--panel-pad) var(--sp-3);
   }
 
   .controls {

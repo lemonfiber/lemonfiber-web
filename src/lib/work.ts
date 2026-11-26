@@ -234,6 +234,8 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_restore_title();
     case "support":
       return m.doing_support_title();
+    case "quality-set":
+      return m.doing_quality_set_title();
     case "quality-reapply":
       return m.doing_reapply_title();
     case "quality-upgrade":

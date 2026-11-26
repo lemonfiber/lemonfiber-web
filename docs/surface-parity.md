@@ -29,8 +29,8 @@ actually reach.
 ## The measurement
 
 The client carries 119 kinds of answer, and this console reads 73 of them.
-Another surface can make 77 requests of the stack, and this console offers 53 of
-them. 13 kinds and 2 requests are offered elsewhere by rule, and 33 kinds and 22
+Another surface can make 77 requests of the stack, and this console offers 54 of
+them. 13 kinds and 2 requests are offered elsewhere by rule, and 33 kinds and 21
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -210,7 +210,8 @@ so these wait on lemonfiber rather than on this surface.
 | `backup`             | the disk, for the whole stack, after a question saying it writes settings and no media while the stack is stopped                                                                                                                                                                                                                                                                  |
 | `restore`            | the disk: the listing first, then the archive put back, named by the listing it was read in                                                                                                                                                                                                                                                                                        |
 | `support`            | the checks: every file a bundle would hold, read in full, then the bundle written on the terms it was read under                                                                                                                                                                                                                                                                   |
-| `quality-reapply`    | the settings, where the config was edited by hand, after a question saying the edits are lost                                                                                                                                                                                                                                                                                      |
+| `quality-set`        | the settings: a preset for everything or for one kind of media, or a format for music, chosen from what the reading offers, read first, then used on a yes under that reading, anyway where the stack held it for transcoding this machine cannot do well                                                                                                                          |
+| `quality-reapply`    | the settings, where the config was edited by hand: each file it would replace and the lines that go and land, read first, then put back on a yes under that reading                                                                                                                                                                                                                |
 | `quality-upgrade`    | the settings: the cost first, then the library fetched again on a yes under it                                                                                                                                                                                                                                                                                                     |
 | `config-set`         | the settings: made at once where it costs nothing, otherwise the review first and the change on a yes under it                                                                                                                                                                                                                                                                     |
 | `invite`             | the requests: what the offer would make first, then the account offered on a yes under it, on the terms it was read on                                                                                                                                                                                                                                                             |
@@ -249,13 +250,11 @@ so these wait on lemonfiber rather than on this surface.
 | `settings-clear`     | the settings: values the operator gave put among those taken away, beside each setting, and read together, so each default is written again; what it rewrites, restarts and starts read first the same way, then cleared on a yes naming that reading                                                                                                                              |
 | `setup`              | first-run setup, in place of the console until setup is written: each answer, the tunnel answer carrying every setting and secret the tunnel service asks for and nothing else, on, back, apply and the way out of a stopped apply, then starting and connecting the stack                                                                                                         |
 
-Seven of these are offered in part. `backup` takes the whole stack; lemonfiber
+Six of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
 yet. `support` writes the bundle where lemonfiber keeps its own files, and the
 newest one written is handed to the browser to be saved; showing a setting as
 it is (`reveal`) has no control yet.
-`quality-reapply` lists the lines it replaced once it has; lemonfiber also
-rehearses it, and this console does not read the rehearsal first yet.
 `invite` names no libraries, because no reading this console takes lists them;
 an account it makes opens every library, and one offered again keeps the
 libraries it had. `update` moves the whole stack; lemonfiber also moves one
@@ -275,7 +274,6 @@ refuses a recipe that asks for any, naming it.
 
 | Request                        | Feature   | What it is                                                                                                                       |
 | ------------------------------ | --------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `quality-set`                  | D2        | Quality presets: choose one of the presets, music formats and kinds of media the reading names                                   |
 | `reset`                        | C9        | Drift: revert every edit to lemonfiber's own state                                                                               |
 | `remove`                       | D6        | Household identity: take somebody out, the removal offer read first and the yes naming it (D6-R17)                               |
 | `grant`                        | D11       | Watching what the house holds: a grant to play, which a member's paired client asks for the device it plays on                   |

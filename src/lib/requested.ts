@@ -46,7 +46,7 @@ export type Upkeep = "backup" | "restore" | "support";
  * Something the quality panel can ask for, named as the endpoint names it.
  * What each takes and how it is asked about is in `./tuning`.
  */
-export type Tuning = "quality-reapply" | "quality-upgrade";
+export type Tuning = "quality-set" | "quality-reapply" | "quality-upgrade";
 
 /**
  * Something the settings panel can ask for, named as the endpoint names it.

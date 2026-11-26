@@ -120,6 +120,10 @@ export interface Arguments {
   readonly service?: string;
   /** Whether to say what would happen and write nothing. */
   readonly dry_run?: boolean;
+  /** The quality preset, or the music format, as it is written. */
+  readonly preset?: string;
+  /** The kind of media a quality choice is for, where it is not for everything. */
+  readonly media_type?: string;
   /** Where a plugin comes from: its catalogue name, a directory, or a git repository. */
   readonly source?: string;
   /** The installed plugin an update or a removal acts on, by its id. */

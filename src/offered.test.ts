@@ -363,6 +363,7 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "backup",
   "restore",
   "support",
+  "quality-set",
   "quality-reapply",
   "quality-upgrade",
   "config-set",
@@ -415,7 +416,6 @@ const ELSEWHERE_REQUESTS: Partial<Record<Request, string>> = {
 
 /** Requests nobody has offered here yet, each with the feature it belongs to. */
 const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
-  "quality-set": "D2",
   reset: "C9",
   remove: "D6",
   grant: "D11",

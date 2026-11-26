@@ -1,7 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Settings from "./Settings.svelte";
 import { configurer, everySetting, stagedChange } from "./configured";
-import { inForce, putQualityBack, readCost, tuner } from "./tuned";
+import {
+  inForce,
+  putQualityBack,
+  readChoice,
+  readCost,
+  readHeld,
+  readReapply,
+  tuner,
+} from "./tuned";
 import { made, pairer } from "./paired";
 import { alerts } from "../api/alerting";
 import { notified } from "../api/health";
@@ -61,11 +69,27 @@ type Story = StoryObj<typeof meta>;
 export const TheQualityInForce: Story = {};
 
 /**
- * Putting the recorded preset back, asked about before the yes, because the
- * edits made by hand are lost and nothing can be read first.
+ * Putting the recorded preset back, read first: the file it would replace and
+ * the lines that go and land, with the yes under that reading.
  */
-export const AskedBeforeTheEditsGo: Story = {
-  args: { tuner: { ...tuner, asked: { doing: "quality-reapply" } } },
+export const ReadBeforeTheEditsGo: Story = {
+  args: { tuner: { ...tuner, work: [readReapply] } },
+};
+
+/**
+ * A choice of the maximum preset for movies, read first, with the yes under
+ * what it would come to.
+ */
+export const AChoiceRead: Story = {
+  args: { tuner: { ...tuner, work: [readChoice] } },
+};
+
+/**
+ * A choice the stack held, because this machine would have to transcode it in
+ * software, and a yes that says it is chosen anyway.
+ */
+export const AChoiceHeld: Story = {
+  args: { tuner: { ...tuner, work: [readHeld] } },
 };
 
 /**

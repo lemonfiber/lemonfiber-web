@@ -17,9 +17,12 @@ import {
 import {
   costed,
   fetched,
+  heldBack,
   inForce,
   reapplied,
   recyclarr,
+  wouldChoose,
+  wouldReapply,
 } from "../api/qualities";
 import * as m from "../paraglide/messages.js";
 
@@ -76,38 +79,130 @@ describe("the quality, from the settings screen", () => {
     expect(times(sent, quality)).toBe(1);
   });
 
-  it("says the edits are lost before the yes, and sends nothing yet", async () => {
+  it("reads what putting it back would replace first, and replaces nothing yet", async () => {
     const sent = fresh();
-    tuning(sent);
-    await screen.findByText(m.action_reapply());
-
-    await press(m.action_reapply());
-
-    expect(
-      within(asked()).getByText(m.confirm_reapply_prose()),
-    ).toBeInTheDocument();
-    expect(sent.posted).toStrictEqual([]);
-  });
-
-  it("puts it back on a yes, lists what it replaced, and reads the choice again", async () => {
-    const sent = fresh();
-    tuning(sent, {}, [{ status: 200, body: enveloped("quality", reapplied) }]);
-    await screen.findByText(m.action_reapply());
-
-    await press(m.action_reapply());
-    await press(m.action_reapply_yes());
-
-    expect(sent.posted).toStrictEqual([
-      { at: "/api/actions/quality-reapply", body: "{}" },
+    tuning(sent, {}, [
+      { status: 200, body: enveloped("quality", wouldReapply) },
     ]);
+    await screen.findByText(m.action_reapply());
+
+    await press(m.action_reapply());
+
     expect(
       await within(asked()).findByText(
         m.came_quality_overwritten({ path: recyclarr }),
       ),
     ).toBeInTheDocument();
+    expect(within(asked()).getByText(m.quality_reapply_title())).toBeVisible();
+    expect(sent.posted).toStrictEqual([
+      {
+        at: "/api/actions/quality-reapply",
+        body: JSON.stringify({ dry_run: true }),
+      },
+    ]);
+    expect(times(sent, quality)).toBe(1);
+  });
+
+  it("puts it back on a yes under what was read, and reads the choice again", async () => {
+    const sent = fresh();
+    tuning(sent, {}, [
+      { status: 200, body: enveloped("quality", wouldReapply) },
+      { status: 200, body: enveloped("quality", reapplied) },
+    ]);
+    await screen.findByText(m.action_reapply());
+
+    await press(m.action_reapply());
+    await within(asked()).findByText(m.quality_reapply_title());
+    await press(m.action_reapply_yes());
+
+    expect(sent.posted).toStrictEqual([
+      {
+        at: "/api/actions/quality-reapply",
+        body: JSON.stringify({ dry_run: true }),
+      },
+      { at: "/api/actions/quality-reapply", body: "{}" },
+    ]);
     await waitFor(() => {
       expect(times(sent, quality)).toBe(2);
     });
+    expect(within(asked()).queryByText(m.quality_reapply_title())).toBeNull();
+  });
+
+  it("chooses from what the reading offers, reads the choice first, and uses it on a yes", async () => {
+    const sent = fresh();
+    tuning(sent, {}, [
+      { status: 200, body: enveloped("quality", wouldChoose) },
+      { status: 200, body: enveloped("quality", inForce) },
+    ]);
+    await screen.findByText(m.action_quality_choose());
+    await press(m.action_quality_choose());
+    await userEvent.click(screen.getByRole("radio", { name: "movies" }));
+    await userEvent.click(screen.getByRole("radio", { name: "maximum" }));
+    await press(m.action_quality_read());
+    await within(asked()).findByText(m.quality_choice_title());
+    expect(within(asked()).getByText(m.quality_choice_prose())).toBeVisible();
+    await press(m.action_quality_use());
+
+    const movies = { preset: "maximum", media_type: "movies" };
+    expect(sent.posted).toStrictEqual([
+      {
+        at: "/api/actions/quality-set",
+        body: JSON.stringify({ ...movies, dry_run: true }),
+      },
+      { at: "/api/actions/quality-set", body: JSON.stringify(movies) },
+    ]);
+    await waitFor(() => {
+      expect(times(sent, quality)).toBe(2);
+    });
+  });
+
+  it("offers music its formats, and a choice the stack held only anyway", async () => {
+    const sent = fresh();
+    tuning(sent, {}, [
+      { status: 200, body: enveloped("quality", heldBack) },
+      { status: 200, body: enveloped("quality", inForce) },
+    ]);
+    await screen.findByText(m.action_quality_choose());
+    await press(m.action_quality_choose());
+    await userEvent.click(screen.getByRole("radio", { name: "music" }));
+    expect(screen.queryByRole("radio", { name: "maximum" })).toBeNull();
+    await userEvent.click(screen.getByRole("radio", { name: "lossless" }));
+    await press(m.action_quality_read());
+    await within(asked()).findByText(m.quality_choice_held());
+    await press(m.action_quality_anyway());
+
+    expect(sent.posted.at(-1)).toStrictEqual({
+      at: "/api/actions/quality-set",
+      body: JSON.stringify({
+        preset: "lossless",
+        media_type: "music",
+        confirm: true,
+      }),
+    });
+  });
+
+  it("chooses for everything, and puts a choice away unused", async () => {
+    const sent = fresh();
+    tuning(sent, {}, [
+      { status: 200, body: enveloped("quality", wouldChoose) },
+    ]);
+    await screen.findByText(m.action_quality_choose());
+    await press(m.action_quality_choose());
+    expect(
+      screen.getByRole("button", { name: m.action_quality_read() }),
+    ).toHaveAttribute("aria-disabled", "true");
+    await userEvent.click(screen.getByRole("radio", { name: "balanced" }));
+    await press(m.action_quality_read());
+    await within(asked()).findByText(m.quality_choice_title());
+    await press(m.action_leave_as_is());
+
+    expect(sent.posted).toStrictEqual([
+      {
+        at: "/api/actions/quality-set",
+        body: JSON.stringify({ preset: "balanced", dry_run: true }),
+      },
+    ]);
+    expect(within(asked()).queryByText(m.quality_choice_title())).toBeNull();
   });
 
   // The fetching is still under way the first time it is asked after, and is
@@ -160,14 +255,21 @@ describe("the quality, from the settings screen", () => {
     expect(within(asked()).getByText(m.eyebrow_refused())).toBeInTheDocument();
   });
 
-  it("puts a record away when asked, and the leaving withdraws the question", async () => {
-    tuning(fresh(), {
-      "quality-upgrade": [{ status: 200, body: enveloped("upgrade", costed) }],
-    });
+  it("puts a record away when asked, and leaving puts away what was read", async () => {
+    tuning(
+      fresh(),
+      {
+        "quality-upgrade": [
+          { status: 200, body: enveloped("upgrade", costed) },
+        ],
+      },
+      [{ status: 200, body: enveloped("quality", wouldReapply) }],
+    );
     await screen.findByText(m.action_reapply());
     await press(m.action_reapply());
+    await within(asked()).findByText(m.quality_reapply_title());
     await press(m.action_leave_as_is());
-    expect(screen.queryByText(m.confirm_reapply_prose())).toBeNull();
+    expect(screen.queryByText(m.quality_reapply_title())).toBeNull();
 
     await press(m.action_upgrade_cost());
     await within(asked()).findByText(m.doing_upgrade_title());

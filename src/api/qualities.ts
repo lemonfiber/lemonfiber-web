@@ -99,3 +99,25 @@ export const fetched: Upgraded = {
     },
   ],
 };
+
+/** What putting the recorded preset back would replace, with nothing replaced. */
+export const wouldReapply: Tuned = {
+  ...reapplied,
+  rehearsed: true,
+  disposition: "would-reapply",
+};
+
+/** What choosing a preset for movies would come to, with nothing recorded. */
+export const wouldChoose: Tuned = {
+  ...inForce,
+  rehearsed: true,
+  disposition: "rehearsed",
+  changes:
+    "Movies are fetched at high quality from now on. Nothing already in the library changes.",
+};
+
+/** A choice held back, because this machine would have to transcode it in software. */
+export const heldBack: Tuned = {
+  ...wouldChoose,
+  disposition: "held",
+};
