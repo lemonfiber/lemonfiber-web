@@ -6,7 +6,7 @@
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
-  import Switch from "../../components/Switch.svelte";
+  import Unfinished from "./Unfinished.svelte";
   import Value from "../../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import { linesOf } from "../../lib/came";
@@ -17,6 +17,7 @@
   } from "../../lib/configured";
   import { standingChange, type Configurer } from "../../lib/configuring";
   import type { Freshness } from "../../lib/freshness";
+  import { interruptedBy, wholeStack } from "../../lib/inflight";
   import { readingOf, titleOfDoing } from "../../lib/work";
   import { Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
@@ -45,9 +46,6 @@
 
   /** The value typed for it. */
   let typed = $state("");
-
-  /** Whether what is still coming down is let finish before the change. */
-  let wait = $state(false);
 
   /** Put the reader where the row they were standing in was. */
   function landing(): void {
@@ -83,8 +81,8 @@
   one that does comes back as a review — the value in force against the one
   proposed, and everything the change stops, keeps, asks for or interrupts —
   with nothing written. The yes under the review is the same change, confirmed.
-  Where the review says something is still coming down, the yes carries
-  whether it is let finish first.
+  What is still downloading is named above the yes, with letting it finish
+  first beside it.
 
   A value that is withheld is not put in the box. Changing a credential is
   typing a new one, and lemonfiber proves it before the old one goes.
@@ -137,7 +135,6 @@
                       value: typed,
                     });
                     editing = undefined;
-                    wait = false;
                     landing();
                   }}
                 />
@@ -174,37 +171,46 @@
   >
     {#if configurer !== undefined}
       {#if standing !== undefined}
+        {@const told = interruptedBy(configurer.inflight(wholeStack), true)}
         <section class="review" aria-labelledby={reviewId}>
           <h3 id={reviewId}>{m.config_review_title({ key: standing.key })}</h3>
           <p class="prose"><Said text={m.config_review_prose()} /></p>
-          {#if standing.interrupts}
-            <div class="choice">
-              <p class="prose"><Said text={m.config_wait()} /></p>
-              <Switch
-                on={wait}
-                label={m.config_wait()}
+          <Unfinished {told} />
+          <div class="acts">
+            {#if told.finishing}
+              <Action
+                label={m.inflight_finish()}
+                weight="firm"
+                off={silent}
                 onclick={() => {
-                  wait = !wait;
+                  configurer.onask({
+                    doing: "config-set",
+                    key: standing.key,
+                    value: standing.value,
+                    confirm: true,
+                    wait: true,
+                  });
+                  landing();
                 }}
               />
-            </div>
-          {/if}
-          <div class="acts">
-            <Action
-              label={m.action_config_yes({ key: standing.key })}
-              weight="firm"
-              off={silent}
-              onclick={() => {
-                configurer.onask({
-                  doing: "config-set",
-                  key: standing.key,
-                  value: standing.value,
-                  confirm: true,
-                  wait,
-                });
-                landing();
-              }}
-            />
+            {/if}
+            {#if told.ready}
+              <Action
+                label={m.action_config_yes({ key: standing.key })}
+                weight="firm"
+                off={silent}
+                onclick={() => {
+                  configurer.onask({
+                    doing: "config-set",
+                    key: standing.key,
+                    value: standing.value,
+                    confirm: true,
+                    wait: false,
+                  });
+                  landing();
+                }}
+              />
+            {/if}
             <Action
               label={m.action_leave_as_is()}
               onclick={() => {
@@ -272,13 +278,6 @@
   }
 
   .row,
-  .choice {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--sp-4);
-    align-items: center;
-  }
-
   .words {
     min-width: 0;
     overflow-wrap: anywhere;

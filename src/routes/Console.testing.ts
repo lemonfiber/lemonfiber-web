@@ -3,6 +3,7 @@
  * and its actions, streams that carry or refuse what they were given, and the
  * console opened over them.
  */
+import { nothingComing } from "../api/inflights";
 import { render, screen } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import {
@@ -30,15 +31,18 @@ export const formsSaid = (url: string): string => {
 };
 
 /** A transport that answers each reading with what that endpoint answers. */
+const readSaid = (url: string): string =>
+  url.includes("/api/forms") ? formsSaid(url) : enveloped("status", stack);
+
 export const answering: Sending = (url) =>
   Promise.resolve({
     ok: true,
     status: 200,
     text: () =>
       Promise.resolve(
-        url.includes("/api/forms")
-          ? formsSaid(url)
-          : enveloped("status", stack),
+        url.includes("/api/in-flight")
+          ? enveloped("in-flight", nothingComing)
+          : readSaid(url),
       ),
   });
 

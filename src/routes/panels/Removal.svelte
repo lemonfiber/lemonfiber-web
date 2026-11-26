@@ -4,9 +4,10 @@
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
   import Segmented from "../../components/Segmented.svelte";
-  import Switch from "../../components/Switch.svelte";
+  import Unfinished from "./Unfinished.svelte";
   import { linesOf } from "../../lib/came";
   import { bytes } from "../../lib/figures";
+  import { interruptedBy, wholeStack } from "../../lib/inflight";
   import type { Freshness } from "../../lib/freshness";
   import { everyTier, labelOfTier, type Tier } from "../../lib/removed";
   import {
@@ -35,9 +36,6 @@
   /** Which removal is to be listed. */
   let tier = $state<Tier>("stop");
 
-  /** Whether what is still coming down is let finish before anything goes. */
-  let wait = $state(false);
-
   /** Put the reader where the row they were standing in was. */
   function landing(): void {
     asked.focus();
@@ -55,8 +53,8 @@
   it would reach. The yes stands under that listing and is the same request,
   confirmed. A removal's listing names itself, and the yes carries that name,
   so lemonfiber removes what was read or refuses. Taking the media says what
-  everything going comes to over its yes. Where something is still coming
-  down, the yes carries whether it is let finish first.
+  everything going comes to over its yes. What is still downloading is
+  named above the yes, with letting it finish first beside it.
 -->
 <Panel title={m.panel_removal()} {freshness} flush>
   <div class="scope">
@@ -88,7 +86,6 @@
       off={remover.busy}
       onclick={() => {
         remover.onask({ doing: "uninstall", tier });
-        wait = false;
         landing();
       }}
     />
@@ -128,6 +125,7 @@
     {/if}
 
     {#if survey !== undefined}
+      {@const told = interruptedBy(remover.inflight(wholeStack), true)}
       <section class="plan" aria-labelledby={`${forgetId}-remove`}>
         <h3 id={`${forgetId}-remove`}>
           {m.remove_plan_title({ tier: labelOfTier(survey.tier) })}
@@ -138,33 +136,40 @@
             {m.remove_media_prose({ size: bytes(survey.bytes) })}
           </p>
         {/if}
-        {#if survey.coming.length > 0}
-          <div class="choice">
-            <p class="prose"><Said text={m.remove_wait()} /></p>
-            <Switch
-              on={wait}
-              label={m.remove_wait()}
+        <Unfinished {told} />
+        <div class="acts">
+          {#if told.finishing}
+            <Action
+              label={m.inflight_finish()}
+              weight="firm"
+              off={remover.busy}
               onclick={() => {
-                wait = !wait;
+                remover.onask({
+                  doing: "uninstall",
+                  tier: survey.tier,
+                  offer: survey.offer,
+                  wait: true,
+                });
+                landing();
               }}
             />
-          </div>
-        {/if}
-        <div class="acts">
-          <Action
-            label={m.action_remove_yes()}
-            weight="firm"
-            off={remover.busy}
-            onclick={() => {
-              remover.onask({
-                doing: "uninstall",
-                tier: survey.tier,
-                offer: survey.offer,
-                wait,
-              });
-              landing();
-            }}
-          />
+          {/if}
+          {#if told.ready}
+            <Action
+              label={m.action_remove_yes()}
+              weight="firm"
+              off={remover.busy}
+              onclick={() => {
+                remover.onask({
+                  doing: "uninstall",
+                  tier: survey.tier,
+                  offer: survey.offer,
+                  wait: false,
+                });
+                landing();
+              }}
+            />
+          {/if}
           <Action
             label={m.action_leave_as_is()}
             onclick={() => {
@@ -246,13 +251,6 @@
     margin: 0;
     font-size: var(--text-item);
     font-weight: 600;
-  }
-
-  .choice {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--sp-4);
-    align-items: center;
   }
 
   .acts {

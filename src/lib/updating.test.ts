@@ -51,7 +51,6 @@ describe("the plan standing on the screen", () => {
     ).toStrictEqual({
       id: "7",
       steps: plan.changes,
-      inFlight: plan.in_flight,
       offer: plan.offer,
     });
   });

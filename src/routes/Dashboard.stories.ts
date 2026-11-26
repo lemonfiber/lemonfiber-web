@@ -1,3 +1,4 @@
+import { coming } from "../api/inflights";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Dashboard from "./Dashboard.svelte";
 import {
@@ -276,6 +277,20 @@ export const ServicesHeldBack: Story = {
 /** A restart read first: every program it would restart, beside the yes. */
 export const RestartReadFirst: Story = {
   args: { controls: { ...controls, work: [restartOffered] } },
+};
+
+/** A stop over two downloads still coming down: each named, with letting them finish beside the yes. */
+export const StopOverDownloads: Story = {
+  args: {
+    controls: { ...controls, confirming: "down", inflight: () => coming },
+  },
+};
+
+/** A restart read first over downloads it would interrupt, with no finishing offered. */
+export const RestartOverDownloads: Story = {
+  args: {
+    controls: { ...controls, work: [restartOffered], inflight: () => coming },
+  },
 };
 
 /**

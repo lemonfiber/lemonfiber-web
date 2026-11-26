@@ -27,7 +27,9 @@
 import { titleOfMove } from "./moved";
 import { titleOfPlug } from "./plugged";
 import { titleOfTending } from "./invited";
-import { rehearsingRestart, type Offered } from "./restarting";
+import { titleOfTuning } from "./tuned";
+import type { InFlightOf } from "./inflight";
+import { rehearsingStop, type Offered } from "./restarting";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import type { Acted, Arguments } from "../api/acting";
 import type { Redeemed } from "../api/redeeming";
@@ -104,10 +106,17 @@ export const namesItsForms: readonly Doing[] = [
  *
  * The carrier is the one the request is made with rather than a second shape of
  * the same fields: what an action takes is one fact, and stating it twice is
- * where the two come to disagree. A restart is rehearsed first (`./restarting`).
+ * where the two come to disagree. A restart and a switch are rehearsed first
+ * (`./restarting`). A stop carries whether the downloads still coming down are
+ * let finish first.
  */
-export function givenFor(doing: Doing, chosen: readonly string[]): Arguments {
-  if (doing === "restart") return rehearsingRestart(chosen);
+export function givenFor(
+  doing: Doing,
+  chosen: readonly string[],
+  wait: boolean,
+): Arguments {
+  if (doing === "restart" || doing === "switch") return rehearsingStop(chosen);
+  if (doing === "down") return { forms: chosen, wait };
   return takesForms.includes(doing) ? { forms: chosen } : {};
 }
 
@@ -237,7 +246,7 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
     case "quality-set":
     case "quality-reapply":
     case "quality-upgrade":
-      return titleOfQuality(doing);
+      return titleOfTuning(doing);
     case "config-set":
       return m.doing_config_title();
     case "invite":
@@ -290,20 +299,6 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
       return m.doing_values_set_title();
     case "settings-clear":
       return m.doing_values_clear_title();
-  }
-}
-
-/** What a record of a change to the quality is headed by. */
-function titleOfQuality(
-  doing: "quality-set" | "quality-reapply" | "quality-upgrade",
-): string {
-  switch (doing) {
-    case "quality-set":
-      return m.doing_quality_set_title();
-    case "quality-reapply":
-      return m.doing_reapply_title();
-    case "quality-upgrade":
-      return m.doing_upgrade_title();
   }
 }
 
@@ -535,12 +530,16 @@ export interface Controls {
   readonly onchoose: (form: string) => void;
   /** What pressing a control asks for. */
   readonly onpress: (doing: Doing) => void;
+  /** What letting the downloads finish before the stop asks for. */
+  readonly onfinish: () => void;
+  /** What the stack said an act would interrupt, once it has answered. */
+  readonly inflight: InFlightOf;
   /** What answering no to a costly action asks for. */
   readonly onleave: () => void;
   /** What putting a record away asks for. */
   readonly ondrop: (id: string) => void;
   /** What putting the wait's newest line away asks for. */
   readonly onhush: () => void;
-  /** What the yes to a rehearsed restart asks for. */
+  /** What the yes to a rehearsed restart or switch asks for. */
   readonly onrestart: (offered: Offered) => void;
 }

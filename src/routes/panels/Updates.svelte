@@ -3,8 +3,9 @@
   import Action from "../../components/Action.svelte";
   import Item from "../../components/Item.svelte";
   import Panel from "../../components/Panel.svelte";
-  import Switch from "../../components/Switch.svelte";
+  import Unfinished from "./Unfinished.svelte";
   import { linesOf } from "../../lib/came";
+  import { interruptedBy, wholeStack } from "../../lib/inflight";
   import type { Freshness } from "../../lib/freshness";
   import { stepLine } from "../../lib/updated";
   import { standingPlan, type Updater } from "../../lib/updating";
@@ -25,9 +26,6 @@
   /** The region a row sits in, bound as soon as the panel draws one. */
   let asked!: HTMLDivElement;
 
-  /** Whether what is still coming down is let finish before anything moves. */
-  let wait = $state(false);
-
   /** Put the reader where the row they were standing in was. */
   function landing(): void {
     asked.focus();
@@ -44,8 +42,8 @@
   answers with every step, how large each is, whether anything walks it back
   and what it means. The yes under that is the same request, confirmed, and
   carries back the offer the steps were read under, so lemonfiber takes those
-  steps or refuses where they have moved since. Where the download clients are
-  still working on something, the yes carries whether it is let finish first.
+  steps or refuses where they have moved since. What is still downloading is
+  named above the yes, with letting it finish first beside it.
 -->
 <Panel title={m.panel_updates()} {freshness} flush>
   <div class="scope">
@@ -58,7 +56,6 @@
       off={updater.busy}
       onclick={() => {
         updater.onask({ doing: "update" });
-        wait = false;
         landing();
       }}
     />
@@ -73,6 +70,7 @@
     bind:this={asked}
   >
     {#if plan !== undefined}
+      {@const told = interruptedBy(updater.inflight(wholeStack), true)}
       <section class="plan" aria-labelledby={planId}>
         <h3 id={planId}>{m.update_plan_title()}</h3>
         <p class="prose"><Said text={m.update_plan_prose()} /></p>
@@ -81,33 +79,40 @@
             <li><Said text={stepLine(step)} /></li>
           {/each}
         </ul>
-        {#if plan.inFlight.length > 0}
-          <div class="choice">
-            <p class="prose"><Said text={m.update_wait()} /></p>
-            <Switch
-              on={wait}
-              label={m.update_wait()}
+        <Unfinished {told} />
+        <div class="acts">
+          {#if told.finishing}
+            <Action
+              label={m.inflight_finish()}
+              weight="firm"
+              off={updater.busy}
               onclick={() => {
-                wait = !wait;
+                updater.onask({
+                  doing: "update",
+                  confirm: true,
+                  wait: true,
+                  offer: plan.offer,
+                });
+                landing();
               }}
             />
-          </div>
-        {/if}
-        <div class="acts">
-          <Action
-            label={m.action_update_yes()}
-            weight="firm"
-            off={updater.busy}
-            onclick={() => {
-              updater.onask({
-                doing: "update",
-                confirm: true,
-                wait,
-                offer: plan.offer,
-              });
-              landing();
-            }}
-          />
+          {/if}
+          {#if told.ready}
+            <Action
+              label={m.action_update_yes()}
+              weight="firm"
+              off={updater.busy}
+              onclick={() => {
+                updater.onask({
+                  doing: "update",
+                  confirm: true,
+                  wait: false,
+                  offer: plan.offer,
+                });
+                landing();
+              }}
+            />
+          {/if}
           <Action
             label={m.action_leave_as_is()}
             onclick={() => {
@@ -200,13 +205,6 @@
 
   li {
     font-size: var(--text-prose);
-  }
-
-  .choice {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--sp-4);
-    align-items: center;
   }
 
   .acts {

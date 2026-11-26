@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { agreedRestart, offeredRestart, rehearsingRestart } from "./restarting";
+import {
+  agreedStop,
+  offeredStop,
+  rehearsalTitle,
+  rehearsingStop,
+  stopQuestion,
+} from "./restarting";
+import * as m from "../paraglide/messages.js";
 import type { Work } from "./work";
 import type { Lifecycle } from "./came";
 
@@ -33,6 +40,25 @@ const restartOffered: Work = {
   came: { kind: "lifecycle", report },
 };
 
+const switchOffered: Work = {
+  ...restartOffered,
+  id: "8",
+  doing: "switch",
+  came: {
+    kind: "lifecycle",
+    report: {
+      ...report,
+      action: "switch",
+      offer: null,
+      switched: {
+        kept: ["gluetun"],
+        started: ["sonarr"],
+        stopped: ["qbittorrent"],
+      },
+    },
+  },
+};
+
 const finished: Work = {
   ...restartOffered,
   id: "2",
@@ -42,7 +68,7 @@ const finished: Work = {
 
 describe("pressing restart", () => {
   it("rehearses the forms chosen rather than restarting them", () => {
-    expect(rehearsingRestart(["usenet"])).toStrictEqual({
+    expect(rehearsingStop(["usenet"])).toStrictEqual({
       forms: ["usenet"],
       dry_run: true,
     });
@@ -51,11 +77,12 @@ describe("pressing restart", () => {
 
 describe("a restart standing for a yes", () => {
   it("is a rehearsal that came back with what it would restart, under an offer", () => {
-    expect(offeredRestart(restartOffered)).toStrictEqual({
+    expect(offeredStop(restartOffered)).toStrictEqual({
+      doing: "restart",
       id: "7",
       scoped: true,
       forms: [chosenForm],
-      services: ["gluetun", "sonarr"],
+      stops: ["gluetun", "sonarr"],
       offer: "restart:gluetun,sonarr",
     });
   });
@@ -85,14 +112,66 @@ describe("a restart standing for a yes", () => {
       },
     ],
   ])("is not %s", (_what, work) => {
-    expect(offeredRestart(work)).toBeUndefined();
+    expect(offeredStop(work)).toBeUndefined();
   });
 
   it("is answered with the forms it was read against, and the offer read", () => {
-    const offered = offeredRestart(restartOffered);
-    expect(offered && agreedRestart(offered)).toStrictEqual({
+    const offered = offeredStop(restartOffered);
+    expect(offered && agreedStop(offered)).toStrictEqual({
       forms: [chosenForm],
       offer: "restart:gluetun,sonarr",
     });
+  });
+});
+
+describe("a switch standing for a yes", () => {
+  it("is a rehearsal that came back with what it would stop", () => {
+    expect(offeredStop(switchOffered)).toStrictEqual({
+      doing: "switch",
+      id: "8",
+      scoped: true,
+      forms: [chosenForm],
+      stops: ["qbittorrent"],
+      offer: undefined,
+    });
+  });
+
+  it("is not a switch rehearsal that said nothing of what it moves", () => {
+    expect(
+      offeredStop({ ...restartOffered, id: "9", doing: "switch" }),
+    ).toBeUndefined();
+  });
+
+  it("is answered with the forms it was read against, and no offer where none was made", () => {
+    const offered = offeredStop(switchOffered);
+    expect(offered && agreedStop(offered)).toStrictEqual({
+      forms: [chosenForm],
+    });
+  });
+});
+
+describe("what a restart or a switch asks", () => {
+  it("names what a switch stops, and offers its yes even where nothing stops", () => {
+    const offered = offeredStop(switchOffered);
+    const asked = offered && stopQuestion(offered);
+    expect(asked?.prose).toBe(m.confirm_switch_prose());
+    expect(asked?.yes).toBe(m.action_switch_these());
+    expect(offered && stopQuestion({ ...offered, stops: [] }).prose).toBe(
+      m.confirm_switch_nothing(),
+    );
+  });
+
+  it("offers a restart's yes only where something would restart", () => {
+    const offered = offeredStop(restartOffered);
+    expect(offered && stopQuestion(offered).yes).toBe(m.action_restart_these());
+    expect(offered && stopQuestion({ ...offered, stops: [] })).toMatchObject({
+      prose: m.confirm_restart_nothing(),
+      yes: undefined,
+    });
+  });
+
+  it("names the reading after what is being read", () => {
+    expect(rehearsalTitle("switch")).toBe(m.doing_switch_reading());
+    expect(rehearsalTitle("restart")).toBe(m.doing_restart_reading());
   });
 });

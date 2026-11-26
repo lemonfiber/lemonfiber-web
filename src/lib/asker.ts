@@ -8,6 +8,7 @@
  * requests they make, what each sends, and which of them is asked about first.
  */
 import type { Arguments } from "../api/acting";
+import type { InFlightOf, Stopping } from "./inflight";
 import type { Question, Requested, Work } from "./work";
 
 /** One asking a panel makes, named by the request it is for. */
@@ -27,6 +28,8 @@ export interface Family<A extends Asking> {
   readonly question: (asking: A) => Question | undefined;
   /** What to send for an asking. */
   readonly given: (asking: A) => Arguments;
+  /** What an asking would stop, where it puts a stop to the operator. */
+  readonly stops?: (asking: A) => Stopping | undefined;
   /**
    * Whether two askings are the same request, which is what a yes has to be
    * about to be a yes to it.
@@ -59,4 +62,10 @@ export interface Asker<A extends Asking> {
   readonly onleave: () => void;
   /** What putting a record away asks for. */
   readonly ondrop: (id: string) => void;
+}
+
+/** What a panel whose acts stop something is handed to say what they interrupt. */
+export interface Stopper {
+  /** What the stack said an act would interrupt, once it has answered. */
+  readonly inflight: InFlightOf;
 }

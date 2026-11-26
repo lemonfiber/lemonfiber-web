@@ -72,6 +72,19 @@ module.exports = {
       },
     },
     {
+      name: "what-a-stop-interrupts-stays-with-the-operator",
+      severity: "error",
+      comment:
+        "What a stop, an update, an uninstall, a configuration change, a " +
+        "restart or a switch would interrupt is the operator's alone. Nothing " +
+        "a household member is shown may reach what reads or draws it.",
+      from: { path: "^src/routes/Member\\.svelte$" },
+      to: {
+        reachable: true,
+        path: "^src/(routes/(panels/Unfinished\\.svelte|interrupting\\.svelte\\.ts)|lib/inflight\\.ts)$",
+      },
+    },
+    {
       name: "no-orphans",
       severity: "error",
       comment: "A module nothing imports is either dead or wired up wrong.",

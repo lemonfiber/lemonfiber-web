@@ -5,6 +5,7 @@
  * this. The reports inside each record are the ones a suite stands in for a
  * running lemonfiber, in `../api/configs`.
  */
+import { quietStack } from "../api/inflights";
 import { madeAtOnce, staged } from "../api/configs";
 import type { Configurer } from "../lib/configuring";
 import type { Work } from "../lib/work";
@@ -41,6 +42,7 @@ export const configurer: Configurer = {
   work: [],
   asked: undefined,
   busy: false,
+  inflight: quietStack,
   onask: nothing,
   onleave: nothing,
   ondrop: nothing,

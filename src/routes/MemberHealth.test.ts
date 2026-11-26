@@ -5,14 +5,21 @@ import Member from "./Member.svelte";
 import { saying } from "./Console.testing";
 import { enveloped, replying } from "../api/bodies";
 import { booted, healing, notified, watched } from "../api/health";
+import { twoComing } from "../api/inflights";
 import { kitsId, kitsNothingPartWay, kitsShelf, yours } from "./mine";
 import { here, key } from "./served";
 import * as m from "../paraglide/messages.js";
 
-/** The reads the machine's health is drawn from. */
-const HEALTH = ["/api/boot", "/api/watcher", "/api/queue", "/api/notify"];
+/** The reads the machine's health and what a stop would interrupt are drawn from. */
+const OPERATOR_ONLY = [
+  "/api/boot",
+  "/api/watcher",
+  "/api/queue",
+  "/api/notify",
+  "/api/in-flight",
+];
 
-/** A stack answering a member's own reads, and the machine's health too. */
+/** A stack answering a member's own reads, and the operator's too. */
 function answering(): Sending {
   const bodies: Record<string, string> = {
     "/api/requests": enveloped("household", yours),
@@ -22,6 +29,7 @@ function answering(): Sending {
     "/api/watcher": enveloped("watcher", watched),
     "/api/queue": enveloped("queue", healing),
     "/api/notify": enveloped("notify", notified),
+    "/api/in-flight": enveloped("in-flight", twoComing),
   };
   return vi.fn((url: string) => {
     const body = bodies[new URL(url).pathname];
@@ -33,7 +41,7 @@ function answering(): Sending {
   });
 }
 
-describe("the machine's health, where a member is shown", () => {
+describe("the machine's health and what a stop would interrupt, where a member is shown", () => {
   it.each([
     ["/", "Andor"],
     ["/held", "Arrival"],
@@ -56,9 +64,14 @@ describe("the machine's health, where a member is shown", () => {
       expect(screen.queryByRole("region", { name })).toBeNull();
     }
     expect(
+      screen.queryByRole("heading", { name: m.inflight_heading() }),
+    ).toBeNull();
+    expect(
       vi
         .mocked(sending)
-        .mock.calls.some(([url]) => HEALTH.includes(new URL(url).pathname)),
+        .mock.calls.some(([url]) =>
+          OPERATOR_ONLY.includes(new URL(url).pathname),
+        ),
     ).toBe(false);
   });
 });

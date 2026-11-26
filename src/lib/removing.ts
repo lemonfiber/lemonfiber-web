@@ -12,7 +12,8 @@
  * whether it is let finish first.
  */
 import type { Arguments } from "../api/acting";
-import { sameDoing, type Asker, type Family } from "./asker";
+import { sameDoing, type Asker, type Family, type Stopper } from "./asker";
+import { wholeStack } from "./inflight";
 import type { Came } from "./came";
 import { everyTier, type Tier } from "./removed";
 import type { Removing, Requested, Work } from "./work";
@@ -67,6 +68,10 @@ export const removing: Family<Remove> = {
   question: () => undefined,
   given: givenForRemove,
   same: sameDoing,
+  stops: (remove) =>
+    remove.doing === "uninstall" && !("offer" in remove)
+      ? wholeStack
+      : undefined,
 };
 
 /**
@@ -103,8 +108,6 @@ export interface Surveyed extends Listed {
   readonly tier: Tier;
   /** The name the listing gave itself, which the yes carries. */
   readonly offer: string;
-  /** What is still coming down, which the removal would interrupt. */
-  readonly coming: readonly string[];
   /** What everything going takes up, in bytes. */
   readonly bytes: number;
 }
@@ -124,7 +127,6 @@ export function standingRemoval(work: readonly Work[]): Surveyed | undefined {
     id: newest.id,
     tier: manifest.tier,
     offer: manifest.agreement,
-    coming: manifest.coming.map((one) => one.name),
     bytes: manifest.bytes,
   };
 }
@@ -133,4 +135,4 @@ export function standingRemoval(work: readonly Work[]): Surveyed | undefined {
  * Everything the removal panel is given to act with, and what pressing its
  * controls asks for.
  */
-export type Remover = Asker<Remove>;
+export type Remover = Asker<Remove> & Stopper;

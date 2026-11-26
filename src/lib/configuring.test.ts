@@ -62,31 +62,8 @@ describe("what the settings panel asks for", () => {
 describe("the change staged on the screen", () => {
   const read = answered("2", moving, { kind: "config", report: staged });
 
-  it("is the newest staged change, and says whether it interrupts anything", () => {
-    expect(standingChange([read])).toStrictEqual({
-      id: "2",
-      ...moving,
-      interrupts: true,
-    });
-  });
-
-  it("interrupts nothing where nothing is coming down", () => {
-    const quiet = answered("3", moving, {
-      kind: "config",
-      report: {
-        ...staged,
-        review: {
-          change: {
-            cost: "consequential",
-            from: "/srv/media",
-            key: "data_location",
-            to: "/mnt/media",
-          },
-          stance: "pending",
-        },
-      },
-    });
-    expect(standingChange([quiet])?.interrupts).toBe(false);
+  it("is the newest staged change", () => {
+    expect(standingChange([read])).toStrictEqual({ id: "2", ...moving });
   });
 
   it("is gone once the change was made", () => {

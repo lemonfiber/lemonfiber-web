@@ -9,6 +9,10 @@ const actions = createRawSnippet(() => ({
   render: () => `<button type="button">Fix it for me</button>`,
 }));
 
+const more = createRawSnippet(() => ({
+  render: () => `<p>Two downloads are still coming down.</p>`,
+}));
+
 const stuck = {
   state: "stopped",
   eyebrow: "Needs you",
@@ -46,6 +50,13 @@ describe("Item", () => {
     render(Item, { ...stuck, actions });
     expect(
       screen.getByRole("button", { name: "Fix it for me" }),
+    ).toBeInTheDocument();
+  });
+
+  it("says what else it was given under its lines", () => {
+    render(Item, { ...stuck, more });
+    expect(
+      screen.getByText("Two downloads are still coming down."),
     ).toBeInTheDocument();
   });
 

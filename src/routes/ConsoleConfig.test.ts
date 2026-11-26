@@ -110,8 +110,11 @@ describe("changing a setting from the settings screen", () => {
     await within(asked()).findByText(
       m.config_review_title({ key: "data_location" }),
     );
-    await press(m.config_wait());
-    await press(m.action_config_yes({ key: "data_location" }));
+    await userEvent.click(
+      await within(asked()).findByRole("button", {
+        name: m.action_config_yes({ key: "data_location" }),
+      }),
+    );
 
     expect(bodies(sent)).toStrictEqual([
       JSON.stringify({ key: "data_location", value: "/mnt/media" }),
@@ -119,7 +122,7 @@ describe("changing a setting from the settings screen", () => {
         key: "data_location",
         value: "/mnt/media",
         confirm: true,
-        wait: true,
+        wait: false,
       }),
     ]);
     expect(

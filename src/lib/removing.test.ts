@@ -15,7 +15,6 @@ import {
   partlyRemoved,
   rehearsedRemoval,
   removed,
-  settledSurvey,
   stored,
   surveyed,
 } from "../api/removals";
@@ -98,7 +97,7 @@ describe("the listing standing for a yes", () => {
     expect(standingForget([])).toBeUndefined();
   });
 
-  it("is the newest removal listed, with its name and what is coming down", () => {
+  it("is the newest removal listed, with its name", () => {
     expect(
       standingRemoval([
         answered("4", "uninstall", { kind: "uninstall", report: surveyed }),
@@ -107,17 +106,8 @@ describe("the listing standing for a yes", () => {
       id: "4",
       tier: "services",
       offer: "services-4f1a",
-      coming: ["Big Buck Bunny"],
       bytes: 2_147_483_648,
     });
-    expect(
-      standingRemoval([
-        answered("5", "uninstall", {
-          kind: "uninstall",
-          report: settledSurvey,
-        }),
-      ])?.coming,
-    ).toStrictEqual([]);
   });
 
   it("is gone once the removal was carried out or rehearsed", () => {

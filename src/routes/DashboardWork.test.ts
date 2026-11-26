@@ -15,6 +15,7 @@ import {
   wentWrong,
   wouldNot,
 } from "./fixture";
+import { coming, expanse } from "../api/inflights";
 import { everyDoing, questionOf, titleOfDoing, wordOfDoing } from "../lib/work";
 import * as m from "../paraglide/messages.js";
 import { board } from "./Dashboard.testing";
@@ -121,6 +122,33 @@ describe("before something costly is carried out", () => {
     expect(
       asked.compareDocumentPosition(answer) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+  });
+
+  it("names each download a stop would interrupt, and letting them finish is not the stop", async () => {
+    const onpress = vi.fn();
+    board({
+      controls: {
+        ...controls,
+        confirming: "down",
+        inflight: () => coming,
+        onpress,
+      },
+    });
+
+    expect(
+      screen.getByText(
+        m.inflight_line({
+          name: expanse.name,
+          progress: expanse.progress,
+          client: m.inflight_usenet(),
+        }),
+      ),
+    ).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: m.inflight_finish() }),
+    );
+
+    expect(onpress).not.toHaveBeenCalled();
   });
 
   it("asks nothing at all before an action that costs nothing", () => {

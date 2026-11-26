@@ -10,9 +10,12 @@
  * answer no, and spent by the answer yes.
  */
 import type { Arguments } from "../api/acting";
-import type { Asker, Asking, Family } from "../lib/asker";
+import type { Asker, Asking, Family, Stopper } from "../lib/asker";
+import { stoppingServices } from "../lib/inflight";
+import { offeredStop } from "../lib/restarting";
 import type { Work } from "../lib/work";
 import { errands, type Holding, type Sender } from "./errands";
+import { Interrupting } from "./interrupting.svelte";
 
 /** What the desk is handed: where to ask, and what a finished record changes. */
 export type Handed = Pick<
@@ -31,9 +34,20 @@ export class Desk {
   /** Send one request, keep a record of it, and follow what it was named. */
   readonly send: Sender;
 
+  /** What each act standing for a yes would interrupt. */
+  readonly interrupting: Interrupting;
+
   constructor(handed: Handed) {
+    this.interrupting = new Interrupting(handed);
     this.send = errands({
       ...handed,
+      settled: (record) => {
+        handed.settled(record);
+        const stops = offeredStop(record)?.stops ?? [];
+        if (stops.length > 0) {
+          void this.interrupting.read(stoppingServices(stops));
+        }
+      },
       records: () => this.work,
       keep: (records) => {
         this.work = records;
@@ -88,6 +102,8 @@ export class Asked<A extends Asking> {
    */
   async ask(asking: A): Promise<void> {
     const family = this.#family;
+    const stopping = family.stops?.(asking);
+    if (stopping !== undefined) void this.#desk.interrupting.read(stopping);
     if (
       family.question(asking) !== undefined &&
       !family.same(this.asked, asking)
@@ -100,12 +116,13 @@ export class Asked<A extends Asking> {
   }
 
   /** Everything the family's panel is given to act with. */
-  get asker(): Asker<A> {
+  get asker(): Asker<A> & Stopper {
     const desk = this.#desk;
     return {
       work: desk.of(this.#family.owns),
       asked: this.asked,
       busy: desk.busy,
+      inflight: desk.interrupting.of,
       onask: (asking: A) => {
         void this.ask(asking);
       },
