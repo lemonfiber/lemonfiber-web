@@ -43,16 +43,17 @@ draws walks, on something read or walked that is still listed as waiting, on a
 kind said to be served by no endpoint that a read lemonfiber serves answers
 with, and on this page stating a figure or a row those lists do not come to.
 
-The kinds are read off the client, and so are the reads lemonfiber serves:
-the client lists every read the contract does, with the kinds each answers
-with. The requests are not in the client, which
-asks for an action by whatever name it is handed, so the suite lists them as
-lemonfiber's action table names them, with the setup walk, serving this
-surface, replacing the certificate a paired phone pins, and minting, listing
-and revoking keys, minting one as a claim and collecting it, and registering,
+The kinds are read off the client, and so are the reads lemonfiber serves and
+the actions it takes: the client lists every read the contract does, with the
+kinds each answers with, and every action, with the arguments it takes, the
+consent it asks for and whether it can be rehearsed. A new action is
+unclassified until this page says where it is offered. The requests that are
+not actions are listed beside them: the setup walk, serving this surface,
+replacing the certificate a paired phone pins, and minting, listing and
+revoking keys, minting one as a claim and collecting it, and registering,
 challenging, listing and revoking device keys, and registering, listing and
-removing push endpoints beside them. A request lemonfiber adds is caught there only
-where it answers with a kind the contract did not have before.
+removing push endpoints. What this page says an action takes, that it takes
+no rehearsal or a bare yes, is held to what the contract says of it.
 
 ## Kinds read here
 
@@ -254,7 +255,7 @@ Six of these are offered in part. `backup` takes the whole stack; lemonfiber
 also takes a backup of one service, and this console has no control for that
 yet. `support` writes the bundle where lemonfiber keeps its own files, and the
 newest one written is handed to the browser to be saved; showing a setting as
-it is (`reveal`) has no control yet.
+it is (`reveal`) is offered in the terminal alone, never in the browser.
 `invite` names no libraries, because no reading this console takes lists them;
 an account it makes opens every library, and one offered again keeps the
 libraries it had. `update` moves the whole stack; lemonfiber also moves one

@@ -9,11 +9,10 @@
  * which it is.
  *
  * The kinds are read off the client: `@lemonfiber/sdk-ts` exports every kind the
- * contract names as `KINDS`. The requests are not in the client — it
- * asks for an action by whatever name it is handed — so they are listed here as
- * the core's action table names them, with the setup walk and the one request
- * that serves this surface beside them. A new action the core adds is caught here
- * only where it answers with a kind the contract did not have before.
+ * contract names as `KINDS`, and the actions too, as `ACTIONS`, so a new action
+ * the core adds is unclassified until it is placed. The requests that are not
+ * actions — the setup walk, serving this surface and the routes of their own —
+ * are listed beside them.
  *
  * Each list is held to being true, in both directions. A kind claimed offered is
  * one something the page imports reads; a request claimed offered is on a list a
@@ -28,7 +27,15 @@
  * one still waiting, and is held to both.
  */
 /// <reference types="vite/client" />
-import { KINDS, READS, type Kind } from "@lemonfiber/sdk-ts";
+import {
+  ACTIONS,
+  KINDS,
+  READS,
+  isActionName,
+  type ActionDescribed,
+  type ActionName,
+  type Kind,
+} from "@lemonfiber/sdk-ts";
 import { everyConfiguring } from "./lib/configuring";
 import { everyFinding } from "./lib/finding";
 import { everyHosting } from "./lib/hosting";
@@ -114,79 +121,15 @@ type Feature =
   | "ARCH-R448";
 
 /**
- * Every request another surface can make of the stack.
- *
- * The core's actions in the order its table lists them, then the setup walk its
- * own endpoints serve, then serving this surface, which the command line does,
- * then replacing the certificate a paired phone pins, which only the command
- * line offers, then minting, listing and revoking keys, minting one as a claim
- * and collecting it, then registering, challenging, listing and revoking device
- * keys, then registering, listing and removing push endpoints, which the core
- * serves at routes of their own.
+ * Every request another surface can make of the stack that is not an action:
+ * the setup walk its own endpoints serve, serving this surface, which the
+ * command line does, replacing the certificate a paired phone pins, which only
+ * the command line offers, then minting, listing and revoking keys, minting one
+ * as a claim and collecting it, then registering, challenging, listing and
+ * revoking device keys, then registering, listing and removing push endpoints,
+ * which the core serves at routes of their own.
  */
-const EVERY_REQUEST = [
-  "up",
-  "down",
-  "switch",
-  "restart",
-  "pull",
-  "config-set",
-  "quality-set",
-  "quality-reapply",
-  "quality-upgrade",
-  "seed",
-  "adopt",
-  "migrate-adopt",
-  "migrate-beside",
-  "migrate-replace",
-  "migrate-import",
-  "reset",
-  "forget",
-  "uninstall",
-  "space",
-  "stop-seeding",
-  "bandwidth",
-  "downloads-pause",
-  "downloads-resume",
-  "update",
-  "backup",
-  "invite",
-  "remove",
-  "reissue",
-  "companion-pair",
-  "household-allow",
-  "household-approve",
-  "household-decline",
-  "household-handoff",
-  "grant",
-  "watched",
-  "tune",
-  "play",
-  "ask",
-  "notify-choose",
-  "push-woken",
-  "support",
-  "restore",
-  "watch",
-  "hosting-install",
-  "hosting-remove",
-  "walkthrough",
-  "diagnose",
-  "repair",
-  "undo",
-  "accept",
-  "search",
-  "wiring-fill",
-  "plugin-install",
-  "plugin-update",
-  "plugin-remove",
-  "plugin-prove",
-  "plugin-run",
-  "run",
-  "credentials-revoke",
-  "internal-certificate-replace",
-  "settings-set",
-  "settings-clear",
+const NOT_ACTIONS = [
   "setup",
   "ui",
   "companion-certificate",
@@ -205,7 +148,16 @@ const EVERY_REQUEST = [
 ] as const;
 
 /** One request another surface can make. */
-type Request = (typeof EVERY_REQUEST)[number];
+type Request = ActionName | (typeof NOT_ACTIONS)[number];
+
+/**
+ * Every request another surface can make of the stack: every action the
+ * contract lists, as the client exports them, then the rest.
+ */
+const EVERY_REQUEST: readonly Request[] = [
+  ...Object.keys(ACTIONS).filter((name) => isActionName(name)),
+  ...NOT_ACTIONS,
+];
 
 /**
  * The lists of requests a screen walks, and the screen that walks each.
@@ -694,6 +646,24 @@ function everyKindRead(): readonly string[] {
   return [...found];
 }
 
+/**
+ * What the page may say of an action, each held to what the contract says of
+ * it: a phrase, and what must be true of every action named beside it.
+ */
+const SAID_OF_ACTIONS: readonly {
+  readonly phrase: string;
+  readonly holds: (action: ActionDescribed) => boolean;
+}[] = [
+  { phrase: "takes no rehearsal", holds: (action) => !action.rehearsal },
+  {
+    phrase: "takes a bare yes",
+    holds: (action) => action.consent.length === 0,
+  },
+];
+
+/** What a row of the page says lemonfiber takes from no surface but the command line. */
+const COMMAND_LINE_ONLY = "lemonfiber takes it at the command line only";
+
 /** Every kind a read the contract lists answers with. */
 function everyKindServed(): readonly string[] {
   return Object.values(READS).flatMap((read) => read.kinds);
@@ -718,6 +688,29 @@ function among(
   those: readonly string[],
 ): readonly string[] {
   return these.filter((one) => those.includes(one));
+}
+
+/**
+ * The page as the units a claim is made in: each table row, and each sentence
+ * of the prose between them.
+ */
+function claims(): readonly string[] {
+  const units: string[] = [];
+  for (const block of written.split(/\n\s*\n/)) {
+    if (block.trimStart().startsWith("|")) {
+      units.push(...block.split("\n").map(flattened));
+    } else {
+      units.push(...flattened(block).split(/(?<=\.)\s+/));
+    }
+  }
+  return units;
+}
+
+/** Every action named in a unit of the page, as the page writes a name. */
+function actionsNamed(unit: string): readonly ActionName[] {
+  return [...unit.matchAll(/`([a-z-]+)`/g)]
+    .map((one) => one[1] ?? "")
+    .filter((name) => isActionName(name));
 }
 
 /** What appears more than once. */
@@ -870,6 +863,17 @@ describe("every request another surface can make", () => {
   });
 });
 
+describe("every action the contract lists", () => {
+  it("is read off the client rather than found to be none", () => {
+    expect(Object.keys(ACTIONS).length).toBeGreaterThan(0);
+  });
+
+  it("is a request named once, and no request that is not an action shares its name", () => {
+    expect(twice(EVERY_REQUEST)).toEqual([]);
+    expect(among(NOT_ACTIONS, Object.keys(ACTIONS))).toEqual([]);
+  });
+});
+
 describe("what is offered elsewhere", () => {
   it("is answered by no read the contract lists", () => {
     expect(among(Object.keys(ELSEWHERE_KINDS), everyKindServed())).toEqual([]);
@@ -901,6 +905,31 @@ describe("what waits on lemonfiber", () => {
 });
 
 describe("the parity page", () => {
+  it("is read as rows and sentences, so a claim is found where it is made", () => {
+    expect(claims()).toContain("Six of these are offered in part.");
+    expect(actionsNamed("`remove` and `ui` and `quality-set`")).toEqual([
+      "remove",
+      "quality-set",
+    ]);
+  });
+
+  it.each(SAID_OF_ACTIONS)(
+    "says “$phrase” only of an action the contract says it of",
+    ({ phrase, holds }) => {
+      for (const unit of claims().filter((one) => one.includes(phrase))) {
+        for (const name of actionsNamed(unit)) {
+          expect(holds(ACTIONS[name]), `${name}: ${unit}`).toBe(true);
+        }
+      }
+    },
+  );
+
+  it("says lemonfiber takes a request at the command line only of no action", () => {
+    const rows = rowsSaying(REQUESTS_WAITING, COMMAND_LINE_ONLY);
+    expect(rows.length).toBeGreaterThan(0);
+    expect(among(rows, Object.keys(ACTIONS))).toEqual([]);
+  });
+
   it("says lemonfiber serves no endpoint only of what waits on it", () => {
     expect(rowsSaying(KINDS_WAITING, UNSERVED)).toEqual(UNSERVED_KINDS);
     expect(page()).toContain(
