@@ -229,7 +229,6 @@
     <Readout
       title={m.panel_settled()}
       prose={m.settled_prose()}
-      named={m.panel_settled()}
       readout={setUp}
       {freshness}
     />

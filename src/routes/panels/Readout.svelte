@@ -16,8 +16,11 @@
     title: string;
     /** What it shows, in a sentence. */
     prose: string;
-    /** What the list of things it shows is called. */
-    named: string;
+    /**
+     * What the list of things it shows is called. Left out where the reading
+     * never lists anything, which draws no list.
+     */
+    named?: string | undefined;
     /** The reading, told, or why it could not be read. */
     readout: Reading<Readout>;
     /** When this panel's source last answered. */
