@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 118 kinds of answer, and this console reads 69 of them.
+The client carries 119 kinds of answer, and this console reads 69 of them.
 Another surface can make 77 requests of the stack, and this console offers 53 of
-them. 14 kinds and 2 requests are offered elsewhere by rule, and 35 kinds and 22
+them. 13 kinds and 2 requests are offered elsewhere by rule, and 37 kinds and 22
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
@@ -39,10 +39,13 @@ request another surface can make as offered here, offered elsewhere with the
 requirement that says so, or not offered yet with the feature it belongs to. It
 fails on a kind nobody has classified, on a kind claimed read that nothing the
 page imports reads, on a request claimed offered that no screen the console
-draws walks, on something read or walked that is still listed as waiting, and
-on this page stating a figure or a row those lists do not come to.
+draws walks, on something read or walked that is still listed as waiting, on a
+kind said to be served by no endpoint that a read lemonfiber serves answers
+with, and on this page stating a figure or a row those lists do not come to.
 
-The kinds are read off the client. The requests are not in the client, which
+The kinds are read off the client, and so are the reads lemonfiber serves:
+the client lists every read the contract does, with the kinds each answers
+with. The requests are not in the client, which
 asks for an action by whatever name it is handed, so the suite lists them as
 lemonfiber's action table names them, with the setup walk, serving this
 surface, replacing the certificate a paired phone pins, and minting, listing
@@ -139,7 +142,6 @@ where it answers with a kind the contract did not have before.
 | `plugin-recording`   | `G1-R1`    | what `lemonfiber plugin record` writes under `--json`: a plugin author's recordings of their own adapters, made with no stack, which no route serves                 |
 | `pull`               | `G1-R1`    | the lines the command line writes while it fetches, under `--json`; G1 lists `--json` as unsuited to the web, and fetching is offered through the `pull` request     |
 | `renewed`            | `N1-R80`   | the web surface renewing the grant to play of a member whose client spoke to it, which the core answers the surface alone; no route serves it                        |
-| `served`             | `G1-R1`    | how `lemonfiber ui` serves this surface, the certificate it presents and the name it answers to; G1 lists serving the web interface as unsuited to it                |
 | `setup`              | `G1-R1`    | what the command line's own setup writes under `--json`; the setup a browser walks answers with `wizard`                                                             |
 | `standing`           | `ARCH-R42` | what the web API composes its routes and its answers from, which it reads from the core through dispatch; no route serves it                                         |
 | `untuned`            | `N1-R80`   | the web surface closing the live streams whose passes lapsed unrenewed, which the core answers the surface alone; no route serves it                                 |
@@ -160,8 +162,9 @@ where it answers with a kind the contract did not have before.
 | `front-door`        | G5        | The front door, asked for on its own                                                                                                                                                              |
 | `grant`             | D11       | Watching what the house holds: a grant to play on the member's own account, which a member's paired client asks for the device it plays on                                                        |
 | `guide`             | D11       | Watching live TV: the guide one member reads, each channel they may watch with its programmes from now across the hours the operator sets                                                         |
-| `in-flight`         | A6        | Uninstall: every download still coming down inside the forms a teardown would stop, with how far it has got and which client has it; lemonfiber serves no endpoint                                |
+| `in-flight`         | A6        | Stopping: every download still coming down inside what a stop would stop, with how far it has got and which client has it                                                                         |
 | `key-claim`         | C10       | Integration keys: a key minted as a claim, its link and when it lapses, drawn once as a code                                                                                                      |
+| `logs-exported`     | B4        | Logs: where an export of the log viewer was written, or would be; lemonfiber serves no endpoint                                                                                                   |
 | `music`             | D2        | Quality presets: the music format                                                                                                                                                                 |
 | `news`              | N27       | What's new: the newest of each kind, from the stream                                                                                                                                              |
 | `news-items`        | N27       | What's new: everything newer than what was last seen, asked for                                                                                                                                   |
@@ -175,6 +178,7 @@ where it answers with a kind the contract did not have before.
 | `ran`               | ARCH-R438 | Running a run-and-exit service: what `lemonfiber run` came to for one service, whether a run was due and what held it back                                                                        |
 | `removal`           | D6        | Household identity: somebody taken out of the household                                                                                                                                           |
 | `reset`             | C9        | Drift: what a full reset would revert                                                                                                                                                             |
+| `served`            | ARCH-R448 | This console: the port it is served on, whether it is encrypted and offered to the network, and the certificate it presents, with the fingerprint to compare                                      |
 | `settled`           | A2        | Setup: what setup settled, the data root, the protocols and the service user, and whether this stack is set up                                                                                    |
 | `sign-in-code`      | ARCH-R441 | Signing in by a code: the code a member approves and where, when it lapses, and the handle that finishes signing in                                                                               |
 | `stack`             | F1        | Customisation: how the stack runs without lemonfiber, the operator's alone                                                                                                                        |
@@ -184,9 +188,8 @@ where it answers with a kind the contract did not have before.
 | `watcher`           | K2        | Uptime monitoring: which plugin watches the stack from outside, whether it answers, what each monitor sees, and what no monitor covers                                                            |
 | `word`              | G2        | Plain language: what one word means, asked alone; the console explains every term from the glossary it reads whole, so it asks about no single word                                               |
 
-Three of these wait on lemonfiber rather than on this surface: no endpoint
-answers with `certificate`, `in-flight` or `walkthrough-offer`, so nothing here
-could read them.
+No endpoint answers with `certificate`, `logs-exported` or `walkthrough-offer`,
+so these wait on lemonfiber rather than on this surface.
 
 ## Requests offered here
 
@@ -251,17 +254,15 @@ also takes a backup of one service, and this console has no control for that
 yet. `support` writes the bundle where lemonfiber keeps its own files, and the
 newest one written is handed to the browser to be saved; showing a setting as
 it is (`reveal`) has no control yet.
-`quality-reapply` lists the lines it replaced once it has, and not before,
-because no action takes a rehearsal over the web API.
+`quality-reapply` lists the lines it replaced once it has; lemonfiber also
+rehearses it, and this console does not read the rehearsal first yet.
 `invite` names no libraries, because no reading this console takes lists them;
 an account it makes opens every library, and one offered again keeps the
 libraries it had. `update` moves the whole stack; lemonfiber also moves one
 service, and this console has no control for that yet.
-`walkthrough` shows every step it took once the walk ends; the steps the stream
-carries while it runs (`step`) are not drawn yet. `plugin-install`
-and `plugin-update` send no value for a recipe input the operator supplies:
-the reading does not list a recipe's inputs, so lemonfiber refuses one that
-asks for any, naming it.
+`plugin-install` and `plugin-update` send no value for a recipe input the
+operator supplies, though the reading lists each recipe's inputs, so lemonfiber
+refuses a recipe that asks for any, naming it.
 
 ## Requests unsuited to this surface
 
@@ -274,9 +275,9 @@ asks for any, naming it.
 
 | Request                        | Feature   | What it is                                                                                                                       |
 | ------------------------------ | --------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `quality-set`                  | D2        | Quality presets: choose one; the reading names no presets to choose from                                                         |
+| `quality-set`                  | D2        | Quality presets: choose one of the presets, music formats and kinds of media the reading names                                   |
 | `reset`                        | C9        | Drift: revert every edit to lemonfiber's own state                                                                               |
-| `remove`                       | D6        | Household identity: take somebody out; D6-R17 makes the yes the removal offer, and lemonfiber takes a bare yes                   |
+| `remove`                       | D6        | Household identity: take somebody out, the removal offer read first and the yes naming it (D6-R17)                               |
 | `grant`                        | D11       | Watching what the house holds: a grant to play, which a member's paired client asks for the device it plays on                   |
 | `watched`                      | D11       | Watching what the house holds: how far through a title a member is, handed to the media server from a paired client              |
 | `tune`                         | ARCH-R420 | Watching live TV: open a channel's live stream for a member, renew its passes, or close it                                       |

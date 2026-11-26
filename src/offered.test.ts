@@ -18,11 +18,17 @@
  * Each list is held to being true, in both directions. A kind claimed offered is
  * one something the page imports reads; a request claimed offered is on a list a
  * screen the page draws walks; and nothing read or walked is still waiting in
- * another list. `docs/surface-parity.md` states the counts these lists come to
- * and names every one still waiting, and is held to both.
+ * another list.
+ *
+ * What is said of lemonfiber is held to what it serves. The client exports every
+ * read the contract lists as `READS`, with the kinds each answers with, so a kind
+ * said to be served by no endpoint is one no read answers with.
+ *
+ * `docs/surface-parity.md` states the counts these lists come to and names every
+ * one still waiting, and is held to both.
  */
 /// <reference types="vite/client" />
-import { KINDS, type Kind } from "@lemonfiber/sdk-ts";
+import { KINDS, READS, type Kind } from "@lemonfiber/sdk-ts";
 import { everyConfiguring } from "./lib/configuring";
 import { everyFinding } from "./lib/finding";
 import { everyHosting } from "./lib/hosting";
@@ -53,6 +59,7 @@ type Feature =
   | "A6"
   | "A7"
   | "B2"
+  | "B4"
   | "B5"
   | "B8"
   | "B9"
@@ -103,7 +110,8 @@ type Feature =
   | "ARCH-R405"
   | "ARCH-R420"
   | "ARCH-R438"
-  | "ARCH-R441";
+  | "ARCH-R441"
+  | "ARCH-R448";
 
 /**
  * Every request another surface can make of the stack.
@@ -537,8 +545,6 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
   pull: "G1-R1 — the lines the command line writes while it fetches, under `--json`, which is how a command writes its answer to a pipe; the web offers fetching through the `pull` request, answered with `lifecycle`",
   renewed:
     "N1-R80 — the web surface renewing the grant to play of a member whose client spoke to it, which the core answers the surface alone; no route serves it",
-  served:
-    "G1-R1 — how `lemonfiber ui` serves this surface, the certificate it presents and the name it answers to; serving the web interface is the command line's, since a surface cannot start itself",
   setup:
     "G1-R1 — what the command line's own setup writes under `--json`; the setup a browser walks answers with `wizard`",
   standing:
@@ -546,6 +552,16 @@ const ELSEWHERE_KINDS: Partial<Record<Kind, string>> = {
   untuned:
     "N1-R80 — the web surface closing the live streams whose passes lapsed unrenewed, which the core answers the surface alone; no route serves it",
 };
+
+/**
+ * Kinds nobody here reads yet that no endpoint answers with, so that they wait
+ * on lemonfiber rather than on this surface.
+ */
+const UNSERVED_KINDS: readonly Kind[] = [
+  "certificate",
+  "logs-exported",
+  "walkthrough-offer",
+];
 
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
@@ -563,6 +579,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   guide: "D11",
   "in-flight": "A6",
   "key-claim": "C10",
+  "logs-exported": "B4",
   music: "D2",
   news: "N27",
   "news-items": "N27",
@@ -576,6 +593,7 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   ran: "ARCH-R438",
   removal: "D6",
   reset: "C9",
+  served: "ARCH-R448",
   settled: "A2",
   "sign-in-code": "ARCH-R441",
   stack: "F1",
@@ -676,6 +694,11 @@ function everyKindRead(): readonly string[] {
   return [...found];
 }
 
+/** Every kind a read the contract lists answers with. */
+function everyKindServed(): readonly string[] {
+  return Object.values(READS).flatMap((read) => read.kinds);
+}
+
 /** Every entry in several lists, named. */
 function named(...lists: readonly (readonly string[])[]): readonly string[] {
   return lists.flat();
@@ -689,6 +712,14 @@ function without(
   return these.filter((one) => !those.includes(one));
 }
 
+/** What is in `these` and in `those`. */
+function among(
+  these: readonly string[],
+  those: readonly string[],
+): readonly string[] {
+  return these.filter((one) => those.includes(one));
+}
+
 /** What appears more than once. */
 function twice(all: readonly string[]): readonly string[] {
   return all.filter((one, at) => all.indexOf(one) !== at);
@@ -697,6 +728,12 @@ function twice(all: readonly string[]): readonly string[] {
 /** A number and the noun it counts, agreeing. */
 function counted(count: number, noun: string): string {
   return `${String(count)} ${noun}${count === 1 ? "" : "s"}`;
+}
+
+/** Names as a sentence offers a choice of them: `a`, `b` or `c`. */
+function either(names: readonly string[]): string {
+  const quoted = names.map((name) => `\`${name}\``);
+  return `${quoted.slice(0, -1).join(", ")} or ${quoted.slice(-1).join("")}`;
 }
 
 /** The headings the page's six tables stand under. */
@@ -723,6 +760,16 @@ function under(heading: string): string {
   if (from === -1) return "";
   const to = written.indexOf("\n## ", from + 1);
   return flattened(written.slice(from, to === -1 ? undefined : to));
+}
+
+/** What a waiting row says lemonfiber does not serve. */
+const UNSERVED = "lemonfiber serves no endpoint";
+
+/** The rows of a table under one heading whose last column says something. */
+function rowsSaying(heading: string, said: string): readonly string[] {
+  return [...under(heading).matchAll(/\| `([^`]+)` \| [^|]* \| ([^|]*) \|/g)]
+    .filter((row) => (row[2] ?? "").includes(said))
+    .map((row) => row[1] ?? "");
 }
 
 /** The rows a table under one heading holds, by the name each leads with. */
@@ -824,6 +871,10 @@ describe("every request another surface can make", () => {
 });
 
 describe("what is offered elsewhere", () => {
+  it("is answered by no read the contract lists", () => {
+    expect(among(Object.keys(ELSEWHERE_KINDS), everyKindServed())).toEqual([]);
+  });
+
   it("names the requirement that says so, and why", () => {
     const excuses = [
       ...Object.values(ELSEWHERE_KINDS),
@@ -835,7 +886,28 @@ describe("what is offered elsewhere", () => {
   });
 });
 
+describe("what waits on lemonfiber", () => {
+  it("reads the reads off the client rather than finding none", () => {
+    expect(everyKindServed().length).toBeGreaterThan(0);
+  });
+
+  it("is not read here yet", () => {
+    expect(without(UNSERVED_KINDS, Object.keys(NOT_YET_KINDS))).toEqual([]);
+  });
+
+  it("is answered by no read the contract lists", () => {
+    expect(among(UNSERVED_KINDS, everyKindServed())).toEqual([]);
+  });
+});
+
 describe("the parity page", () => {
+  it("says lemonfiber serves no endpoint only of what waits on it", () => {
+    expect(rowsSaying(KINDS_WAITING, UNSERVED)).toEqual(UNSERVED_KINDS);
+    expect(page()).toContain(
+      `No endpoint answers with ${either(UNSERVED_KINDS)}, so these wait on lemonfiber rather than on this surface.`,
+    );
+  });
+
   it("states what these lists come to", () => {
     const said = page();
     const reads = OFFERED_KINDS.length + Object.keys(THROUGH_THE_CLIENT).length;
