@@ -15,6 +15,7 @@ import type { History } from "../lib/history";
 import type { Survey } from "../lib/survey";
 import type { Watcher } from "../lib/watcher";
 import type { Notified } from "../lib/notifying";
+import type { Served, Settled, Stack } from "../lib/machine";
 import type { Catalogue, Provenance } from "../lib/catalogue";
 import type { Configured } from "../lib/configured";
 import type { Standing, Versions } from "../lib/copy";
@@ -82,6 +83,12 @@ export interface SettingsRead {
   readonly alerts: Reading<Alerts>;
   /** Where alerts go. */
   readonly notify: Reading<Notified>;
+  /** How the console itself is served. */
+  readonly served: Reading<Served>;
+  /** How the stack runs without lemonfiber. */
+  readonly stack: Reading<Stack>;
+  /** What setup settled. */
+  readonly settled: Reading<Settled>;
   /** What the stack wires to what. */
   readonly wiring: Reading<Wiring>;
   /** The plugins on this machine. */
@@ -152,6 +159,9 @@ export async function readSettings(
     asked(reaching, "plugins", "plugins"),
     asked(reaching, "settings", "settings"),
     asked(reaching, "notify", "notify"),
+    asked(reaching, "served", "served"),
+    asked(reaching, "stack", "stack"),
+    asked(reaching, "settled", "settled"),
   ]);
   const [
     quality,
@@ -168,6 +178,9 @@ export async function readSettings(
     plugins,
     values,
     notify,
+    served,
+    stack,
+    settled,
   ] = read;
   return {
     read: {
@@ -185,6 +198,9 @@ export async function readSettings(
       plugins,
       values,
       notify,
+      served,
+      stack,
+      settled,
     },
     refused: turnedAway(...read),
   };

@@ -15,6 +15,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import { listed } from "./listed";
+import { given } from "./readout";
 import * as m from "../paraglide/messages.js";
 
 /** Every setting asked about, or what changing one came to. */
@@ -150,4 +151,54 @@ export function configLines(report: Configured): readonly string[] {
     lines.push(proofLine(review.proof));
   }
   return lines;
+}
+
+/** One answer setup wrote, as it can be changed afterwards. */
+export type Decision = Configured["decisions"][number];
+
+/** One area the operator declared lemonfiber leaves alone. */
+export type Unmanaged = Configured["unmanaged"][number];
+
+/** One thing an area left alone covers now. */
+type Covered = Unmanaged["covers"][number];
+
+/**
+ * What one setup choice is, without its value: what changing it affects, what
+ * a change costs, whether it is set, whether its value is kept secret, and
+ * where it is changed, under `settings` where the settings store keeps it.
+ */
+export function decisionLines(decision: Decision, settings: string): string[] {
+  const lines = [
+    decision.affects,
+    decision.cost === "cheap" ? m.decision_cheap() : m.decision_consequential(),
+    decision.held ? m.decision_held() : m.decision_unset(),
+  ];
+  if (decision.credential) lines.push(m.decision_credential());
+  lines.push(
+    given(decision.setting)
+      ? m.decision_setting({ panel: settings, setting: decision.setting })
+      : m.decision_config({ key: decision.key }),
+  );
+  return lines;
+}
+
+/** One thing an area covers, by its kind and name. */
+function coveredWord(covered: Covered): string {
+  switch (covered.kind) {
+    case "service":
+      return m.unmanaged_service({ name: covered.name });
+    case "path":
+      return m.unmanaged_path({ name: covered.name });
+    case "setting":
+      return m.unmanaged_setting({ name: covered.name });
+  }
+}
+
+/** What an area left alone covers now, with how many more are left out. */
+export function coversLine(area: Unmanaged): string {
+  if (area.covers.length === 0) return m.unmanaged_covers_nothing();
+  const things = listed(area.covers.map(coveredWord));
+  return area.covers_more > 0
+    ? m.unmanaged_covers_more({ things, count: area.covers_more })
+    : m.unmanaged_covers({ things });
 }

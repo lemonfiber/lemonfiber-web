@@ -1,3 +1,9 @@
+import {
+  servedEncrypted,
+  servedPlain,
+  settledDone,
+  shipped,
+} from "../api/machines";
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Settings from "./Settings.svelte";
 import { configurer, everySetting, stagedChange } from "./configured";
@@ -363,4 +369,22 @@ export const APluginInstalled: Story = {
  */
 export const WhereAlertsGo: Story = {
   args: { notify: { ok: true, value: notified } },
+};
+
+/**
+ * How this machine stands: a console served encrypted, with its certificate's
+ * fingerprint to compare, the words that start the stack without lemonfiber,
+ * and what setup settled.
+ */
+export const HowThisMachineStands: Story = {
+  args: {
+    served: { ok: true, value: servedEncrypted },
+    stack: { ok: true, value: shipped },
+    settled: { ok: true, value: settledDone },
+  },
+};
+
+/** A console served to the network without encryption: the alarm stands at the top. */
+export const ReadableOnThePath: Story = {
+  args: { served: { ok: true, value: servedPlain } },
 };

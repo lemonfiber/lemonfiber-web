@@ -1,5 +1,6 @@
 <script lang="ts">
   import Action from "../../components/Action.svelte";
+  import Command from "../../components/Command.svelte";
   import Panel from "../../components/Panel.svelte";
   import Said from "../../components/Said.svelte";
   import ShowAll from "../../components/ShowAll.svelte";
@@ -35,9 +36,10 @@
 </script>
 
 <!--
-  A reading told as lines: what it says as a whole, then each thing it lists
-  under a heading of its own, in the order the stack gives them. A reading that
-  could not be read says why, in the stack's words, and nothing else.
+  A reading told as lines: what it says as a whole, any command it hands over
+  to be copied whole, then each thing it lists under a heading of its own, in
+  the order the stack gives them. A reading that could not be read says why, in
+  the stack's words, and nothing else.
 -->
 <Panel {title} {freshness} flush>
   <div class="scope">
@@ -48,6 +50,9 @@
           <li><Said text={line} /></li>
         {/each}
       </ul>
+      {#each readout.value.commands ?? [] as command, at (at)}
+        <Command label={command.label} text={command.text} />
+      {/each}
     {:else}
       <Value state="unknown" absent={readout.problem.message} />
     {/if}

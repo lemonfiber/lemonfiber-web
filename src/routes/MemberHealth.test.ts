@@ -6,17 +6,21 @@ import { saying } from "./Console.testing";
 import { enveloped, replying } from "../api/bodies";
 import { booted, healing, notified, watched } from "../api/health";
 import { twoComing } from "../api/inflights";
+import { servedPlain, settledDone, shipped } from "../api/machines";
 import { kitsId, kitsNothingPartWay, kitsShelf, yours } from "./mine";
 import { here, key } from "./served";
 import * as m from "../paraglide/messages.js";
 
-/** The reads the machine's health and what a stop would interrupt are drawn from. */
+/** The reads only the operator is shown. */
 const OPERATOR_ONLY = [
   "/api/boot",
   "/api/watcher",
   "/api/queue",
   "/api/notify",
   "/api/in-flight",
+  "/api/served",
+  "/api/stack",
+  "/api/settled",
 ];
 
 /** A stack answering a member's own reads, and the operator's too. */
@@ -30,6 +34,9 @@ function answering(): Sending {
     "/api/queue": enveloped("queue", healing),
     "/api/notify": enveloped("notify", notified),
     "/api/in-flight": enveloped("in-flight", twoComing),
+    "/api/served": enveloped("served", servedPlain),
+    "/api/stack": enveloped("stack", shipped),
+    "/api/settled": enveloped("settled", settledDone),
   };
   return vi.fn((url: string) => {
     const body = bodies[new URL(url).pathname];
@@ -41,7 +48,7 @@ function answering(): Sending {
   });
 }
 
-describe("the machine's health and what a stop would interrupt, where a member is shown", () => {
+describe("what only the operator is shown, where a member is shown", () => {
   it.each([
     ["/", "Andor"],
     ["/held", "Arrival"],
@@ -60,12 +67,16 @@ describe("the machine's health and what a stop would interrupt, where a member i
       m.panel_watcher(),
       m.panel_queue(),
       m.panel_notify(),
+      m.panel_served(),
+      m.panel_stack(),
+      m.panel_settled(),
     ]) {
       expect(screen.queryByRole("region", { name })).toBeNull();
     }
     expect(
       screen.queryByRole("heading", { name: m.inflight_heading() }),
     ).toBeNull();
+    expect(screen.queryByText(m.served_alarm_lead())).toBeNull();
     expect(
       vi
         .mocked(sending)

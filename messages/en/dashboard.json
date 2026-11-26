@@ -204,5 +204,8 @@
   "panel_letting": "Completed downloads",
   "panel_room": "Room to recover",
   "panel_clients": "Watching apps",
-  "told_missing": "Some alerts raised while this page was away may be missing."
+  "told_missing": "Some alerts raised while this page was away may be missing.",
+  "panel_served": "This console",
+  "panel_stack": "Run it yourself",
+  "panel_settled": "What setup settled"
 }

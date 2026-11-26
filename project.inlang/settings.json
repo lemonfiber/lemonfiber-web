@@ -14,6 +14,7 @@
       "./messages/{locale}/door.json",
       "./messages/{locale}/health.json",
       "./messages/{locale}/household.json",
+      "./messages/{locale}/machine.json",
       "./messages/{locale}/plugging.json",
       "./messages/{locale}/setup.json",
       "./messages/{locale}/upkeep.json",
