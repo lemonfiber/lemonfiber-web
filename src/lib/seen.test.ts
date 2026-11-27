@@ -87,9 +87,9 @@ describe("which of a member's requests are new", () => {
 
   it("reads nothing it cannot stand behind", () => {
     for (const held of ["not json", "[]", "null", '"here"', '{"a":1}']) {
-      expect(keptShown(kept({ [keptAt(member)]: held }), member)).toBe(
-        undefined,
-      );
+      expect(
+        keptShown(kept({ [keptAt(member)]: held }), member),
+      ).toBeUndefined();
     }
   });
 
