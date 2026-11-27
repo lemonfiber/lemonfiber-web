@@ -68,7 +68,9 @@ describe("how the console is served", () => {
       m.served_local(),
     ]);
     expect(entries[0]?.lines.slice(2, 5)).toStrictEqual([
-      m.served_subject({ subject: shortened(certificate.subject, true) }),
+      m.served_subject({
+        subject: shortened({ text: certificate.subject, cut: true }),
+      }),
       m.served_issuer({
         issuer: m.machine_shortened({ text: "Household CA" }),
       }),

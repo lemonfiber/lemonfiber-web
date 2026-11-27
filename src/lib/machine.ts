@@ -24,9 +24,15 @@ export type Stack = ByKind["stack"]["data"];
 /** What setup settled. */
 export type Settled = ByKind["settled"]["data"];
 
+/** A name the stack gave, and whether the stack cut it short. */
+export interface Given {
+  readonly text: string;
+  readonly cut: boolean;
+}
+
 /** A name the stack gave, marked where it was cut short. */
-export function shortened(text: string, cut: boolean): string {
-  return cut ? m.machine_shortened({ text }) : text;
+export function shortened(given: Given): string {
+  return given.cut ? m.machine_shortened({ text: given.text }) : given.text;
 }
 
 /**
@@ -59,12 +65,18 @@ function certificateEntry(certificate: Certificate): Entry {
       m.served_fingerprint({ fingerprint: certificate.fingerprint }),
       m.served_compare(),
       m.served_subject({
-        subject: shortened(certificate.subject, certificate.subject_cut),
+        subject: shortened({
+          text: certificate.subject,
+          cut: certificate.subject_cut,
+        }),
       }),
       certificate.self_signed
         ? m.served_self_signed()
         : m.served_issuer({
-            issuer: shortened(certificate.issuer, certificate.issuer_cut),
+            issuer: shortened({
+              text: certificate.issuer,
+              cut: certificate.issuer_cut,
+            }),
           }),
       names,
       m.served_valid({
@@ -89,10 +101,13 @@ export function servedReadout(served: Served): Readout {
   };
 }
 
+/** A single quote inside a quoted word: the quoting closed, the quote, and reopened. */
+const INNER_QUOTE = `'"'"'`;
+
 /** One word, quoted for a POSIX shell where it would otherwise be split or read. */
 export function quoted(word: string): string {
   if (/^[\w@%+=:,./-]+$/.test(word)) return word;
-  return `'${word.replaceAll("'", `'"'"'`)}'`;
+  return `'${word.replaceAll("'", INNER_QUOTE)}'`;
 }
 
 /** How the stack runs without lemonfiber, told. */

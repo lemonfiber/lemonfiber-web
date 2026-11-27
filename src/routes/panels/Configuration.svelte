@@ -179,8 +179,12 @@
         <ul class="settings">
           {#each configured.unmanaged as area, at (at)}
             <li class="setting">
-              <p class="key">{shortened(area.area, area.area_cut)}</p>
-              <p class="prose">{shortened(area.why, area.why_cut)}</p>
+              <p class="key">
+                {shortened({ text: area.area, cut: area.area_cut })}
+              </p>
+              <p class="prose">
+                {shortened({ text: area.why, cut: area.why_cut })}
+              </p>
               <p class="note">{coversLine(area)}</p>
             </li>
           {/each}
