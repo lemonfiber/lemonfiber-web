@@ -50,7 +50,13 @@
   services the stack has dropped. Each of the two readings says for itself why
   it could not be read.
 -->
-<Panel title={m.panel_catalogue()} {freshness} flush>
+<Panel
+  title={m.panel_catalogue()}
+  {freshness}
+  reads="catalogue"
+  answer={catalogue}
+  flush
+>
   <div class="scope">
     <p><Said text={m.catalogue_prose()} /></p>
     {#if held === undefined && problem !== undefined}

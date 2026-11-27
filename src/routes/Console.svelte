@@ -21,6 +21,8 @@
   import { Tracing } from "./tracing.svelte";
   import { shelving } from "./shelving";
   import { Keying } from "./keying.svelte";
+  import { Abling } from "./abling.svelte";
+  import { holdAble } from "../components/able";
   import {
     readChecks,
     readSettings,
@@ -350,6 +352,8 @@
   }
   const shelves = shelving(handing);
   const keying = new Keying(handing);
+  const abling = new Abling(handing);
+  holdAble(() => abling.able);
   const keyer = $derived(keying.keyer);
   const tender = $derived(asks.tend.asker);
   const finder = $derived(asks.find.asker);
@@ -398,6 +402,7 @@
 
     globalThis.addEventListener("popstate", back);
     void askFor(place);
+    void abling.read();
     explained.read(reaching, onrefused);
     stream.listen();
     const clock = globalThis.setInterval(() => {

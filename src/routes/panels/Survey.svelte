@@ -41,7 +41,13 @@
   an empty machine. Each part lists its first few, and one press lists them
   all. Under it, each way forward is offered, asked about first.
 -->
-<Panel title={m.panel_survey()} {freshness} flush>
+<Panel
+  title={m.panel_survey()}
+  {freshness}
+  reads="migration"
+  answer={survey}
+  flush
+>
   <div class="scope">
     <p><Said text={m.survey_prose()} /></p>
     {#if !survey.ok}

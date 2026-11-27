@@ -40,7 +40,13 @@
   terms where they stand, the switch here turns that off or on again, for this
   browser alone.
 -->
-<Panel title={m.panel_words()} {freshness} flush>
+<Panel
+  title={m.panel_words()}
+  {freshness}
+  reads="explain"
+  answer={glossary}
+  flush
+>
   <div class="scope">
     <p>{m.glossary_prose()}</p>
     {#if explained !== undefined}

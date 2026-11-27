@@ -54,6 +54,7 @@
             {@const acting = plugger}
             <div class="acts">
               <Action
+                acts="plugin-install"
                 label={m.action_plug_catalogue_install({ name: entry.name })}
                 off={acting.busy}
                 onclick={() => {

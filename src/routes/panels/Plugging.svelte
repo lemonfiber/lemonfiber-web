@@ -58,6 +58,7 @@
   />
   <div class="acts">
     <Action
+      acts="plugin-install"
       label={m.action_plug_read()}
       off={plugger.busy || typed === ""}
       onclick={() => {

@@ -131,6 +131,7 @@
   <div class="controls" role="group" aria-label={m.running_controls()}>
     {#each byForm as doing (doing)}
       <Action
+        acts={doing}
         label={wordOfDoing(doing, scoped)}
         off={silent || !askable(doing, chosen)}
         onclick={() => {
@@ -143,6 +144,7 @@
   <div class="controls" role="group" aria-label={m.running_whole_controls()}>
     {#each whole as doing (doing)}
       <Action
+        acts={doing}
         label={wordOfDoing(doing, scoped)}
         off={silent}
         onclick={() => {
@@ -178,6 +180,7 @@
         {/if}
         {#if told.ready}
           <Action
+            acts={asking.doing}
             label={asking.question.yes}
             weight="firm"
             onclick={() => {

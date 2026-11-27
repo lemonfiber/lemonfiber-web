@@ -6,24 +6,12 @@
  * Each answers with where setup then stands. An answer may carry a credential;
  * it travels in that one request's body and nothing here keeps it.
  */
-import { Client, type Kind, type Reading } from "@lemonfiber/sdk-ts";
-import type { Reaching } from "./asking";
+import type { Client, Kind, Reading } from "@lemonfiber/sdk-ts";
+import { opened, type Reaching } from "./asking";
 import type { Move, Wizard } from "../lib/wizard";
 
 /** The kind every step of setup answers with. */
 export const STANDING = "wizard" satisfies Kind;
-
-/** The client this run is reached through, or why none could be opened. */
-function opened(reaching: Reaching): Reading<Client> {
-  const opening = Client.at({
-    url: reaching.at,
-    token: reaching.token,
-    sending: reaching.sending,
-  });
-  return opening.ok
-    ? { ok: true, value: opening.client }
-    : { ok: false, problem: opening.problem };
-}
 
 /** Where setup stands. Asking changes nothing. */
 export async function standingOf(reaching: Reaching): Promise<Reading<Wizard>> {

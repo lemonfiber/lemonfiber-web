@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { ReadName } from "@lemonfiber/sdk-ts";
   import Action from "../../components/Action.svelte";
   import Command from "../../components/Command.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -12,6 +13,8 @@
   import { Shortening } from "../../lib/shortening.svelte";
 
   interface Props {
+    /** The read it is drawn from, which silences it where the signed-in key cannot use it. */
+    reads?: ReadName | undefined;
     /** What the panel is called. */
     title: string;
     /** What it shows, in a sentence. */
@@ -32,7 +35,8 @@
     onfollow?: ((sought: Sought) => void) | undefined;
   }
 
-  let { title, prose, named, readout, freshness, onfollow }: Props = $props();
+  let { reads, title, prose, named, readout, freshness, onfollow }: Props =
+    $props();
 
   /** Whether the list is shown whole. */
   const short = new Shortening();
@@ -44,7 +48,7 @@
   the order the stack gives them. A reading that could not be read says why, in
   the stack's words, and nothing else.
 -->
-<Panel {title} {freshness} flush>
+<Panel {title} {freshness} {reads} answer={readout} flush>
   <div class="scope">
     <p><Said text={prose} /></p>
     {#if readout.ok}

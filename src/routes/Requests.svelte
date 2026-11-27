@@ -177,7 +177,12 @@
       <Value state="unknown" absent={nothing} />
     </Panel>
   {:else if problem !== undefined}
-    <Panel title={m.nav_requests()} {freshness}>
+    <Panel
+      title={m.nav_requests()}
+      {freshness}
+      reads="requests"
+      answer={household}
+    >
       <Value state="unknown" absent={problem} />
     </Panel>
   {:else}

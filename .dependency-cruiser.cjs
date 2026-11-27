@@ -98,6 +98,22 @@ module.exports = {
       },
     },
     {
+      name: "what-the-operator-keeps-stays-with-the-operator",
+      severity: "error",
+      comment:
+        "Proving a plugin again and running its recipes, the plugin " +
+        "catalogue, minting a key as a claim, the phones' hardware keys and " +
+        "the phones that can be woken, updating or backing up one service, " +
+        "running a scheduled task, and what the signed-in key can use are " +
+        "the operator's alone. Nothing a household member is shown may " +
+        "reach what reads or draws them.",
+      from: { path: "^src/routes/Member\\.svelte$" },
+      to: {
+        reachable: true,
+        path: "^src/(routes/(panels/(PlugRecipes|PlugInputs|PlugCatalogue|Keys|Phones|Woken|Updates|Backups|Scheduled)\\.svelte|(keying|abling)\\.svelte\\.ts|errands\\.ts)|lib/(proving|catalogued|keys|phones|woken|updating|upkeep|scheduling|ran)\\.ts|api/(keying|abilities)\\.ts)$",
+      },
+    },
+    {
       name: "no-orphans",
       severity: "error",
       comment: "A module nothing imports is either dead or wired up wrong.",

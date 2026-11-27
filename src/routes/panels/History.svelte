@@ -28,7 +28,13 @@
   far back the record goes is said first, in lemonfiber's words, so a short
   record and a trimmed one read differently.
 -->
-<Panel title={m.panel_history()} {freshness} flush>
+<Panel
+  title={m.panel_history()}
+  {freshness}
+  reads="history"
+  answer={history}
+  flush
+>
   <div class="scope">
     <p><Said text={m.history_prose()} /></p>
     {#if history.ok}

@@ -1,7 +1,8 @@
 /**
  * Keeping integration keys: listing them, minting one, with its secret or as
  * a claim a program collects it with, and revoking one; and the phones'
- * hardware keys that prove the operator: listing them and revoking one.
+ * hardware keys that prove the operator: listing them and revoking one; and the
+ * phones that can be woken: listing them and removing one.
  *
  * The one credential write this surface makes, and not an action: keys are
  * kept through routes of their own, so none of it goes through the desk the
@@ -20,9 +21,12 @@ import {
   phoneRevokingOf,
   phonesOf,
   revokingOf,
+  wokenOf,
+  wokenRemovingOf,
 } from "../api/keying";
 import type { Claimed, Listing, Minted } from "../lib/keys";
 import type { Phones } from "../lib/phones";
+import type { Woken } from "../lib/woken";
 
 /** One thing the keys panel asks for, named as the parity names it. */
 export type KeyAsking =
@@ -31,7 +35,9 @@ export type KeyAsking =
   | { readonly doing: "key-claim"; readonly minting: Minting }
   | { readonly doing: "key-revoke"; readonly name: string }
   | { readonly doing: "device-key-list" }
-  | { readonly doing: "device-key-revoke"; readonly name: string };
+  | { readonly doing: "device-key-revoke"; readonly name: string }
+  | { readonly doing: "push-endpoint-list" }
+  | { readonly doing: "push-endpoint-remove"; readonly name: string };
 
 /** Every request the keys panel makes. */
 export const everyKeying: readonly KeyAsking["doing"][] = [
@@ -41,6 +47,8 @@ export const everyKeying: readonly KeyAsking["doing"][] = [
   "key-revoke",
   "device-key-list",
   "device-key-revoke",
+  "push-endpoint-list",
+  "push-endpoint-remove",
 ];
 
 /** What the keys panel is handed to keep keys with. */
@@ -55,6 +63,10 @@ export interface Keyer {
   readonly phones: Reading<Phones> | undefined;
   /** Why the last revoke of a phone's key was not carried out, in lemonfiber's words. */
   readonly phoneSaid: string | undefined;
+  /** Every phone that can be woken, or why they could not be read. Nothing until asked. */
+  readonly woken: Reading<Woken> | undefined;
+  /** Why the last removal of a phone that can be woken was not carried out, in lemonfiber's words. */
+  readonly wokenSaid: string | undefined;
   /** Why the last mint or revoke was not carried out, in lemonfiber's words. */
   readonly said: string | undefined;
   /** Whether a mint or a revoke is under way, which silences the controls. */
@@ -73,6 +85,8 @@ export class Keying {
   phones = $state<Reading<Phones> | undefined>(undefined);
   said = $state<string | undefined>(undefined);
   phoneSaid = $state<string | undefined>(undefined);
+  woken = $state<Reading<Woken> | undefined>(undefined);
+  wokenSaid = $state<string | undefined>(undefined);
   busy = $state(false);
 
   readonly #handing: Handing;
@@ -87,9 +101,9 @@ export class Keying {
     return answer;
   }
 
-  /** Read every key, and every phone's hardware key beside them. */
+  /** Read every key, and every phone's hardware key and every phone that can be woken beside them. */
   async read(): Promise<void> {
-    await Promise.all([this.readKeys(), this.readPhones()]);
+    await Promise.all([this.readKeys(), this.readPhones(), this.readWoken()]);
   }
 
   /** Read every key. */
@@ -100,6 +114,11 @@ export class Keying {
   /** Read every phone's hardware key. */
   async readPhones(): Promise<void> {
     this.phones = this.#heard(await phonesOf(this.#handing.reaching()));
+  }
+
+  /** Read every phone that can be woken. */
+  async readWoken(): Promise<void> {
+    this.woken = this.#heard(await wokenOf(this.#handing.reaching()));
   }
 
   /** Mint one key, then read the keys again. */
@@ -158,6 +177,18 @@ export class Keying {
     else this.phoneSaid = left.problem.message;
   }
 
+  /** Stop waking one phone, taking them as they now stand. */
+  async removeWoken(name: string): Promise<void> {
+    this.busy = true;
+    this.wokenSaid = undefined;
+    const left = this.#heard(
+      await wokenRemovingOf(this.#handing.reaching(), name),
+    );
+    this.busy = false;
+    if (left.ok) this.woken = left;
+    else this.wokenSaid = left.problem.message;
+  }
+
   /** Carry out one asking. */
   async ask(asking: KeyAsking): Promise<void> {
     switch (asking.doing) {
@@ -179,6 +210,12 @@ export class Keying {
       case "device-key-revoke":
         await this.revokePhone(asking.name);
         return;
+      case "push-endpoint-list":
+        await this.readWoken();
+        return;
+      case "push-endpoint-remove":
+        await this.removeWoken(asking.name);
+        return;
     }
   }
 
@@ -197,6 +234,8 @@ export class Keying {
       phones: this.phones,
       said: this.said,
       phoneSaid: this.phoneSaid,
+      woken: this.woken,
+      wokenSaid: this.wokenSaid,
       busy: this.busy,
       onask: (asking) => {
         void this.ask(asking);

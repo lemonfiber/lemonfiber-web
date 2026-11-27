@@ -60,6 +60,18 @@ export interface Handing {
   readonly onrefused: () => void;
 }
 
+/** The client this run is reached through, or why none could be opened. */
+export function opened(reaching: Reaching): Reading<Client> {
+  const opening = Client.at({
+    url: reaching.at,
+    token: reaching.token,
+    sending: reaching.sending,
+  });
+  return opening.ok
+    ? { ok: true, value: opening.client }
+    : { ok: false, problem: opening.problem };
+}
+
 /**
  * One read's answer, narrowed to the payload the kind it names carries.
  *
@@ -82,14 +94,10 @@ export async function asked<
   kind: K,
   query?: ReadQuery[N],
 ): Promise<Reading<ByKind[K]["data"]>> {
-  const opened = Client.at({
-    url: reaching.at,
-    token: reaching.token,
-    sending: reaching.sending,
-  });
-  if (!opened.ok) return { ok: false, problem: opened.problem };
+  const client = opened(reaching);
+  if (!client.ok) return client;
 
-  const reading = await opened.client.read(
+  const reading = await client.value.read(
     read,
     query === undefined ? undefined : { query },
   );

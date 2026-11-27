@@ -94,6 +94,7 @@
           }}
         />
         <Action
+          acts="search"
           label={m.action_search()}
           off={finder.busy}
           onclick={() => {

@@ -93,7 +93,13 @@
   lines that land, and the yes is under that. Fetching the library again is
   read first too, which fetches nothing and answers with what it would cost.
 -->
-<Panel title={m.panel_quality()} {freshness} flush>
+<Panel
+  title={m.panel_quality()}
+  {freshness}
+  reads="quality"
+  answer={quality}
+  flush
+>
   <div class="scope">
     <p><Said text={m.quality_prose()} /></p>
   </div>
@@ -153,6 +159,7 @@
     <div class="controls" role="group" aria-label={m.quality_controls()}>
       {#if read !== undefined}
         <Action
+          acts="quality-set"
           label={m.action_quality_choose()}
           off={silent}
           onclick={() => {
@@ -161,6 +168,7 @@
         />
       {/if}
       <Action
+        acts="quality-upgrade"
         label={m.action_upgrade_cost()}
         off={silent}
         onclick={() => {
@@ -169,6 +177,7 @@
       />
       {#if read?.customised === true}
         <Action
+          acts="quality-reapply"
           label={m.action_reapply()}
           off={silent}
           onclick={() => {
@@ -207,6 +216,7 @@
         />
         <div>
           <Action
+            acts="quality-set"
             label={m.action_quality_read()}
             off={silent || preset === ""}
             onclick={() => {
@@ -246,6 +256,7 @@
           </p>
           <div class="controls">
             <Action
+              acts="quality-set"
               label={choice.held
                 ? m.action_quality_anyway()
                 : m.action_quality_use()}
@@ -279,6 +290,7 @@
           <p class="prose"><Said text={m.quality_reapply_prose()} /></p>
           <div class="controls">
             <Action
+              acts="quality-reapply"
               label={m.action_reapply_yes()}
               weight="firm"
               off={tuner.busy}
@@ -304,6 +316,7 @@
           <p class="prose"><Said text={m.quality_cost_prose()} /></p>
           <div class="controls">
             <Action
+              acts="quality-upgrade"
               label={m.action_upgrade_yes()}
               weight="firm"
               off={tuner.busy}

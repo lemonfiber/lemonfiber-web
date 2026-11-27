@@ -66,7 +66,13 @@
   The guard is started against the forms chosen on this screen, and waits for
   a choice.
 -->
-<Panel title={m.panel_hosting()} {freshness} flush>
+<Panel
+  title={m.panel_hosting()}
+  {freshness}
+  reads="hosting"
+  answer={hosted}
+  flush
+>
   <div class="scope">
     <p><Said text={m.hosting_prose()} /></p>
     {#if report !== undefined}
@@ -95,9 +101,14 @@
           </ul>
           {#if act === "hosting-install" && unguarded(command)}
             <p class="hint"><Said text={m.hosting_choose_forms()} /></p>
-            <Action label={m.action_host({ name: command.name })} off />
+            <Action
+              acts={act}
+              label={m.action_host({ name: command.name })}
+              off
+            />
           {:else if act === "hosting-install"}
             <Action
+              acts={act}
               label={m.action_host({ name: command.name })}
               off={silent}
               onclick={() => {
@@ -107,6 +118,7 @@
             />
           {:else if act === "hosting-remove"}
             <Action
+              acts={act}
               label={m.action_unhost({ name: command.name })}
               off={silent}
               onclick={() => {
@@ -132,6 +144,7 @@
       {@const asking = hoster.asked}
       {#snippet answering()}
         <Action
+          acts={asking.doing}
           label={question.yes}
           weight="firm"
           onclick={() => {

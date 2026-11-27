@@ -259,7 +259,11 @@ const WALKED: readonly {
   {
     list: everyKeying,
     named: "everyKeying",
-    by: ["src/routes/panels/Keys.svelte", "src/routes/panels/Phones.svelte"],
+    by: [
+      "src/routes/panels/Keys.svelte",
+      "src/routes/panels/Phones.svelte",
+      "src/routes/panels/Woken.svelte",
+    ],
   },
   {
     list: ["ask", "notify-choose"],
@@ -356,6 +360,8 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "key-revoke",
   "device-key-list",
   "device-key-revoke",
+  "push-endpoint-list",
+  "push-endpoint-remove",
   "plugin-install",
   "plugin-update",
   "plugin-prove",
@@ -392,8 +398,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "device-key-register": "C10",
   "device-key-challenge": "C10",
   "push-endpoint-register": "ARCH-R282",
-  "push-endpoint-list": "ARCH-R282",
-  "push-endpoint-remove": "ARCH-R282",
   "internal-certificate-replace": "ARCH-R354",
 };
 
@@ -413,6 +417,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "boot",
   "bundle",
   "clients",
+  "capabilities",
   "catalogue",
   "config",
   "copying",
@@ -449,6 +454,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "plugin-catalogue",
   "preview",
   "provenance",
+  "push-endpoints",
   "quality",
   "queue",
   "ran",
@@ -538,7 +544,6 @@ const UNSERVED_KINDS: readonly Kind[] = [
 
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
-  capabilities: "ARCH-R78",
   certificate: "N1",
   channels: "ARCH-R420",
   "device-challenge": "C10",
@@ -552,7 +557,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   "news-items": "N27",
   play: "ARCH-R420",
   "push-endpoint": "ARCH-R282",
-  "push-endpoints": "ARCH-R282",
   removal: "D6",
   reset: "C9",
   "sign-in-code": "ARCH-R441",

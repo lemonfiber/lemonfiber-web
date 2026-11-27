@@ -21,7 +21,13 @@ import { alerts } from "../api/alerting";
 import { notified } from "../api/health";
 import { wiring } from "../api/wirings";
 import { filler, fillOffer } from "./fillings";
-import { claimed, keyer, made as justMinted, unpaired } from "./keyings";
+import {
+  claimed,
+  keyer,
+  made as justMinted,
+  unpaired,
+  unwoken,
+} from "./keyings";
 import { plugins } from "../api/installs";
 import {
   installMade,
@@ -331,6 +337,11 @@ export const PhoneKeysNotForAKey: Story = {
       },
     },
   },
+};
+
+/** The phones that can be woken, just after one was removed. */
+export const APhoneNoLongerWoken: Story = {
+  args: { keyer: { ...keyer, woken: { ok: true, value: unwoken } } },
 };
 
 /**

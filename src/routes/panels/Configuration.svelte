@@ -92,7 +92,13 @@
   A value that is withheld is not put in the box. Changing a credential is
   typing a new one, and lemonfiber proves it before the old one goes.
 -->
-<Panel title={m.panel_config()} {freshness} flush>
+<Panel
+  title={m.panel_config()}
+  {freshness}
+  reads="config"
+  answer={settings}
+  flush
+>
   <div class="scope">
     <p><Said text={m.config_prose()} /></p>
   </div>
@@ -130,6 +136,7 @@
               />
               <div class="acts">
                 <Action
+                  acts="config-set"
                   label={m.action_config_change()}
                   weight="firm"
                   off={silent}
@@ -224,6 +231,7 @@
           <div class="acts">
             {#if told.finishing}
               <Action
+                acts="config-set"
                 label={m.inflight_finish()}
                 weight="firm"
                 off={silent}
@@ -241,6 +249,7 @@
             {/if}
             {#if told.ready}
               <Action
+                acts="config-set"
                 label={m.action_config_yes({ key: standing.key })}
                 weight="firm"
                 off={silent}

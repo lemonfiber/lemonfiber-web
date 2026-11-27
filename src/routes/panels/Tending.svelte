@@ -136,9 +136,15 @@
       {/if}
       <div class="acts">
         {#if offer === undefined}
-          <Action label={m.action_invite_read()} weight="firm" off />
+          <Action
+            acts="invite"
+            label={m.action_invite_read()}
+            weight="firm"
+            off
+          />
         {:else}
           <Action
+            acts="invite"
             label={m.action_invite_read()}
             weight="firm"
             off={silent}
@@ -187,6 +193,7 @@
       {@const asking = tender.asked}
       {#snippet answering()}
         <Action
+          acts={asking.doing}
           label={question.yes}
           weight="firm"
           onclick={() => {
@@ -217,6 +224,7 @@
         <p class="prose"><Said text={m.invite_offer_prose()} /></p>
         <div class="acts">
           <Action
+            acts="invite"
             label={m.action_invite_yes({ name: standing.name })}
             weight="firm"
             off={tender.busy}

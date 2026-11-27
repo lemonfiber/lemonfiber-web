@@ -64,6 +64,7 @@
 
   <div class="controls">
     <Action
+      acts="update"
       label={m.action_update_plan()}
       off={updater.busy}
       onclick={() => {
@@ -93,6 +94,7 @@
               <Said text={stepLine(step)} />
               {#if movesApart(plan)}
                 <Action
+                  acts="update"
                   label={m.action_update_one({ service: step.service })}
                   off={updater.busy}
                   onclick={() => {
@@ -108,6 +110,7 @@
         <div class="acts">
           {#if told.finishing}
             <Action
+              acts="update"
               label={m.inflight_finish()}
               weight="firm"
               off={updater.busy}
@@ -119,6 +122,7 @@
           {/if}
           {#if told.ready}
             <Action
+              acts="update"
               label={m.action_update_yes()}
               weight="firm"
               off={updater.busy}

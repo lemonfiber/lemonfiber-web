@@ -77,7 +77,13 @@
   needs it is installed and replaced at the terminal, so nothing here takes
   one.
 -->
-<Panel title={m.values_title()} {freshness} flush>
+<Panel
+  title={m.values_title()}
+  {freshness}
+  reads="settings"
+  answer={values}
+  flush
+>
   <div class="scope">
     <p><Said text={m.values_prose()} /></p>
     {#if report === undefined && problem !== undefined}
@@ -143,6 +149,7 @@
         </ul>
         <div class="acts">
           <Action
+            acts="settings-set"
             label={m.action_values_read()}
             weight="firm"
             off={acting.busy}
@@ -174,6 +181,7 @@
         </ul>
         <div class="acts">
           <Action
+            acts="settings-clear"
             label={m.action_values_read_clear()}
             weight="firm"
             off={acting.busy}

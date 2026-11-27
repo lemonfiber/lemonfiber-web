@@ -86,7 +86,7 @@
   Every download is paused, or resumed, at once, and answered with what each
   download client read back.
 -->
-<Panel title={m.panel_line()} {freshness} flush>
+<Panel title={m.panel_line()} {freshness} reads="bandwidth" answer={line} flush>
   <div class="scope">
     {#if said !== undefined}
       <ul class="standing" aria-label={m.line_said()}>
@@ -164,6 +164,7 @@
         {:else}
           {@const declaring = declared}
           <Action
+            acts="bandwidth"
             label={m.action_line_declare()}
             weight="firm"
             off={silent}
@@ -191,6 +192,7 @@
         {:else}
           {@const lifting = lifted}
           <Action
+            acts="bandwidth"
             label={m.action_line_lift()}
             off={silent}
             onclick={() => {
@@ -203,6 +205,7 @@
     </div>
     <div class="pausing" role="group" aria-label={m.line_pausing()}>
       <Action
+        acts="downloads-pause"
         label={m.action_downloads_pause()}
         off={silent}
         onclick={() => {
@@ -211,6 +214,7 @@
         }}
       />
       <Action
+        acts="downloads-resume"
         label={m.action_downloads_resume()}
         off={silent}
         onclick={() => {

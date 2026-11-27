@@ -90,6 +90,7 @@
       />
       <div class="acts">
         <Action
+          acts="wiring-fill"
           label={m.action_fill_preview({ capability: one.capability })}
           off={filler.busy || service === ""}
           onclick={() => {
@@ -120,6 +121,7 @@
         <p class="prose"><Said text={m.fill_plan_prose()} /></p>
         <div class="acts">
           <Action
+            acts="wiring-fill"
             label={m.action_fill_yes()}
             weight="firm"
             off={filler.busy}

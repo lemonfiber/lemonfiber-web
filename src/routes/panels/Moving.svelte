@@ -48,6 +48,7 @@
   <div class="acts">
     {#each offered as one (one.doing)}
       <Action
+        acts={one.doing}
         label={m.action_move_preview({ mode: one.mode })}
         off={mover.busy}
         onclick={() => {
@@ -80,6 +81,7 @@
         {/if}
         <div class="acts">
           <Action
+            acts={standing.doing}
             label={m.action_move_yes({ mode })}
             weight="firm"
             off={mover.busy}

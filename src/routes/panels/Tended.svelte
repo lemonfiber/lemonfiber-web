@@ -65,6 +65,7 @@
         <li>
           <div class="acts">
             <Action
+              acts="household-approve"
               label={m.action_approve({ title })}
               off={silent}
               onclick={() => {
@@ -95,6 +96,7 @@
               />
               <div class="acts">
                 <Action
+                  acts="household-decline"
                   label={m.action_decline_yes()}
                   weight="firm"
                   off={silent || reason.trim() === ""}
@@ -128,6 +130,7 @@
     aria-label={m.tended_controls({ name: member.name })}
   >
     <Action
+      acts="reissue"
       label={m.action_reissue({ name: member.name })}
       off={silent}
       onclick={() => {

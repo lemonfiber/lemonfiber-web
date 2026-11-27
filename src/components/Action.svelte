@@ -1,4 +1,7 @@
 <script lang="ts">
+  import type { ActionName } from "@lemonfiber/sdk-ts";
+  import { ableHere } from "./able";
+  import { drawn } from "../lib/able";
   import type { Weight } from "../lib/weight";
 
   interface Props {
@@ -15,6 +18,11 @@
     submits?: boolean | undefined;
     /** What pressing it does. */
     onclick?: (() => void) | undefined;
+    /**
+     * The action pressing it asks for. Where the signed-in key cannot use it,
+     * the control is not drawn.
+     */
+    acts?: ActionName | undefined;
   }
 
   let {
@@ -23,7 +31,11 @@
     off = false,
     submits = false,
     onclick,
+    acts,
   }: Props = $props();
+
+  const able = ableHere();
+  const shown = $derived(acts === undefined || drawn(able(), acts));
 
   function pressed(event: MouseEvent): void {
     if (off) {
@@ -45,7 +57,9 @@
   It is a button unless it is told it completes a form. A control inside a form
   defaults to submitting it, which is a second thing to press by accident; the
   one that does complete the form says so, and is what makes the enter key
-  finish what was typed. A control with nothing to do for the moment submits
+  finish what was typed.
+
+  A control asking for an action the signed-in key cannot use is not drawn. A control with nothing to do for the moment submits
   nothing either, `aria-disabled` being a word to a reader and not a brake.
 
   A control with nothing to do for the moment says so rather than leaving the
@@ -56,16 +70,18 @@
   a control that could not wrap would set a floor under the page's width that
   the narrowest window cannot meet.
 -->
-<button
-  class="act"
-  class:firm={weight === "firm"}
-  class:off
-  type={submits ? "submit" : "button"}
-  aria-disabled={off}
-  onclick={pressed}
->
-  <span class="word">{label}</span>
-</button>
+{#if shown}
+  <button
+    class="act"
+    class:firm={weight === "firm"}
+    class:off
+    type={submits ? "submit" : "button"}
+    aria-disabled={off}
+    onclick={pressed}
+  >
+    <span class="word">{label}</span>
+  </button>
+{/if}
 
 <style>
   .word {

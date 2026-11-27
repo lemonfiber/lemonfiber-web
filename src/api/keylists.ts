@@ -7,6 +7,7 @@
  */
 import type { Claimed, Listed, Listing, Minted } from "../lib/keys";
 import type { Phone, Phones } from "../lib/phones";
+import type { Wakeable, Woken } from "../lib/woken";
 
 /** A read key Home Assistant has used. */
 export const home: Listed = {
@@ -118,4 +119,35 @@ export const unpaired: Phones = {
   keys: [pixel, { ...iphone, revoked: 1_790_010_000 }, tablet],
   rehearsed: false,
   revoked: "iphone",
+};
+
+/** A distributor's address for one phone, its path carrying a token made afresh for each run. */
+const wakeAt = (host: string, rest: string): string =>
+  ["https:", "", host, `${rest}${crypto.randomUUID()}`].join("/");
+
+/** A phone woken through its distributor, its address carrying a token made afresh for each run. */
+export const pixelWoken: Wakeable = {
+  name: "pixel",
+  endpoint: wakeAt("push.example.test", "wake/"),
+  registered: 1_790_000_000,
+};
+
+/** A phone woken through another distributor, at a port of its own. */
+export const iphoneWoken: Wakeable = {
+  name: "iphone",
+  endpoint: wakeAt("wake.example.test:8443", "up?token="),
+  registered: 1_790_000_300,
+};
+
+/** Two phones that can be woken, as read. */
+export const woken: Woken = {
+  endpoints: [pixelWoken, iphoneWoken],
+  rehearsed: false,
+};
+
+/** The phones that can be woken once the iPhone is removed, naming it. */
+export const unwoken: Woken = {
+  endpoints: [pixelWoken],
+  rehearsed: false,
+  removed: "iphone",
 };

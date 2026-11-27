@@ -80,13 +80,20 @@
   Every control that takes its own row away hands focus to the region the row
   was in, rather than letting it fall to the document.
 -->
-<Panel title={m.panel_mending()} {freshness} flush>
+<Panel
+  title={m.panel_mending()}
+  {freshness}
+  reads="checks"
+  answer={diagnosis}
+  flush
+>
   <div class="scope">
     <p><Said text={m.mending_prose()} /></p>
   </div>
 
   <div class="controls" role="group" aria-label={m.mending_controls()}>
     <Action
+      acts="repair"
       label={m.action_offer_repairs()}
       off={silent}
       onclick={() => {
@@ -94,6 +101,7 @@
       }}
     />
     <Action
+      acts="diagnose"
       label={m.action_diagnose()}
       off={silent}
       onclick={() => {
@@ -101,6 +109,7 @@
       }}
     />
     <Action
+      acts="undo"
       label={m.action_undo_last()}
       off={silent}
       onclick={() => {
@@ -113,6 +122,7 @@
     <div class="controls" role="group" aria-label={m.mending_warnings()}>
       {#each warnings as finding (finding.check)}
         <Action
+          acts="accept"
           label={m.action_accept({ check: finding.title })}
           off={silent}
           onclick={() => {
@@ -139,6 +149,7 @@
       {@const asking = mender.asked}
       {#snippet answering()}
         <Action
+          acts={asking.doing}
           label={question.yes}
           weight="firm"
           onclick={() => {
@@ -196,6 +207,7 @@
         </ul>
         <div class="controls">
           <Action
+            acts="repair"
             label={m.action_repair_chosen()}
             weight="firm"
             off={mender.busy || mender.picked.length === 0}

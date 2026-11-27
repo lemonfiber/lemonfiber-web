@@ -23,7 +23,13 @@
   on which device, and whether it is paused. A media server that could not be
   asked says so, rather than reading as nobody watching.
 -->
-<Panel title={m.panel_playing()} {freshness} flush>
+<Panel
+  title={m.panel_playing()}
+  {freshness}
+  reads="playing"
+  answer={playing}
+  flush
+>
   <div class="scope">
     {#if playing.ok}
       {#if !playing.value.available}

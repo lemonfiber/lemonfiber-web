@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { ReadName } from "@lemonfiber/sdk-ts";
   import ShowAll from "../../components/ShowAll.svelte";
   import Said from "../../components/Said.svelte";
   import Panel from "../../components/Panel.svelte";
@@ -22,6 +23,8 @@
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
+    /** The read it is drawn from, which silences it where the signed-in key cannot use it. */
+    reads?: ReadName | undefined;
     /** What the checks found, or why they could not be asked. */
     diagnosis: Reading<Diagnosis> | undefined;
     /** When this panel's source last answered. */
@@ -32,7 +35,7 @@
     absent: string;
   }
 
-  let { diagnosis, freshness, title, absent }: Props = $props();
+  let { reads, diagnosis, freshness, title, absent }: Props = $props();
 
   /** One thing to do about a finding, as the row sets it out. */
   interface Doing {
@@ -171,7 +174,7 @@
   is answered, so leaving it shouting would put it back in front of the operator
   who already dealt with it.
 -->
-<Panel {title} {freshness} flush={listed}>
+<Panel {title} {freshness} {reads} answer={diagnosis} flush={listed}>
   {#if shown !== undefined && listed}
     {#each short.of(shown) as one, at (at)}
       <article class="finding" class:alarm={one.tone === "alarm"}>
