@@ -11,7 +11,12 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import type { State } from "./state";
-import { nounOfUnit, type TitleKind, type TitleUnit } from "./kinds";
+import {
+  nounOfKind,
+  nounOfUnit,
+  type TitleKind,
+  type TitleUnit,
+} from "./kinds";
 import * as m from "../paraglide/messages.js";
 
 /** One page of what a member's search found. */
@@ -38,7 +43,14 @@ export function keyOf(title: FoundTitle): string {
 }
 
 /** Every kind a found title may be. */
-const KINDS: readonly TitleKind[] = ["tv", "movies", "music", "books"];
+const KINDS: readonly TitleKind[] = [
+  "tv",
+  "movies",
+  "music",
+  "books",
+  "audiobooks",
+  "podcasts",
+];
 
 /** Every unit music and books are found in. */
 const UNITS: readonly TitleUnit[] = [
@@ -64,10 +76,7 @@ export function foundBy(
 /** What kind of thing a found title is, in the household's words. */
 export function kindOfFound(title: FoundTitle): string {
   const unit = title.unit ?? undefined;
-  if (unit !== undefined) return nounOfUnit(unit);
-  return title.kind === "tv"
-    ? m.member_medium_series()
-    : m.member_medium_film();
+  return unit === undefined ? nounOfKind(title.kind) : nounOfUnit(unit);
 }
 
 /** What a found title is and when it came out, in a few words. */

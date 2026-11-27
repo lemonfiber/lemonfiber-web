@@ -128,10 +128,12 @@ export interface Sent {
   bodies: string[];
   /** The addresses a name was redeemed at. */
   redeemed: string[];
+  /** Each name's route asked for in any other way, by method and address. */
+  named: string[];
 }
 
 /** Nothing asked of the write endpoints yet. */
-const nothingSent = (): Sent => ({ bodies: [], redeemed: [] });
+const nothingSent = (): Sent => ({ bodies: [], redeemed: [], named: [] });
 
 /** Work the runtime took, as the action endpoint answers it. */
 export const accepted: Says = {
@@ -171,7 +173,8 @@ export const going: Says = accepted;
  * is asking about is what the screen does with a reply rather than which reply
  * a name earns. What became of the work is a list, read one entry per asking and
  * holding at the last, so a test says how many times it has to be asked before
- * there is something to say.
+ * there is something to say. A name's route asked for any other way is kept by
+ * method and address, and answered as work still going.
  */
 export function acting(
   reply: Says,
@@ -180,6 +183,14 @@ export function acting(
 ): Sending {
   let asked = 0;
   return (url, init) => {
+    if (url.includes("/api/jobs/") && init.method !== "GET") {
+      sent.named.push(`${init.method} ${url}`);
+      return Promise.resolve({
+        ok: true,
+        status: going.status,
+        text: () => Promise.resolve(going.body),
+      });
+    }
     if (init.method === "POST") {
       sent.bodies.push(init.body ?? "");
       return Promise.resolve({

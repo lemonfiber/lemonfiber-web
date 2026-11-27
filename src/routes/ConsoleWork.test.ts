@@ -3,7 +3,8 @@ import type { Sending } from "@lemonfiber/sdk-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { titleOfDoing, wordOfDoing } from "../lib/work";
 import * as m from "../paraglide/messages.js";
-import { enveloped, type Says } from "./served";
+import { job } from "./fixture";
+import { enveloped, here, type Says } from "./served";
 import {
   framed,
   saying,
@@ -114,16 +115,43 @@ describe("what became of the work", () => {
     expect(await screen.findByText(wentWrong)).toBeInTheDocument();
   });
 
-  // Nothing carries a job across a restart, so answering "still going" for a
-  // name nothing knows would leave a reader waiting on an outcome that is
-  // never coming.
-  it("says a name this run no longer knows is gone, not unfinished", async () => {
+  // A name lemonfiber no longer answers this page about may be one it never
+  // issued, one let go elsewhere or one another sign-in started, and is
+  // answered alike for all three: none of them says the work failed.
+  it("says a name lemonfiber no longer answers about is not here, not failed", async () => {
     console_({ sending: acting(accepted, undefined, [forgotten]) });
 
     await press(wordOfDoing("up", false));
 
     expect(await screen.findByText(m.eyebrow_forgotten())).toBeInTheDocument();
+    expect(screen.getByText(m.work_forgotten({ job }))).toBeInTheDocument();
   });
+
+  it.each([
+    ["released", m.work_ended_released({ job })],
+    ["let-go", m.work_ended_let_go({ job })],
+    ["quiet", m.work_ended_quiet({ job })],
+  ] as const)(
+    "says work %s before it finished ended early, and how",
+    async (ended, says) => {
+      console_({
+        sending: acting(accepted, undefined, [
+          {
+            status: 200,
+            body: enveloped("ended", { job, action: "up", ended }),
+          },
+        ]),
+      });
+
+      await press(wordOfDoing("up", false));
+
+      expect(
+        await screen.findByText(m.eyebrow_ended_early()),
+      ).toBeInTheDocument();
+      expect(screen.getByText(says)).toBeInTheDocument();
+      expect(screen.queryByText(m.eyebrow_finished())).toBeNull();
+    },
+  );
 
   // The work may be running perfectly well; it is the asking that stopped.
   it("says it lost the thread when it cannot ask at all", async () => {
@@ -152,7 +180,7 @@ describe("what became of the work", () => {
   });
 
   it("asks again until there is something to say", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     console_({
       sending: acting(accepted, sent, [going, going, rendered]),
       pausing: atOnce,
@@ -167,7 +195,7 @@ describe("what became of the work", () => {
   // A record nobody is looking at is not a reason to keep asking lemonfiber
   // anything.
   it("stops asking once the record is put away", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     let go = (): void => undefined;
     const held = (): Promise<void> =>
       new Promise((resolve) => {
@@ -186,8 +214,79 @@ describe("what became of the work", () => {
     expect(sent.redeemed).toHaveLength(1);
   });
 
+  // Releasing a name ends its work at the next step. Putting a record away is
+  // looking away from the work, so it forgets the name and never releases it.
+  it("forgets the name of work still running once its record is put away", async () => {
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
+    console_({ sending: acting(accepted, sent, [going]) });
+
+    await press(wordOfDoing("up", false));
+    expect(
+      await screen.findByText(m.work_under_way({ job })),
+    ).toBeInTheDocument();
+    await press(m.action_hide_record());
+    await settle();
+
+    expect(sent.named).toStrictEqual([`POST ${here}/api/jobs/${job}/forget`]);
+  });
+
+  it("forgets the name of work it lost the thread of once its record is put away", async () => {
+    const named: string[] = [];
+    const sending: Sending = (url, init) => {
+      if (!url.includes("/api/jobs/")) return acting(accepted)(url, init);
+      if (init.method === "GET") return Promise.reject(new Error("no route"));
+      named.push(`${init.method} ${url}`);
+      return Promise.resolve({
+        ok: true,
+        status: 202,
+        text: () => Promise.resolve(going.body),
+      });
+    };
+    console_({ sending });
+
+    await press(wordOfDoing("up", false));
+    await screen.findByText(m.eyebrow_lost_track());
+    await press(m.action_hide_record());
+    await settle();
+
+    expect(named).toStrictEqual([`POST ${here}/api/jobs/${job}/forget`]);
+  });
+
+  it("lets go of nothing once the record of work that finished is put away", async () => {
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
+    console_({ sending: acting(accepted, sent, [rendered]) });
+
+    await press(wordOfDoing("up", false));
+    await screen.findByText(m.eyebrow_finished());
+    await press(m.action_hide_record());
+    await settle();
+
+    expect(sent.named).toStrictEqual([]);
+  });
+
+  it("forgets the key when forgetting a name is turned away", async () => {
+    const refused = vi.fn();
+    const sending: Sending = (url, init) =>
+      url.endsWith("/forget")
+        ? Promise.resolve({
+            ok: false,
+            status: 403,
+            text: () => Promise.resolve(""),
+          })
+        : acting(accepted, undefined, [going])(url, init);
+    console_({ sending, onrefused: refused });
+
+    await press(wordOfDoing("up", false));
+    await screen.findByText(m.eyebrow_taken_on());
+    await press(m.action_hide_record());
+
+    await waitFor(() => {
+      expect(refused).toHaveBeenCalled();
+    });
+  });
+
   it("stops asking once the screen is put away", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     let go = (): void => undefined;
     const held = (): Promise<void> =>
       new Promise((resolve) => {

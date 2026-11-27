@@ -9,7 +9,7 @@ import {
   type Sending,
 } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
-import { pausing, redeeming } from "./redeeming";
+import { forgetting, pausing, redeeming } from "./redeeming";
 import type { Reaching } from "./asking";
 import { enveloped, notFromLemonfiber, proxyPage, replying } from "./bodies";
 
@@ -147,6 +147,23 @@ describe("where the work got to", () => {
     expect(came).toStrictEqual({ at: "stopped", said: summary });
   });
 
+  it.each(["released", "let-go", "quiet"] as const)(
+    "says work %s before it finished ended, and how",
+    async (ended) => {
+      const came = await redeeming(
+        asking({
+          sending: saying(
+            200,
+            enveloped("ended", { job, action: "up", ended }),
+          ),
+        }),
+        job,
+      );
+
+      expect(came).toStrictEqual({ at: "ended", ending: ended });
+    },
+  );
+
   // Answering "still going" for work nothing is doing leaves a caller waiting
   // on an outcome that is never coming.
   it("says a name this run never handed out is absent, not unfinished", async () => {
@@ -237,6 +254,79 @@ describe("when the asking itself fails", () => {
       at: "adrift",
       said: unreachable().message,
     });
+  });
+});
+
+describe("forgetting a name", () => {
+  // Releasing a name ends its work; forgetting it leaves the work running.
+  it("posts to the name's own forget route, carrying the key in a header", async () => {
+    const sending = saying(202, enveloped("job", { job, action: "up" }));
+
+    await forgetting(asking({ sending }), job);
+
+    expect(sending).toHaveBeenCalledOnce();
+    expect(sending).toHaveBeenCalledWith(
+      `${here}/api/jobs/${job}/forget`,
+      expect.objectContaining({
+        method: "POST",
+        headers: expect.objectContaining({ [TOKEN_HEADER]: key }) as unknown,
+      }),
+    );
+  });
+
+  it.each([
+    ["still going", 202, enveloped("job", { job, action: "up" })],
+    ["finished", 200, enveloped("lifecycle", ran)],
+    ["ended", 200, enveloped("ended", { job, action: "up", ended: "let-go" })],
+  ])("lets go of a name whose work was %s", async (_what, status, body) => {
+    const forgot = await forgetting(
+      asking({ sending: saying(status, body) }),
+      job,
+    );
+
+    expect(forgot).toBe("let-go");
+  });
+
+  // Another sign-in's work, a name let go elsewhere and one never issued are
+  // answered alike, and each leaves nothing here to let go of.
+  it("takes a name lemonfiber no longer answers about as let go", async () => {
+    const absent = enveloped("error", {
+      code: "ASK-7",
+      summary: "No work in this run goes by that name.",
+      meaning:
+        "Jobs are named by the run that starts them, and nothing this run started goes by this name. Work from an earlier run is not tracked here.",
+      remedies: [],
+      severity: "error",
+      state: "actionable",
+    });
+
+    const forgot = await forgetting(
+      asking({ sending: saying(404, absent) }),
+      job,
+    );
+
+    expect(forgot).toBe("let-go");
+  });
+
+  it("says the key was turned away where it is not this run's", async () => {
+    const forgot = await forgetting(asking({ sending: saying(403) }), job);
+
+    expect(forgot).toBe("turned-away");
+  });
+
+  it("says it was not answered where lemonfiber could not be reached", async () => {
+    const sending: Sending = () => Promise.reject(new Error("no route"));
+
+    expect(await forgetting(asking({ sending }), job)).toBe("unanswered");
+  });
+
+  it("sends nothing to an address that is not this machine", async () => {
+    const sending = saying(202);
+
+    const forgot = await forgetting(asking({ at: elsewhere, sending }), job);
+
+    expect(forgot).toBe("unanswered");
+    expect(sending).not.toHaveBeenCalled();
   });
 });
 

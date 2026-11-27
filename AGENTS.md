@@ -22,9 +22,9 @@ built from the same components in `src/components`.
 **What the console offers is measured, not remembered.** `src/offered.test.ts`
 classifies every kind the client carries and every request another surface can
 make as offered here, offered elsewhere by a named requirement, or not offered
-yet with its feature, and `docs/surface-parity.md` states what those lists come
-to. A screen that reads a new kind or offers a new request moves it to offered
-in both, in the same change; the suite fails until they agree.
+yet with its feature, and `src/parity.test.ts` holds `docs/surface-parity.md` to
+those lists. A screen that reads a new kind or offers a new request moves it to
+offered in both, in the same change; the suites fail until they agree.
 
 ## The load-bearing rules
 
