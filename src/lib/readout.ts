@@ -28,12 +28,22 @@ export interface Entry {
   readonly follow?: Following | undefined;
 }
 
+/** A command the operator can copy and run as it stands. */
+export interface Command {
+  /** What running it does, which the command is announced by. */
+  readonly label: string;
+  /** The command, word for word. */
+  readonly text: string;
+}
+
 /** A reading, told. */
 export interface Readout {
   /** What it says as a whole, in order. */
   readonly lines: readonly string[];
   /** Each thing it lists. */
   readonly entries: readonly Entry[];
+  /** Commands it hands the operator, each drawn to be copied whole. */
+  readonly commands?: readonly Command[] | undefined;
 }
 
 /** A value lemonfiber may leave out, kept where it gave one. */

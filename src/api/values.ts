@@ -135,6 +135,7 @@ export const movingTunnel: Change = {
     {
       setting: "gluetun:vpn-type",
       value: "wireguard",
+      default: { of: "declared", value: "openvpn" },
       consequence:
         "qbittorrent loses its peers while gluetun reconnects through WireGuard.",
     },
@@ -172,7 +173,13 @@ export const clearOffer = "settings-clear:51d0";
 export const clearingCountries: Change = {
   agreement: clearOffer,
   applied: false,
-  settings: [{ setting: "gluetun:countries", was: "Netherlands,Belgium" }],
+  settings: [
+    {
+      setting: "gluetun:countries",
+      was: "Netherlands,Belgium",
+      default: { of: "none" },
+    },
+  ],
   regenerates: ["gluetun"],
   restarts: [],
   starts: [],

@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 import { linesOf } from "./came";
 import {
   configLines,
+  coversLine,
+  decisionLines,
   originWords,
   type Configured,
   type Setting,
 } from "./configured";
+import { listed } from "./listed";
 import { applied, everySetting, madeAtOnce, staged } from "../api/configs";
 import * as m from "../paraglide/messages.js";
 
@@ -187,6 +190,72 @@ describe("what changing a setting came to", () => {
   it("is what a record of one lists", () => {
     expect(linesOf({ kind: "config", report: staged })).toStrictEqual(
       configLines(staged),
+    );
+  });
+});
+
+describe("a setup choice, without its value", () => {
+  const [root, password, locale] = everySetting.decisions;
+
+  it("says what changing it affects, what a change costs, whether it is set and where it is changed", () => {
+    expect(root && decisionLines(root, "Settings")).toStrictEqual([
+      "where every download and every library file lives",
+      m.decision_consequential(),
+      m.decision_held(),
+      m.decision_config({ key: "DATA_ROOT" }),
+    ]);
+  });
+
+  it("says a credential's value is kept secret, and never says the value", () => {
+    expect(password && decisionLines(password, "Settings")).toStrictEqual([
+      "the password the account is reached with",
+      m.decision_cheap(),
+      m.decision_held(),
+      m.decision_credential(),
+      m.decision_config({ key: "USENET_PASS" }),
+    ]);
+  });
+
+  it("sends one the settings store keeps to the setting it is changed as", () => {
+    expect(locale && decisionLines(locale, "Settings")).toStrictEqual([
+      "the language and region the house says it has",
+      m.decision_cheap(),
+      m.decision_unset(),
+      m.decision_setting({ panel: "Settings", setting: "LEMONFIBER_LOCALE" }),
+    ]);
+  });
+});
+
+describe("what an area left alone covers", () => {
+  const [config, radar] = everySetting.unmanaged;
+
+  it("names each thing by its kind and name", () => {
+    expect(config && coversLine(config)).toBe(
+      m.unmanaged_covers({
+        things: listed([
+          m.unmanaged_service({ name: "config" }),
+          m.unmanaged_path({ name: "config/recyclarr/recyclarr.yml" }),
+        ]),
+      }),
+    );
+  });
+
+  it("says it covers nothing now, and counts what is left out", () => {
+    expect(radar && coversLine(radar)).toBe(m.unmanaged_covers_nothing());
+    expect(
+      coversLine({
+        area: "x",
+        area_cut: false,
+        why: "y",
+        why_cut: false,
+        covers: [{ kind: "setting", name: "TZ" }],
+        covers_more: 4,
+      }),
+    ).toBe(
+      m.unmanaged_covers_more({
+        things: m.unmanaged_setting({ name: "TZ" }),
+        count: 4,
+      }),
     );
   });
 });

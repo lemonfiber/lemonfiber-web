@@ -494,6 +494,7 @@ const LABEL_SLOTS = [
   ["MenuItem", "label"],
   ["Switch", "label"],
   ["CheckLine", "label"],
+  ["Command", "label"],
   ["Field", "label"],
   ["Segmented", "label"],
   ["SubNav", "label"],

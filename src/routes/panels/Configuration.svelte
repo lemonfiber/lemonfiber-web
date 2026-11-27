@@ -11,6 +11,8 @@
   import type { Reading } from "@lemonfiber/sdk-ts";
   import { linesOf } from "../../lib/came";
   import {
+    coversLine,
+    decisionLines,
     originWords,
     type Configured,
     type Setting,
@@ -18,6 +20,7 @@
   import { standingChange, type Configurer } from "../../lib/configuring";
   import type { Freshness } from "../../lib/freshness";
   import { interruptedBy, wholeStack } from "../../lib/inflight";
+  import { shortened } from "../../lib/machine";
   import { readingOf, titleOfDoing } from "../../lib/work";
   import { Shortening } from "../../lib/shortening.svelte";
   import * as m from "../../paraglide/messages.js";
@@ -58,8 +61,8 @@
     typed = setting.secret ? "" : setting.value;
   }
 
-  const listed = $derived(
-    settings?.ok === true ? settings.value.settings : undefined,
+  const configured = $derived(
+    settings?.ok === true ? settings.value : undefined,
   );
   const problem = $derived(
     settings?.ok === false ? settings.problem.message : undefined,
@@ -75,6 +78,8 @@
 
 <!--
   Every setting lemonfiber keeps, where each value came from, and changing one.
+  Under them, each answer setup wrote without its value, with where it is
+  changed, and each area the operator declared lemonfiber leaves alone.
 
   A setting is changed by giving it a value and asking. lemonfiber decides
   whether the change costs something: one that does not is made at once, and
@@ -92,9 +97,9 @@
     <p><Said text={m.config_prose()} /></p>
   </div>
 
-  {#if listed !== undefined}
+  {#if configured !== undefined}
     <ul class="settings" aria-label={m.config_settings()}>
-      {#each short.of(listed) as setting (setting.key)}
+      {#each short.of(configured.settings) as setting (setting.key)}
         <li class="setting">
           <div class="row">
             <div class="words">
@@ -150,7 +155,47 @@
         </li>
       {/each}
     </ul>
-    <ShowAll items={listed} shortening={short} />
+    <ShowAll items={configured.settings} shortening={short} />
+    {#if configured.decisions.length > 0}
+      <section class="part" aria-labelledby={`${reviewId}-decisions`}>
+        <h3 id={`${reviewId}-decisions`}>{m.decision_heading()}</h3>
+        <p class="prose"><Said text={m.decision_prose()} /></p>
+        <ul class="settings">
+          {#each configured.decisions as decision (decision.key)}
+            <li class="setting">
+              <p class="key">{decision.key}</p>
+              {#each decisionLines(decision, m.values_title()) as line, at (at)}
+                <p class="note">{line}</p>
+              {/each}
+            </li>
+          {/each}
+        </ul>
+      </section>
+    {/if}
+    {#if configured.unmanaged.length > 0}
+      <section class="part" aria-labelledby={`${reviewId}-unmanaged`}>
+        <h3 id={`${reviewId}-unmanaged`}>{m.unmanaged_heading()}</h3>
+        <p class="prose"><Said text={m.unmanaged_prose()} /></p>
+        <ul class="settings">
+          {#each configured.unmanaged as area, at (at)}
+            <li class="setting">
+              <p class="key">
+                {shortened({ text: area.area, cut: area.area_cut })}
+              </p>
+              <p class="prose">
+                {shortened({ text: area.why, cut: area.why_cut })}
+              </p>
+              <p class="note">{coversLine(area)}</p>
+            </li>
+          {/each}
+        </ul>
+        {#if configured.unmanaged_more > 0}
+          <p class="note more">
+            {m.unmanaged_more({ count: configured.unmanaged_more })}
+          </p>
+        {/if}
+      </section>
+    {/if}
   {:else}
     <div class="settings">
       {#if problem !== undefined}
@@ -270,6 +315,16 @@
 
   div.settings {
     padding: 0 var(--panel-pad) var(--sp-3);
+  }
+
+  .part {
+    border-top: 1px solid var(--line);
+  }
+
+  .part > h3,
+  .part > .prose,
+  .more {
+    padding: var(--sp-3) var(--panel-pad) 0;
   }
 
   .setting {

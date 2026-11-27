@@ -154,9 +154,23 @@ describe("what a change would do", () => {
     const moving: Change = {
       ...movingTunnel,
       settings: [
-        { setting: "gluetun:vpn-type", was: "openvpn", value: "wireguard" },
-        { setting: "gluetun:countries", was: "Belgium" },
-        { setting: "gluetun:mtu", value: null, consequence: "" },
+        {
+          setting: "gluetun:vpn-type",
+          was: "openvpn",
+          value: "wireguard",
+          default: { of: "declared", value: "openvpn" },
+        },
+        {
+          setting: "gluetun:countries",
+          was: "Belgium",
+          default: { of: "none" },
+        },
+        {
+          setting: "gluetun:mtu",
+          value: null,
+          consequence: "",
+          default: { of: "declared", value: "1320" },
+        },
       ],
       regenerates: [],
       restarts: [],

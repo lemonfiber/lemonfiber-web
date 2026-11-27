@@ -1,5 +1,6 @@
 <script lang="ts">
   import Board from "./Board.svelte";
+  import Banner from "../components/Banner.svelte";
   import Alerts from "./panels/Alerts.svelte";
   import Readout from "./panels/Readout.svelte";
   import Catalogue from "./panels/Catalogue.svelte";
@@ -22,6 +23,15 @@
   import type { Configurer } from "../lib/configuring";
   import type { Alerts as Told } from "../lib/alerts";
   import { notifiedReadout, type Notified } from "../lib/notifying";
+  import {
+    readableOnThePath,
+    servedReadout,
+    settledReadout,
+    stackReadout,
+    type Served,
+    type Settled,
+    type Stack,
+  } from "../lib/machine";
   import { toldBy } from "../lib/readout";
   import type { Catalogue as Held, Provenance } from "../lib/catalogue";
   import type { Standing, Versions } from "../lib/copy";
@@ -67,6 +77,12 @@
     alerts?: Reading<Told> | undefined;
     /** Where alerts go, or why it could not be read. */
     notify?: Reading<Notified> | undefined;
+    /** How the console itself is served, or why it could not be read. */
+    served?: Reading<Served> | undefined;
+    /** How the stack runs without lemonfiber, or why it could not be read. */
+    stack?: Reading<Stack> | undefined;
+    /** What setup settled, or why it could not be read. */
+    settled?: Reading<Settled> | undefined;
     /** What the stack wires to what, or why it could not be read. */
     wiring?: Reading<Wired> | undefined;
     /** The plugins on this machine, or why they could not be read. */
@@ -117,6 +133,9 @@
     provenance,
     alerts,
     notify,
+    served,
+    stack,
+    settled,
     wiring,
     plugins,
     values,
@@ -135,6 +154,12 @@
   }: Props = $props();
 
   const delivered = $derived(toldBy(notify, notifiedReadout));
+  const serving = $derived(toldBy(served, servedReadout));
+  const running = $derived(toldBy(stack, stackReadout));
+  const setUp = $derived(toldBy(settled, settledReadout));
+  const exposed = $derived(
+    served?.ok === true && readableOnThePath(served.value),
+  );
 </script>
 
 <!--
@@ -143,15 +168,25 @@
   setting and secret the services read with each service held back, how the line
   is shared, everything that leaves this machine, what the operator is told
   about and where it goes, every credential the stack holds and each grant of one to a plugin,
-  the versions the stack stands on, what the stack holds and where each service
+  how this console is served, how the stack runs without lemonfiber, what setup
+  settled, the versions the stack stands on, what the stack holds and where each service
   comes from, what it wires to what, the plugins on this machine, this copy of
   lemonfiber, pairing the companion app, the integration keys, and every word
   lemonfiber explains.
 
   The readings are asked for together on the way in, and stamped together.
   The line is drawn where it was read or can be declared.
+  Where the console is served to the network without encryption, an alarm
+  stands at the top on every visit until it is served encrypted.
 -->
 <Board>
+  {#if exposed}
+    <Banner
+      tone="alarm"
+      lead={m.served_alarm_lead()}
+      prose={m.served_alarm_prose()}
+    />
+  {/if}
   <Quality {quality} {freshness} {tuner} />
 
   <Configuration {settings} {freshness} {configurer} />
@@ -172,6 +207,32 @@
     />
   {/if}
   <Credentials {credentials} {freshness} {revoker} />
+  {#if serving !== undefined}
+    <Readout
+      title={m.panel_served()}
+      prose={m.served_prose()}
+      named={m.served_said()}
+      readout={serving}
+      {freshness}
+    />
+  {/if}
+  {#if running !== undefined}
+    <Readout
+      title={m.panel_stack()}
+      prose={m.stack_prose()}
+      named={m.stack_said()}
+      readout={running}
+      {freshness}
+    />
+  {/if}
+  {#if setUp !== undefined}
+    <Readout
+      title={m.panel_settled()}
+      prose={m.settled_prose()}
+      readout={setUp}
+      {freshness}
+    />
+  {/if}
 
   {#if updater !== undefined}
     <Updates {updater} {freshness} />
