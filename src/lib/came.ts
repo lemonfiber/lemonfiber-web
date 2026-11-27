@@ -31,14 +31,7 @@
  * through unchanged. The words around them live in `messages/`.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
-import {
-  backupLines,
-  bundleLines,
-  restoreLines,
-  type Backed,
-  type Bundled,
-  type Restored,
-} from "./kept";
+import { keptLines, type Kept } from "./kept";
 import { qualityLines, upgradeLines, type Tuned, type Upgraded } from "./tuned";
 import { configLines, type Configured } from "./configured";
 import { pairingLines, type Paired } from "./paired";
@@ -118,9 +111,7 @@ export type Came =
   | { readonly kind: "doctor"; readonly report: Checked }
   | { readonly kind: "repair"; readonly report: Repaired }
   | { readonly kind: "undo"; readonly report: Undone }
-  | { readonly kind: "backup"; readonly report: Backed }
-  | { readonly kind: "restore"; readonly report: Restored }
-  | { readonly kind: "bundle"; readonly report: Bundled }
+  | Kept
   | { readonly kind: "quality"; readonly report: Tuned }
   | { readonly kind: "upgrade"; readonly report: Upgraded }
   | { readonly kind: "config"; readonly report: Configured }
@@ -467,11 +458,9 @@ export function linesOf(came: Came): readonly string[] {
     case "undo":
       return undoLines(came.report);
     case "backup":
-      return backupLines(came.report);
     case "restore":
-      return restoreLines(came.report);
     case "bundle":
-      return bundleLines(came.report);
+      return keptLines(came);
     case "quality":
       return qualityLines(came.report);
     case "upgrade":

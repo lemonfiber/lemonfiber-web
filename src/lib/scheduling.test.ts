@@ -42,9 +42,9 @@ describe("what the scheduled panel asks for", () => {
   });
 
   it("rehearses running one now first, and runs it on a yes", () => {
-    expect(scheduling.question({ doing: "run", service: "configarr" })).toBe(
-      undefined,
-    );
+    expect(
+      scheduling.question({ doing: "run", service: "configarr" }),
+    ).toBeUndefined();
     expect(givenForRun({ doing: "run", service: "configarr" })).toStrictEqual({
       service: "configarr",
       now: true,

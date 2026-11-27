@@ -26,11 +26,10 @@ import type { Leaving } from "../lib/leaving";
 import type { Reckoned } from "../lib/letting";
 import type { Shared } from "../lib/shared";
 import type { Tuned } from "../lib/tuned";
-import type { Stack as Services } from "../lib/wire";
 import type { Plugins } from "../lib/plugins";
 import type { PluginCatalogue } from "../lib/catalogued";
 import type { Values } from "../lib/values";
-import type { Diagnosis } from "../lib/wire";
+import type { Diagnosis, Stack as Services } from "../lib/wire";
 import type { Wiring } from "../lib/wiring";
 
 /** What the checks screen is drawn from. */

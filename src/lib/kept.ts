@@ -135,3 +135,21 @@ export function bundleLines(report: Bundled): readonly string[] {
   }
   return lines;
 }
+
+/** What backing up, putting back or gathering a bundle came to. */
+export type Kept =
+  | { readonly kind: "backup"; readonly report: Backed }
+  | { readonly kind: "restore"; readonly report: Restored }
+  | { readonly kind: "bundle"; readonly report: Bundled };
+
+/** What backing up, putting back or gathering a bundle came to, line by line. */
+export function keptLines(kept: Kept): readonly string[] {
+  switch (kept.kind) {
+    case "backup":
+      return backupLines(kept.report);
+    case "restore":
+      return restoreLines(kept.report);
+    case "bundle":
+      return bundleLines(kept.report);
+  }
+}
