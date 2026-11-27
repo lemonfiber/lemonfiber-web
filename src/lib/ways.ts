@@ -8,6 +8,7 @@
  * place is said instead.
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
+import { linkable } from "./linked";
 
 /** The household's front door, as a member reads it. */
 export type Door = ByKind["front-door"]["data"];
@@ -26,8 +27,9 @@ function opened(
   address: Door["address"],
   reaches: Door["reaches"],
 ): string | undefined {
-  if (reaches === "not-here") return undefined;
-  return address?.url;
+  const url = address?.url;
+  if (reaches === "not-here" || url === undefined) return undefined;
+  return linkable(url);
 }
 
 /** Every place the read names, the door first. */
