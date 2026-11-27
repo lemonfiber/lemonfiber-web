@@ -31,15 +31,15 @@ export interface Asking {
 export const WATCHED = "watched";
 
 /** The kinds searched together as that one choice. */
-const WATCHED_KINDS: readonly TitleKind[] = ["tv", "movies"];
+const WATCHED_KINDS: ReadonlySet<TitleKind> = new Set(["tv", "movies"]);
 
 /** The choices the read offers, series and films first. */
 export function choicesOf(kinds: Kinds): readonly Asking[] {
   const watched = kinds.kinds
     .map((one) => one.kind)
-    .filter((kind) => WATCHED_KINDS.includes(kind));
+    .filter((kind) => WATCHED_KINDS.has(kind));
   const rest = kinds.kinds.flatMap((one): readonly Asking[] => {
-    if (WATCHED_KINDS.includes(one.kind)) return [];
+    if (WATCHED_KINDS.has(one.kind)) return [];
     if (one.units.length === 0) {
       return [{ key: one.kind, label: wordOfKind(one.kind), kind: one.kind }];
     }
