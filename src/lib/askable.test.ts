@@ -72,7 +72,24 @@ describe("a title a member's search found", () => {
   it("says what kind of thing it is", () => {
     expect(kindOfFound(dune)).toBe(m.member_medium_film());
     expect(kindOfFound(severance)).toBe(m.member_medium_series());
+    expect(kindOfFound({ ...dune, kind: "audiobooks" })).toBe(
+      m.member_medium_audiobook(),
+    );
+    expect(kindOfFound({ ...dune, kind: "podcasts" })).toBe(
+      m.member_medium_podcast(),
+    );
   });
+
+  it.each(["audiobooks", "podcasts"] as const)(
+    "is found again by its key as one of the %s",
+    (kind) => {
+      expect(foundBy(keyOf({ ...dune, kind }))).toEqual({
+        id: dune.id,
+        kind,
+        unit: undefined,
+      });
+    },
+  );
 
   it("says when it came out where that is known, and only its kind where not", () => {
     expect(captionOfFound(dune)).toBe(
