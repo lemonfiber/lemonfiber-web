@@ -521,7 +521,7 @@ export function servicesOf(stack: Stack): readonly Service[] {
 }
 
 /** Anything the wire names by an id and calls by a name. */
-interface Named {
+export interface Named {
   readonly id: string;
   readonly name: string;
 }

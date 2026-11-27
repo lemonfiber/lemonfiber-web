@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
-import type { Fetching } from "@lemonfiber/sdk-ts";
+import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
 import Console from "./Console.svelte";
 import {
@@ -175,5 +175,78 @@ describe("updating, from the settings screen", () => {
     expect(
       screen.queryByRole("region", { name: m.update_plan_title() }),
     ).toBeNull();
+  });
+
+  it("moves one service alone, read first for what stopping it interrupts", async () => {
+    const sent = fresh();
+    const [first] = plan.changes;
+    const service = first?.service ?? "";
+    const alone = {
+      ...plan,
+      changes: plan.changes.slice(0, 1),
+      offer: "update:one",
+    };
+    const inflight: string[] = [];
+    globalThis.history.replaceState(undefined, "", "/settings");
+    const answering = stack(
+      {
+        acting: {
+          update: [
+            { status: 200, body: enveloped("update", plan) },
+            { status: 200, body: enveloped("update", alone) },
+            started,
+          ],
+        },
+        becoming: [{ status: 200, body: enveloped("update", moved) }],
+        reading: {
+          "/api/quality": { status: 200, body: enveloped("quality", inForce) },
+        },
+      },
+      sent,
+    );
+    const watching: Sending = (url, init) => {
+      if (url.includes("/api/in-flight")) inflight.push(url);
+      return answering(url, init);
+    };
+    render(Console, {
+      reaching: {
+        at: here,
+        token: key,
+        sending: watching,
+        fetching: silent,
+      },
+      onrefused: vi.fn(),
+      pausing: () => Promise.resolve(),
+    });
+    await screen.findByText(m.action_update_plan());
+
+    await press(m.action_update_plan());
+    await screen.findByRole("button", {
+      name: m.action_update_one({ service }),
+    });
+    await press(m.action_update_one({ service }));
+    await screen.findByRole("region", {
+      name: m.update_one_title({ service }),
+    });
+    await press(m.action_update_yes());
+
+    expect(sent.posted).toStrictEqual([
+      { at: "/api/actions/update", body: "{}" },
+      { at: "/api/actions/update", body: JSON.stringify({ service }) },
+      {
+        at: "/api/actions/update",
+        body: JSON.stringify({
+          service,
+          confirm: true,
+          wait: false,
+          offer: alone.offer,
+        }),
+      },
+    ]);
+    expect(
+      inflight.some((url) =>
+        new URL(url).searchParams.getAll("services").includes(service),
+      ),
+    ).toBe(true);
   });
 });

@@ -10,6 +10,7 @@ import {
 import { describe, expect, it, vi } from "vitest";
 import Console from "./Console.svelte";
 import { allWell } from "./findings";
+import { stack as declaredStack } from "./fixture";
 import {
   archive,
   backed,
@@ -104,6 +105,9 @@ function stack(
     if (at.startsWith("/api/backups")) {
       asked.listed += 1;
       return said({ status: 200, body: enveloped("archives", kept) });
+    }
+    if (at.startsWith("/api/services")) {
+      return said({ status: 200, body: enveloped("status", declaredStack) });
     }
     if (at.startsWith("/api/storage") || at.startsWith("/api/checks")) {
       return said({ status: 200, body: enveloped("doctor", allWell) });
@@ -217,6 +221,36 @@ describe("taking a backup from the disk screen", () => {
     expect(
       await within(backups()).findByText(m.eyebrow_lost_track()),
     ).toBeInTheDocument();
+  });
+});
+
+describe("backing up one service from the disk screen", () => {
+  const [first] = declaredStack.services;
+  const name = first?.name ?? "";
+
+  it("lists each service, read on the way in, and backs one up on a yes naming it", async () => {
+    const sent = fresh();
+    opened(
+      "/storage",
+      stack({}, [{ status: 200, body: enveloped("backup", backed) }], sent),
+    );
+
+    await screen.findByRole("button", {
+      name: m.action_backup_one({ name }),
+    });
+    await press(m.action_backup_one({ name }));
+    expect(
+      within(backups()).getByText(m.confirm_backup_one_title({ name })),
+    ).toBeInTheDocument();
+    expect(sent.posted).toStrictEqual([]);
+    await press(m.action_backup_one_yes());
+
+    expect(sent.posted).toStrictEqual([
+      {
+        at: "/api/actions/backup",
+        body: JSON.stringify({ service: first?.id }),
+      },
+    ]);
   });
 });
 

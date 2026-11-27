@@ -13,9 +13,11 @@
   import {
     questionOfKeep,
     standingListing,
+    titleOfKept,
     type Keeper,
   } from "../../lib/upkeep";
-  import { readingOf, titleOfDoing } from "../../lib/work";
+  import { servicesOf, type Stack } from "../../lib/wire";
+  import { readingOf } from "../../lib/work";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -23,11 +25,13 @@
     keeper: Keeper;
     /** The backups this machine keeps, or why they could not be read. */
     archives: Reading<Archives> | undefined;
+    /** Each service, any one of which can be backed up alone. */
+    services: Reading<Stack> | undefined;
     /** When this panel's source last answered. */
     freshness: Freshness;
   }
 
-  let { keeper, archives, freshness }: Props = $props();
+  let { keeper, archives, services, freshness }: Props = $props();
 
   const listingId = $props.id();
 
@@ -56,6 +60,9 @@
   const problem = $derived(
     archives?.ok === false ? archives.problem.message : undefined,
   );
+  const each = $derived(
+    services?.ok === true ? servicesOf(services.value) : [],
+  );
   const parted = $derived(
     question !== undefined || standing !== undefined || work.length > 0,
   );
@@ -73,9 +80,13 @@
   machine's data location, which is a switch because it is the one choice the
   listing leaves open.
 
-  Every archive's control names it, because a reader listing the controls on a
-  screen is given the names and nothing around them. Every control that takes
-  its own row away hands focus to the region the row was in.
+  Backing up one service alone is asked about the same way, naming it, and
+  takes that service's settings and nothing else.
+
+  Every archive's and service's control names it, because a reader listing the
+  controls on a screen is given the names and nothing around them. Every
+  control that takes its own row away hands focus to the region the row was
+  in.
 -->
 <Panel title={m.panel_backups()} {freshness} flush>
   <div class="scope">
@@ -114,6 +125,36 @@
         <Value state="known" absent={m.backups_none()} />
       {:else if problem !== undefined}
         <Value state="unknown" absent={problem} />
+      {:else}
+        <Skeleton width="18rem" label={m.waiting_answer()} />
+      {/if}
+    </div>
+  {/if}
+
+  {#if each.length > 0}
+    <ul class="archives" aria-label={m.backups_services()}>
+      {#each each as service (service.id)}
+        <li class="archive">
+          <p class="name">{service.name}</p>
+          <Action
+            label={m.action_backup_one({ name: service.name })}
+            off={silent}
+            onclick={() => {
+              keeper.onask({
+                doing: "backup",
+                service: { id: service.id, name: service.name },
+              });
+            }}
+          />
+        </li>
+      {/each}
+    </ul>
+  {:else}
+    <div class="archives">
+      {#if services?.ok === true}
+        <Value state="known" absent={m.backups_services_none()} />
+      {:else if services?.ok === false}
+        <Value state="unknown" absent={services.problem.message} />
       {:else}
         <Skeleton width="18rem" label={m.waiting_answer()} />
       {/if}
@@ -219,7 +260,7 @@
       <Item
         state={read.state}
         eyebrow={read.eyebrow}
-        title={titleOfDoing(one.doing, one.scoped)}
+        title={titleOfKept(one)}
         prose={read.prose}
         lines={one.at === "done"
           ? { named: m.came_heading(), said: linesOf(one.came) }

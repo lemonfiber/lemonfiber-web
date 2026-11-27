@@ -6,7 +6,8 @@ import { movedRecord, plan, planRecord, updater } from "./lined";
 import type { Freshness } from "../lib/freshness";
 import { stepLine } from "../lib/updated";
 import type { Updater } from "../lib/updating";
-import { coming, expanse } from "../api/inflights";
+import { stoppingServices, type Stopping } from "../lib/inflight";
+import { coming, expanse, nothingComing } from "../api/inflights";
 import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 5 };
@@ -116,6 +117,72 @@ describe("updating the stack from the settings screen", () => {
     await press(m.action_hide_record());
 
     expect(ondrop).toHaveBeenCalledWith(movedRecord.id);
+  });
+
+  it("offers moving each service alone, beside its step", async () => {
+    const onask = vi.fn();
+    updating({ work: [planRecord], onask });
+    const [first] = plan.changes;
+
+    await press(m.action_update_one({ service: first?.service ?? "" }));
+
+    expect(onask).toHaveBeenCalledWith({
+      doing: "update",
+      service: first?.service,
+    });
+    expect(asked()).toHaveFocus();
+  });
+
+  it("reads one service's plan for what stopping it alone interrupts, and moves it on a yes naming it", async () => {
+    const onask = vi.fn();
+    const one = plan.changes.slice(0, 1);
+    const service = one[0]?.service ?? "";
+    const read: Stopping[] = [];
+    updating({
+      work: [
+        {
+          id: "76",
+          doing: "update",
+          scoped: false,
+          given: { service },
+          at: "done",
+          job: undefined,
+          came: { kind: "update", report: { ...plan, changes: one } },
+        },
+      ],
+      onask,
+      inflight: (stopping) => {
+        read.push(stopping);
+        return { ok: true, value: nothingComing };
+      },
+    });
+
+    const shown = within(asked()).getByRole("region", {
+      name: m.update_one_title({ service }),
+    });
+    expect(read).toContainEqual(stoppingServices([service]));
+    expect(
+      within(shown).queryByRole("button", {
+        name: m.action_update_one({ service }),
+      }),
+    ).toBeNull();
+    await press(m.action_update_yes());
+    expect(onask).toHaveBeenLastCalledWith({
+      doing: "update",
+      confirm: true,
+      wait: false,
+      offer: plan.offer,
+      service,
+    });
+  });
+
+  it("heads the record of a service moved alone with its name", () => {
+    updating({ work: [{ ...movedRecord, given: { service: "sonarr" } }] });
+    expect(
+      within(asked()).getByText(
+        m.doing_update_one_title({ service: "sonarr" }),
+      ),
+    ).toBeVisible();
   });
 
   it("is silenced while a request is in flight", () => {

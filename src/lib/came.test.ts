@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { ranLines } from "./ran";
+import { wentNow } from "../api/runs";
 import { invitationCodes } from "./invited";
 import { joinable } from "../api/invitations";
 import {
@@ -374,6 +376,12 @@ describe("what wiring the programs to each other came to", () => {
 });
 
 describe("what handing somebody a device came to", () => {
+  it("says what running a service now came to", () => {
+    expect(linesOf({ kind: "ran", report: wentNow })).toStrictEqual(
+      ranLines(wentNow),
+    );
+  });
+
   it("says where it stands, as the panel under their name does", () => {
     expect(linesOf({ kind: "handoff", report: readyForSam })).toStrictEqual(
       handoffLines(readyForSam),

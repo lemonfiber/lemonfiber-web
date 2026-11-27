@@ -30,6 +30,7 @@
   import type { Hoster } from "../lib/hosting";
   import type { Playing as Watched } from "../lib/playing";
   import type { Hosted } from "../lib/removed";
+  import type { Runner } from "../lib/scheduling";
   import type { Moment, Stack } from "../lib/wire";
   import type { Controls } from "../lib/work";
   import * as m from "../paraglide/messages.js";
@@ -67,6 +68,11 @@
      */
     playing?: Reading<Watched> | undefined;
     /**
+     * What running a run-and-exit service now asks for, and what came of it.
+     * Left out where nothing can be asked, which draws the services alone.
+     */
+    runner?: Runner | undefined;
+    /**
      * What asking for the live connection again does. Omitted while something
      * is still opening it, which is a connection with nothing to press.
      */
@@ -84,6 +90,7 @@
     controls,
     hosting,
     playing,
+    runner,
     onretry,
   }: Props = $props();
 
@@ -219,7 +226,7 @@
   <Programs {programs} forms={controls.forms} freshness={read} />
 
   {#if moment !== undefined && moment.scheduled.length > 0}
-    <Scheduled scheduled={moment.scheduled} freshness={live} />
+    <Scheduled scheduled={moment.scheduled} freshness={live} {runner} />
   {/if}
 
   <div class="pair">

@@ -14,7 +14,8 @@
   import { heldIn, runningOf } from "../lib/copying";
   import { Explained, handExplained } from "../lib/explained.svelte";
   import { pausing as waiting, type Pausing } from "../api/redeeming";
-  import { Asked, Desk } from "./desk.svelte";
+  import { Desk } from "./desk.svelte";
+  import { asksAt } from "./asks";
   import { Saving } from "./saving.svelte";
   import { Listening } from "./listening.svelte";
   import { Tracing } from "./tracing.svelte";
@@ -33,26 +34,9 @@
   import type { Playing } from "../lib/playing";
   import type { Stuck } from "../lib/stuck";
   import type { Guidance } from "../lib/clients";
-  import { mending, type Mend, type Mender } from "../lib/mending";
+  import type { Mend, Mender } from "../lib/mending";
   import { answeredAt, carriedAt, type Freshness } from "../lib/freshness";
-  import { configuring } from "../lib/configuring";
-  import { finding } from "../lib/finding";
-  import { pairing } from "../lib/pairing";
-  import { sharing } from "../lib/sharing";
-  import { updating } from "../lib/updating";
-  import { tending } from "../lib/tending";
-  import { tuning } from "../lib/tuning";
-  import { filling } from "../lib/filling";
-  import { plugging } from "../lib/plugging";
-  import { revoking } from "../lib/revoking";
-  import { valuing } from "../lib/valuing";
-  import { moving } from "../lib/moving";
-  import { upkeep } from "../lib/upkeep";
-  import { hosting } from "../lib/hosting";
   import type { Hosted } from "../lib/removed";
-  import { removing } from "../lib/removing";
-  import { reclaiming } from "../lib/reclaiming";
-  import { lettingGo } from "../lib/seeding";
   import { agreedStop, type Offered } from "../lib/restarting";
   import { stoppingForms } from "../lib/inflight";
   import { placeChangedBy } from "../lib/rereading";
@@ -334,33 +318,16 @@
     here: () => here,
     settled,
   });
-  const mendAsks = new Asked(desk, mending);
-  const keepAsks = new Asked(desk, upkeep);
-  const tuneAsks = new Asked(desk, tuning);
-  const fillAsks = new Asked(desk, filling);
-  const plugAsks = new Asked(desk, plugging);
-  const revokeAsks = new Asked(desk, revoking);
-  const valueAsks = new Asked(desk, valuing);
-  const moveAsks = new Asked(desk, moving);
-  const changeAsks = new Asked(desk, configuring);
-  const tendAsks = new Asked(desk, tending);
-  const pairAsks = new Asked(desk, pairing);
-  const shareAsks = new Asked(desk, sharing);
-  const updateAsks = new Asked(desk, updating);
-  const findAsks = new Asked(desk, finding);
-  const hostAsks = new Asked(desk, hosting);
-  const removeAsks = new Asked(desk, removing);
-  const letAsks = new Asked(desk, lettingGo);
-  const reclaimAsks = new Asked(desk, reclaiming);
+  const asks = asksAt(desk);
 
   const mender = $derived<Mender>({
-    ...mendAsks.asker,
+    ...asks.mend.asker,
     picked,
     onask: (asking: Mend) => {
       // Asking for the offer again replaces the one the repairs were chosen
       // from, so what was chosen from it goes with it.
       if (asking.doing === "repair") picked = [];
-      void mendAsks.ask(asking);
+      void asks.mend.ask(asking);
     },
     onpick: (check: string) => {
       picked = picked.includes(check)
@@ -369,7 +336,7 @@
     },
   });
 
-  const keeper = $derived(keepAsks.asker);
+  const keeper = $derived(asks.keep.asker);
   const saving = new Saving(handing);
   const saver = $derived(saving.saver);
   const tracing = new Tracing(handing);
@@ -384,8 +351,8 @@
   const shelves = shelving(handing);
   const keying = new Keying(handing);
   const keyer = $derived(keying.keyer);
-  const tender = $derived(tendAsks.asker);
-  const finder = $derived(findAsks.asker);
+  const tender = $derived(asks.tend.asker);
+  const finder = $derived(asks.find.asker);
 
   const controls = $derived<Controls>({
     forms,
@@ -481,8 +448,9 @@
       {read}
       {live}
       {controls}
-      hosting={{ hoster: hostAsks.asker, hosted }}
+      hosting={{ hoster: asks.host.asker, hosted }}
       {playing}
+      runner={asks.run.asker}
       onretry={stream.listening
         ? undefined
         : () => {
@@ -494,7 +462,7 @@
       {...checked}
       {diagnosis}
       onfollow={follow}
-      mover={moveAsks.asker}
+      mover={asks.move.asker}
       freshness={stamped}
       {mender}
       {keeper}
@@ -506,10 +474,10 @@
       {live}
       diagnosis={disk?.diagnosis}
       read={stamped}
-      keeping={{ keeper, archives: disk?.archives }}
-      remover={removeAsks.asker}
-      letting={{ letter: letAsks.asker, space: disk?.space }}
-      reclaiming={{ reclaimer: reclaimAsks.asker, space: disk?.space }}
+      keeping={{ keeper, archives: disk?.archives, services: disk?.services }}
+      remover={asks.remove.asker}
+      letting={{ letter: asks.letGo.asker, space: disk?.space }}
+      reclaiming={{ reclaimer: asks.reclaim.asker, space: disk?.space }}
       copying={running === undefined
         ? undefined
         : { running, freshness: copied }}
@@ -534,16 +502,16 @@
       quality={setup?.quality}
       glossary={explained.glossary}
       freshness={stamped}
-      tuner={tuneAsks.asker}
-      filler={fillAsks.asker}
-      plugger={plugAsks.asker}
-      revoker={revokeAsks.asker}
-      valuer={valueAsks.asker}
+      tuner={asks.tune.asker}
+      filler={asks.fill.asker}
+      plugger={asks.plug.asker}
+      revoker={asks.revoke.asker}
+      valuer={asks.value.asker}
       {keyer}
-      configurer={changeAsks.asker}
-      pairer={pairAsks.asker}
-      sharer={shareAsks.asker}
-      updater={updateAsks.asker}
+      configurer={asks.change.asker}
+      pairer={asks.pair.asker}
+      sharer={asks.share.asker}
+      updater={asks.update.asker}
     />
   {/if}
 </Shell>

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import Storage from "./Storage.svelte";
-import { moment, unavailable } from "./fixture";
+import { moment, stack, unavailable } from "./fixture";
 import { diskChecks } from "./findings";
 import { keeper, kept, readListing, tookBackup } from "./keeping";
 import { remover, storedRecord, surveyRecord } from "./removals";
@@ -90,6 +90,7 @@ export const WhatPuttingABackupBackWouldDo: Story = {
     keeping: {
       keeper: { ...keeper, work: [readListing] },
       archives: { ok: true, value: kept },
+      services: { ok: true, value: stack },
     },
   },
 };
@@ -103,6 +104,7 @@ export const AskedBeforeABackup: Story = {
     keeping: {
       keeper: { ...keeper, asked: { doing: "backup" }, work: [tookBackup] },
       archives: { ok: true, value: kept },
+      services: { ok: true, value: stack },
     },
   },
 };

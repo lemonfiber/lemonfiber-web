@@ -53,6 +53,7 @@ import {
   type Walked,
 } from "./traced";
 import { updateLines, type Updated } from "./updated";
+import { ranLines, type Ran } from "./ran";
 import {
   hostingLines,
   storedLines,
@@ -142,6 +143,7 @@ export type Came =
   | { readonly kind: "stop-seeding"; readonly report: Let }
   | { readonly kind: "space"; readonly report: Reckoned }
   | { readonly kind: "substitution"; readonly report: Substituted }
+  | { readonly kind: "ran"; readonly report: Ran }
   | Moved
   | { readonly kind: "unread" };
 
@@ -512,6 +514,8 @@ export function linesOf(came: Came): readonly string[] {
       return reclaimedLines(came.report);
     case "substitution":
       return substitutedLines(came.report);
+    case "ran":
+      return ranLines(came.report);
     case "adoption":
     case "beside":
     case "import":

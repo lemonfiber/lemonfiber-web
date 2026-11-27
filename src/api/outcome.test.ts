@@ -13,6 +13,7 @@ import { material } from "./pairings";
 import { hosted, stored, surveyed } from "./removals";
 import { letOffer, reclaimedRoom } from "./spaces";
 import { wouldFill } from "./substitutions";
+import { wentNow } from "./runs";
 import {
   wouldAdopt,
   wouldImport,
@@ -197,6 +198,10 @@ describe("what an envelope says a piece of work came to", () => {
     expect(outcomeOf(sealed("hosting", hosted))).toStrictEqual({
       kind: "hosting",
       report: hosted,
+    });
+    expect(outcomeOf(sealed("ran", wentNow))).toStrictEqual({
+      kind: "ran",
+      report: wentNow,
     });
     expect(outcomeOf(sealed("stored", stored))).toStrictEqual({
       kind: "stored",
