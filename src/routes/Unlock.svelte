@@ -121,7 +121,7 @@
   thing to anybody moving between landmarks.
 -->
 <main class="ask">
-  <h1 tabindex="-1" use:landing>{m.unlock_title()}</h1>
+  <h1 tabindex="-1" use:landing>{m.member_house()}</h1>
   {#if refused}
     <div class="why">
       {#if said === undefined}

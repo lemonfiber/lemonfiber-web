@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import { HOUSEHOLD_WORDS } from "@lemonfiber/sdk-ts/contract";
 import Unlock from "./Unlock.svelte";
 import type { Admitting, Arrived } from "../api/admitting";
 import * as m from "../paraglide/messages.js";
@@ -33,7 +34,7 @@ describe("the screen that opens lemonfiber", () => {
   it("says the two things that open it", () => {
     doorway();
     expect(
-      screen.getByRole("heading", { level: 1, name: m.unlock_title() }),
+      screen.getByRole("heading", { level: 1, name: m.member_house() }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { level: 2, name: m.wayin_signin_title() }),
@@ -342,7 +343,49 @@ describe("arriving because lemonfiber turned a household member away", () => {
     render(Unlock, { onopen: vi.fn(), refused: true, said });
 
     expect(
-      screen.getByRole("heading", { level: 1, name: m.unlock_title() }),
+      screen.getByRole("heading", { level: 1, name: m.member_house() }),
     ).toHaveFocus();
+  });
+});
+
+describe("the door, read by the household", () => {
+  const forbidden = [...HOUSEHOLD_WORDS.names, ...HOUSEHOLD_WORDS.terms];
+
+  const named = (root: HTMLElement): string[] => {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const parts: string[] = [];
+    while (walker.nextNode()) parts.push(walker.currentNode.textContent ?? "");
+    const said = ` ${parts
+      .join(" ")
+      .toLowerCase()
+      .split(/[^\p{L}\p{N}']+/u)
+      .join(" ")} `;
+    return forbidden.filter((word) => said.includes(` ${word} `));
+  };
+
+  it("names no service and no term of how the house runs, however it is reached", async () => {
+    const shown: string[][] = [];
+    for (const props of [
+      { onsignin: answering(admitted) },
+      {},
+      { refused: true },
+      { refused: true, onsignin: answering(admitted) },
+    ]) {
+      const { container, unmount } = render(Unlock, {
+        onopen: vi.fn(),
+        ...props,
+      });
+      shown.push(named(container));
+      unmount();
+    }
+    const { container } = render(Unlock, {
+      onopen: vi.fn(),
+      onsignin: answering({ at: "declined", said: "" }),
+    });
+    await signIn(password);
+    await screen.findByText(m.wayin_declined_lead());
+    shown.push(named(container));
+
+    expect(shown.flat()).toEqual([]);
   });
 });
