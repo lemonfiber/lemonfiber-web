@@ -47,6 +47,28 @@ describe("a title a member's search found", () => {
     });
   });
 
+  it("is told apart by its unit, and found again with it", () => {
+    const album: FoundTitle = { ...dune, kind: "music", unit: "album" };
+    const artist: FoundTitle = { ...album, unit: "artist" };
+    expect(keyOf(album)).not.toBe(keyOf(artist));
+    expect(foundBy(keyOf(artist))).toEqual({
+      id: dune.id,
+      kind: "music",
+      unit: "artist",
+    });
+    expect(foundBy(`shows/tome/${dune.id}`)).toEqual({
+      id: dune.id,
+      kind: "movies",
+      unit: undefined,
+    });
+  });
+
+  it("says what unit of music or books it is", () => {
+    expect(kindOfFound({ ...dune, kind: "books", unit: "author" })).toBe(
+      m.member_medium_author(),
+    );
+  });
+
   it("says what kind of thing it is", () => {
     expect(kindOfFound(dune)).toBe(m.member_medium_film());
     expect(kindOfFound(severance)).toBe(m.member_medium_series());

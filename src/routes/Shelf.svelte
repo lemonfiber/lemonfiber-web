@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
+  import { onDestroy, type Snippet } from "svelte";
   import Board from "./Board.svelte";
   import Action from "../components/Action.svelte";
   import Meter from "../components/Meter.svelte";
@@ -46,6 +46,8 @@
     onopen?: ((holding: Holding) => void) | undefined;
     /** Put the opened title away. */
     onclose?: (() => void) | undefined;
+    /** Where to watch, drawn after the shelf. */
+    ways?: Snippet | undefined;
   }
 
   let {
@@ -60,6 +62,7 @@
     told,
     onopen,
     onclose,
+    ways,
   }: Props = $props();
 
   /** The posters on screen, fetched with the session's key. */
@@ -227,6 +230,9 @@
       {/if}
     {/if}
   </Panel>
+  {#if ways !== undefined}
+    {@render ways()}
+  {/if}
 </Board>
 
 {#if opened !== undefined && onclose !== undefined}

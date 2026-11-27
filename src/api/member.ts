@@ -29,6 +29,7 @@ import {
   type RefusalCode,
 } from "@lemonfiber/sdk-ts";
 import type { Reaching } from "./asking";
+import type { Asking, TitleKind, TitleUnit } from "../lib/kinds";
 import { READING, reached, succeeded, type Carrying } from "./reached";
 
 /** Who is in the household and what each asked for, narrowed to the one asking. */
@@ -42,6 +43,21 @@ const WATCHING = "/api/watching";
 
 /** One page of a member's search for what the household does not hold yet. */
 const ASKABLE = "/api/askable";
+
+/** Which kinds a member may ask for now, and the units each is asked in. */
+const KINDS = "/api/askable/kinds";
+
+/** The household's front door, and what else they can reach, in their words. */
+export const DOOR = "/api/front-door";
+
+/** The ways a member may be told, and which of them they are told on. */
+const TOLD = "/api/notify/mine";
+
+/** The action a member chooses which ways they are told on with. */
+const CHOOSING = "notify-choose";
+
+/** Where a member chooses which ways they are told on. */
+const CHOOSE = `/api/actions/${CHOOSING}`;
 
 /** The action a member asks for one title with. */
 const ASKING = "ask";
@@ -182,22 +198,52 @@ export function askableOf(
   member: string,
   term: string,
   after?: string,
+  asking?: Asking,
 ): string {
   const query = new URLSearchParams({ member, term });
   if (after !== undefined) query.set("after", after);
+  if (asking?.kind !== undefined) query.set("kind", asking.kind);
+  if (asking?.unit !== undefined) query.set("unit", asking.unit);
   return `${ASKABLE}?${query.toString()}`;
+}
+
+/** Where the kinds that member may ask for now are read. */
+export function kindsOf(member: string): string {
+  return `${KINDS}?${new URLSearchParams({ member }).toString()}`;
+}
+
+/** Where the ways that member may be told are read. */
+export function toldOf(member: string): string {
+  return `${TOLD}?${new URLSearchParams({ member }).toString()}`;
+}
+
+/**
+ * Choose the ways the member this session is for is told on: every one of
+ * them, by the id the read listed it under. lemonfiber names the member from
+ * the session, and answers with the ways as they stand since.
+ */
+export async function chose(
+  reaching: Reaching,
+  backends: readonly string[],
+): Promise<Answer<ByKind["notify-mine"]["data"]>> {
+  const came = await knocked(reaching, CHOOSE, {
+    method: "POST",
+    body: JSON.stringify({ backends }),
+  });
+  return narrowed(came, "notify-mine");
 }
 
 /** Which title a member asks for, as a page of their search named it. */
 export interface Wish {
   /** The id the page named it by. */
   readonly id: string;
-  /** Whether it is a series or a film, as the page said. */
+  /** Whether it is a series, a film, music or books, as the page said. */
   readonly kind: TitleKind;
+  /** What music or books are asked for as, and nothing for a series or a film. */
+  readonly unit?: TitleUnit | null | undefined;
+  /** What the page vouched for the title with, handed back as it gave it. */
+  readonly found?: string | null | undefined;
 }
-
-/** Whether a title is a series or a film, as a member's search names it. */
-export type TitleKind = ByKind["askable"]["data"]["kinds"][number];
 
 /**
  * A found title's poster, asked for with this session's key as every read is,
@@ -218,7 +264,7 @@ export async function takingFoundPoster(
   });
   if (!opened.ok) return undefined;
   const pictured = await opened.client.askablePoster(wish.id, {
-    query: { kind: wish.kind, member },
+    query: { kind: wish.kind, member, unit: wish.unit ?? undefined },
   });
   return pictured.ok ? pictured.value.bytes : undefined;
 }
@@ -257,6 +303,8 @@ export async function wished(
     body: JSON.stringify({
       id: wish.id,
       kind: wish.kind,
+      unit: wish.unit ?? undefined,
+      found: wish.found ?? undefined,
       dry_run: rehearsing,
     }),
     once,

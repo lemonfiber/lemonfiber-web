@@ -77,6 +77,8 @@ export type Cell =
       readonly below?: boolean | undefined;
       /** How much ink the words take. `plain` where it is not said. */
       readonly emphasis?: Emphasis | undefined;
+      /** A tag set after the words, where the row is marked. */
+      readonly mark?: string | undefined;
     }
   | {
       readonly kind: "drawn";

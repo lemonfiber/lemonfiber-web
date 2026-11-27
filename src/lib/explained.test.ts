@@ -1,11 +1,7 @@
 import { unreachable } from "@lemonfiber/sdk-ts";
 import { describe, expect, it } from "vitest";
-import {
-  browserKeeping,
-  Explained,
-  KEPT,
-  type Keeping,
-} from "./explained.svelte";
+import { Explained, KEPT } from "./explained.svelte";
+import { browserKeeping, type Keeping } from "./keeping";
 import { seed, vocabulary } from "../api/vocabularies";
 
 /** A browser's storage, held in a map. */

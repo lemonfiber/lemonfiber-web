@@ -1,11 +1,14 @@
 <script lang="ts">
   import Board from "./Board.svelte";
+  import TellMeWhen from "./TellMeWhen.svelte";
+  import type { Choosing } from "./hearing.svelte";
   import Action from "../components/Action.svelte";
   import Banner from "../components/Banner.svelte";
   import DataTable from "../components/DataTable.svelte";
   import Panel from "../components/Panel.svelte";
   import Skeleton from "../components/Skeleton.svelte";
   import Value from "../components/Value.svelte";
+  import type { Heard } from "../api/member";
   import type { Freshness } from "../lib/freshness";
   import {
     askingWasRead,
@@ -14,6 +17,7 @@
     standingOf,
   } from "../lib/standing";
   import type { Column, Row } from "../lib/table";
+  import type { Telling } from "../lib/telling";
   import type { Household, Member } from "../lib/wire";
   import { approvalOf, besideOf, leftOf } from "../lib/yours";
   import * as m from "../paraglide/messages.js";
@@ -32,9 +36,24 @@
     said?: string | undefined;
     /** What asking again asks for. Left out where nothing answers it. */
     onretry?: (() => void) | undefined;
+    /** Their requests that changed since this browser last showed them, by id. */
+    fresh?: readonly string[] | undefined;
+    telling?: Heard<Telling> | undefined;
+    choosing?: Choosing | undefined;
+    ontick?: ((id: string) => void) | undefined;
   }
 
-  let { household, freshness, quiet, said, onretry }: Props = $props();
+  let {
+    household,
+    freshness,
+    quiet,
+    said,
+    onretry,
+    fresh,
+    telling,
+    choosing,
+    ontick,
+  }: Props = $props();
 
   const columns: readonly Column[] = [
     { head: m.head_asked_for() },
@@ -75,6 +94,8 @@
           caption: kindOfRequest(request),
           below: true,
           emphasis: "lead",
+          mark:
+            fresh?.includes(request.id) === true ? m.member_new() : undefined,
         },
         {
           kind: "words",
@@ -155,6 +176,10 @@
         {/if}
       </Panel>
     {/each}
+  {/if}
+
+  {#if ontick !== undefined}
+    <TellMeWhen {telling} {choosing} {ontick} />
   {/if}
 </Board>
 
