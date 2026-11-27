@@ -344,6 +344,48 @@ export const APhoneNoLongerWoken: Story = {
   args: { keyer: { ...keyer, woken: { ok: true, value: unwoken } } },
 };
 
+/** The phones that can be woken, where a removal was not carried out, in lemonfiber's words. */
+export const APhoneNotRemoved: Story = {
+  args: {
+    keyer: {
+      ...keyer,
+      wokenSaid: "No push endpoint is named iphone",
+    },
+  },
+};
+
+/** The phones that can be woken, where none has asked to be. */
+export const NoPhoneWoken: Story = {
+  args: {
+    keyer: {
+      ...keyer,
+      woken: { ok: true, value: { endpoints: [], rehearsed: false } },
+    },
+  },
+};
+
+/** The phones that can be woken, while their reading is on its way. */
+export const PhonesWokenWaiting: Story = {
+  args: { keyer: { ...keyer, woken: undefined } },
+};
+
+/** The phones that can be woken, where the signed-in key may not keep them. */
+export const PhonesWokenNotForAKey: Story = {
+  args: {
+    keyer: {
+      ...keyer,
+      woken: {
+        ok: false,
+        problem: {
+          kind: "declined",
+          message:
+            "A key may not register, list or remove push endpoints, whatever its scope.",
+        },
+      },
+    },
+  },
+};
+
 /**
  * Installing a plugin, read whole before its yes: what it writes and reaches,
  * how it is proved, and a released value approved on its own switch.

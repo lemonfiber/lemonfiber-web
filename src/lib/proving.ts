@@ -165,11 +165,11 @@ export function inputsOf(
     });
 }
 
-/** Every recipe an install or an update runs, which is each not run by name. */
+/** Every recipe an install or an update runs, which is each that says it runs at one or says nothing. */
 export function installRecipes(
   recipes: readonly PluginRecipe[] | undefined,
 ): readonly PluginRecipe[] {
-  return (recipes ?? []).filter((one) => one.on !== "demand");
+  return (recipes ?? []).filter((one) => (one.on ?? "install") === "install");
 }
 
 /** What each input was given, as the request carries it: `name=value`. */

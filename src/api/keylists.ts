@@ -121,33 +121,39 @@ export const unpaired: Phones = {
   revoked: "iphone",
 };
 
-/** A distributor's address for one phone, its path carrying a token made afresh for each run. */
-const wakeAt = (host: string, rest: string): string =>
-  ["https:", "", host, `${rest}${crypto.randomUUID()}`].join("/");
-
-/** A phone woken through its distributor, its address carrying a token made afresh for each run. */
+/** A phone woken through its distributor, named by the host and the fingerprint of its address. */
 export const pixelWoken: Wakeable = {
   name: "pixel",
-  endpoint: wakeAt("push.example.test", "wake/"),
+  host: "push.example.test",
+  fingerprint: "f7a263f8786e9f95",
   registered: 1_790_000_000,
 };
 
-/** A phone woken through another distributor, at a port of its own. */
+/** Another phone woken through the same distributor, told apart by its fingerprint. */
+export const tabletWoken: Wakeable = {
+  name: "tablet",
+  host: "push.example.test",
+  fingerprint: "0c41d9e2b8a3576f",
+  registered: 1_790_000_120,
+};
+
+/** A phone woken through another distributor. */
 export const iphoneWoken: Wakeable = {
   name: "iphone",
-  endpoint: wakeAt("wake.example.test:8443", "up?token="),
+  host: "wake.example.test",
+  fingerprint: "9b3e5a0d17c2f468",
   registered: 1_790_000_300,
 };
 
-/** Two phones that can be woken, as read. */
+/** Three phones that can be woken, two of them through one distributor, as read. */
 export const woken: Woken = {
-  endpoints: [pixelWoken, iphoneWoken],
+  endpoints: [pixelWoken, tabletWoken, iphoneWoken],
   rehearsed: false,
 };
 
 /** The phones that can be woken once the iPhone is removed, naming it. */
 export const unwoken: Woken = {
-  endpoints: [pixelWoken],
+  endpoints: [pixelWoken, tabletWoken],
   rehearsed: false,
   removed: "iphone",
 };

@@ -3,10 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import Settings from "./Settings.svelte";
 import { keyer, unwoken, woken } from "./keyings";
-import { iphoneWoken, pixelWoken } from "../api/keylists";
+import { iphoneWoken, pixelWoken, tabletWoken } from "../api/keylists";
 import type { Keyer } from "./keying.svelte";
 import type { Freshness } from "../lib/freshness";
-import { wakeableLines } from "../lib/woken";
+import { wakeableLines, type Wakeable } from "../lib/woken";
 import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 5 };
@@ -27,10 +27,10 @@ const press = (label: string): Promise<void> =>
   userEvent.click(within(panel()).getByRole("button", { name: label }));
 
 describe("the phones that can be woken, on the settings screen", () => {
-  it("lists each by name, the host it is woken through and when it was registered", () => {
+  it("lists each by name, the host it is woken through, its fingerprint and when it was registered", () => {
     drawn();
     const listed = within(panel()).getByRole("list", { name: m.woken_said() });
-    for (const phone of [pixelWoken, iphoneWoken]) {
+    for (const phone of [pixelWoken, tabletWoken, iphoneWoken]) {
       expect(
         within(listed).getByRole("heading", { name: phone.name }),
       ).toBeVisible();
@@ -40,15 +40,27 @@ describe("the phones that can be woken, on the settings screen", () => {
     }
   });
 
-  it("draws no whole address, in the text or in any attribute", () => {
-    drawn();
+  it("draws no whole address, in the text or in any attribute, even one an answer carries", () => {
+    const address = [
+      "https:",
+      "",
+      "push.example.test:8443",
+      `wake/${crypto.randomUUID()}`,
+    ].join("/");
+    const carrying = { ...pixelWoken, endpoint: address } as Wakeable;
+    drawn({
+      woken: {
+        ok: true,
+        value: { ...woken, endpoints: [carrying, tabletWoken, iphoneWoken] },
+      },
+    });
     const page = document.body.innerHTML;
-    for (const phone of woken.endpoints) {
-      const address = new URL(phone.endpoint);
-      expect(page).not.toContain(phone.endpoint);
-      expect(page).not.toContain(`${address.pathname}${address.search}`);
-    }
-    expect(page).toContain("push.example.test");
+    expect(page).not.toContain(address);
+    expect(page).not.toContain(new URL(address).pathname);
+    const drawnHere = panel().innerHTML;
+    expect(drawnHere).not.toContain("://");
+    expect(drawnHere).toContain("push.example.test");
+    expect(drawnHere).toContain(pixelWoken.fingerprint);
   });
 
   it("asks first in a question naming the phone, the removal taking no rehearsal, and removes it only on a yes", async () => {
@@ -87,7 +99,7 @@ describe("the phones that can be woken, on the settings screen", () => {
   it("says which phone the answer removed, and why a removal was not carried out", () => {
     drawn({
       woken: { ok: true, value: unwoken },
-      wokenSaid: "No push endpoint is registered as `tablet`.",
+      wokenSaid: "No push endpoint is named iphone",
     });
     const asked = within(panel()).getByRole("status", {
       name: m.woken_asked(),
@@ -96,7 +108,7 @@ describe("the phones that can be woken, on the settings screen", () => {
       within(asked).getByText(m.woken_removed({ name: "iphone" })),
     ).toBeVisible();
     expect(
-      within(asked).getByText("No push endpoint is registered as `tablet`."),
+      within(asked).getByText("No push endpoint is named iphone"),
     ).toBeVisible();
   });
 

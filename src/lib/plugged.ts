@@ -290,10 +290,24 @@ export function grantingLine(granting: PluginGranting): string {
   });
 }
 
-/** One recipe, in lines: what it does and why, and every call it makes. */
+/** When a recipe runs, where it is not as part of the install or the update. */
+function whenLines(on: PluginRecipe["on"]): readonly string[] {
+  switch (on) {
+    case "demand":
+      return [m.plug_recipe_on_demand()];
+    case "claim":
+      return [m.plug_recipe_on_claim()];
+    case "install":
+    case undefined:
+      return [];
+  }
+}
+
+/** One recipe, in lines: what it does and why, when it runs, and every call it makes. */
 export function recipeLines(recipe: PluginRecipe): readonly string[] {
   return [
     recipe.why,
+    ...whenLines(recipe.on),
     ...recipe.steps.map((step) => stepLine(step)),
     ...(recipe.pairs.length === 0 ? [m.plug_pairs_none()] : []),
   ];
