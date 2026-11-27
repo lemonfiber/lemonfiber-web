@@ -33,11 +33,12 @@ Another surface can make 77 requests of the stack, and this console offers 63 of
 them. 13 kinds and 2 requests are offered elsewhere by rule, and 20 kinds and 12
 requests are not offered yet.
 
-[`src/offered.test.ts`](../src/offered.test.ts) is what those figures are
-measured from. It classifies every kind `@lemonfiber/sdk-ts` names and every
+[`src/offered.test.ts`](../src/offered.test.ts) and
+[`src/parity.test.ts`](../src/parity.test.ts) are what those figures are
+measured from. They classify every kind `@lemonfiber/sdk-ts` names and every
 request another surface can make as offered here, offered elsewhere with the
-requirement that says so, or not offered yet with the feature it belongs to. It
-fails on a kind nobody has classified, on a kind claimed read that nothing the
+requirement that says so, or not offered yet with the feature it belongs to. They
+fail on a kind nobody has classified, on a kind claimed read that nothing the
 page imports reads, on a request claimed offered that no screen the console
 draws walks, on something read or walked that is still listed as waiting, on a
 kind said to be served by no endpoint that a read lemonfiber serves answers
