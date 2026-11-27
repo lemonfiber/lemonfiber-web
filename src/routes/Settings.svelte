@@ -51,6 +51,7 @@
   import type { Updater } from "../lib/updating";
   import type { Wiring as Wired } from "../lib/wiring";
   import type { Plugins as Installs } from "../lib/plugins";
+  import type { PluginCatalogue } from "../lib/catalogued";
   import type { Vocabulary } from "../lib/glossary";
   import * as m from "../paraglide/messages.js";
 
@@ -87,6 +88,8 @@
     wiring?: Reading<Wired> | undefined;
     /** The plugins on this machine, or why they could not be read. */
     plugins?: Reading<Installs> | undefined;
+    /** What the plugin catalogue offers, or why it could not be read. */
+    offering?: Reading<PluginCatalogue> | undefined;
     /** Every setting and secret the services read, or why they could not be read. */
     values?: Reading<Read> | undefined;
     /** Every word lemonfiber explains, or why they could not be read. */
@@ -138,6 +141,7 @@
     settled,
     wiring,
     plugins,
+    offering,
     values,
     glossary,
     freshness,
@@ -170,7 +174,8 @@
   about and where it goes, every credential the stack holds and each grant of one to a plugin,
   how this console is served, how the stack runs without lemonfiber, what setup
   settled, the versions the stack stands on, what the stack holds and where each service
-  comes from, what it wires to what, the plugins on this machine, this copy of
+  comes from, what it wires to what, the plugins on this machine and what the
+  plugin catalogue offers, this copy of
   lemonfiber, pairing the companion app, the integration keys, and every word
   lemonfiber explains.
 
@@ -240,7 +245,7 @@
 
   <Catalogue {catalogue} {provenance} {freshness} />
   <Wiring {wiring} {freshness} {filler} />
-  <Plugins {plugins} {freshness} {plugger} />
+  <Plugins {plugins} {freshness} {offering} {plugger} />
   <Copy {versions} {standing} {freshness} />
   {#if pairer !== undefined}
     <Pairing {pairer} {freshness} />

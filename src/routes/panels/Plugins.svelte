@@ -13,7 +13,10 @@
     type Plugins,
   } from "../../lib/plugins";
   import type { Plugger } from "../../lib/plugging";
+  import { demandRecipes } from "../../lib/proving";
   import Plugging from "./Plugging.svelte";
+  import PlugCatalogue from "./PlugCatalogue.svelte";
+  import type { PluginCatalogue } from "../../lib/catalogued";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -21,11 +24,13 @@
     plugins: Reading<Plugins> | undefined;
     /** When this panel's source last answered. */
     freshness: Freshness;
+    /** What the plugin catalogue offers, or why it could not be read. */
+    offering?: Reading<PluginCatalogue> | undefined;
     /** What acting on a plugin asks for, where this page may act. */
     plugger?: Plugger | undefined;
   }
 
-  let { plugins, freshness, plugger }: Props = $props();
+  let { plugins, freshness, offering, plugger }: Props = $props();
 
   const substitutedId = $props.id();
 
@@ -41,9 +46,11 @@
   Every plugin on this machine: each under its name, with what it does, the
   version installed, where it came from, what it runs and fills, and whether
   its source still answers where that was asked; and every capability a
-  plugin's service fills in place of the stack's own. Where acting is given,
-  each plugin can be updated or removed and another installed, each read
-  first and agreed to under the name its reading gave itself.
+  plugin's service fills in place of the stack's own; and what the plugin
+  catalogue offers. Where acting is given, each plugin can be updated,
+  removed, proved again or have a recipe it runs by name run, and another
+  installed, from a source typed or from the catalogue, each read first and
+  agreed to under the name its reading gave itself.
 -->
 <Panel title={m.panel_plugins()} {freshness} flush>
   <div class="scope">
@@ -69,6 +76,7 @@
           </ul>
           {#if plugger !== undefined}
             {@const acting = plugger}
+            {@const named = demandRecipes(plugin.recipes)}
             <div class="acts">
               <Action
                 label={m.action_plug_update({ name: nameOf(plugin) })}
@@ -91,7 +99,41 @@
                   });
                 }}
               />
+              <Action
+                label={m.action_plug_prove({ name: nameOf(plugin) })}
+                off={acting.busy}
+                onclick={() => {
+                  acting.onask({
+                    doing: "plugin-prove",
+                    plugin: plugin.plugin,
+                  });
+                }}
+              />
             </div>
+            {#if named.length > 0}
+              <div class="run">
+                <h4>{m.plug_run_title()}</h4>
+                <p><Said text={m.plug_run_prose()} /></p>
+                <ul class="lines">
+                  {#each named as recipe (recipe.id)}
+                    <li>
+                      <Action
+                        label={m.action_plug_run({ recipe: recipe.title })}
+                        off={acting.busy}
+                        onclick={() => {
+                          acting.onask({
+                            doing: "plugin-run",
+                            plugin: plugin.plugin,
+                            recipe: recipe.id,
+                          });
+                        }}
+                      />
+                      <Said text={recipe.why} />
+                    </li>
+                  {/each}
+                </ul>
+              </div>
+            {/if}
           {/if}
         </li>
       {/each}
@@ -107,6 +149,9 @@
         {/each}
       </ul>
     </section>
+  {/if}
+  {#if offering !== undefined}
+    <PlugCatalogue {offering} {plugger} />
   {/if}
   {#if plugger !== undefined}
     <Plugging {plugger} />
@@ -160,6 +205,17 @@
   .lines li {
     font-size: var(--text-prose);
     color: var(--muted);
+  }
+
+  .run {
+    display: grid;
+    gap: var(--sp-2);
+  }
+
+  h4 {
+    margin: 0;
+    font-size: var(--text-item);
+    font-weight: 500;
   }
 
   .acts {

@@ -445,5 +445,12 @@
   "inflight_unknown": "Could not find out what is still downloading.",
   "inflight_choose": "These are still downloading. Let them finish first, or go ahead now and interrupt them.",
   "inflight_interrupted": "These are still downloading, and will be interrupted. They pick up again once the services are back.",
-  "inflight_finish": "Let them finish"
+  "inflight_finish": "Let them finish",
+  "doing_plug_prove_title": "Proving a plugin",
+  "doing_plug_run_title": "Running a recipe",
+  "action_plug_prove": "Prove {name} again",
+  "action_plug_run": "Run {recipe}",
+  "action_plug_prove_yes": "Prove as {offer}",
+  "action_plug_run_yes": "Run as {offer}",
+  "action_plug_catalogue_install": "Install {name}"
 }

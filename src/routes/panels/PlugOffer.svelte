@@ -5,9 +5,7 @@
   import {
     describedLines,
     grantingLine,
-    pairLines,
     reachesLines,
-    recipeLines,
     removalLines,
     takingLines,
     updateLines,
@@ -15,9 +13,18 @@
     writesLines,
   } from "../../lib/plugged";
   import { unvettedLines } from "../../lib/unvetted";
+  import {
+    inputsGiven,
+    inputsOf,
+    installRecipes,
+    reproofLines,
+  } from "../../lib/proving";
+  import PlugInputs from "./PlugInputs.svelte";
+  import PlugRecipes from "./PlugRecipes.svelte";
   import { heldLines } from "../../lib/waiting";
   import {
     approvables,
+    carriedBy,
     installOf,
     type Offered,
     type Plug,
@@ -42,8 +49,29 @@
   /** Every value approved so far, as its reading writes the approval. */
   let approved = $state<readonly string[]>([]);
 
+  /** What has been typed for each input the reading asks, by its name. */
+  let given = $state<Readonly<Record<string, string>>>({});
+
   const install = $derived(installOf(offered));
-  const asked = $derived(install === undefined ? [] : approvables(install));
+  const demanded = $derived(
+    offered.doing === "plugin-run" ? offered.demand.recipe : undefined,
+  );
+  const recipes = $derived(
+    demanded === undefined ? install?.would.recipes : [demanded],
+  );
+  const reads = $derived(demanded !== undefined || install !== undefined);
+  const asked = $derived.by(() => {
+    if (demanded !== undefined) return carriedBy(demanded);
+    return install === undefined ? [] : approvables(install);
+  });
+  const inputs = $derived(
+    demanded === undefined
+      ? inputsOf(installRecipes(install?.would.recipes))
+      : inputsOf([demanded]),
+  );
+  const answered = $derived(
+    inputs.every((input) => (given[input.name] ?? "") !== ""),
+  );
 
   /** The sections of the reading, each with its heading, in reading order. */
   const sections = $derived.by(() => {
@@ -58,6 +86,12 @@
       drawn.push({
         title: m.plug_section_removal(),
         lines: removalLines(offered.removal),
+      });
+    }
+    if (offered.doing === "plugin-prove") {
+      drawn.push({
+        title: m.plug_section_proving(),
+        lines: reproofLines(offered.proof),
       });
     }
     if (install !== undefined) {
@@ -88,26 +122,52 @@
       : [...approved, approval];
   }
 
-  /** Agree to the reading as it was read. */
-  function agree(): void {
+  /** The yes this reading is answered with, carrying what was typed for its inputs. */
+  function yesTo(sent: readonly string[]): Plug {
     const { offer } = offered;
-    if (offered.doing === "plugin-install") {
-      onyes({ doing: offered.doing, source: offered.source, offer, approved });
-    } else if (offered.doing === "plugin-update") {
-      const { plugin, source } = offered;
-      onyes({ doing: offered.doing, plugin, source, offer, approved });
-    } else {
-      onyes({ doing: offered.doing, plugin: offered.plugin, offer });
+    const agreed =
+      sent.length === 0
+        ? { offer, approved }
+        : { offer, approved, inputs: sent };
+    switch (offered.doing) {
+      case "plugin-install":
+        return { doing: offered.doing, source: offered.source, ...agreed };
+      case "plugin-update":
+        return {
+          doing: offered.doing,
+          plugin: offered.plugin,
+          source: offered.source,
+          ...agreed,
+        };
+      case "plugin-run":
+        return {
+          doing: offered.doing,
+          plugin: offered.plugin,
+          recipe: offered.demand.recipe.id,
+          ...agreed,
+        };
+      case "plugin-remove":
+      case "plugin-prove":
+        return { doing: offered.doing, plugin: offered.plugin, offer };
     }
   }
 
-  const yes = $derived(
-    offered.doing === "plugin-install"
-      ? m.action_plug_install_yes({ offer: offered.offer })
-      : offered.doing === "plugin-update"
-        ? m.action_plug_update_yes({ offer: offered.offer })
-        : m.action_plug_remove_yes({ offer: offered.offer }),
-  );
+  /** Agree to the reading as it was read, and forget what was typed for it. */
+  function agree(): void {
+    const sent = inputsGiven(inputs, given);
+    given = {};
+    onyes(yesTo(sent));
+  }
+
+  const YES = {
+    "plugin-install": m.action_plug_install_yes,
+    "plugin-update": m.action_plug_update_yes,
+    "plugin-remove": m.action_plug_remove_yes,
+    "plugin-prove": m.action_plug_prove_yes,
+    "plugin-run": m.action_plug_run_yes,
+  } as const;
+
+  const yes = $derived(YES[offered.doing]({ offer: offered.offer }));
 </script>
 
 <!--
@@ -141,44 +201,11 @@
     </div>
   {/each}
 
-  {#if install !== undefined}
-    <div class="part">
-      <h4>{m.plug_section_recipes()}</h4>
-      {#each install.would.recipes ?? [] as recipe (recipe.id)}
-        <div class="recipe">
-          <h5>{recipe.title}</h5>
-          <ul class="lines">
-            {#each recipeLines(recipe) as line, at (at)}
-              <li><Said text={line} /></li>
-            {/each}
-          </ul>
-          <ul class="pairs">
-            {#each recipe.pairs as pair, at (at)}
-              <li>
-                <ul class="lines">
-                  {#each pairLines(pair) as line, place (place)}
-                    <li><Said text={line} /></li>
-                  {/each}
-                </ul>
-                {#if pair.approval !== undefined}
-                  {@const approval = pair.approval}
-                  <Switch
-                    on={approved.includes(approval)}
-                    label={m.plug_approve({ approval })}
-                    onclick={() => {
-                      flip(approval);
-                    }}
-                  />
-                {/if}
-              </li>
-            {/each}
-          </ul>
-        </div>
-      {:else}
-        <p class="prose"><Said text={m.plug_recipes_none()} /></p>
-      {/each}
-    </div>
+  {#if reads}
+    <PlugRecipes recipes={recipes ?? []} {approved} onflip={flip} />
+  {/if}
 
+  {#if install !== undefined}
     <div class="part">
       <h4>{m.plug_section_taking()}</h4>
       {#if install.taking.length > 0}
@@ -228,6 +255,16 @@
     </div>
   {/if}
 
+  {#if inputs.length > 0}
+    <PlugInputs
+      {inputs}
+      {given}
+      ongive={(name: string, value: string) => {
+        given = { ...given, [name]: value };
+      }}
+    />
+  {/if}
+
   {#if asked.length > 0}
     <p class="prose">
       {m.plug_approved_count({
@@ -238,7 +275,7 @@
   {/if}
 
   <div class="acts">
-    <Action label={yes} weight="firm" off={busy} onclick={agree} />
+    <Action label={yes} weight="firm" off={busy || !answered} onclick={agree} />
     <Action label={m.action_leave_as_is()} onclick={onleave} />
   </div>
 </section>
@@ -253,19 +290,13 @@
   }
 
   h3,
-  h4,
-  h5 {
+  h4 {
     margin: 0;
     font-size: var(--text-item);
     font-weight: 600;
   }
 
-  h5 {
-    font-weight: 500;
-  }
-
-  .part,
-  .recipe {
+  .part {
     display: grid;
     gap: var(--sp-2);
   }

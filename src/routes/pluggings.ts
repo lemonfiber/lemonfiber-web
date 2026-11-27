@@ -15,6 +15,7 @@ import {
   wouldInstallWaiting,
   wouldUpdate,
 } from "../api/plugs";
+import { readProve, readRun } from "../api/proofs";
 import type { Plugger } from "../lib/plugging";
 import type { Work } from "../lib/work";
 
@@ -136,6 +137,24 @@ export const removeRead: Work = {
       removal: wouldRemove,
     },
   },
+};
+
+/** A record of what proving the fetcher again would ask. */
+export const proveRead: Work = {
+  ...updateRead,
+  id: "67",
+  doing: "plugin-prove",
+  given: { plugin: "subtitle-fetch" },
+  came: { kind: "plugins", report: readProve },
+};
+
+/** A record of what running the fetcher's refresh recipe would call and carry. */
+export const runRead: Work = {
+  ...updateRead,
+  id: "68",
+  doing: "plugin-run",
+  given: { plugin: "subtitle-fetch", recipe: "refresh" },
+  came: { kind: "plugins", report: readRun },
 };
 
 /** What pressing anything asks for, where nothing answers it. */
