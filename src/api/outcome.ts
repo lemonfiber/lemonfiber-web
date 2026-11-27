@@ -41,6 +41,7 @@ function ofTheStack(envelope: Envelope): Came | undefined {
   if (isKind(envelope, "hosting")) {
     return { kind: "hosting", report: envelope.data };
   }
+  if (isKind(envelope, "ran")) return { kind: "ran", report: envelope.data };
   return undefined;
 }
 

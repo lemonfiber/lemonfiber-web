@@ -456,5 +456,21 @@
   "action_plug_run": "Run {recipe}",
   "action_plug_prove_yes": "Prove as {offer}",
   "action_plug_run_yes": "Run as {offer}",
-  "action_plug_catalogue_install": "Install {name}"
+  "action_plug_catalogue_install": "Install {name}",
+  "doing_run_title": "Running a service now",
+  "came_ran_ended": "It ran, and ended {when} with exit code {exit}.",
+  "came_ran_unexited": "It ran, and ended {when} without an exit code, stopped from outside.",
+  "came_ran_not_due": "No run was due.",
+  "came_ran_would": "It would run now.",
+  "came_ran_none": "Nothing ran.",
+  "came_ran_skipped": "{count} of its times came while it was still going, and were skipped.",
+  "action_run_rehearse": "Preview running {name}",
+  "action_run_yes": "Yes, run {name}",
+  "doing_update_one_title": "Moving {service} onto this build's version",
+  "action_update_one": "Move {service} alone",
+  "doing_backup_one_title": "Backing up {service}",
+  "confirm_backup_one_title": "Back up {name} alone?",
+  "confirm_backup_one_prose": "lemonfiber writes an archive of the settings {name} keeps, and nothing else: no other program's settings, none of its own and none of your media. It takes one only while the stack is stopped, and says so if it is running. Older backups beyond the number it keeps are removed.",
+  "action_backup_one_yes": "Yes, back up",
+  "action_backup_one": "Back up {name}"
 }

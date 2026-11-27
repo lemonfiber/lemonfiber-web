@@ -72,6 +72,8 @@ export interface Arguments {
   readonly value?: string;
   /** Whether anything still coming down is let finish first. */
   readonly wait?: boolean;
+  /** Whether a run-and-exit service is run at once, whether or not it is due. */
+  readonly now?: boolean;
   /** The person acted on, by the name they sign in as. */
   readonly name?: string;
   /** The highest age rating an account may watch. */

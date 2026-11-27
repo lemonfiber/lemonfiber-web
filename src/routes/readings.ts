@@ -29,7 +29,7 @@ import type { Tuned } from "../lib/tuned";
 import type { Plugins } from "../lib/plugins";
 import type { PluginCatalogue } from "../lib/catalogued";
 import type { Values } from "../lib/values";
-import type { Diagnosis } from "../lib/wire";
+import type { Diagnosis, Stack as Services } from "../lib/wire";
 import type { Wiring } from "../lib/wiring";
 
 /** What the checks screen is drawn from. */
@@ -58,6 +58,8 @@ export interface StorageRead {
   readonly space: Reading<Reckoned>;
   /** The backup or restore running now, or none. */
   readonly copying: Reading<Copying>;
+  /** Each service, which one can be backed up alone. */
+  readonly services: Reading<Services>;
 }
 
 /** What the settings screen is drawn from. */
@@ -131,15 +133,16 @@ export async function readChecks(
 export async function readStorage(
   reaching: Reaching,
 ): Promise<Answered<StorageRead>> {
-  const [diagnosis, archives, space, copying] = await Promise.all([
+  const [diagnosis, archives, space, copying, services] = await Promise.all([
     asked(reaching, "storage", "doctor"),
     asked(reaching, "backups", "archives"),
     asked(reaching, "space", "space"),
     asked(reaching, "copying", "copying"),
+    asked(reaching, "services", "status"),
   ]);
   return {
-    read: { diagnosis, archives, space, copying },
-    refused: turnedAway(diagnosis, archives, space, copying),
+    read: { diagnosis, archives, space, copying, services },
+    refused: turnedAway(diagnosis, archives, space, copying, services),
   };
 }
 

@@ -15,6 +15,8 @@ import {
 import type { Freshness } from "../lib/freshness";
 import type { Archives } from "../lib/kept";
 import type { Keeper } from "../lib/upkeep";
+import { servicesOf, type Stack } from "../lib/wire";
+import { stack } from "./fixture";
 import type { Work } from "../lib/work";
 import * as m from "../paraglide/messages.js";
 
@@ -24,13 +26,14 @@ const answered: Freshness = { kind: "answered", secondsAgo: 6 };
 function keeping(
   over: Partial<Keeper> = {},
   archives: Reading<Archives> = { ok: true, value: kept },
+  services: Reading<Stack> = { ok: true, value: stack },
 ): void {
   render(Storage, {
     disk: undefined,
     live: { kind: "never" },
     diagnosis: undefined,
     read: answered,
-    keeping: { keeper: { ...keeper, ...over }, archives },
+    keeping: { keeper: { ...keeper, ...over }, archives, services },
   });
 }
 
@@ -90,7 +93,105 @@ describe("the backups kept on this machine", () => {
       live: { kind: "never" },
       diagnosis: undefined,
       read: answered,
-      keeping: { keeper, archives: undefined },
+      keeping: {
+        keeper,
+        archives: undefined,
+        services: { ok: true, value: stack },
+      },
+    });
+    expect(within(panel()).getByText(m.waiting_answer())).toBeInTheDocument();
+  });
+});
+
+describe("backing up one service alone", () => {
+  const [first] = servicesOf(stack);
+  const service = { id: first?.id ?? "", name: first?.name ?? "" };
+
+  it("lists each service with a control naming it", () => {
+    keeping();
+    const list = within(panel()).getByRole("list", {
+      name: m.backups_services(),
+    });
+    expect(within(list).getAllByRole("listitem")).toHaveLength(
+      servicesOf(stack).length,
+    );
+    expect(
+      within(list).getByRole("button", {
+        name: m.action_backup_one({ name: service.name }),
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("asks for one service's backup, by its id and its name", async () => {
+    const onask = vi.fn();
+    keeping({ onask });
+
+    await press(m.action_backup_one({ name: service.name }));
+
+    expect(onask).toHaveBeenCalledWith({ doing: "backup", service });
+  });
+
+  it("says what it writes before the yes, naming the service", async () => {
+    const onask = vi.fn();
+    const asking = { doing: "backup", service } as const;
+    keeping({ asked: asking, onask });
+
+    expect(
+      within(asked()).getByText(
+        m.confirm_backup_one_title({ name: service.name }),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(asked()).getByText(
+        m.confirm_backup_one_prose({ name: service.name }),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: m.action_backup_one({ name: service.name }),
+      }),
+    ).toHaveAttribute("aria-disabled", "true");
+    await press(m.action_backup_one_yes());
+    expect(onask).toHaveBeenCalledWith(asking);
+  });
+
+  it("heads the record of one service's backup with it", () => {
+    keeping({ work: [{ ...tookBackup, given: { service: service.id } }] });
+    expect(
+      within(asked()).getByText(
+        m.doing_backup_one_title({ service: service.id }),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("says so where the stack lists no service", () => {
+    keeping({}, undefined, { ok: true, value: { ...stack, services: [] } });
+    expect(
+      within(panel()).getByText(m.backups_services_none()),
+    ).toBeInTheDocument();
+  });
+
+  it("says why the services could not be read, in lemonfiber's words", () => {
+    keeping({}, undefined, {
+      ok: false,
+      problem: { kind: "unreachable", message: "lemonfiber is not answering." },
+    });
+    expect(
+      within(panel()).getByText("lemonfiber is not answering."),
+    ).toBeInTheDocument();
+  });
+
+  it("waits for the services that have not answered", () => {
+    render(Storage, {
+      disk: undefined,
+      live: { kind: "never" },
+      diagnosis: undefined,
+      read: answered,
+      keeping: {
+        keeper,
+        archives: { ok: true, value: kept },
+        services: undefined,
+      },
     });
     expect(within(panel()).getByText(m.waiting_answer())).toBeInTheDocument();
   });

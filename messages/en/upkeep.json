@@ -599,5 +599,8 @@
   "copying_paced": "Slowed on purpose to {limit}, the limit you set.",
   "copying_stalled": "Stuck: nothing has been written since {wrote}.",
   "copying_part": "Now copying: {part}",
-  "copying_started": "Started {when}"
+  "copying_started": "Started {when}",
+  "update_one_title": "Moving {service} alone",
+  "backups_services": "Each service alone",
+  "backups_services_none": "No services are listed to back up one at a time."
 }

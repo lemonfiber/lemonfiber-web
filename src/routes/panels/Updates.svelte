@@ -5,11 +5,19 @@
   import Panel from "../../components/Panel.svelte";
   import Unfinished from "./Unfinished.svelte";
   import { linesOf } from "../../lib/came";
-  import { interruptedBy, wholeStack } from "../../lib/inflight";
+  import { interruptedBy } from "../../lib/inflight";
   import type { Freshness } from "../../lib/freshness";
   import { stepLine } from "../../lib/updated";
-  import { standingPlan, type Updater } from "../../lib/updating";
-  import { readingOf, titleOfDoing } from "../../lib/work";
+  import {
+    movesApart,
+    standingPlan,
+    stoppingOfUpdate,
+    titleOfPlan,
+    titleOfUpdate,
+    yesTo,
+    type Updater,
+  } from "../../lib/updating";
+  import { readingOf } from "../../lib/work";
   import * as m from "../../paraglide/messages.js";
 
   interface Props {
@@ -44,6 +52,10 @@
   carries back the offer the steps were read under, so lemonfiber takes those
   steps or refuses where they have moved since. What is still downloading is
   named above the yes, with letting it finish first beside it.
+
+  Beside each step of the whole stack's plan, moving that service alone is
+  offered. It is read first the same way, and what is downloading is named for
+  that service alone.
 -->
 <Panel title={m.panel_updates()} {freshness} flush>
   <div class="scope">
@@ -70,13 +82,26 @@
     bind:this={asked}
   >
     {#if plan !== undefined}
-      {@const told = interruptedBy(updater.inflight(wholeStack), true)}
+      {@const stopping = stoppingOfUpdate(plan.service)}
+      {@const told = interruptedBy(updater.inflight(stopping), true)}
       <section class="plan" aria-labelledby={planId}>
-        <h3 id={planId}>{m.update_plan_title()}</h3>
+        <h3 id={planId}>{titleOfPlan(plan)}</h3>
         <p class="prose"><Said text={m.update_plan_prose()} /></p>
         <ul class="steps">
           {#each plan.steps as step (step.service)}
-            <li><Said text={stepLine(step)} /></li>
+            <li>
+              <Said text={stepLine(step)} />
+              {#if movesApart(plan)}
+                <Action
+                  label={m.action_update_one({ service: step.service })}
+                  off={updater.busy}
+                  onclick={() => {
+                    updater.onask({ doing: "update", service: step.service });
+                    landing();
+                  }}
+                />
+              {/if}
+            </li>
           {/each}
         </ul>
         <Unfinished {told} />
@@ -87,12 +112,7 @@
               weight="firm"
               off={updater.busy}
               onclick={() => {
-                updater.onask({
-                  doing: "update",
-                  confirm: true,
-                  wait: true,
-                  offer: plan.offer,
-                });
+                updater.onask(yesTo(plan, true));
                 landing();
               }}
             />
@@ -103,12 +123,7 @@
               weight="firm"
               off={updater.busy}
               onclick={() => {
-                updater.onask({
-                  doing: "update",
-                  confirm: true,
-                  wait: false,
-                  offer: plan.offer,
-                });
+                updater.onask(yesTo(plan, false));
                 landing();
               }}
             />
@@ -138,7 +153,7 @@
       <Item
         state={said.state}
         eyebrow={said.eyebrow}
-        title={titleOfDoing(one.doing, one.scoped)}
+        title={titleOfUpdate(one)}
         prose={said.prose}
         lines={one.at === "done"
           ? { named: m.came_heading(), said: linesOf(one.came) }
@@ -204,6 +219,11 @@
   }
 
   li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
     font-size: var(--text-prose);
   }
 

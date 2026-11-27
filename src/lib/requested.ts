@@ -150,6 +150,12 @@ export type Revoking = "credentials-revoke";
  */
 export type Valuing = "settings-set" | "settings-clear";
 
+/**
+ * Something the scheduled panel can ask for, named as the endpoint names it.
+ * What it takes and how it is asked about is in `./scheduling`.
+ */
+export type Scheduling = "run";
+
 /** Anything a record can be of. */
 export type Requested =
   | Doing
@@ -170,4 +176,11 @@ export type Requested =
   | Moving
   | Plugging
   | Revoking
-  | Valuing;
+  | Valuing
+  | Scheduling;
+
+/** Whether a record is of something the overview asked for. */
+export function isDoing(doing: Requested): doing is Doing {
+  const overview: readonly Requested[] = everyDoing;
+  return overview.includes(doing);
+}

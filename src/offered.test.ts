@@ -48,6 +48,7 @@ import { everyPlugging } from "./lib/plugging";
 import { everyKeying } from "./routes/keying.svelte";
 import { everyRemoving } from "./lib/removing";
 import { everyRevoking } from "./lib/revoking";
+import { everyScheduling } from "./lib/scheduling";
 import { everyValuing } from "./lib/valuing";
 import { everySeeding } from "./lib/seeding";
 import { everySharing } from "./lib/sharing";
@@ -296,6 +297,11 @@ const WALKED: readonly {
       "src/routes/panels/Valuing.svelte",
     ],
   },
+  {
+    list: everyScheduling,
+    named: "everyScheduling",
+    by: ["src/routes/panels/Scheduled.svelte"],
+  },
 ];
 
 /** Requests this console offers. */
@@ -359,6 +365,7 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "settings-set",
   "settings-clear",
   "setup",
+  "run",
 ];
 
 /**
@@ -387,7 +394,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   "push-endpoint-register": "ARCH-R282",
   "push-endpoint-list": "ARCH-R282",
   "push-endpoint-remove": "ARCH-R282",
-  run: "ARCH-R438",
   "internal-certificate-replace": "ARCH-R354",
 };
 
@@ -442,6 +448,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "provenance",
   "quality",
   "queue",
+  "ran",
   "repair",
   "replacement",
   "replay",
@@ -546,7 +553,6 @@ const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
   play: "ARCH-R420",
   "push-endpoint": "ARCH-R282",
   "push-endpoints": "ARCH-R282",
-  ran: "ARCH-R438",
   removal: "D6",
   reset: "C9",
   "sign-in-code": "ARCH-R441",
@@ -906,7 +912,7 @@ describe("what waits on lemonfiber", () => {
 
 describe("the parity page", () => {
   it("is read as rows and sentences, so a claim is found where it is made", () => {
-    expect(claims()).toContain("Six of these are offered in part.");
+    expect(claims()).toContain("Four of these are offered in part.");
     expect(actionsNamed("`remove` and `ui` and `quality-set`")).toEqual([
       "remove",
       "quality-set",

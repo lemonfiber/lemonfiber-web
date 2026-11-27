@@ -7,8 +7,11 @@ import {
   isUpkeep,
   linesTyped,
   questionOfKeep,
+  sameKeep,
   standingBundle,
   standingListing,
+  titleOfKept,
+  upkeep,
   writtenBundle,
 } from "./upkeep";
 import type { Work } from "./work";
@@ -41,6 +44,8 @@ const answered = (
 
 const terms = { logs: 500, filenames: true };
 
+const sonarr = { id: "sonarr", name: "Sonarr" };
+
 describe("what the backups and support panels ask for", () => {
   it("is every request they make, and nothing else", () => {
     expect(everyUpkeep.every(isUpkeep)).toBe(true);
@@ -50,6 +55,12 @@ describe("what the backups and support panels ask for", () => {
 
   it("sends nothing with a backup, which covers the whole stack", () => {
     expect(givenForKeep({ doing: "backup" })).toStrictEqual({});
+  });
+
+  it("names the one service a backup is of, by its id", () => {
+    expect(givenForKeep({ doing: "backup", service: sonarr })).toStrictEqual({
+      service: "sonarr",
+    });
   });
 
   it("names the archive alone when asking what putting it back would do", () => {
@@ -90,6 +101,33 @@ describe("what is asked before anything is written", () => {
 
   // What comes back is the thing to read before agreeing, or is itself the
   // agreeing, so neither is held up for a question.
+  it("asks before a backup of one service, naming it", () => {
+    expect(questionOfKeep({ doing: "backup", service: sonarr })).toStrictEqual({
+      eyebrow: m.confirm_keep_eyebrow(),
+      title: m.confirm_backup_one_title({ name: "Sonarr" }),
+      prose: m.confirm_backup_one_prose({ name: "Sonarr" }),
+      yes: m.action_backup_one_yes(),
+    });
+  });
+
+  it("takes a yes only to the backup it asked about, down to the service", () => {
+    expect(upkeep.same).toBe(sameKeep);
+    const one = { doing: "backup", service: sonarr } as const;
+    expect(sameKeep(one, { doing: "backup", service: sonarr })).toBe(true);
+    expect(sameKeep({ doing: "backup" }, { doing: "backup" })).toBe(true);
+    expect(sameKeep(one, { doing: "backup" })).toBe(false);
+    expect(
+      sameKeep(one, {
+        doing: "backup",
+        service: { id: "radarr", name: "Radarr" },
+      }),
+    ).toBe(false);
+    expect(sameKeep(undefined, one)).toBe(false);
+    expect(
+      sameKeep({ doing: "restore", archive }, { doing: "restore", archive }),
+    ).toBe(true);
+  });
+
   it("asks nothing before a listing, a restore or a bundle", () => {
     expect(questionOfKeep({ doing: "restore", archive })).toBeUndefined();
     expect(questionOfKeep({ doing: "support", terms })).toBeUndefined();
@@ -293,5 +331,20 @@ describe("a count of log lines as typed", () => {
     expect(linesTyped("2.5")).toBeUndefined();
     expect(linesTyped("lots")).toBeUndefined();
     expect(linesTyped("9".repeat(20))).toBeUndefined();
+  });
+});
+
+describe("a record of a backup", () => {
+  it("is headed by the service it is of, where it is of one alone", () => {
+    const record = answered(
+      "40",
+      "backup",
+      {},
+      { kind: "backup", report: backed },
+    );
+    expect(titleOfKept(record)).toBe(m.doing_backup_title());
+    expect(titleOfKept({ ...record, given: { service: "sonarr" } })).toBe(
+      m.doing_backup_one_title({ service: "sonarr" }),
+    );
   });
 });

@@ -16,7 +16,7 @@
   import type { Remover } from "../lib/removing";
   import type { Letter } from "../lib/seeding";
   import type { Keeper } from "../lib/upkeep";
-  import type { Diagnosis, Disk } from "../lib/wire";
+  import type { Diagnosis, Disk, Stack } from "../lib/wire";
   import * as m from "../paraglide/messages.js";
 
   interface Props {
@@ -36,6 +36,7 @@
       | {
           readonly keeper: Keeper;
           readonly archives: Reading<Archives> | undefined;
+          readonly services: Reading<Stack> | undefined;
         }
       | undefined;
     /**
@@ -118,6 +119,7 @@
     <Backups
       keeper={keeping.keeper}
       archives={keeping.archives}
+      services={keeping.services}
       freshness={read}
     />
   {/if}

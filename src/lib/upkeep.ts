@@ -3,7 +3,8 @@
  * helping would need, and how the asking reads.
  *
  * Three requests, each named as the command line names it. Taking a backup has
- * nothing to read first, so it is asked about before it is sent. Putting one
+ * nothing to read first, so it is asked about before it is sent; it is of the
+ * whole stack, or of one service's settings alone. Putting one
  * back is asked for twice: once by the archive's name alone, which changes
  * nothing and answers with what the archive holds and what restoring it would
  * overwrite, and then with the yes, which names the listing it was read in so
@@ -20,6 +21,8 @@ import type { Arguments } from "../api/acting";
 import { sameDoing, type Asker, type Family } from "./asker";
 import type { Came } from "./came";
 import type { Relocation } from "./kept";
+import { titleOfDoing } from "./titled";
+import type { Named } from "./wire";
 import type { Question, Requested, Upkeep, Work } from "./work";
 import * as m from "../paraglide/messages.js";
 
@@ -42,8 +45,8 @@ export interface Terms {
 
 /** One asking, with whatever it names. */
 export type Keep =
-  /** A backup of the whole stack. */
-  | { readonly doing: "backup" }
+  /** A backup of the whole stack, or of one service's settings alone. */
+  | { readonly doing: "backup"; readonly service?: Named }
   /** What an archive holds and what putting it back would overwrite. */
   | { readonly doing: "restore"; readonly archive: string }
   /** The archive put back, agreed to under the listing it was read in. */
@@ -67,7 +70,7 @@ export type Keep =
 export function givenForKeep(keep: Keep): Arguments {
   switch (keep.doing) {
     case "backup":
-      return {};
+      return keep.service === undefined ? {} : { service: keep.service.id };
     case "restore":
       return "offer" in keep
         ? {
@@ -92,6 +95,15 @@ export function givenForKeep(keep: Keep): Arguments {
  */
 export function questionOfKeep(keep: Keep): Question | undefined {
   if (keep.doing !== "backup") return undefined;
+  if (keep.service !== undefined) {
+    const { name } = keep.service;
+    return {
+      eyebrow: m.confirm_keep_eyebrow(),
+      title: m.confirm_backup_one_title({ name }),
+      prose: m.confirm_backup_one_prose({ name }),
+      yes: m.action_backup_one_yes(),
+    };
+  }
   return {
     eyebrow: m.confirm_keep_eyebrow(),
     title: m.confirm_backup_title(),
@@ -214,13 +226,31 @@ export function linesTyped(typed: string): number | undefined {
   return count > 0 && Number.isSafeInteger(count) ? count : undefined;
 }
 
+/** The one service a backup is of, by its id, where it is of one. */
+function serviceOf(keep: Keep | undefined): string | undefined {
+  return keep?.doing === "backup" ? keep.service?.id : undefined;
+}
+
+/** Whether two askings are the same request, down to the service backed up. */
+export function sameKeep(one: Keep | undefined, other: Keep): boolean {
+  return sameDoing(one, other) && serviceOf(one) === serviceOf(other);
+}
+
 /** How the backups and support panels' requests are asked for. */
 export const upkeep: Family<Keep> = {
   owns: isUpkeep,
   question: questionOfKeep,
   given: givenForKeep,
-  same: sameDoing,
+  same: sameKeep,
 };
+
+/** What a record of a backup is headed by, naming the one service it is of. */
+export function titleOfKept(one: Work): string {
+  const { service } = one.given;
+  return service === undefined
+    ? titleOfDoing(one.doing, one.scoped)
+    : m.doing_backup_one_title({ service });
+}
 
 /**
  * Everything the backups and support panels are given to act with, and what

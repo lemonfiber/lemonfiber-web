@@ -208,5 +208,9 @@
   "told_missing": "Some alerts raised while this page was away may be missing.",
   "panel_served": "This console",
   "panel_stack": "Run it yourself",
-  "panel_settled": "What setup settled"
+  "panel_settled": "What setup settled",
+  "scheduled_asked": "Run requests",
+  "scheduled_rehearsal_title": "Running {name} now",
+  "scheduled_rehearsal_prose": "Nothing has run yet. Saying yes runs it now, whether or not one of its times has come.",
+  "scheduled_rehearsal_held": "Nothing has run, and nothing can run now. What holds it back is below. Preview it again once that has changed."
 }
