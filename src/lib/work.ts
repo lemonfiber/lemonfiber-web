@@ -28,7 +28,7 @@ import type { InFlightOf } from "./inflight";
 import { rehearsingStop, type Offered } from "./restarting";
 import type { Reading } from "@lemonfiber/sdk-ts";
 import type { Acted, Arguments } from "../api/acting";
-import type { Redeemed } from "../api/redeeming";
+import type { Ending, Redeemed } from "../api/redeeming";
 import type { Came } from "./came";
 import type { State } from "./state";
 import type { Freshness } from "./freshness";
@@ -237,10 +237,12 @@ interface Asked {
  * `done` is work that has finished — either it never left lemonfiber's own
  * files and was answered outright, or the name it was given has been redeemed.
  * `stopped` is work that ran and failed, in the words the failure rendered.
- * `forgotten` is a name this run no longer knows, which is absence rather than
- * an unfinished wait. `adrift` is this page having lost the thread: the work
- * may still be running and there is no longer any way to ask. `declined` is
- * lemonfiber refusing the request, in its own sentence.
+ * `ended` is work that ended before it finished, and says how it ended.
+ * `forgotten` is a name lemonfiber no longer answers this page about, which is
+ * absence rather than an unfinished wait or a failure. `adrift` is this page
+ * having lost the thread: the work may still be running and there is no longer
+ * any way to ask. `declined` is lemonfiber refusing the request, in its own
+ * sentence.
  */
 export type Work =
   | (Asked & {
@@ -259,6 +261,12 @@ export type Work =
       readonly at: "stopped";
       /** What went wrong, in lemonfiber's own words. */
       readonly said: string;
+    })
+  | (Asked & {
+      readonly at: "ended";
+      readonly job: string;
+      /** Why it ended, as lemonfiber said. */
+      readonly ending: Ending;
     })
   | (Asked & { readonly at: "forgotten"; readonly job: string })
   | (Asked & {
@@ -309,6 +317,8 @@ export function recordAfter(
       return { ...asked, at: "done", job, came: came.came };
     case "stopped":
       return { ...asked, at: "stopped", said: came.said };
+    case "ended":
+      return { ...asked, at: "ended", job, ending: came.ending };
     case "forgotten":
       return { ...asked, at: "forgotten", job };
     case "adrift":
@@ -321,10 +331,32 @@ export const everyStanding: readonly Work["at"][] = [
   "under-way",
   "done",
   "stopped",
+  "ended",
   "forgotten",
   "adrift",
   "declined",
 ];
+
+/**
+ * The name of the work a record stands for, where that work may still be
+ * running: work under way, and work this page lost the thread of. Putting such
+ * a record away forgets the name and leaves the work running.
+ */
+export function runningUnder(work: Work): string | undefined {
+  return work.at === "under-way" || work.at === "adrift" ? work.job : undefined;
+}
+
+/** How work that ended before it finished says why. */
+function endedSaying(job: string, ending: Ending): string {
+  switch (ending) {
+    case "released":
+      return m.work_ended_released({ job });
+    case "let-go":
+      return m.work_ended_let_go({ job });
+    case "quiet":
+      return m.work_ended_quiet({ job });
+  }
+}
 
 /** How a record reads: how much it wants the operator, and what it says. */
 export interface Read {
@@ -340,9 +372,10 @@ export interface Read {
  * What a record says.
  *
  * Work the runtime holds is `part`: it is unfinished rather than untrusted, and
- * the interface reads unfinished in full ink. A name this run has forgotten is
- * `unknown` rather than an alarm — nothing is wrong, there is only nothing left
- * to say. A page that has lost the thread reads `quiet`, which is what the last
+ * the interface reads unfinished in full ink. Work that ended before it
+ * finished is `known`: how it ended is what lemonfiber said, and nothing
+ * failed. A name lemonfiber no longer answers about is `unknown` rather than an
+ * alarm — nothing is wrong, there is only nothing left to say. A page that has lost the thread reads `quiet`, which is what the last
  * thing a source said is worth everywhere else on this screen.
  */
 export function readingOf(work: Work): Read {
@@ -367,6 +400,12 @@ export function readingOf(work: Work): Read {
         state: "stopped",
         eyebrow: m.eyebrow_stopped_short(),
         prose: work.said,
+      };
+    case "ended":
+      return {
+        state: "known",
+        eyebrow: m.eyebrow_ended_early(),
+        prose: endedSaying(work.job, work.ending),
       };
     case "forgotten":
       return {

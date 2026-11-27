@@ -16,18 +16,29 @@
  * a document from a lemonfiber speaking another version is not an outcome this
  * page can stand behind.
  *
- * A name this run never handed out is absent rather than unfinished. Nothing
- * carries a job across a restart, so a tab reopened onto a lemonfiber that has
- * been restarted asks about work nothing is doing — and answering "still going"
- * would leave it waiting on an outcome that is never coming.
+ * A name lemonfiber does not answer this page about is absent rather than
+ * unfinished, and absent is not failed: lemonfiber answers alike for a name
+ * this run never issued, one forgotten, and one whose work another credential
+ * started. Nothing carries a job across a restart, so a tab reopened onto a
+ * lemonfiber that has been restarted asks about work nothing is doing — and
+ * answering "still going" would leave it waiting on an outcome that is never
+ * coming.
  *
  * Being unable to ask is neither of those. The work may be running perfectly
  * well; it is this page that has lost the thread, and saying the work stopped
  * would be this page's guess reported as lemonfiber's word.
+ *
+ * Work can also end before it finishes: its name released, the work let go for
+ * want of anybody asking about it, or the services it followed gone quiet. That
+ * is none of finished, stopped or still going, and is read as itself.
+ *
+ * Forgetting a name lets it go and leaves its work running, which is what
+ * putting away the record of work still running asks for. Nothing here
+ * releases a name: releasing ends the work.
  */
-import { parse, refusalIn } from "@lemonfiber/sdk-ts";
+import { isKind, parse, refusalIn, type ByKind } from "@lemonfiber/sdk-ts";
 import type { Came } from "../lib/came";
-import type { Reaching } from "./asking";
+import { opened, type Reaching } from "./asking";
 import { outcomeOf } from "./outcome";
 import { READING, reached, succeeded } from "./reached";
 
@@ -37,11 +48,14 @@ const JOBS = "/api/jobs/";
 /** The status work still going is answered with. */
 const STILL_GOING = 202;
 
-/** The status a name this run never handed out is answered with. */
-const NEVER_HANDED_OUT = 404;
+/** The status a name this page may not ask about is answered with. */
+const NOT_HERE = 404;
 
 /** How long to leave between one asking and the next. */
 export const BETWEEN_ASKS = 2000;
+
+/** Why work ended before it finished, as lemonfiber said. */
+export type Ending = ByKind["ended"]["data"]["ended"];
 
 /** Where one piece of work got to. */
 export type Redeemed =
@@ -51,7 +65,9 @@ export type Redeemed =
   | { readonly at: "finished"; readonly came: Came }
   /** Stopped, in the words of whatever stopped it. */
   | { readonly at: "stopped"; readonly said: string }
-  /** No work in this run goes by that name. */
+  /** Ended before it finished, for the reason lemonfiber gave. */
+  | { readonly at: "ended"; readonly ending: Ending }
+  /** lemonfiber answers nothing about that name to this page. */
   | { readonly at: "forgotten" }
   /** It could not be asked at all, for the reason given. */
   | { readonly at: "adrift"; readonly said: string }
@@ -84,7 +100,7 @@ export async function redeeming(
   if (!answer.ok) return { at: "adrift", said: answer.problem.message };
 
   const { status, said } = answer;
-  if (status === NEVER_HANDED_OUT) return { at: "forgotten" };
+  if (status === NOT_HERE) return { at: "forgotten" };
   if (!succeeded(status)) {
     const problem = refusalIn(status, said);
     return problem.kind === "refused"
@@ -94,7 +110,28 @@ export async function redeeming(
 
   const read = parse(said);
   if (!read.ok) return { at: "adrift", said: read.problem.message };
-  return status === STILL_GOING
-    ? { at: "running" }
+  if (status === STILL_GOING) return { at: "running" };
+  return isKind(read.value, "ended")
+    ? { at: "ended", ending: read.value.data.ended }
     : { at: "finished", came: outcomeOf(read.value) };
+}
+
+/**
+ * What forgetting a name came to: let go, which is also what a name this page
+ * may no longer ask about comes to; the key turned away; or no answer.
+ */
+export type Forgot = "let-go" | "turned-away" | "unanswered";
+
+/**
+ * Let one name go and leave the work it names running.
+ */
+export async function forgetting(
+  reaching: Reaching,
+  job: string,
+): Promise<Forgot> {
+  const client = opened(reaching);
+  if (!client.ok) return "unanswered";
+  const forgot = await client.value.jobs.forget(job);
+  if (forgot.ok || forgot.problem.kind === "missing") return "let-go";
+  return forgot.problem.kind === "refused" ? "turned-away" : "unanswered";
 }

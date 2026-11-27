@@ -8,12 +8,17 @@
  *
  * A panel's asking awaiting a yes is the panel's own. It is withdrawn by the
  * answer no, and spent by the answer yes.
+ *
+ * Putting away the record of work that may still be running forgets the work's
+ * name, so lemonfiber stops holding it for this page, and leaves the work
+ * running.
  */
 import type { Arguments } from "../api/acting";
+import { forgetting } from "../api/redeeming";
 import type { Asker, Asking, Family, Stopper } from "../lib/asker";
 import { stoppingServices } from "../lib/inflight";
 import { offeredStop } from "../lib/restarting";
-import type { Work } from "../lib/work";
+import { runningUnder, type Work } from "../lib/work";
 import { errands, type Holding, type Sender } from "./errands";
 import { Interrupting } from "./interrupting.svelte";
 
@@ -37,7 +42,10 @@ export class Desk {
   /** What each act standing for a yes would interrupt. */
   readonly interrupting: Interrupting;
 
+  readonly #handed: Handed;
+
   constructor(handed: Handed) {
+    this.#handed = handed;
     this.interrupting = new Interrupting(handed);
     this.send = errands({
       ...handed,
@@ -58,9 +66,21 @@ export class Desk {
     });
   }
 
-  /** Put one record away. */
+  /** Put one record away, forgetting the name of work that may still be running. */
   drop(id: string): void {
+    const job = this.work
+      .filter((one) => one.id === id)
+      .map(runningUnder)
+      .find((one) => one !== undefined);
     this.work = this.work.filter((one) => one.id !== id);
+    if (job !== undefined) void this.#forget(job);
+  }
+
+  async #forget(job: string): Promise<void> {
+    const handed = this.#handed;
+    if ((await forgetting(handed.reaching(), job)) === "turned-away") {
+      handed.onrefused();
+    }
   }
 
   /**

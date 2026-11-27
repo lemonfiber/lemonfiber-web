@@ -56,7 +56,6 @@ export type Feature =
   | "N1"
   | "N27"
   | "ARCH-R78"
-  | "ARCH-R132"
   | "ARCH-R153"
   | "ARCH-R156"
   | "ARCH-R281"

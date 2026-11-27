@@ -70,7 +70,6 @@
       }}
     />
     <Action
-      acts="seed"
       label={m.action_wizard_connect()}
       weight={running ? "firm" : undefined}
       off={desk.busy || !running}

@@ -58,7 +58,7 @@ describe("what a stop, a restart or a switch would interrupt", () => {
   });
 
   it("names each download a stop would interrupt, and lets them finish first", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     const asked: string[] = [];
     console_({ sending: downloading(acting(accepted, sent), asked) });
 
@@ -97,7 +97,7 @@ describe("what a stop, a restart or a switch would interrupt", () => {
   });
 
   it("reads a switch first, names what stopping its programs would interrupt, and offers no finishing", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     const asked: string[] = [];
     console_({
       sending: downloading(acting(accepted, sent, [switchRehearsed]), asked),
@@ -133,7 +133,7 @@ describe("asking lemonfiber to do something", () => {
   });
 
   it("asks for what costs nothing without asking about it first", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     console_({ sending: acting(accepted, sent) });
 
     await press(wordOfDoing("up", false));
@@ -144,7 +144,7 @@ describe("asking lemonfiber to do something", () => {
   // An argument the action's command has nowhere to put is refused rather than
   // dropped, so a body carrying one is a request that is never carried out.
   it("sends nothing at all for an action whose command takes no argument", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     console_({ sending: acting(accepted, sent) });
 
     await press(wordOfDoing("seed", false));
@@ -153,7 +153,7 @@ describe("asking lemonfiber to do something", () => {
   });
 
   it("names the forms that were taken up, to the actions that hold them", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     console_({ sending: acting(accepted, sent) });
     await screen.findByText(declared[0]?.description ?? "");
 
@@ -168,7 +168,7 @@ describe("asking lemonfiber to do something", () => {
   // Restarting cuts off whoever is using what it reaches, so what it reaches
   // is read first, and the yes carries back the offer it was read under.
   it("rehearses a restart, then restarts what was read on the yes", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     console_({ sending: acting(accepted, sent, [rehearsed]) });
     await screen.findByText(declared[0]?.description ?? "");
 
@@ -188,7 +188,7 @@ describe("asking lemonfiber to do something", () => {
   });
 
   it("names none of them again once one is put back down", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     console_({ sending: acting(accepted, sent) });
     await screen.findByText(declared[0]?.description ?? "");
 
@@ -230,7 +230,7 @@ describe("asking for something costly", () => {
   });
 
   it("asks what it costs before anything is sent", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     console_({ sending: acting(accepted, sent) });
 
     await press(wordOfDoing("down", false));
@@ -243,7 +243,7 @@ describe("asking for something costly", () => {
   // has nowhere to put is refused rather than dropped. So the question is this
   // screen's to ask and nothing travels with the answer.
   it("sends no agreement with an action whose command carries none", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     console_({ sending: acting(accepted, sent) });
 
     await press(wordOfDoing("down", false));
@@ -255,7 +255,7 @@ describe("asking for something costly", () => {
   });
 
   it("sends nothing at all when the answer is no", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     console_({ sending: acting(accepted, sent) });
 
     await press(wordOfDoing("down", false));
@@ -268,7 +268,7 @@ describe("asking for something costly", () => {
   // A question standing over a set that has since changed is a question about
   // something else, and answering it would send the request nobody asked for.
   it("withdraws the question when what it was about changes", async () => {
-    const sent: Sent = { bodies: [], redeemed: [] };
+    const sent: Sent = { bodies: [], redeemed: [], named: [] };
     console_({ sending: acting(accepted, sent) });
     await screen.findByText(declared[0]?.description ?? "");
 

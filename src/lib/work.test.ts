@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import * as m from "../paraglide/messages.js";
 import { everyReclaiming } from "./reclaiming";
 import { everyFilling } from "./filling";
 import { everyMoving } from "./moving";
@@ -25,6 +26,7 @@ import {
   namesItsForms,
   questionOf,
   readingOf,
+  runningUnder,
   takesForms,
   titleOfDoing,
   wordOfDoing,
@@ -234,6 +236,8 @@ describe("how a record of what was asked for reads", () => {
         return { ...asked, at, job: undefined, came: { kind: "unread" } };
       case "stopped":
         return { ...asked, at, said };
+      case "ended":
+        return { ...asked, at, job, ending: "released" };
       case "forgotten":
         return { ...asked, at, job };
       case "adrift":
@@ -316,5 +320,47 @@ describe("how a record of what was asked for reads", () => {
     const eyebrows = everyStanding.map((at) => readingOf(of(at)).eyebrow);
 
     expect(new Set(eyebrows).size).toBe(everyStanding.length);
+  });
+
+  // Ending before it finished is neither finishing nor failing, and how it
+  // ended is lemonfiber's word: a name released, work let go unasked, or the
+  // services it followed gone quiet.
+  it.each([
+    ["released", m.work_ended_released({ job })],
+    ["let-go", m.work_ended_let_go({ job })],
+    ["quiet", m.work_ended_quiet({ job })],
+  ] as const)("says work that ended %s how it ended", (ending, says) => {
+    const read = readingOf({ ...of("ended"), at: "ended", job, ending });
+
+    expect(read.state).toBe("known");
+    expect(read.eyebrow).toBe(m.eyebrow_ended_early());
+    expect(read.prose).toBe(says);
+  });
+
+  it("says of work under way that putting its record away leaves it running", () => {
+    expect(readingOf(of("under-way")).prose).toBe(m.work_under_way({ job }));
+    expect(m.work_under_way({ job })).toContain("the work runs on");
+  });
+});
+
+describe("the work a record may still name", () => {
+  const asked = { id: "1", doing: "up", scoped: false, given: {} } as const;
+
+  it.each(["under-way", "adrift"] as const)(
+    "is named where the work is %s",
+    (at) => {
+      expect(runningUnder({ ...asked, at, job, said })).toBe(job);
+    },
+  );
+
+  it("is nothing once the work has an end to say", () => {
+    expect(
+      runningUnder({ ...asked, at: "done", job, came: { kind: "unread" } }),
+    ).toBeUndefined();
+    expect(
+      runningUnder({ ...asked, at: "ended", job, ending: "let-go" }),
+    ).toBeUndefined();
+    expect(runningUnder({ ...asked, at: "forgotten", job })).toBeUndefined();
+    expect(runningUnder({ ...asked, at: "stopped", said })).toBeUndefined();
   });
 });

@@ -28,9 +28,9 @@ actually reach.
 
 ## The measurement
 
-The client carries 119 kinds of answer, and this console reads 86 of them.
+The client carries 119 kinds of answer, and this console reads 87 of them.
 Another surface can make 77 requests of the stack, and this console offers 63 of
-them. 13 kinds and 2 requests are offered elsewhere by rule, and 20 kinds and 12
+them. 13 kinds and 2 requests are offered elsewhere by rule, and 19 kinds and 12
 requests are not offered yet.
 
 [`src/offered.test.ts`](../src/offered.test.ts) and
@@ -82,6 +82,7 @@ no rehearsal or a bare yes, is held to what the contract says of it.
 | `dashboard`        | the overview, from the stream                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `device-keys`      | the settings: every phone's hardware key, by name, the app that made it, its fingerprint, where the phone keeps it, when it was registered and last proved a mint, and when it was revoked; one revoked once the operator says yes to a question naming the phone                                                                                                                                                                                                                        |
 | `doctor`           | the checks, and the checks about the disk                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `ended`            | every record of work this page asked for: work that ended before it finished, saying whether its name was released, it was let go, or the services it followed went quiet                                                                                                                                                                                                                                                                                                                |
 | `forms`            | the forms the controls act on                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `front-door`       | a household member's shelf: where to watch, the front door first, each place a link and a code a phone can scan, none that does not answer from where they are                                                                                                                                                                                                                                                                                                                           |
 | `glossary`         | every operator screen: each term it holds, in any form and under any other service's word, explained where it appears unless this browser has turned that off; and the settings: every word in the order somebody meets them, with what it is for, more where there is more, what other services call it and the other forms lemonfiber writes it in                                                                                                                                     |
@@ -173,7 +174,6 @@ no rehearsal or a bare yes, is held to what the contract says of it.
 | `channels`          | ARCH-R420 | Watching live TV: the channels one member may watch, each with what is on it now                                                                              |
 | `device-challenge`  | C10       | Integration keys: a fresh challenge for a registered device key, good for one mint within a minute                                                            |
 | `device-key`        | C10       | Integration keys: a device key just registered, its fingerprint and where it lives                                                                            |
-| `ended`             | ARCH-R132 | A job's outcome: work that ended before it finished, because its name was released, it was let go, or the services it followed went quiet                     |
 | `grant`             | D11       | Watching what the house holds: a grant to play on the member's own account, which a member's paired client asks for the device it plays on                    |
 | `guide`             | D11       | Watching live TV: the guide one member reads, each channel they may watch with its programmes from now across the hours the operator sets                     |
 | `logs-exported`     | B4        | Logs: where an export of the log viewer was written, or would be; lemonfiber serves no endpoint                                                               |
