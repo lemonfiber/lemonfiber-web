@@ -54,7 +54,13 @@
   Where acting is given, each grant can be ended, read first and agreed to
   under the name its reading gave itself.
 -->
-<Panel title={m.panel_credentials()} {freshness} flush>
+<Panel
+  title={m.panel_credentials()}
+  {freshness}
+  reads="credentials"
+  answer={credentials}
+  flush
+>
   <div class="scope">
     <p><Said text={m.credential_prose()} /></p>
     {#if inventory === undefined && problem !== undefined}

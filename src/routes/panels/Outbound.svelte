@@ -55,7 +55,13 @@
   asks for the setting named beside it, as the settings panel would, and what
   that came to is said there.
 -->
-<Panel title={m.panel_outbound()} {freshness} flush>
+<Panel
+  title={m.panel_outbound()}
+  {freshness}
+  reads="outbound"
+  answer={outbound}
+  flush
+>
   <div class="scope">
     <p><Said text={m.outbound_prose()} /></p>
     {#if configurer !== undefined && leaving !== undefined}

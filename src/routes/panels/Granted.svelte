@@ -26,6 +26,7 @@
   {#if revoker !== undefined}
     {@const acting = revoker}
     <Action
+      acts="credentials-revoke"
       label={m.action_grant_revoke({
         plugin: grant.plugin,
         credential: grant.credential,

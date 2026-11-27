@@ -2,6 +2,9 @@ import { render, screen } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import Action from "./Action.svelte";
+import { ABLE } from "./able";
+import { operatorAble, readKeyAble } from "../api/abilities.testing";
+import type { Able } from "../lib/able";
 import { everyWeight } from "../lib/weight";
 
 const words = "Fix it for me";
@@ -151,5 +154,29 @@ describe("when a control's weight changes while it is on screen", () => {
 
     expect(container.querySelector(".act.firm")).not.toBeNull();
     expect(screen.getByRole("button", { name: words })).toBeInTheDocument();
+  });
+
+  describe("asking for an action", () => {
+    const beneath = (able: Able | undefined): void => {
+      render(Action, {
+        props: { label: words, acts: "quality-set" },
+        context: new Map([[ABLE, () => able]]),
+      });
+    };
+
+    it("is drawn where the key may use it", () => {
+      beneath(operatorAble);
+      expect(screen.getByRole("button", { name: words })).toBeVisible();
+    });
+
+    it("is not drawn where the key may not use it", () => {
+      beneath(readKeyAble);
+      expect(screen.queryByRole("button", { name: words })).toBeNull();
+    });
+
+    it("is drawn where nothing was said of the key", () => {
+      beneath(undefined);
+      expect(screen.getByRole("button", { name: words })).toBeVisible();
+    });
   });
 });

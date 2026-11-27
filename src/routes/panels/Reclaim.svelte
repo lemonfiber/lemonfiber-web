@@ -50,7 +50,7 @@
   lemonfiber refuses. Only the parts that cost nothing are taken; the rest are
   said with their cost and left with the operator.
 -->
-<Panel title={m.panel_room()} {freshness} flush>
+<Panel title={m.panel_room()} {freshness} reads="space" answer={space} flush>
   <div class="scope">
     <p><Said text={m.reclaim_prose()} /></p>
     {#if reckoned === undefined && problem !== undefined}
@@ -74,6 +74,7 @@
       {#if free > 0}
         <p><Said text={m.reclaim_offer()} /></p>
         <Action
+          acts="space"
           label={m.action_reclaim_yes({ size: bytes(free) })}
           weight="firm"
           off={reclaimer.busy}

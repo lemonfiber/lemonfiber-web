@@ -14,6 +14,7 @@
   import Glossary from "./panels/Glossary.svelte";
   import Keys from "./panels/Keys.svelte";
   import Phones from "./panels/Phones.svelte";
+  import Woken from "./panels/Woken.svelte";
   import type { Keyer } from "./keying.svelte";
   import Quality from "./panels/Quality.svelte";
   import Updates from "./panels/Updates.svelte";
@@ -177,7 +178,8 @@
   settled, the versions the stack stands on, what the stack holds and where each service
   comes from, what it wires to what, the plugins on this machine and what the
   plugin catalogue offers, this copy of
-  lemonfiber, pairing the companion app, the integration keys, and every word
+  lemonfiber, pairing the companion app, the integration keys, the phones'
+  hardware keys and the phones that can be woken, and every word
   lemonfiber explains.
 
   The readings are asked for together on the way in, and stamped together.
@@ -206,6 +208,7 @@
   {#if delivered !== undefined}
     <Readout
       title={m.panel_notify()}
+      reads="notify"
       prose={m.notify_prose()}
       named={m.notify_said()}
       readout={delivered}
@@ -216,6 +219,7 @@
   {#if serving !== undefined}
     <Readout
       title={m.panel_served()}
+      reads="served"
       prose={m.served_prose()}
       named={m.served_said()}
       readout={serving}
@@ -225,6 +229,7 @@
   {#if running !== undefined}
     <Readout
       title={m.panel_stack()}
+      reads="stack"
       prose={m.stack_prose()}
       named={m.stack_said()}
       readout={running}
@@ -234,6 +239,7 @@
   {#if setUp !== undefined}
     <Readout
       title={m.panel_settled()}
+      reads="settled"
       prose={m.settled_prose()}
       readout={setUp}
       {freshness}
@@ -254,6 +260,7 @@
   {#if keyer !== undefined}
     <Keys {keyer} {freshness} />
     <Phones {keyer} {freshness} />
+    <Woken {keyer} {freshness} />
   {/if}
   <Glossary {glossary} {freshness} />
 </Board>

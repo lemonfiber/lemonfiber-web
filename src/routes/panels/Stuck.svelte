@@ -30,7 +30,7 @@
   answer is drawn where every item looked up is. A list that may be short says
   so above it.
 -->
-<Panel title={m.panel_stuck()} {freshness} flush>
+<Panel title={m.panel_stuck()} {freshness} reads="stuck" answer={stuck} flush>
   <div class="scope">
     <p><Said text={m.stuck_prose()} /></p>
     {#if stuck.ok}

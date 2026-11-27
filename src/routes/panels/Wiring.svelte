@@ -43,7 +43,13 @@
   nothing fills under them; then, where several services claim one, choosing
   which fills it.
 -->
-<Panel title={m.panel_wiring()} {freshness} flush>
+<Panel
+  title={m.panel_wiring()}
+  {freshness}
+  reads="wiring"
+  answer={wiring}
+  flush
+>
   <div class="scope">
     <p><Said text={m.wiring_prose()} /></p>
     {#if wired === undefined && problem !== undefined}

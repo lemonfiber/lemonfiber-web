@@ -34,7 +34,13 @@
   up, and each kind of event set apart from it. Nothing here
   changes what is told.
 -->
-<Panel title={m.panel_alerts()} {freshness} flush>
+<Panel
+  title={m.panel_alerts()}
+  {freshness}
+  reads="alerts"
+  answer={alerts}
+  flush
+>
   <div class="scope">
     <p><Said text={m.alerts_prose()} /></p>
     {#if told === undefined && problem !== undefined}

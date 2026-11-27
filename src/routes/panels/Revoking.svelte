@@ -58,6 +58,7 @@
         </ul>
         <div class="acts">
           <Action
+            acts="credentials-revoke"
             label={m.action_grant_revoke_yes({ offer: reading.offer })}
             weight="firm"
             off={revoker.busy}

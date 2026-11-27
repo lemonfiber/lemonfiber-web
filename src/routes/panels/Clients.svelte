@@ -34,7 +34,13 @@
   happening. Where the preset in force asks more of this machine than it can
   give, that is said once, above every device.
 -->
-<Panel title={m.panel_clients()} {freshness} flush>
+<Panel
+  title={m.panel_clients()}
+  {freshness}
+  reads="clients"
+  answer={clients}
+  flush
+>
   <div class="scope">
     <p><Said text={m.clients_prose()} /></p>
     {#if clients.ok}

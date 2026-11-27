@@ -166,5 +166,8 @@ describe("keeping integration keys", () => {
     expect(keying.said).toBeDefined();
     await keying.revokePhone("home");
     expect(keying.phoneSaid).toBeDefined();
+    expect(keying.woken?.ok).toBe(false);
+    await keying.removeWoken("home");
+    expect(keying.wokenSaid).toBeDefined();
   });
 });

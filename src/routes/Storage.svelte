@@ -108,6 +108,7 @@
     {diagnosis}
     freshness={read}
     title={m.panel_disk_findings()}
+    reads="storage"
     absent={m.storage_none()}
   />
 

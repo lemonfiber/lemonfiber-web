@@ -1,6 +1,9 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
+  import type { ReadName, Reading } from "@lemonfiber/sdk-ts";
   import StateMark from "./StateMark.svelte";
+  import { ableHere } from "./able";
+  import { silenced } from "../lib/able";
   import {
     type Freshness,
     deadStampFor,
@@ -30,6 +33,14 @@
      * longer hold is everybody's.
      */
     stamped?: "always" | "quiet" | undefined;
+    /**
+     * The read the panel is drawn from. Where the signed-in key cannot use it,
+     * the panel is drawn silenced with one sentence saying why in place of the
+     * body.
+     */
+    reads?: ReadName | undefined;
+    /** What that read was answered with, whose words say why where it was refused. */
+    answer?: Reading<unknown> | undefined;
   }
 
   let {
@@ -39,7 +50,14 @@
     dead,
     flush = false,
     stamped = "always",
+    reads,
+    answer,
   }: Props = $props();
+
+  const able = ableHere();
+  const hushed = $derived(
+    reads === undefined ? undefined : silenced(able(), reads, answer),
+  );
 
   const headingId = $props.id();
   const isDead = $derived(dead !== undefined);
@@ -57,8 +75,16 @@
   nothing else's — so the stamp sits on the panel, and a dead panel says so
   inside its own border while the rest of the screen carries on. A dead panel's
   stamp says when it was asked, not that it was checked, and carries no tick.
+  A panel whose read the signed-in key cannot use is silenced the same way:
+  one sentence saying why stands in place of everything it would have drawn,
+  its controls with it.
 -->
-<section class="panel" class:is-dead={isDead} aria-labelledby={headingId}>
+<section
+  class="panel"
+  class:is-dead={isDead}
+  class:is-silenced={hushed !== undefined}
+  aria-labelledby={headingId}
+>
   <header>
     <h2 id={headingId}>{title}</h2>
     {#if stamped === "always" || freshness.kind !== "answered"}
@@ -68,8 +94,10 @@
       </span>
     {/if}
   </header>
-  <div class="body" class:flush>
-    {#if dead === undefined}
+  <div class="body" class:flush={flush && hushed === undefined}>
+    {#if hushed !== undefined}
+      <p class="hushed">{hushed}</p>
+    {:else if dead === undefined}
       {@render children()}
     {:else}
       {@render dead()}
@@ -88,6 +116,17 @@
      not a card sitting on it. */
   .panel.is-dead {
     background: var(--canvas);
+  }
+
+  .panel.is-silenced {
+    background: var(--canvas);
+  }
+
+  .hushed {
+    margin: 0;
+    font-size: var(--text-prose);
+    color: var(--muted);
+    max-width: 76ch;
   }
 
   header {

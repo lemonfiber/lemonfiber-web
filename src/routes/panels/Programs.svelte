@@ -105,7 +105,13 @@
   <StateTag state="part" />
 {/snippet}
 
-<Panel title={m.panel_programs()} {freshness} flush={anyServed}>
+<Panel
+  title={m.panel_programs()}
+  {freshness}
+  reads="services"
+  answer={programs}
+  flush={anyServed}
+>
   {#if running !== undefined}
     <div class="running" class:inset={!anyServed}>
       <p class="eyebrow">{m.programs_forms_running()}</p>

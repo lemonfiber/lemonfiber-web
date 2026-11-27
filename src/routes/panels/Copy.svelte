@@ -58,7 +58,13 @@
   heading: release notes run long, and they are there for whoever wants them. Each of the two readings says for itself that it has not answered, or
   why it could not be read. Nothing here moves anything.
 -->
-<Panel title={m.panel_copy()} {freshness} flush>
+<Panel
+  title={m.panel_copy()}
+  {freshness}
+  reads="version"
+  answer={versions}
+  flush
+>
   <div class="scope">
     <p><Said text={m.copy_prose()} /></p>
   </div>

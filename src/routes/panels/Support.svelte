@@ -106,6 +106,7 @@
 
   <div class="controls" role="group" aria-label={m.support_controls()}>
     <Action
+      acts="support"
       label={m.action_support_describe()}
       off={keeper.busy || logs === undefined}
       onclick={() => {
@@ -154,6 +155,7 @@
         </ul>
         <div class="controls">
           <Action
+            acts="support"
             label={m.action_support_write()}
             weight="firm"
             off={keeper.busy}

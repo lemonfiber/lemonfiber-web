@@ -88,13 +88,20 @@
   control that takes its own row away hands focus to the region the row was
   in.
 -->
-<Panel title={m.panel_backups()} {freshness} flush>
+<Panel
+  title={m.panel_backups()}
+  {freshness}
+  reads="backups"
+  answer={archives}
+  flush
+>
   <div class="scope">
     <p><Said text={m.backups_prose()} /></p>
   </div>
 
   <div class="controls" role="group" aria-label={m.backups_controls()}>
     <Action
+      acts="backup"
       label={m.action_backup()}
       off={silent}
       onclick={() => {
@@ -109,6 +116,7 @@
         <li class="archive">
           <p class="name">{archive}</p>
           <Action
+            acts="restore"
             label={m.action_restore_listing({ archive })}
             off={silent}
             onclick={() => {
@@ -137,6 +145,7 @@
         <li class="archive">
           <p class="name">{service.name}</p>
           <Action
+            acts="backup"
             label={m.action_backup_one({ name: service.name })}
             off={silent}
             onclick={() => {
@@ -173,6 +182,7 @@
       {@const asking = keeper.asked}
       {#snippet answering()}
         <Action
+          acts={asking.doing}
           label={question.yes}
           weight="firm"
           onclick={() => {
@@ -222,6 +232,7 @@
         {/if}
         <div class="controls">
           <Action
+            acts="restore"
             label={m.action_restore_yes({ archive: standing.archive })}
             weight="firm"
             off={keeper.busy}

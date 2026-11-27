@@ -52,7 +52,13 @@
   installed, from a source typed or from the catalogue, each read first and
   agreed to under the name its reading gave itself.
 -->
-<Panel title={m.panel_plugins()} {freshness} flush>
+<Panel
+  title={m.panel_plugins()}
+  {freshness}
+  reads="plugins"
+  answer={plugins}
+  flush
+>
   <div class="scope">
     <p><Said text={m.plugin_prose()} /></p>
     {#if held === undefined && problem !== undefined}
@@ -79,6 +85,7 @@
             {@const named = demandRecipes(plugin.recipes)}
             <div class="acts">
               <Action
+                acts="plugin-update"
                 label={m.action_plug_update({ name: nameOf(plugin) })}
                 off={acting.busy}
                 onclick={() => {
@@ -90,6 +97,7 @@
                 }}
               />
               <Action
+                acts="plugin-remove"
                 label={m.action_plug_remove({ name: nameOf(plugin) })}
                 off={acting.busy}
                 onclick={() => {
@@ -100,6 +108,7 @@
                 }}
               />
               <Action
+                acts="plugin-prove"
                 label={m.action_plug_prove({ name: nameOf(plugin) })}
                 off={acting.busy}
                 onclick={() => {
@@ -118,6 +127,7 @@
                   {#each named as recipe (recipe.id)}
                     <li>
                       <Action
+                        acts="plugin-run"
                         label={m.action_plug_run({ recipe: recipe.title })}
                         off={acting.busy}
                         onclick={() => {

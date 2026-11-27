@@ -100,7 +100,7 @@
   nine imports a full disk stopped are one thing wrong, and listing them as nine
   would make the expansion disagree with the figure it expands.
 -->
-<Panel title={m.panel_standing()} {freshness}>
+<Panel title={m.panel_standing()} {freshness} reads="status" answer={stack}>
   {#if health !== undefined}
     {@const wrong = health.affected.map(read)}
     <BigFigure

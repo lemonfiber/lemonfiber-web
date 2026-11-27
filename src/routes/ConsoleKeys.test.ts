@@ -1,10 +1,19 @@
 import { render, screen, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
-import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
+import type { Fetching } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
 import Console from "./Console.svelte";
 import { enveloped, fresh, here, key, stack, times } from "./served";
-import { claimed, listing, phones, unpaired } from "../api/keylists";
+import { console_, routed } from "./Console.testing";
+import {
+  claimed,
+  iphoneWoken,
+  listing,
+  phones,
+  unpaired,
+  unwoken,
+  woken,
+} from "../api/keylists";
 import { nameOf } from "../lib/route";
 
 import * as m from "../paraglide/messages.js";
@@ -53,21 +62,7 @@ describe("the integration keys, from the settings screen", () => {
       "GET /api/device-keys": enveloped("device-keys", phones),
       "DELETE /api/device-keys/iphone": enveloped("device-keys", unpaired),
     };
-    const sending: Sending = (url, init) => {
-      const at = `${init.method} ${url.replace(here, "")}`;
-      asked.push(at);
-      const body = answers[at];
-      return Promise.resolve({
-        ok: body !== undefined,
-        status: body === undefined ? 404 : 200,
-        text: () => Promise.resolve(body ?? ""),
-      });
-    };
-    render(Console, {
-      reaching: { at: here, token: key, sending, fetching: silent },
-      onrefused: vi.fn(),
-      pausing: () => Promise.resolve(),
-    });
+    console_({ sending: routed(answers, asked) });
     const panel = await screen.findByRole("region", {
       name: m.panel_phones(),
     });
@@ -86,6 +81,43 @@ describe("the integration keys, from the settings screen", () => {
       await within(panel).findByText(m.phones_revoked({ name: "iphone" })),
     ).toBeVisible();
     expect(asked).toContain("DELETE /api/device-keys/iphone");
+  });
+
+  it("reads the phones that can be woken on the way in, and removes one through its own route on a yes", async () => {
+    globalThis.history.replaceState(undefined, "", "/settings");
+    const asked: string[] = [];
+    console_({
+      sending: routed(
+        {
+          "GET /api/push-endpoints": enveloped("push-endpoints", woken),
+          "DELETE /api/push-endpoints/iphone": enveloped(
+            "push-endpoints",
+            unwoken,
+          ),
+        },
+        asked,
+      ),
+    });
+    const panel = await screen.findByRole("region", {
+      name: m.panel_woken(),
+    });
+    await userEvent.click(
+      await within(panel).findByRole("button", {
+        name: m.action_woken_remove({ name: "iphone" }),
+      }),
+    );
+    expect(asked).toContain("GET /api/push-endpoints");
+    expect(asked).not.toContain("DELETE /api/push-endpoints/iphone");
+    await userEvent.click(
+      within(panel).getByRole("button", {
+        name: m.action_woken_remove_yes({ name: "iphone" }),
+      }),
+    );
+    expect(
+      await within(panel).findByText(m.woken_removed({ name: "iphone" })),
+    ).toBeVisible();
+    expect(asked).toContain("DELETE /api/push-endpoints/iphone");
+    expect(document.body.innerHTML).not.toContain(iphoneWoken.endpoint);
   });
 
   it("shows a claim's link once, and leaving the settings drops it", async () => {

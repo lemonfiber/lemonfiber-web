@@ -63,6 +63,7 @@
 
   <div class="controls">
     <Action
+      acts="forget"
       label={m.action_forget_list()}
       off={remover.busy}
       onclick={() => {
@@ -82,6 +83,7 @@
       }}
     />
     <Action
+      acts="uninstall"
       label={m.action_remove_list()}
       off={remover.busy}
       onclick={() => {
@@ -105,6 +107,7 @@
         <p class="prose"><Said text={m.forget_plan_prose()} /></p>
         <div class="acts">
           <Action
+            acts="forget"
             label={m.action_forget_yes()}
             weight="firm"
             off={remover.busy}
@@ -140,6 +143,7 @@
         <div class="acts">
           {#if told.finishing}
             <Action
+              acts="uninstall"
               label={m.inflight_finish()}
               weight="firm"
               off={remover.busy}
@@ -156,6 +160,7 @@
           {/if}
           {#if told.ready}
             <Action
+              acts="uninstall"
               label={m.action_remove_yes()}
               weight="firm"
               off={remover.busy}

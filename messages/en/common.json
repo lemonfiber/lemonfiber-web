@@ -219,5 +219,8 @@
   "waits_through": "{service}, which it runs through",
   "waits_give_setting": "Give a setting under {panel}, on the {screen} screen.",
   "overlay_title": "Your overlay",
-  "overlay_unvetted": "Your own overlay at {overlay} changes {services}. Nothing in it is held to what lemonfiber checks, so it is unvetted."
+  "overlay_unvetted": "Your own overlay at {overlay} changes {services}. Nothing in it is held to what lemonfiber checks, so it is unvetted.",
+  "able_unpermitted": "The key signed in here may not read this.",
+  "able_unconfigured": "A setting this machine has switched off has to be turned back on before this can be read.",
+  "able_absent": "This is not served here."
 }

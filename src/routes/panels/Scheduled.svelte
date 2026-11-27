@@ -66,6 +66,7 @@
     {:else}
       {#snippet running()}
         <Action
+          acts="run"
           label={m.action_run_rehearse({ name: one.name })}
           off={runner.busy}
           onclick={() => {
@@ -102,6 +103,7 @@
           <div class="acts">
             {#if standing.ready}
               <Action
+                acts="run"
                 label={m.action_run_yes({ name: standing.name })}
                 weight="firm"
                 off={runner.busy}

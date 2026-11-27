@@ -52,6 +52,7 @@
 
   <div class="controls">
     <Action
+      acts="companion-pair"
       label={m.action_pair()}
       weight="firm"
       off={pairer.busy}

@@ -18,6 +18,7 @@ import Console from "./Console.svelte";
 import { declared, forms, job, rehearsed, stack } from "./fixture";
 import * as m from "../paraglide/messages.js";
 import { key, here, enveloped, type Says } from "./served";
+import { replying } from "../api/bodies";
 
 /**
  * What the forms read answers: every form where none is named, and what starting
@@ -208,3 +209,21 @@ export const choose = (id: string): Promise<void> => {
   const form = declared.find((one) => one.id === id);
   return press(m.forms_choose({ name: form?.name ?? "" }));
 };
+
+/**
+ * A transport answering each request named in `answers`, a bare body as
+ * answered, noting each in `asked`.
+ */
+export function routed(
+  answers: Partial<Record<string, string | Says>>,
+  asked: string[],
+): Sending {
+  return (url, init) => {
+    const at = `${init.method} ${url.replace(here, "")}`;
+    asked.push(at);
+    const answer = answers[at] ?? { status: 404, body: "" };
+    const said =
+      typeof answer === "string" ? { status: 200, body: answer } : answer;
+    return Promise.resolve(replying(said.status, said.body));
+  };
+}

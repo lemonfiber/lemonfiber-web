@@ -48,7 +48,13 @@
   outlasts any one request — an operator restarts a form and then fetches newer
   images for it — so it belongs beside the forms rather than beside the buttons.
 -->
-<Panel title={m.panel_forms()} {freshness} flush={listed}>
+<Panel
+  title={m.panel_forms()}
+  {freshness}
+  reads="forms"
+  answer={forms}
+  flush={listed}
+>
   {#if declared !== undefined && listed}
     {#each short.keeping( declared, (form) => chosen.includes(form.id) ) as form (form.id)}
       <FormRow

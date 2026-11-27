@@ -2,7 +2,15 @@ import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
 import { Keying } from "./keying.svelte";
 import { enveloped, here, key } from "./served";
-import { claimed, listing, made, phones, unpaired } from "../api/keylists";
+import {
+  claimed,
+  listing,
+  made,
+  phones,
+  unpaired,
+  unwoken,
+  woken,
+} from "../api/keylists";
 
 /** The stream is never opened here, so nothing needs to answer it. */
 const silent: Fetching = () =>
@@ -128,15 +136,21 @@ describe("the phones' hardware keys", () => {
           status: 200,
           body: enveloped("device-keys", phones),
         },
+        "GET /api/push-endpoints": {
+          status: 200,
+          body: enveloped("push-endpoints", woken),
+        },
       },
       sent,
     );
     await keying.read();
     expect(keying.listing).toStrictEqual({ ok: true, value: listing });
     expect(keying.phones).toStrictEqual({ ok: true, value: phones });
+    expect(keying.woken).toStrictEqual({ ok: true, value: woken });
     expect(sent.map((one) => one.asked).sort()).toStrictEqual([
       "GET /api/device-keys",
       "GET /api/keys",
+      "GET /api/push-endpoints",
     ]);
   });
 
@@ -214,6 +228,83 @@ describe("the phones' hardware keys", () => {
       phones: { ok: true, value: phones },
       claimed,
       phoneSaid: "said",
+    });
+  });
+});
+
+describe("the phones that can be woken", () => {
+  it("are listed again on asking, and nothing else is", async () => {
+    const sent: Sent[] = [];
+    const { keying } = keeping(
+      {
+        "GET /api/push-endpoints": {
+          status: 200,
+          body: enveloped("push-endpoints", woken),
+        },
+      },
+      sent,
+    );
+    keying.keyer.onask({ doing: "push-endpoint-list" });
+    await vi.waitFor(() => {
+      expect(keying.woken).toStrictEqual({ ok: true, value: woken });
+    });
+    expect(sent.map((one) => one.asked)).toStrictEqual([
+      "GET /api/push-endpoints",
+    ]);
+  });
+
+  it("removes one by its name and takes them as they now stand", async () => {
+    const sent: Sent[] = [];
+    const { keying } = keeping(
+      {
+        "DELETE /api/push-endpoints/iphone": {
+          status: 200,
+          body: enveloped("push-endpoints", unwoken),
+        },
+      },
+      sent,
+    );
+    keying.wokenSaid = "said before";
+    keying.keyer.onask({ doing: "push-endpoint-remove", name: "iphone" });
+    await vi.waitFor(() => {
+      expect(keying.woken).toStrictEqual({ ok: true, value: unwoken });
+    });
+    expect(sent).toStrictEqual([
+      { asked: "DELETE /api/push-endpoints/iphone", body: undefined },
+    ]);
+    expect(keying.wokenSaid).toBeUndefined();
+    expect(keying.busy).toBe(false);
+  });
+
+  it("says a refused removal in lemonfiber's words, and keeps them as they were", async () => {
+    const said = "No push endpoint is registered as `iphone`.";
+    const { keying } = keeping(
+      { "DELETE /api/push-endpoints/iphone": { status: 404, body: said } },
+      [],
+    );
+    keying.woken = { ok: true, value: woken };
+    await keying.removeWoken("iphone");
+    expect(keying.wokenSaid).toBe(said);
+    expect(keying.woken).toStrictEqual({ ok: true, value: woken });
+    expect(keying.phoneSaid).toBeUndefined();
+  });
+
+  it("passes on a refused key", async () => {
+    const { keying, onrefused } = keeping(
+      { "GET /api/push-endpoints": { status: 401, body: "" } },
+      [],
+    );
+    await keying.readWoken();
+    expect(onrefused).toHaveBeenCalled();
+  });
+
+  it("hands what was read and what was said to the panel", () => {
+    const { keying } = keeping({}, []);
+    keying.woken = { ok: true, value: woken };
+    keying.wokenSaid = "said";
+    expect(keying.keyer).toMatchObject({
+      woken: { ok: true, value: woken },
+      wokenSaid: "said",
     });
   });
 });

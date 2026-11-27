@@ -84,6 +84,7 @@
     />
     <div class="acts">
       <Action
+        acts="walkthrough"
         label={m.action_walk()}
         weight="firm"
         off={silent}
@@ -110,6 +111,7 @@
     {#if asking !== undefined && question !== undefined}
       {#snippet answering()}
         <Action
+          acts={asking.doing}
           label={question.yes}
           weight="firm"
           onclick={() => {

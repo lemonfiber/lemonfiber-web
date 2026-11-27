@@ -135,6 +135,7 @@
     {diagnosis}
     {freshness}
     title={m.panel_findings()}
+    reads="checks"
     absent={m.checks_none()}
   />
 
@@ -145,6 +146,7 @@
   {#if started !== undefined}
     <Readout
       title={m.panel_boot()}
+      reads="boot"
       prose={m.boot_prose()}
       named={m.boot_said()}
       readout={started}
@@ -154,6 +156,7 @@
   {#if watched !== undefined}
     <Readout
       title={m.panel_watcher()}
+      reads="watcher"
       prose={m.watcher_prose()}
       named={m.watcher_said()}
       readout={watched}
@@ -163,6 +166,7 @@
   {#if healed !== undefined}
     <Readout
       title={m.panel_queue()}
+      reads="queue"
       prose={m.queue_prose()}
       named={m.queue_said()}
       readout={healed}

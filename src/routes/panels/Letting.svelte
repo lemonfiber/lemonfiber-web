@@ -52,7 +52,7 @@
   bare yes. The yes stands under that record and carries the offer's name, so
   the client lets go of what was read or lemonfiber refuses.
 -->
-<Panel title={m.panel_letting()} {freshness} flush>
+<Panel title={m.panel_letting()} {freshness} reads="space" answer={space} flush>
   <div class="scope">
     <p><Said text={m.letting_prose()} /></p>
     {#if candidates === undefined && problem !== undefined}
@@ -76,6 +76,7 @@
           </ul>
           {#if seeding(candidate)}
             <Action
+              acts="stop-seeding"
               label={m.action_let_go_cost({ name: candidate.name })}
               off={letter.busy}
               onclick={() => {
@@ -106,6 +107,7 @@
         <p class="prose"><Said text={m.let_go_plan_prose()} /></p>
         <div class="acts">
           <Action
+            acts="stop-seeding"
             label={m.action_let_go_yes()}
             weight="firm"
             off={letter.busy}
