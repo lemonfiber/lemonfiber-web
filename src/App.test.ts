@@ -10,6 +10,7 @@ import { kitsId, kitsShelf, yours } from "./routes/mine";
 import { nameOfRoom } from "./lib/rooms";
 import { nameOf } from "./lib/route";
 import * as m from "./paraglide/messages.js";
+import { kitsTelling } from "./api/hearings";
 
 const key = ["a", "run", "key"].join("-");
 const session = ["a", "session", "secret"].join("-");
@@ -218,6 +219,8 @@ function aMembersRun(state: { removed: boolean }): Sending {
     if (path === "/api/requests")
       return answer(200, enveloped("household", yours));
     if (path === "/api/held") return answer(200, enveloped("held", kitsShelf));
+    if (path === "/api/notify/mine")
+      return answer(200, enveloped("notify-mine", kitsTelling));
     return answer(403, "This is not something this account may ask for.");
   });
 }
