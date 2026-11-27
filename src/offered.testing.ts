@@ -137,10 +137,10 @@ export function reachedFrom(start: string): ReadonlySet<string> {
 
 /** The places a kind is read: asked for, recognised, or listened for. */
 const READERS = [
-  /\basked\(\s*[^,]+,\s*[^,]+,\s*"([a-z-]+)"/g,
-  /\bheard\(\s*[^,]+,\s*[^,]+,\s*"([a-z-]+)"/g,
-  /\bisKind\(\s*[^,]+,\s*"([a-z-]+)"\)/g,
-  /\bnarrowed\(\s*[^,]+,\s*"([a-z-]+)"\)/g,
+  /\basked\([^,]+,[^,]+,\s*"([a-z-]+)"/g,
+  /\bheard\([^,]+,[^,]+,\s*"([a-z-]+)"/g,
+  /\bisKind\([^,]+,\s*"([a-z-]+)"\)/g,
+  /\bnarrowed\([^,]+,\s*"([a-z-]+)"\)/g,
   /"([a-z-]+)" satisfies Kind\b/g,
 ];
 
