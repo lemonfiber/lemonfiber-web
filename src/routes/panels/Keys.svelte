@@ -7,16 +7,21 @@
   import Segmented from "../../components/Segmented.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
+  import { onDestroy } from "svelte";
   import type { Minting } from "@lemonfiber/sdk-ts";
   import type { Freshness } from "../../lib/freshness";
   import {
+    claimedLines,
+    everyHanding,
     everyPurpose,
     everyScope,
+    handingChosen,
     keyLines,
     mintedLines,
     purposeChosen,
     scopeChosen,
     wordOfPurpose,
+    type Handing,
     type Purpose,
     type ScopeChoice,
   } from "../../lib/keys";
@@ -34,11 +39,13 @@
 
   const mintId = $props.id();
   const madeId = `${mintId}-made`;
+  const claimId = `${mintId}-claim`;
 
   let name = $state("");
   let scope = $state<ScopeChoice>("read");
   let account = $state("");
   let purpose = $state<Purpose>("home-assistant");
+  let handing = $state<Handing>("shown");
   let password = $state("");
 
   /** The key about to be revoked, asked about before it is. */
@@ -61,12 +68,19 @@
     return { name: named, scope: `member:${member}`, purpose, password };
   });
 
-  /** Mint the key typed, letting go of the password at once. */
+  /** Mint the key typed, as it is to be handed over, letting go of the password at once. */
   function mint(minting: Minting): void {
-    keyer.onask({ doing: "key-mint", minting });
+    keyer.onask({
+      doing: handing === "claim" ? "key-claim" : "key-mint",
+      minting,
+    });
     password = "";
     name = "";
   }
+
+  onDestroy(() => {
+    keyer.onclose();
+  });
 </script>
 
 <!--
@@ -74,9 +88,11 @@
   secret, and an active one can be revoked once the operator says so. Minting
   asks for the operator's password every time; it goes in that one request and
   the field is emptied as it is sent. The key just minted is shown once, with
-  its pin and address, and closing it, or reloading, drops its secret. The
-  secret is drawn as a code beside its text too, from exactly what lemonfiber
-  gave and in the page itself, so nothing is fetched to draw it.
+  its pin and address, and closing it, leaving the panel, or reloading, drops
+  its secret. A key minted as a claim is shown as its link instead, with when
+  the link lapses and no secret, and dropped the same way. Either is drawn as a
+  code beside its text too, from exactly what lemonfiber gave and in the page
+  itself, so nothing is fetched to draw it.
 -->
 <Panel title={m.panel_keys()} {freshness} flush>
   <div class="scope">
@@ -122,6 +138,28 @@
       </ul>
       <div class="acts">
         <Action label={m.action_keys_close()} onclick={keyer.onclose} />
+      </div>
+    </section>
+  {/if}
+
+  {#if keyer.claimed !== undefined}
+    <section class="made" aria-labelledby={claimId}>
+      <h3 id={claimId}>{m.keys_claim_title({ name: keyer.claimed.name })}</h3>
+      <p><Said text={m.keys_claim_prose()} /></p>
+      <p class="secret">
+        <Value state="known" figure={keyer.claimed.link} />
+      </p>
+      <Code
+        text={keyer.claimed.link}
+        label={m.keys_claim_code_said({ name: keyer.claimed.name })}
+      />
+      <ul class="lines">
+        {#each claimedLines(keyer.claimed) as line, at (at)}
+          <li><Said text={line} /></li>
+        {/each}
+      </ul>
+      <div class="acts">
+        <Action label={m.action_keys_close_claim()} onclick={keyer.onclose} />
       </div>
     </section>
   {/if}
@@ -215,6 +253,17 @@
       selected={purpose}
       onselect={(value: string) => {
         purpose = purposeChosen(value, purpose);
+      }}
+    />
+    <Segmented
+      label={m.keys_hand_said()}
+      options={everyHanding.map((one) => ({
+        value: one,
+        label: one === "shown" ? m.keys_hand_shown() : m.keys_hand_claim(),
+      }))}
+      selected={handing}
+      onselect={(value: string) => {
+        handing = handingChosen(value, handing);
       }}
     />
     <Field

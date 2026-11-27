@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { whenOf } from "./instant";
 import {
+  claimedLines,
   everyPurpose,
+  handingChosen,
   keyLines,
   mintedLines,
   purposeChosen,
@@ -11,7 +13,7 @@ import {
   type Listed,
   type Purpose,
 } from "./keys";
-import { home, kits, made, madeLocal, old } from "../api/keylists";
+import { claimed, home, kits, made, madeLocal, old } from "../api/keylists";
 import * as m from "../paraglide/messages.js";
 
 describe("one integration key", () => {
@@ -77,5 +79,23 @@ describe("what is chosen to mint", () => {
     expect(scopeChosen("admin", "act")).toBe("act");
     expect(purposeChosen("mcp", "other")).toBe("mcp");
     expect(purposeChosen("bot", "other")).toBe("other");
+  });
+});
+
+describe("one key minted as a claim", () => {
+  it("says what it admits, what it is for and when its link lapses, and no secret", () => {
+    const lines = claimedLines(claimed);
+    expect(lines).toStrictEqual([
+      m.keys_scope({ scope: "read" }),
+      m.keys_purpose({ purpose: m.keys_purpose_home_assistant() }),
+      m.keys_lapses({ when: whenOf(1_790_000_600) }),
+    ]);
+    expect(lines.join(" ")).not.toContain(claimed.link);
+  });
+
+  it("is handed as a claim only when that is chosen", () => {
+    expect(handingChosen("claim", "shown")).toBe("claim");
+    expect(handingChosen("shown", "claim")).toBe("shown");
+    expect(handingChosen("posted", "shown")).toBe("shown");
   });
 });

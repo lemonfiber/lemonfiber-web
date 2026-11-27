@@ -5,7 +5,8 @@
  * whether each field is one the contract has rather than whoever wrote the
  * reader and the body agreeing with each other.
  */
-import type { Listed, Listing, Minted } from "../lib/keys";
+import type { Claimed, Listed, Listing, Minted } from "../lib/keys";
+import type { Phone, Phones } from "../lib/phones";
 
 /** A read key Home Assistant has used. */
 export const home: Listed = {
@@ -52,7 +53,7 @@ export const made: Minted = {
   name: "home",
   scope: "read",
   purpose: "home-assistant",
-  secret: "lfk_shown_once",
+  secret: `lfk_${crypto.randomUUID()}`,
   pin: "sha256:ab12",
   address: "192.0.2.10:7777",
 };
@@ -62,7 +63,59 @@ export const madeLocal: Minted = {
   name: "local",
   scope: "act",
   purpose: "mcp",
-  secret: "lfk_local",
+  secret: `lfk_${crypto.randomUUID()}`,
   caution:
     "The stack is not served on the network yet, so this key only works on this machine.",
+};
+
+/** A read key minted as a claim, its link carrying a claim made afresh for each run. */
+export const claimed: Claimed = {
+  name: "home",
+  scope: "read",
+  purpose: "home-assistant",
+  link: `lemonfiber://key?claim=${crypto.randomUUID()}`,
+  lapses: 1_790_000_600,
+};
+
+/** An Android phone's key, kept in its own chip and used once. */
+export const pixel: Phone = {
+  name: "pixel",
+  app: "app.lemonfiber.companion",
+  fingerprint: "ab".repeat(32),
+  backing: "strongbox",
+  registered: 1_790_000_000,
+  used: 1_790_007_200,
+};
+
+/** An iPhone's key, never used. */
+export const iphone: Phone = {
+  name: "iphone",
+  app: "app.lemonfiber.companion",
+  fingerprint: "cd".repeat(32),
+  backing: "enclave",
+  registered: 1_790_000_300,
+};
+
+/** A phone's key revoked. */
+export const tablet: Phone = {
+  name: "tablet",
+  app: "app.lemonfiber.companion",
+  fingerprint: "ef".repeat(32),
+  backing: "tee",
+  registered: 1_780_000_000,
+  used: null,
+  revoked: 1_789_000_000,
+};
+
+/** Three phones' keys, as read. */
+export const phones: Phones = {
+  keys: [pixel, iphone, tablet],
+  rehearsed: false,
+};
+
+/** The phones' keys once the iPhone's is revoked, naming it. */
+export const unpaired: Phones = {
+  keys: [pixel, { ...iphone, revoked: 1_790_010_000 }, tablet],
+  rehearsed: false,
+  revoked: "iphone",
 };

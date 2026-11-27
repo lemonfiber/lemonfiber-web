@@ -49,7 +49,7 @@ const minting = {
   name: "home",
   scope: "read" as const,
   purpose: "home-assistant" as const,
-  password: "hunter2",
+  password: crypto.randomUUID(),
 };
 
 describe("keeping integration keys", () => {
@@ -159,6 +159,12 @@ describe("keeping integration keys", () => {
     await keying.mint(minting);
     await keying.revoke("home");
     expect(keying.listing?.ok).toBe(false);
+    expect(keying.phones?.ok).toBe(false);
     expect(keying.said).toBeDefined();
+    keying.said = undefined;
+    await keying.claim(minting);
+    expect(keying.said).toBeDefined();
+    await keying.revokePhone("home");
+    expect(keying.phoneSaid).toBeDefined();
   });
 });
