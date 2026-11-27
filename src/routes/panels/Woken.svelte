@@ -32,9 +32,11 @@
 
 <!--
   The phones that can be woken: each push endpoint a phone registered so the
-  stack can wake it, by name, the host it is woken through and when it was
-  registered. The whole address is never drawn, since whoever holds it can wake
-  the phone. One is removed once the operator says yes to a question naming
+  stack can wake it, by name, the host it is woken through, the fingerprint of
+  its address that tells two phones on one host apart, and when it was
+  registered. Whoever holds the whole address can wake the phone, so lemonfiber
+  answers only the host and the fingerprint, and only those are drawn. One is
+  removed by its name once the operator says yes to a question naming
   the phone; the removal takes no rehearsal, so the question is all there is to
   read first. Where the signed-in key may not keep them, lemonfiber's sentence
   says why in place of the list, and nothing can be pressed.

@@ -163,9 +163,13 @@ describe("running a recipe by name", () => {
 });
 
 describe("which recipes run when", () => {
-  it("runs a recipe by name only where it says so, and every other at an install", () => {
-    expect(demandRecipes([signIn, refresh])).toStrictEqual([refresh]);
-    expect(installRecipes([signIn, refresh])).toStrictEqual([signIn]);
+  it("runs a recipe by name only where it says so, and at an install only where it says so or says nothing", () => {
+    const claiming = { ...signIn, id: "claiming", on: "claim" as const };
+    const atInstall = { ...signIn, id: "at-install", on: "install" as const };
+    expect(demandRecipes([signIn, refresh, claiming])).toStrictEqual([refresh]);
+    expect(
+      installRecipes([signIn, refresh, claiming, atInstall]),
+    ).toStrictEqual([signIn, atInstall]);
     expect(demandRecipes(undefined)).toStrictEqual([]);
     expect(installRecipes(undefined)).toStrictEqual([]);
   });

@@ -353,6 +353,24 @@ describe("each recipe and each value it could carry", () => {
     ]);
   });
 
+  it("says when a recipe runs where it is not as part of the install or the update", () => {
+    const bare = { ...signIn, steps: [], pairs: [] };
+    expect(recipeLines({ ...bare, on: "demand" })).toStrictEqual([
+      signIn.why,
+      m.plug_recipe_on_demand(),
+      m.plug_pairs_none(),
+    ]);
+    expect(recipeLines({ ...bare, on: "claim" })).toStrictEqual([
+      signIn.why,
+      m.plug_recipe_on_claim(),
+      m.plug_pairs_none(),
+    ]);
+    expect(recipeLines({ ...bare, on: "install" })).toStrictEqual([
+      signIn.why,
+      m.plug_pairs_none(),
+    ]);
+  });
+
   it("says a released value's service and why it leaves, and what approving it is written as", () => {
     expect(pairLines(released)).toStrictEqual([
       m.plug_pair({

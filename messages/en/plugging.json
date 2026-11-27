@@ -65,6 +65,8 @@
   "plug_installed_not": "{plugin} was not installed.",
   "plug_recipe_held": "Recipe {recipe} did what it should.",
   "plug_recipe_failed": "Recipe {recipe} did not do what it should. {why}",
+  "plug_recipe_on_demand": "It runs only when asked for by name, never as part of an install or an update.",
+  "plug_recipe_on_claim": "It runs once the part this plugin claims is lemonfiber's, under the approvals given here, and asks for nothing.",
   "plug_updated": "{plugin} is now {to}.",
   "plug_updated_not": "{plugin} was not updated, and stays at {from}.",
   "plug_restored": "{version} was put back and is running.",

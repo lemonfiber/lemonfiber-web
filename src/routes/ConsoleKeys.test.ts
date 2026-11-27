@@ -117,7 +117,9 @@ describe("the integration keys, from the settings screen", () => {
       await within(panel).findByText(m.woken_removed({ name: "iphone" })),
     ).toBeVisible();
     expect(asked).toContain("DELETE /api/push-endpoints/iphone");
-    expect(document.body.innerHTML).not.toContain(iphoneWoken.endpoint);
+    expect(
+      within(panel).queryByText(m.woken_host({ host: iphoneWoken.host })),
+    ).toBeNull();
   });
 
   it("shows a claim's link once, and leaving the settings drops it", async () => {
