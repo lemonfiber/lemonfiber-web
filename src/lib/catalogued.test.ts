@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cataloguedLines, unlistedLine } from "./catalogued";
+import { cataloguedLines, shownOf, unlistedLine } from "./catalogued";
 import {
   coversOffered,
   fetcherOffered,
@@ -62,5 +62,27 @@ describe("why the catalogue lists nothing", () => {
     expect(unlistedLine({ ...listed, entries: [] })).toBe(
       m.plug_catalogue_empty(),
     );
+  });
+});
+
+describe("what the catalogue section draws", () => {
+  it("lists entries only where the catalogue was read", () => {
+    expect(shownOf({ ok: true, value: listed })).toStrictEqual({
+      said: undefined,
+      entries: listed.entries,
+    });
+    expect(shownOf({ ok: true, value: unread })).toStrictEqual({
+      said: unread.failure?.summary,
+      entries: [],
+    });
+  });
+
+  it("says why it could not be read where the read was turned down", () => {
+    expect(
+      shownOf({
+        ok: false,
+        problem: { kind: "unreachable", message: "Nothing answered." },
+      }),
+    ).toStrictEqual({ said: "Nothing answered.", entries: [] });
   });
 });

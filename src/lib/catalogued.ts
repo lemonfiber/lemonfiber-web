@@ -7,7 +7,7 @@
  * catalogue is switched off, the setting that lets it be asked is named; where
  * the index could not be read, lemonfiber's sentence is all there is.
  */
-import type { ByKind } from "@lemonfiber/sdk-ts";
+import type { ByKind, Reading } from "@lemonfiber/sdk-ts";
 import * as m from "../paraglide/messages.js";
 
 /** What the catalogue offers, or why it was not read. */
@@ -57,4 +57,22 @@ export function unlistedLine(catalogue: PluginCatalogue): string | undefined {
         ? m.plug_catalogue_empty()
         : undefined;
   }
+}
+
+/** What the catalogue section draws: why nothing is listed, and each entry listed. */
+export interface Shown {
+  /** Why nothing is listed, where nothing is. */
+  readonly said: string | undefined;
+  /** Each entry, where the catalogue was read. */
+  readonly entries: readonly Catalogued[];
+}
+
+/** What a read of the catalogue draws, its entries only where it was read. */
+export function shownOf(offering: Reading<PluginCatalogue>): Shown {
+  if (!offering.ok) return { said: offering.problem.message, entries: [] };
+  const catalogue = offering.value;
+  return {
+    said: unlistedLine(catalogue),
+    entries: catalogue.state === "listed" ? catalogue.entries : [],
+  };
 }

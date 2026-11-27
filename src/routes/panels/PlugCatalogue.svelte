@@ -1,11 +1,10 @@
 <script lang="ts">
   import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
-  import Value from "../../components/Value.svelte";
   import type { Reading } from "@lemonfiber/sdk-ts";
   import {
     cataloguedLines,
-    unlistedLine,
+    shownOf,
     type PluginCatalogue,
   } from "../../lib/catalogued";
   import type { Plugger } from "../../lib/plugging";
@@ -22,11 +21,7 @@
 
   const titleId = $props.id();
 
-  const held = $derived(offering.ok ? offering.value : undefined);
-  const unlisted = $derived(
-    held === undefined ? undefined : unlistedLine(held),
-  );
-  const entries = $derived(held?.state === "listed" ? held.entries : []);
+  const shown = $derived(shownOf(offering));
 </script>
 
 <!--
@@ -41,15 +36,13 @@
 <section class="catalogue" aria-labelledby={titleId}>
   <h3 id={titleId}>{m.plug_catalogue_title()}</h3>
   <p class="prose"><Said text={m.plug_catalogue_prose()} /></p>
-  {#if !offering.ok}
-    <Value state="unknown" absent={offering.problem.message} />
-  {:else if unlisted !== undefined}
-    <p class="prose"><Said text={unlisted} /></p>
+  {#if shown.said !== undefined}
+    <p class="prose"><Said text={shown.said} /></p>
   {/if}
 
-  {#if entries.length > 0}
+  {#if shown.entries.length > 0}
     <ul class="entries" aria-label={m.plug_catalogue_said()}>
-      {#each entries as entry (entry.id)}
+      {#each shown.entries as entry (entry.id)}
         <li>
           <h4>{entry.name}</h4>
           <ul class="lines">
