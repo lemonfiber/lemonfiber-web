@@ -160,7 +160,12 @@
       {/if}
       <div class="acts">
         {#if declared === undefined}
-          <Action label={m.action_line_declare()} weight="firm" off />
+          <Action
+            acts="bandwidth"
+            label={m.action_line_declare()}
+            weight="firm"
+            off
+          />
         {:else}
           {@const declaring = declared}
           <Action
@@ -188,7 +193,7 @@
           }}
         />
         {#if lifted === undefined}
-          <Action label={m.action_line_lift()} off />
+          <Action acts="bandwidth" label={m.action_line_lift()} off />
         {:else}
           {@const lifting = lifted}
           <Action

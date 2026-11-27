@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/svelte-vite";
 import { createRawSnippet } from "svelte";
 import Panel from "./Panel.svelte";
+import Able from "../../.storybook/Able.svelte";
 import { notAnswering, pressing, showing } from "../../.storybook/snippets";
+import { readKeyAble, switchedOffAble } from "../api/abilities.testing";
 import * as m from "../paraglide/messages.js";
 
 const body = createRawSnippet(() => ({
@@ -73,4 +75,37 @@ export const NeverChecked: Story = {
 /** Rows and tables meet the border, so the body gives up its inset. */
 export const HoldingRows: Story = {
   args: { freshness: { kind: "answered", secondsAgo: 9 }, flush: true },
+};
+
+/**
+ * A read the signed-in key may not use. The panel keeps its place and its
+ * heading, and lemonfiber's own sentence stands in place of the body.
+ */
+export const SilencedInLemonfibersWords: Story = {
+  decorators: [() => ({ Component: Able, props: { able: readKeyAble } })],
+  args: {
+    title: m.panel_config(),
+    freshness: { kind: "answered", secondsAgo: 4 },
+    reads: "config",
+    answer: {
+      ok: false,
+      problem: {
+        kind: "declined",
+        message: "A key may not read every setting.",
+      },
+    },
+  },
+};
+
+/**
+ * A read a setting on this machine has switched off. Nothing was said with the
+ * refusal, so the console says why in its own sentence.
+ */
+export const SilencedInTheConsolesWords: Story = {
+  decorators: [() => ({ Component: Able, props: { able: switchedOffAble } })],
+  args: {
+    title: m.panel_quality(),
+    freshness: { kind: "answered", secondsAgo: 4 },
+    reads: "quality",
+  },
 };

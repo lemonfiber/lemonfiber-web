@@ -77,6 +77,7 @@
               }}
             />
             <Action
+              acts="household-decline"
               label={m.action_decline_open({ title })}
               off={silent}
               onclick={() => {
@@ -138,6 +139,7 @@
       }}
     />
     <Action
+      acts="household-allow"
       label={m.action_limits_member({ name: member.name })}
       off={silent}
       onclick={() => {
@@ -145,6 +147,7 @@
       }}
     />
     <Action
+      acts="household-handoff"
       label={m.action_handoff({ name: member.name })}
       off={silent}
       onclick={handOver}

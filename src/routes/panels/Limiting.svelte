@@ -90,10 +90,16 @@
   {/if}
   <div class="acts">
     {#if typed === undefined}
-      <Action label={m.action_limits_keep()} weight="firm" off />
+      <Action
+        acts="household-allow"
+        label={m.action_limits_keep()}
+        weight="firm"
+        off
+      />
     {:else}
       {@const quota = typed.quota}
       <Action
+        acts="household-allow"
         label={m.action_limits_keep()}
         weight="firm"
         off={busy}

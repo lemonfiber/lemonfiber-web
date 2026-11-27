@@ -83,6 +83,7 @@
   {#if handoff.remedy === "ask-again"}
     <div class="acts">
       <Action
+        acts="household-handoff"
         label={m.action_handoff_again({ name: handoff.name })}
         off={silent}
         onclick={onagain}
