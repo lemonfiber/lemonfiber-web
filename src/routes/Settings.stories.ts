@@ -29,9 +29,12 @@ import {
   installReadGranting,
   installReadWaiting,
   plugger,
+  proveRead,
   removeRead,
+  runRead,
   updateRead,
 } from "./pluggings";
+import { listed, refreshables } from "../api/proofs";
 import { vocabulary } from "../api/vocabularies";
 import { catalogue, provenance } from "../api/catalogues";
 import { behind, versions } from "../api/copies";
@@ -327,6 +330,38 @@ export const ARemovalRead: Story = {
   args: {
     plugins: { ok: true, value: plugins },
     plugger: { ...plugger, work: [removeRead] },
+  },
+};
+
+/**
+ * The plugins with what the catalogue offers beneath them: the fetcher a
+ * version behind the catalogue's, a plugin not installed here, and the recipe
+ * the fetcher runs by name.
+ */
+export const ThePluginCatalogue: Story = {
+  args: {
+    plugins: { ok: true, value: refreshables },
+    offering: { ok: true, value: listed },
+    plugger,
+  },
+};
+
+/** Proving a plugin again, read first: what it asks and what is kept against it. */
+export const AProvingRead: Story = {
+  args: {
+    plugins: { ok: true, value: refreshables },
+    plugger: { ...plugger, work: [proveRead] },
+  },
+};
+
+/**
+ * Running a recipe by name, read first: each call, a value it carries
+ * approved on its own switch, and what it asks typed, a secret one hidden.
+ */
+export const ARecipeRunRead: Story = {
+  args: {
+    plugins: { ok: true, value: refreshables },
+    plugger: { ...plugger, work: [runRead] },
   },
 };
 

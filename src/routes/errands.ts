@@ -16,6 +16,17 @@ import type { Reaching } from "../api/asking";
 import { BETWEEN_ASKS, redeeming, type Pausing } from "../api/redeeming";
 import { recordAfter, recordOf, type Requested, type Work } from "../lib/work";
 
+/**
+ * What a record keeps of what was sent: all of it but the values given for a
+ * recipe's inputs, any of which may be a secret.
+ */
+export function keptOf(given: Arguments): Arguments {
+  if (given.inputs === undefined) return given;
+  return Object.fromEntries(
+    Object.entries(given).filter(([field]) => field !== "inputs"),
+  );
+}
+
 /** What the asking is handed: where to ask, and the console's own records. */
 export interface Holding {
   /** Where to ask, as the console holds it now. */
@@ -85,7 +96,7 @@ export function errands(holding: Holding): Sender {
     }
     counted += 1;
     const id = String(counted);
-    const record = recordOf(id, doing, scoped, given, came);
+    const record = recordOf(id, doing, scoped, keptOf(given), came);
     holding.keep([record, ...holding.records()]);
     if (came.at === "started") void follow(id, came.job);
     else holding.settled(record);

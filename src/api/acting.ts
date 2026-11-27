@@ -128,6 +128,10 @@ export interface Arguments {
   readonly source?: string;
   /** The installed plugin an update or a removal acts on, by its id. */
   readonly plugin?: string;
+  /** The recipe a run asks for, by the id the plugin's reading lists it under. */
+  readonly recipe?: string;
+  /** Every value given for an input a recipe asks for, as `name=value`. */
+  readonly inputs?: readonly string[];
   /** Every value a recipe would carry elsewhere that is approved, as its reading writes it. */
   readonly approved?: readonly string[];
   /** The credential a plugin's grant is of, by the setting it is held under. */

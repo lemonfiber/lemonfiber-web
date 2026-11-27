@@ -131,7 +131,12 @@ export type Moving =
  * Something the plugins panel can ask for, named as the endpoint names it.
  * What each takes and how it is asked about is in `./plugging`.
  */
-export type Plugging = "plugin-install" | "plugin-update" | "plugin-remove";
+export type Plugging =
+  | "plugin-install"
+  | "plugin-update"
+  | "plugin-remove"
+  | "plugin-prove"
+  | "plugin-run";
 
 /**
  * Something the credentials panel can ask for, named as the endpoint names it.

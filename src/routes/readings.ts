@@ -27,6 +27,7 @@ import type { Reckoned } from "../lib/letting";
 import type { Shared } from "../lib/shared";
 import type { Tuned } from "../lib/tuned";
 import type { Plugins } from "../lib/plugins";
+import type { PluginCatalogue } from "../lib/catalogued";
 import type { Values } from "../lib/values";
 import type { Diagnosis } from "../lib/wire";
 import type { Wiring } from "../lib/wiring";
@@ -93,6 +94,8 @@ export interface SettingsRead {
   readonly wiring: Reading<Wiring>;
   /** The plugins on this machine. */
   readonly plugins: Reading<Plugins>;
+  /** What the plugin catalogue offers to install. */
+  readonly offering: Reading<PluginCatalogue>;
   /** Every setting and secret the services read, without a secret's value. */
   readonly values: Reading<Values>;
 }
@@ -162,6 +165,7 @@ export async function readSettings(
     asked(reaching, "served", "served"),
     asked(reaching, "stack", "stack"),
     asked(reaching, "settled", "settled"),
+    asked(reaching, "plugins/catalogue", "plugin-catalogue"),
   ]);
   const [
     quality,
@@ -181,6 +185,7 @@ export async function readSettings(
     served,
     stack,
     settled,
+    offering,
   ] = read;
   return {
     read: {
@@ -201,6 +206,7 @@ export async function readSettings(
       served,
       stack,
       settled,
+      offering,
     },
     refused: turnedAway(...read),
   };

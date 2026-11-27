@@ -292,6 +292,8 @@ export function titleOfDoing(doing: Requested, scoped: boolean): string {
     case "plugin-install":
     case "plugin-update":
     case "plugin-remove":
+    case "plugin-prove":
+    case "plugin-run":
       return titleOfPlug(doing);
     case "credentials-revoke":
       return m.doing_revoke_grant_title();

@@ -20,6 +20,7 @@ import type { Plugging } from "./requested";
 import { undoLines } from "./undone";
 import { unvettedLines } from "./unvetted";
 import { said } from "./said";
+import { demandedLines, proofLines, reprovedLines } from "./proving";
 import * as m from "../paraglide/messages.js";
 
 /** What is installed, and what one act on a plugin came to. */
@@ -52,12 +53,6 @@ export type PluginTaking = PluginInstall["taking"][number];
 /** One credential of another service that would cross to the plugin. */
 export type PluginGranting = PluginInstall["granting"][number];
 
-/** One proof that has to hold before a plugin counts as installed. */
-type PluginProving = PluginInstall["proofs"][number];
-
-/** What asking one proof came to. */
-type PluginVerdict = NonNullable<PluginProving["came_to"]>;
-
 /** One change installing a plugin makes to the machine. */
 type PluginChange = PluginInstall["changes"][number];
 
@@ -73,6 +68,10 @@ export function titleOfPlug(doing: Plugging): string {
       return m.doing_plug_update_title();
     case "plugin-remove":
       return m.doing_plug_remove_title();
+    case "plugin-prove":
+      return m.doing_plug_prove_title();
+    case "plugin-run":
+      return m.doing_plug_run_title();
   }
 }
 
@@ -190,44 +189,6 @@ export function reachesLines(install: PluginInstall): readonly string[] {
     lines.push(
       m.plug_secret({ id: secret.id, of: secret.of, why: secret.why }),
     );
-  }
-  return lines;
-}
-
-/** What asking one proof came to, in a line. */
-function verdictLine(proof: string, verdict: PluginVerdict): string {
-  switch (verdict.outcome) {
-    case "passed":
-      return m.plug_proof_passed({ proof });
-    case "failed":
-      return m.plug_proof_failed({ proof, faults: verdict.faults.join(" ") });
-    case "unproven":
-      return m.plug_proof_unproven({ proof, why: verdict.why });
-    case "open":
-      return m.plug_proof_open({ proof, why: verdict.why });
-    case "failing-as-declared":
-      return m.plug_proof_declared({
-        proof,
-        count: verdict.declared.length,
-      });
-    default:
-      return m.plug_proof_other({ proof });
-  }
-}
-
-/** One proof, in lines: what it asks and establishes, and what it came to. */
-function proofLines(proof: PluginProving): readonly string[] {
-  const of = said(proof.of) ? proof.of : undefined;
-  const lines = [
-    of === undefined
-      ? m.plug_proof({ proof: proof.proof, asks: proof.asks })
-      : m.plug_proof_of({ proof: proof.proof, asks: proof.asks, of }),
-    proof.establishes,
-    proof.why,
-  ];
-  const verdict = proof.came_to;
-  if (verdict !== undefined && verdict !== null) {
-    lines.push(verdictLine(proof.proof, verdict));
   }
   return lines;
 }
@@ -457,19 +418,28 @@ function updatedOutcome(update: PluginUpdate): readonly string[] {
  * beside its yes.
  */
 export function pluggedLines(report: Plugs): readonly string[] {
-  if (report.rehearsed) {
-    const offer = report.agreement ?? "";
-    return [
-      m.came_rehearsed(),
-      ...(offer === "" ? [] : [m.plug_offer_named({ offer })]),
-    ];
-  }
+  if (report.rehearsed) return readLines(report);
   return [...outcomeLines(report), ...unvettedLines(report.unvetted)];
+}
+
+/** What a record of a reading says: that it wrote nothing, and its name. */
+function readLines(report: Plugs): readonly string[] {
+  const offer = report.agreement ?? "";
+  return [
+    m.came_rehearsed(),
+    ...(offer === "" ? [] : [m.plug_offer_named({ offer })]),
+  ];
 }
 
 /** What an act on a plugin that ran came to, line by line. */
 function outcomeLines(report: Plugs): readonly string[] {
-  const { install, update, removal } = report;
+  const { install, update, removal, proof, demand } = report;
+  if (proof !== undefined && proof !== null) {
+    return proof.asked ? reprovedLines(proof) : readLines(report);
+  }
+  if (demand !== undefined && demand !== null) {
+    return demandedLines(demand) ?? readLines(report);
+  }
   if (update !== undefined && update !== null) return updatedOutcome(update);
   if (install !== undefined && install !== null) {
     return installedOutcome(install);

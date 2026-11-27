@@ -98,9 +98,9 @@ export function stack(told: Told, asked: Asked): Sending {
       redeemed += 1;
       return said(nth(told.becoming, redeemed - 1));
     }
-    const reading = Object.entries(told.reading).find(([start]) =>
-      at.startsWith(start),
-    );
+    const reading = Object.entries(told.reading)
+      .filter(([start]) => at.startsWith(start))
+      .sort(([one], [other]) => other.length - one.length)[0];
     if (reading === undefined) return said({ status: 404, body: "" });
     asked.read.push(reading[0]);
     return said(reading[1]);
