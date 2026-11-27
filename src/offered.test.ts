@@ -262,7 +262,7 @@ const WALKED: readonly {
     by: ["src/routes/panels/Keys.svelte", "src/routes/panels/Phones.svelte"],
   },
   {
-    list: ["ask"],
+    list: ["ask", "notify-choose"],
     named: "movedBy",
     by: ["src/api/member.ts"],
   },
@@ -366,6 +366,7 @@ const OFFERED_REQUESTS: readonly Request[] = [
   "settings-clear",
   "setup",
   "run",
+  "notify-choose",
 ];
 
 /**
@@ -386,7 +387,6 @@ const NOT_YET_REQUESTS: Partial<Record<Request, Feature>> = {
   watched: "D11",
   tune: "ARCH-R420",
   play: "ARCH-R420",
-  "notify-choose": "ARCH-R405",
   "push-woken": "ARCH-R404",
   "companion-certificate": "N1",
   "device-key-register": "C10",
@@ -405,6 +405,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "alerts",
   "archives",
   "askable",
+  "askable-kinds",
   "asked",
   "backup",
   "bandwidth",
@@ -420,6 +421,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "device-keys",
   "doctor",
   "forms",
+  "front-door",
   "glossary",
   "handoff",
   "held",
@@ -437,6 +439,7 @@ const OFFERED_KINDS: readonly Kind[] = [
   "migration",
   "minted-key",
   "notify",
+  "notify-mine",
   "outbound",
   "pairing",
   "part-way",
@@ -535,21 +538,18 @@ const UNSERVED_KINDS: readonly Kind[] = [
 
 /** Kinds nobody here reads yet, each with the feature it belongs to. */
 const NOT_YET_KINDS: Partial<Record<Kind, Feature>> = {
-  "askable-kinds": "D4",
   capabilities: "ARCH-R78",
   certificate: "N1",
   channels: "ARCH-R420",
   "device-challenge": "C10",
   "device-key": "C10",
   ended: "ARCH-R132",
-  "front-door": "G5",
   grant: "D11",
   guide: "D11",
   "logs-exported": "B4",
   music: "D2",
   news: "N27",
   "news-items": "N27",
-  "notify-mine": "ARCH-R405",
   play: "ARCH-R420",
   "push-endpoint": "ARCH-R282",
   "push-endpoints": "ARCH-R282",

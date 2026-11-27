@@ -5,6 +5,8 @@
   import Find from "./Find.svelte";
   import Shelf from "./Shelf.svelte";
   import Shell from "./Shell.svelte";
+  import WhereToWatch from "./WhereToWatch.svelte";
+  import { Hearing } from "./hearing.svelte";
   import type { Reaching } from "../api/asking";
   import {
     askableOf,
@@ -84,6 +86,8 @@
   let sent = $state<Heard<Wished> | undefined>(undefined);
   let sending = $state(false);
   let now = $state(Date.now());
+
+  const hearing = new Hearing(() => ({ reaching, member }), turned);
 
   /** How many searches this screen has made, which is what tells the latest. */
   let searching = 0;
@@ -170,6 +174,7 @@
     close();
     forget();
     void ask(to);
+    hearing.arrive(to);
   }
 
   /**
@@ -198,12 +203,12 @@
   function search(words: string): void {
     searchedFor = words;
     pages = [];
-    void page(askableOf(member, words), "first");
+    void page(askableOf(member, words, undefined, hearing.asking), "first");
   }
 
   /** Read the page that begins where the last one said the next begins. */
   function more(after: string): void {
-    void page(askableOf(member, searchedFor, after), "more");
+    void page(askableOf(member, searchedFor, after, hearing.asking), "more");
   }
 
   /** Read again the page that went unread. */
@@ -386,6 +391,7 @@
     if (mine.at === "answered") {
       kept = mine.value;
       keptAt = Date.now();
+      hearing.saw(mine.value);
     }
     return true;
   }
@@ -402,6 +408,7 @@
 
     globalThis.addEventListener("popstate", back);
     void ask(where);
+    hearing.arrive(where);
     const clock = globalThis.setInterval(() => {
       now = Date.now();
     }, A_TICK);
@@ -467,6 +474,12 @@
         void choose(title);
       }}
       onclose={putAway}
+      choices={hearing.choices}
+      picked={hearing.asking?.key}
+      onkind={(key: string) => {
+        hearing.pick(key);
+        if (searchedFor !== "") search(searchedFor);
+      }}
     />
   {:else if where.room === "held"}
     <Shelf
@@ -485,7 +498,11 @@
       onretry={() => {
         void ask(where);
       }}
-    />
+    >
+      {#snippet ways()}
+        <WhereToWatch door={hearing.door} />
+      {/snippet}
+    </Shelf>
   {:else}
     <Asked
       household={kept}
@@ -494,6 +511,12 @@
       said={declined}
       onretry={() => {
         void ask(where);
+      }}
+      fresh={hearing.fresh}
+      telling={hearing.telling}
+      choosing={hearing.choosing}
+      ontick={(id: string) => {
+        void hearing.tick(id);
       }}
     />
   {/if}

@@ -66,6 +66,22 @@ const cellsOf = (container: Element, row: number): string[] =>
   cellsIn(container, row).map((cell) => tidy(cell.textContent));
 
 describe("DataTable", () => {
+  it("sets a row's mark after its words, and none where the row is unmarked", () => {
+    const marked: Row = {
+      kind: "answered",
+      key: "marked",
+      cells: [{ kind: "words", text: "Andor", mark: "New" }],
+    };
+    const { container } = render(DataTable, {
+      ...table,
+      rows: [marked, ...rows],
+    });
+    expect(cellsIn(container, 0)[0]?.querySelector(".mark")).toHaveTextContent(
+      "New",
+    );
+    expect(container.querySelectorAll(".mark")).toHaveLength(1);
+  });
+
   it("gives the table a name to be announced by", () => {
     render(DataTable, table);
     expect(

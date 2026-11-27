@@ -19,6 +19,7 @@
     type FoundTitle,
   } from "../lib/askable";
   import type { Freshness } from "../lib/freshness";
+  import type { Asking } from "../lib/kinds";
   import { Gallery, onScreen, type Taking } from "../lib/gallery.svelte";
   import { leftOf } from "../lib/yours";
   import * as m from "../paraglide/messages.js";
@@ -63,6 +64,11 @@
     onrehearse: (title: FoundTitle) => void;
     /** Put the opened title away. */
     onclose: () => void;
+    /** What they may search for and ask in, or nothing until that is read. */
+    choices?: readonly Asking[] | undefined;
+    /** The choice searched in, by its key. */
+    picked?: string | undefined;
+    onkind: (key: string) => void;
   }
 
   let {
@@ -84,6 +90,9 @@
     onask,
     onrehearse,
     onclose,
+    choices,
+    picked,
+    onkind,
   }: Props = $props();
 
   /** The posters on screen, fetched with the session's key. */
@@ -129,28 +138,50 @@
 <Board>
   <section class="search" aria-labelledby="{uid}-title">
     <h2 id="{uid}-title" class="heading">{m.found_title()}</h2>
-    <form
-      role="search"
-      aria-labelledby="{uid}-title"
-      onsubmit={(event: SubmitEvent) => {
-        event.preventDefault();
-        onsearch();
-      }}
-    >
-      <Field
-        label={m.found_label()}
-        value={term}
-        hint={m.found_hint()}
-        purpose="search"
-        {oninput}
-      />
-      <Action
-        label={m.found_search()}
-        weight="firm"
-        off={reading !== undefined}
-        submits
-      />
-    </form>
+    {#if choices !== undefined && choices.length > 1}
+      <fieldset class="kinds">
+        <legend class="legend">{m.found_kind()}</legend>
+        {#each choices as choice (choice.key)}
+          <label class="kind">
+            <input
+              type="radio"
+              name="{uid}-kind"
+              checked={choice.key === picked}
+              onchange={() => {
+                onkind(choice.key);
+              }}
+            />
+            <span class="word">{choice.label}</span>
+          </label>
+        {/each}
+      </fieldset>
+    {/if}
+    {#if choices?.length === 0}
+      <p class="line"><span class="word">{m.found_none_askable()}</span></p>
+    {:else}
+      <form
+        role="search"
+        aria-labelledby="{uid}-title"
+        onsubmit={(event: SubmitEvent) => {
+          event.preventDefault();
+          onsearch();
+        }}
+      >
+        <Field
+          label={m.found_label()}
+          value={term}
+          hint={m.found_hint()}
+          purpose="search"
+          {oninput}
+        />
+        <Action
+          label={m.found_search()}
+          weight="firm"
+          off={reading !== undefined}
+          submits
+        />
+      </form>
+    {/if}
   </section>
 
   {#if first !== undefined}
@@ -236,6 +267,29 @@
 {/if}
 
 <style>
+  .kinds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2) var(--sp-4);
+    margin: 0 0 var(--sp-3);
+    padding: 0;
+    border: 0;
+  }
+
+  .legend {
+    padding: 0;
+    margin-bottom: var(--sp-2);
+    font-size: var(--text-note);
+    color: var(--muted);
+  }
+
+  .kind {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: var(--text-prose);
+  }
+
   .search form {
     display: flex;
     flex-wrap: wrap;

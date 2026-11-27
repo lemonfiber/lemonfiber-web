@@ -19,6 +19,7 @@ const meta = {
     onask: () => undefined,
     onrehearse: () => undefined,
     onclose: () => undefined,
+    onkind: () => undefined,
   },
 } satisfies Meta<typeof Find>;
 

@@ -11,6 +11,7 @@
  */
 import type { ByKind } from "@lemonfiber/sdk-ts";
 import type { State } from "./state";
+import { nounOfUnit, type TitleKind, type TitleUnit } from "./kinds";
 import * as m from "../paraglide/messages.js";
 
 /** One page of what a member's search found. */
@@ -28,21 +29,42 @@ export type Asked = ByKind["asked"]["data"];
 /**
  * What tells one found title from every other on the pages of one search.
  *
- * A series and a film may be filed under the same number, so the kind is part
+ * A series and a film may be filed under the same number, and music and books
+ * under one reference in more than one unit, so the kind and the unit are part
  * of it.
  */
 export function keyOf(title: FoundTitle): string {
-  return `${title.kind}/${title.id}`;
+  return `${title.kind}/${title.unit ?? ""}/${title.id}`;
 }
 
-/** Which title a key tells apart: its id, and whether it is a series or a film. */
-export function foundBy(key: string): Pick<FoundTitle, "id" | "kind"> {
-  const [kind, ...id] = key.split("/");
-  return { kind: kind === "tv" ? "tv" : "movies", id: id.join("/") };
+/** Every kind a found title may be. */
+const KINDS: readonly TitleKind[] = ["tv", "movies", "music", "books"];
+
+/** Every unit music and books are found in. */
+const UNITS: readonly TitleUnit[] = [
+  "album",
+  "artist",
+  "book",
+  "author",
+  "series",
+];
+
+/** Which title a key tells apart: its id, its kind and, for music and books, its unit. */
+export function foundBy(
+  key: string,
+): Pick<FoundTitle, "id" | "kind"> & { readonly unit: TitleUnit | undefined } {
+  const [kind, unit, ...id] = key.split("/");
+  return {
+    kind: KINDS.find((one) => one === kind) ?? "movies",
+    unit: UNITS.find((one) => one === unit),
+    id: id.join("/"),
+  };
 }
 
 /** What kind of thing a found title is, in the household's words. */
 export function kindOfFound(title: FoundTitle): string {
+  const unit = title.unit ?? undefined;
+  if (unit !== undefined) return nounOfUnit(unit);
   return title.kind === "tv"
     ? m.member_medium_series()
     : m.member_medium_film();

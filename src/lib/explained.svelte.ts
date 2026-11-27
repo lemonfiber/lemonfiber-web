@@ -19,6 +19,7 @@ import type { Vocabulary } from "./glossary";
 import { finderOf, type Finder } from "./terms";
 import type { Explaining, Word } from "./wire";
 import { asked, turnedAway, type Reaching } from "../api/asking";
+import { browserKeeping, type Keeping } from "./keeping";
 
 /** Where this browser keeps whether explaining is on. */
 export const KEPT = "lemonfiber.explained";
@@ -28,18 +29,6 @@ const OFF = "off";
 
 /** The context the console hands its explaining to every line it draws through. */
 const CONTEXT = Symbol("explained");
-
-/** The slice of browser storage this needs, so a test can supply its own. */
-export type Keeping = Pick<Storage, "getItem" | "setItem">;
-
-/** This browser's storage, or nothing where reaching it throws. */
-export function browserKeeping(): Keeping | undefined {
-  try {
-    return globalThis.localStorage;
-  } catch {
-    return undefined;
-  }
-}
 
 /** Whether storage kept explaining off, or nothing where it cannot be read. */
 function keptOff(keeping: Keeping | undefined): boolean {

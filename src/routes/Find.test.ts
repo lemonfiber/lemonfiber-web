@@ -8,6 +8,8 @@ import type { Heard } from "../api/member";
 import type { Asked, Found, FoundTitle } from "../lib/askable";
 import type { Freshness } from "../lib/freshness";
 import { everythingInView } from "../lib/gallery.testing";
+import { kitsKinds } from "../api/hearings";
+import { choicesOf, type Asking } from "../lib/kinds";
 import * as m from "../paraglide/messages.js";
 
 const fresh: Freshness = { kind: "never" };
@@ -33,6 +35,8 @@ interface Given {
   opened?: FoundTitle;
   rehearsal?: Heard<Asked>;
   posters?: (key: string) => Promise<Blob | undefined>;
+  choices?: readonly Asking[];
+  picked?: string;
 }
 
 /** What each thing the screen asks for was asked with. */
@@ -45,6 +49,7 @@ interface Pressed {
   readonly onask: ReturnType<typeof vi.fn>;
   readonly onrehearse: ReturnType<typeof vi.fn>;
   readonly onclose: ReturnType<typeof vi.fn>;
+  readonly onkind: ReturnType<typeof vi.fn>;
 }
 
 function drawn(given: Given = {}): Pressed {
@@ -57,6 +62,7 @@ function drawn(given: Given = {}): Pressed {
     onask: vi.fn(),
     onrehearse: vi.fn(),
     onclose: vi.fn(),
+    onkind: vi.fn(),
   };
   render(Find, {
     term: "",
@@ -70,6 +76,41 @@ function drawn(given: Given = {}): Pressed {
 
 const found = (): HTMLElement =>
   screen.getByRole("list", { name: m.found_for({ term: "dune" }) });
+
+describe("what a member may look for", () => {
+  const choices = choicesOf(kitsKinds);
+
+  it("offers each kind the read lists, the one searched in chosen", async () => {
+    const { onkind } = drawn({ choices, picked: "music/album" });
+
+    const group = screen.getByRole("group", { name: m.found_kind() });
+    expect(
+      within(group)
+        .getAllByRole("radio")
+        .map((one) => one.closest("label")?.textContent.trim()),
+    ).toEqual(choices.map((one) => one.label));
+    expect(
+      within(group).getByRole("radio", { name: m.found_kind_albums() }),
+    ).toBeChecked();
+
+    await userEvent.click(
+      within(group).getByRole("radio", { name: m.found_kind_books() }),
+    );
+    expect(onkind).toHaveBeenCalledWith("books/book");
+  });
+
+  it("offers no choice where there is one kind, and searches in it", () => {
+    drawn({ choices: choices.slice(0, 1) });
+    expect(screen.queryByRole("group")).toBeNull();
+    expect(screen.getByRole("searchbox")).toBeInTheDocument();
+  });
+
+  it("says there is nothing to ask for where the read lists no kind", () => {
+    drawn({ choices: [] });
+    expect(screen.getByText(m.found_none_askable())).toBeInTheDocument();
+    expect(screen.queryByRole("searchbox")).toBeNull();
+  });
+});
 
 describe("asking for something, before a search", () => {
   it("says what to do first rather than drawing an empty list", () => {
@@ -188,7 +229,7 @@ describe("what a search found", () => {
     const posters = vi.fn(() => Promise.resolve(undefined));
     drawn({ pages: [firstPage], posters });
     await waitFor(() => {
-      expect(posters).toHaveBeenCalledWith("movies/438631");
+      expect(posters).toHaveBeenCalledWith("movies//438631");
     });
   });
 
@@ -226,6 +267,7 @@ describe("what a search found", () => {
       onask: onasked,
       onrehearse: vi.fn(),
       onclose: vi.fn(),
+      onkind: vi.fn(),
     });
     await userEvent.click(screen.getByRole("button", { name: m.found_ask() }));
     expect(onasked).toHaveBeenCalledWith(dune);

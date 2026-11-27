@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
+  import Tag from "./Tag.svelte";
   import Value from "./Value.svelte";
   import { reachable } from "../lib/reachable";
   import type { Cell, Column, Emphasis, Row } from "../lib/table";
@@ -28,6 +29,8 @@
     readonly below: boolean;
     /** What it draws, where it draws something. */
     readonly draw: Snippet | undefined;
+    /** The tag set after its words, where the row is marked. */
+    readonly mark: string | undefined;
   }
 
   /** One cell of one row: the column it sits in, and what it holds. */
@@ -50,6 +53,7 @@
     caption: undefined,
     below: false,
     draw: undefined,
+    mark: undefined,
   };
 
   /** What a cell holds. A column a row gives no cell for holds nothing. */
@@ -62,6 +66,7 @@
       caption: cell.caption,
       below: cell.below === true,
       draw: undefined,
+      mark: cell.mark,
     };
   }
 
@@ -162,6 +167,11 @@
                 {#if laid.draw !== undefined}
                   {@render laid.draw()}
                 {/if}
+                {#if laid.mark !== undefined}
+                  <span class="mark">
+                    <Tag label={laid.mark} tone="calm" />
+                  </span>
+                {/if}
               </td>
             {/each}
           {/if}
@@ -234,6 +244,10 @@
   }
 
   td.quiet,
+  .mark {
+    margin-left: var(--sp-2);
+  }
+
   .caption {
     font-size: var(--text-note);
     color: var(--faint);

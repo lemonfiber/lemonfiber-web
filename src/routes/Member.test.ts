@@ -15,6 +15,7 @@ import {
   yours,
 } from "./mine";
 import { household } from "./house";
+import { kitsDoor, kitsTelling } from "../api/hearings";
 import { nameOfRoom } from "../lib/rooms";
 import { everyPlace } from "../lib/places";
 import { nameOf } from "../lib/route";
@@ -57,6 +58,10 @@ const answers =
       return { status: 200, body: enveloped("held", kitsShelf) };
     if (url.pathname === "/api/watching")
       return { status: 200, body: enveloped("part-way", kitsNothingPartWay) };
+    if (url.pathname === "/api/front-door")
+      return { status: 200, body: enveloped("front-door", kitsDoor) };
+    if (url.pathname === "/api/notify/mine")
+      return { status: 200, body: enveloped("notify-mine", kitsTelling) };
     return { status: 403, body: notYours };
   };
 
@@ -85,6 +90,7 @@ describe("a household member signed in", () => {
     expect(await screen.findByText("Andor")).toBeInTheDocument();
     expect(asked(sending).map((url) => url.pathname)).toEqual([
       "/api/requests",
+      "/api/notify/mine",
     ]);
   });
 
@@ -98,7 +104,12 @@ describe("a household member signed in", () => {
         screen.queryByRole("link", { name: new RegExp(`^${nameOf(place)}$`) }),
       ).toBeNull();
     }
-    expect(screen.queryByRole("button")).toBeNull();
+    await screen.findByRole("button", { name: "The family chat" });
+    expect(
+      screen
+        .getAllByRole("button")
+        .map((one) => one.getAttribute("aria-label")),
+    ).toEqual(kitsTelling.offered.map((one) => one.name));
     for (const finding of yours.findings) {
       expect(screen.queryByText(finding.said)).toBeNull();
     }
@@ -665,7 +676,7 @@ describe("a refusal that says which it is", () => {
       })),
     );
 
-    expect(await screen.findByText(unconfirmed)).toBeInTheDocument();
+    expect(await screen.findAllByText(unconfirmed)).not.toHaveLength(0);
     expect(onrefused).not.toHaveBeenCalled();
   });
 
