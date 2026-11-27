@@ -87,6 +87,12 @@
     color: var(--text);
   }
 
+  .open {
+    color: var(--text);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
   .code {
     width: 9rem;
   }
