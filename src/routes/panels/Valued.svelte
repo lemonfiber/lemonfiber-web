@@ -3,6 +3,8 @@
   import Action from "../../components/Action.svelte";
   import Field from "../../components/Field.svelte";
   import Segmented from "../../components/Segmented.svelte";
+  import { ableHere } from "../../components/able";
+  import { drawn } from "../../lib/able";
   import {
     aboutLines,
     valueWords,
@@ -37,6 +39,9 @@
 
   const recorded = $derived(setting.value ?? undefined);
   const choices = $derived(setting.choices ?? []);
+
+  const able = ableHere();
+  const settable = $derived(drawn(able(), "settings-set"));
 </script>
 
 <!--
@@ -46,7 +51,9 @@
   chosen from the setting's declared values where it declares them and typed
   where it does not, and a value the operator recorded can be put among those
   taken away, which writes each default again. Every declared value can be chosen, a closed one
-  too, because the settings it depends on can move in the same change.
+  too, because the settings it depends on can move in the same change. A value
+  is put only where the signed-in key can set one, and put among those taken
+  away only where it can clear one.
 -->
 <li class="setting">
   <h3>{setting.name}</h3>
@@ -59,12 +66,17 @@
   </ul>
   {#if valuer !== undefined}
     {#if choices.length > 0}
-      <Segmented
-        label={m.values_choose({ setting: setting.name })}
-        options={choices.map((one) => ({ value: one.value, label: one.value }))}
-        selected={drafted ?? recorded ?? ""}
-        onselect={ondraft}
-      />
+      {#if settable}
+        <Segmented
+          label={m.values_choose({ setting: setting.name })}
+          options={choices.map((one) => ({
+            value: one.value,
+            label: one.value,
+          }))}
+          selected={drafted ?? recorded ?? ""}
+          onselect={ondraft}
+        />
+      {/if}
     {:else if editing}
       <Field
         label={m.values_choose({ setting: setting.name })}
@@ -95,6 +107,7 @@
       <div class="acts">
         {#if choices.length === 0}
           <Action
+            acts="settings-set"
             label={m.action_values_edit({ setting: setting.name })}
             onclick={() => {
               typed = drafted ?? recorded ?? "";
@@ -104,6 +117,7 @@
         {/if}
         {#if clearable}
           <Action
+            acts="settings-clear"
             label={m.action_values_clear({ setting: setting.name })}
             onclick={onclear}
           />

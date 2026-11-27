@@ -115,6 +115,7 @@
             </div>
             {#if configurer !== undefined}
               <Action
+                acts="config-set"
                 label={m.action_config_edit({ key: setting.key })}
                 off={silent}
                 onclick={() => {

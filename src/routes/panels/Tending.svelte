@@ -88,6 +88,7 @@
 
   <div class="controls" role="group" aria-label={m.tending_controls()}>
     <Action
+      acts="invite"
       label={m.action_invite_open()}
       off={silent}
       onclick={() => {
@@ -95,6 +96,7 @@
       }}
     />
     <Action
+      acts="household-allow"
       label={m.action_limits_house()}
       off={silent}
       onclick={() => {
