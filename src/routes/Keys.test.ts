@@ -12,6 +12,9 @@ import * as m from "../paraglide/messages.js";
 
 const answered: Freshness = { kind: "answered", secondsAgo: 5 };
 
+/** The operator's password, made afresh for each run. */
+const password = crypto.randomUUID();
+
 /** The settings screen, with keeping keys handed this. */
 function drawn(over: Partial<Keyer> = {}): void {
   render(Settings, {
@@ -72,7 +75,7 @@ describe("the integration keys, on the settings screen", () => {
     expect(mint()).toHaveAttribute("aria-disabled", "true");
 
     await typeInto(m.keys_name(), "home");
-    await typeInto(m.keys_password(), "hunter2");
+    await typeInto(m.keys_password(), password);
     await userEvent.click(mint());
     expect(onask).toHaveBeenCalledWith({
       doing: "key-mint",
@@ -80,7 +83,7 @@ describe("the integration keys, on the settings screen", () => {
         name: "home",
         scope: "read",
         purpose: "home-assistant",
-        password: "hunter2",
+        password,
       },
     });
     expect(within(panel()).getByLabelText(m.keys_password())).toHaveValue("");
@@ -102,7 +105,7 @@ describe("the integration keys, on the settings screen", () => {
       within(purposes).getByRole("radio", { name: m.keys_purpose_other() }),
     );
     await typeInto(m.keys_name(), "kit-phone");
-    await typeInto(m.keys_password(), "hunter2");
+    await typeInto(m.keys_password(), password);
     const mint = (): HTMLElement =>
       within(panel()).getByRole("button", { name: m.action_keys_mint() });
     expect(mint()).toHaveAttribute("aria-disabled", "true");
@@ -115,7 +118,7 @@ describe("the integration keys, on the settings screen", () => {
         name: "kit-phone",
         scope: "member:kit",
         purpose: "other",
-        password: "hunter2",
+        password,
       },
     });
 

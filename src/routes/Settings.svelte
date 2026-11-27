@@ -13,6 +13,7 @@
   import Plugins from "./panels/Plugins.svelte";
   import Glossary from "./panels/Glossary.svelte";
   import Keys from "./panels/Keys.svelte";
+  import Phones from "./panels/Phones.svelte";
   import type { Keyer } from "./keying.svelte";
   import Quality from "./panels/Quality.svelte";
   import Updates from "./panels/Updates.svelte";
@@ -252,6 +253,7 @@
   {/if}
   {#if keyer !== undefined}
     <Keys {keyer} {freshness} />
+    <Phones {keyer} {freshness} />
   {/if}
   <Glossary {glossary} {freshness} />
 </Board>

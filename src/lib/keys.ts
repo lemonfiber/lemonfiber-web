@@ -6,7 +6,8 @@
  * member minted it, and when it was revoked where it was. A key just minted is
  * said with what a program needs beside its secret: the certificate pin it
  * checks the stack by, and the address the stack is served at encrypted, or
- * why there is none yet.
+ * why there is none yet. A key minted as a claim is said with when its link
+ * stops collecting it, and with no secret, since the program collects that.
  *
  * What lemonfiber writes into either reading is its own and is passed through
  * unchanged. The words around it live in `messages/`.
@@ -25,6 +26,9 @@ export type Listed = Listing["keys"][number];
 /** One key just minted, its secret this once. */
 export type Minted = ByKind["minted-key"]["data"];
 
+/** One key just minted as a claim: the link that collects it, and no secret. */
+export type Claimed = ByKind["key-claim"]["data"];
+
 /** What a key is for, as its minter declares. */
 export type Purpose = Listed["purpose"];
 
@@ -40,6 +44,17 @@ export const everyScope = ["read", "act", "member"] as const;
 
 /** One scope a key may be minted with. */
 export type ScopeChoice = (typeof everyScope)[number];
+
+/** How a key just minted is handed over: shown here once, or as a claim a program collects. */
+export const everyHanding = ["shown", "claim"] as const;
+
+/** One way a key just minted is handed over. */
+export type Handing = (typeof everyHanding)[number];
+
+/** The way of handing a value names, or the one given where it names none. */
+export function handingChosen(value: string, fallback: Handing): Handing {
+  return everyHanding.find((one) => one === value) ?? fallback;
+}
 
 /** The scope a value names, or the one given where it names none. */
 export function scopeChosen(value: string, fallback: ScopeChoice): ScopeChoice {
@@ -113,4 +128,13 @@ export function mintedLines(minted: Minted): readonly string[] {
   }
   if (said(minted.caution)) lines.push(minted.caution);
   return lines;
+}
+
+/** What a claim admits, what it is for and when its link lapses, line by line. */
+export function claimedLines(claimed: Claimed): readonly string[] {
+  return [
+    m.keys_scope({ scope: claimed.scope }),
+    m.keys_purpose({ purpose: wordOfPurpose(claimed.purpose) }),
+    m.keys_lapses({ when: whenOf(claimed.lapses) }),
+  ];
 }

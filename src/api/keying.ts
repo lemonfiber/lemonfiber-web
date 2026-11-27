@@ -1,11 +1,12 @@
 /**
  * Integration keys, asked of one running lemonfiber through the client package.
  *
- * Three routes of their own: the keys listed without their secrets, one minted
- * with the operator's password in the same request, and one revoked by its
- * name. The password travels in that one request's body and nothing here keeps
- * it; the secret arrives in the mint's reply and nothing here keeps that
- * either.
+ * Routes of their own: the keys listed without their secrets, one minted with
+ * the operator's password in the same request, either with its secret or as a
+ * claim a program collects it with, and one revoked by its name; then the
+ * phones' hardware keys listed and one revoked by its name. The password
+ * travels in that one request's body and nothing here keeps it; the secret or
+ * the claim arrives in the mint's reply and nothing here keeps that either.
  */
 import {
   Client,
@@ -21,6 +22,12 @@ export const LISTED = "keys" satisfies Kind;
 
 /** The kind one key just minted arrives under. */
 export const MINTED = "minted-key" satisfies Kind;
+
+/** The kind one key minted as a claim arrives under. */
+export const CLAIMED = "key-claim" satisfies Kind;
+
+/** The kind the phones' hardware keys are listed under, before and after a revoke. */
+export const PHONES = "device-keys" satisfies Kind;
 
 /** The client this run is reached through, or why none could be opened. */
 function opened(reaching: Reaching): Reading<Client> {
@@ -63,5 +70,37 @@ export async function revokingOf(
   const client = opened(reaching);
   if (!client.ok) return client;
   const revoked = await client.value.revoke(name);
+  return revoked.ok ? { ok: true, value: revoked.value.data } : revoked;
+}
+
+/** One key minted as a claim: the link a program collects it with, and no secret. */
+export async function claimingOf(
+  reaching: Reaching,
+  minting: Minting,
+): Promise<Reading<ByKind[typeof CLAIMED]["data"]>> {
+  const client = opened(reaching);
+  if (!client.ok) return client;
+  const made = await client.value.mintClaim(minting);
+  return made.ok ? { ok: true, value: made.value.data } : made;
+}
+
+/** Every phone's hardware key, revoked ones included. */
+export async function phonesOf(
+  reaching: Reaching,
+): Promise<Reading<ByKind[typeof PHONES]["data"]>> {
+  const client = opened(reaching);
+  if (!client.ok) return client;
+  const read = await client.value.deviceKeys();
+  return read.ok ? { ok: true, value: read.value.data } : read;
+}
+
+/** One phone's hardware key revoked by its name, answered with them as they now stand. */
+export async function phoneRevokingOf(
+  reaching: Reaching,
+  name: string,
+): Promise<Reading<ByKind[typeof PHONES]["data"]>> {
+  const client = opened(reaching);
+  if (!client.ok) return client;
+  const revoked = await client.value.revokeDeviceKey(name);
   return revoked.ok ? { ok: true, value: revoked.value.data } : revoked;
 }

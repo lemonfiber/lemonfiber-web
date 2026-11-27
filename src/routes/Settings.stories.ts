@@ -21,7 +21,7 @@ import { alerts } from "../api/alerting";
 import { notified } from "../api/health";
 import { wiring } from "../api/wirings";
 import { filler, fillOffer } from "./fillings";
-import { keyer, made as justMinted } from "./keyings";
+import { claimed, keyer, made as justMinted, unpaired } from "./keyings";
 import { plugins } from "../api/installs";
 import {
   installMade,
@@ -304,6 +304,33 @@ export const IntegrationKeys: Story = {
 /** A key just minted, its secret shown once with its pin and address. */
 export const AKeyJustMinted: Story = {
   args: { keyer: { ...keyer, minted: justMinted } },
+};
+
+/** A key just minted as a claim, its link shown once as text and as a code, and no secret. */
+export const AKeyJustClaimed: Story = {
+  args: { keyer: { ...keyer, claimed } },
+};
+
+/** The phones' hardware keys, just after one was revoked. */
+export const APhoneKeyRevoked: Story = {
+  args: { keyer: { ...keyer, phones: { ok: true, value: unpaired } } },
+};
+
+/** The phones' hardware keys, where the signed-in key may not keep them. */
+export const PhoneKeysNotForAKey: Story = {
+  args: {
+    keyer: {
+      ...keyer,
+      phones: {
+        ok: false,
+        problem: {
+          kind: "declined",
+          message:
+            "A key may not register, list or revoke device keys, whatever its scope.",
+        },
+      },
+    },
+  },
 };
 
 /**
