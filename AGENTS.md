@@ -19,14 +19,12 @@ a page draws follows from who signed in — lemonfiber's answer at the door name
 household member or nobody — and never from the address or a setting. Both are
 built from the same components in `src/components`.
 
-**What the console offers is measured, not remembered.**
-`src/offered-kinds.testing.ts` and `src/offered-requests.testing.ts` classify
-every kind the client carries and every request another surface can make as
-offered here, offered elsewhere by a named requirement, or not offered yet with
-its feature; `src/offered.test.ts` holds those lists to the code, and
-`src/parity.test.ts` holds `docs/surface-parity.md`, which states what they come
-to, to the lists. A screen that reads a new kind or offers a new request moves
-it to offered in both, in the same change; the suites fail until they agree.
+**What the console offers is measured, not remembered.** `src/offered.test.ts`
+classifies every kind the client carries and every request another surface can
+make as offered here, offered elsewhere by a named requirement, or not offered
+yet with its feature, and `src/parity.test.ts` holds `docs/surface-parity.md` to
+those lists. A screen that reads a new kind or offers a new request moves it to
+offered in both, in the same change; the suites fail until they agree.
 
 ## The load-bearing rules
 
