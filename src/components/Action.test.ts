@@ -179,4 +179,23 @@ describe("when a control's weight changes while it is on screen", () => {
       expect(screen.getByRole("button", { name: words })).toBeVisible();
     });
   });
+
+  describe("asking for a revocation", () => {
+    const beneath = (able: Able | undefined): void => {
+      render(Action, {
+        props: { label: words, revokes: "key-revoke" },
+        context: new Map([[ABLE, () => able]]),
+      });
+    };
+
+    it("is drawn where the key may use the revocation", () => {
+      beneath(operatorAble);
+      expect(screen.getByRole("button", { name: words })).toBeVisible();
+    });
+
+    it("is not drawn where the key may not use the revocation", () => {
+      beneath(readKeyAble);
+      expect(screen.queryByRole("button", { name: words })).toBeNull();
+    });
+  });
 });

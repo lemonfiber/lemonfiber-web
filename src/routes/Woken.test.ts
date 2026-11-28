@@ -2,7 +2,13 @@ import { render, screen, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import Settings from "./Settings.svelte";
-import { keyer, unwoken, woken } from "./keyings";
+import {
+  keyer,
+  previewRefused,
+  unwoken,
+  woken,
+  wokenPreviewed,
+} from "./keyings";
 import { iphoneWoken, pixelWoken, tabletWoken } from "../api/keylists";
 import type { Keyer } from "./keying.svelte";
 import type { Freshness } from "../lib/freshness";
@@ -63,7 +69,7 @@ describe("the phones that can be woken, on the settings screen", () => {
     expect(drawnHere).toContain(pixelWoken.fingerprint);
   });
 
-  it("asks first in a question naming the phone, the removal taking no rehearsal, and removes it only on a yes", async () => {
+  it("asks first in a question naming the phone, and removes it only on a yes", async () => {
     const onask = vi.fn();
     drawn({ onask });
 
@@ -86,6 +92,74 @@ describe("the phones that can be woken, on the settings screen", () => {
     });
     expect(
       within(panel()).queryByText(m.woken_remove_prose({ name: "iphone" })),
+    ).toBeNull();
+  });
+
+  it("offers a preview beside the yes, asked for with nothing removed, and the question stays", async () => {
+    const onask = vi.fn();
+    drawn({ onask });
+    await press(m.action_woken_remove({ name: "iphone" }));
+    await press(m.action_woken_remove_preview({ name: "iphone" }));
+    expect(onask).toHaveBeenCalledWith({
+      doing: "push-endpoint-remove",
+      name: "iphone",
+      dryRun: true,
+    });
+    expect(
+      within(panel()).getByText(m.woken_remove_prose({ name: "iphone" })),
+    ).toBeVisible();
+    expect(
+      within(panel()).getByRole("button", {
+        name: m.action_woken_remove_yes({ name: "iphone" }),
+      }),
+    ).toBeVisible();
+  });
+
+  it("draws what the preview answered under its question, and the yes goes ahead without it", async () => {
+    const onask = vi.fn();
+    const onleave = vi.fn();
+    drawn({ onask, onleave, previewed: wokenPreviewed });
+    const said = within(panel()).getByRole("status", {
+      name: m.preview_asked(),
+    });
+    expect(
+      within(said).getByText(m.woken_preview_would({ name: "iphone" })),
+    ).toBeVisible();
+    expect(panel().innerHTML).not.toContain("://");
+    await press(m.action_woken_remove_yes({ name: "iphone" }));
+    expect(onask).toHaveBeenCalledWith({
+      doing: "push-endpoint-remove",
+      name: "iphone",
+    });
+  });
+
+  it("says a refused preview in lemonfiber's words, and holds nothing back", async () => {
+    const onask = vi.fn();
+    drawn({ onask, previewed: previewRefused });
+    const said = within(panel()).getByRole("status", {
+      name: m.preview_asked(),
+    });
+    expect(
+      within(said).getByText("No push endpoint is named iphone"),
+    ).toBeVisible();
+    expect(within(said).getByText(m.preview_unread())).toBeVisible();
+    await press(m.action_woken_remove_yes({ name: "iphone" }));
+    expect(onask).toHaveBeenCalledWith({
+      doing: "push-endpoint-remove",
+      name: "iphone",
+    });
+  });
+
+  it("drops the preview when the question is left, and draws it under no other phone", async () => {
+    const onleave = vi.fn();
+    drawn({ onleave, previewed: wokenPreviewed });
+    await press(m.action_leave_as_is());
+    expect(onleave).toHaveBeenCalledTimes(1);
+
+    await press(m.action_woken_remove({ name: "pixel" }));
+    expect(onleave).toHaveBeenCalledTimes(2);
+    expect(
+      within(panel()).queryByText(m.woken_preview_would({ name: "iphone" })),
     ).toBeNull();
   });
 

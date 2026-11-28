@@ -5,7 +5,8 @@
  * the operator's password in the same request, either with its secret or as a
  * claim a program collects it with, and one revoked by its name; then the
  * phones' hardware keys listed and one revoked by its name, then the phones
- * that can be woken listed and one removed by its name. The password
+ * that can be woken listed and one removed by its name. Each revocation can be
+ * previewed instead, answering what it would come to and changing nothing. The password
  * travels in that one request's body and nothing here keeps it; the secret or
  * the claim arrives in the mint's reply and nothing here keeps that either.
  */
@@ -48,14 +49,18 @@ export async function mintingOf(
   return made.ok ? { ok: true, value: made.value.data } : made;
 }
 
-/** One key revoked by its name, answered with the keys as they now stand. */
+/**
+ * One key revoked by its name, answered with the keys as they now stand, or
+ * that revocation previewed, revoking nothing, where `dryRun` asks for it.
+ */
 export async function revokingOf(
   reaching: Reaching,
   name: string,
+  dryRun = false,
 ): Promise<Reading<ByKind[typeof LISTED]["data"]>> {
   const client = opened(reaching);
   if (!client.ok) return client;
-  const revoked = await client.value.revoke(name);
+  const revoked = await client.value.revoke(name, { dryRun });
   return revoked.ok ? { ok: true, value: revoked.value.data } : revoked;
 }
 
@@ -80,18 +85,22 @@ export async function phonesOf(
   return read.ok ? { ok: true, value: read.value.data } : read;
 }
 
-/** One phone's hardware key revoked by its name, answered with them as they now stand. */
+/**
+ * One phone's hardware key revoked by its name, answered with them as they now
+ * stand, or that revocation previewed, revoking nothing, where `dryRun` asks for it.
+ */
 export async function phoneRevokingOf(
   reaching: Reaching,
   name: string,
+  dryRun = false,
 ): Promise<Reading<ByKind[typeof PHONES]["data"]>> {
   const client = opened(reaching);
   if (!client.ok) return client;
-  const revoked = await client.value.revokeDeviceKey(name);
+  const revoked = await client.value.revokeDeviceKey(name, { dryRun });
   return revoked.ok ? { ok: true, value: revoked.value.data } : revoked;
 }
 
-/** Every phone that can be woken, each with its whole address. */
+/** Every phone that can be woken, each by the host and fingerprint of its address. */
 export async function wokenOf(
   reaching: Reaching,
 ): Promise<Reading<ByKind[typeof WOKEN]["data"]>> {
@@ -101,13 +110,17 @@ export async function wokenOf(
   return read.ok ? { ok: true, value: read.value.data } : read;
 }
 
-/** One phone that can be woken removed by its name, answered with them as they now stand. */
+/**
+ * One phone that can be woken removed by its name, answered with them as they
+ * now stand, or that removal previewed, removing nothing, where `dryRun` asks for it.
+ */
 export async function wokenRemovingOf(
   reaching: Reaching,
   name: string,
+  dryRun = false,
 ): Promise<Reading<ByKind[typeof WOKEN]["data"]>> {
   const client = opened(reaching);
   if (!client.ok) return client;
-  const removed = await client.value.pushEndpoints.remove(name);
+  const removed = await client.value.pushEndpoints.remove(name, { dryRun });
   return removed.ok ? { ok: true, value: removed.value.data } : removed;
 }

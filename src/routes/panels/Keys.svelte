@@ -4,6 +4,7 @@
   import Code from "../../components/Code.svelte";
   import Field from "../../components/Field.svelte";
   import Panel from "../../components/Panel.svelte";
+  import Revocation from "./Revocation.svelte";
   import Segmented from "../../components/Segmented.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
@@ -51,6 +52,11 @@
   /** The key about to be revoked, asked about before it is. */
   let revoking = $state<string | undefined>(undefined);
 
+  const previewed = $derived(
+    keyer.previewed?.doing === "key-revoke" ? keyer.previewed : undefined,
+  );
+  const asking = $derived(revoking ?? previewed?.name);
+
   const listing = $derived(
     keyer.listing?.ok === true ? keyer.listing.value : undefined,
   );
@@ -84,15 +90,16 @@
 </script>
 
 <!--
-  The integration keys, and keeping them. Each key is listed without its
-  secret, and an active one can be revoked once the operator says so. Minting
-  asks for the operator's password every time; it goes in that one request and
-  the field is emptied as it is sent. The key just minted is shown once, with
-  its pin and address, and closing it, leaving the panel, or reloading, drops
-  its secret. A key minted as a claim is shown as its link instead, with when
-  the link lapses and no secret, and dropped the same way. Either is drawn as a
-  code beside its text too, from exactly what lemonfiber gave and in the page
-  itself, so nothing is fetched to draw it.
+  The integration keys, and keeping them. Each key is listed without its secret,
+  and an active one can be revoked once the operator says so, with a preview of
+  the revocation offered beside the yes, which the yes does not wait for.
+  Minting asks for the operator's password every time; it goes in that one
+  request and the field is emptied as it is sent. The key just minted is shown
+  once, with its pin and address, and closing it, leaving the panel, or
+  reloading, drops its secret. A key minted as a claim is shown as its link
+  instead, with when the link lapses and no secret, and dropped the same way.
+  Either is drawn as a code beside its text too, from exactly what lemonfiber
+  gave and in the page itself, so nothing is fetched to draw it.
 -->
 <Panel title={m.panel_keys()} {freshness} flush>
   <div class="scope">
@@ -174,36 +181,44 @@
               <li><Said text={line} /></li>
             {/each}
           </ul>
-          {#if key.state === "active" && revoking !== key.name}
+          {#if key.state === "active" && asking !== key.name}
             <div class="acts">
               <Action
+                revokes="key-revoke"
                 label={m.action_keys_revoke({ name: key.name })}
                 off={keyer.busy}
                 onclick={() => {
                   revoking = key.name;
+                  keyer.onleave();
                 }}
               />
             </div>
           {/if}
-          {#if revoking === key.name}
-            <p><Said text={m.keys_revoke_prose({ name: key.name })} /></p>
-            <div class="acts">
-              <Action
-                label={m.action_keys_revoke_yes({ name: key.name })}
-                weight="firm"
-                off={keyer.busy}
-                onclick={() => {
-                  keyer.onask({ doing: "key-revoke", name: key.name });
-                  revoking = undefined;
-                }}
-              />
-              <Action
-                label={m.action_leave_as_is()}
-                onclick={() => {
-                  revoking = undefined;
-                }}
-              />
-            </div>
+          {#if asking === key.name}
+            <Revocation
+              prose={m.keys_revoke_prose({ name: key.name })}
+              yes={m.action_keys_revoke_yes({ name: key.name })}
+              preview={m.action_keys_revoke_preview({ name: key.name })}
+              revokes="key-revoke"
+              previewed={previewed?.name === key.name ? previewed : undefined}
+              busy={keyer.busy}
+              onyes={() => {
+                keyer.onask({ doing: "key-revoke", name: key.name });
+                revoking = undefined;
+              }}
+              onpreview={() => {
+                keyer.onask({
+                  doing: "key-revoke",
+                  name: key.name,
+                  dryRun: true,
+                });
+                revoking = key.name;
+              }}
+              onleave={() => {
+                revoking = undefined;
+                keyer.onleave();
+              }}
+            />
           {/if}
         </li>
       {/each}

@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
-import type { Fetching } from "@lemonfiber/sdk-ts";
+import type { Fetching, Sending } from "@lemonfiber/sdk-ts";
 import { describe, expect, it, vi } from "vitest";
 import Console from "./Console.svelte";
 import { enveloped, fresh, here, key, stack, times } from "./served";
@@ -14,6 +14,7 @@ import {
   unwoken,
   woken,
 } from "../api/keylists";
+import { replying } from "../api/bodies";
 import { nameOf } from "../lib/route";
 
 import * as m from "../paraglide/messages.js";
@@ -120,6 +121,66 @@ describe("the integration keys, from the settings screen", () => {
     expect(
       within(panel).queryByText(m.woken_host({ host: iphoneWoken.host })),
     ).toBeNull();
+  });
+
+  it("previews removing a phone through its own route with dry_run, says a refused preview, and removes it on a yes all the same", async () => {
+    globalThis.history.replaceState(undefined, "", "/settings");
+    const asked: string[] = [];
+    const bodies: (string | undefined)[] = [];
+    const answering = routed(
+      {
+        "GET /api/push-endpoints": enveloped("push-endpoints", woken),
+        "DELETE /api/push-endpoints/iphone": enveloped(
+          "push-endpoints",
+          unwoken,
+        ),
+      },
+      asked,
+    );
+    let refusing = true;
+    const sending: Sending = (url, init) => {
+      if (init.method === "DELETE") bodies.push(init.body);
+      if (init.method === "DELETE" && refusing) {
+        refusing = false;
+        return Promise.resolve(
+          replying(404, "No push endpoint is named iphone"),
+        );
+      }
+      return answering(url, init);
+    };
+    console_({ sending });
+    const panel = await screen.findByRole("region", {
+      name: m.panel_woken(),
+    });
+    await userEvent.click(
+      await within(panel).findByRole("button", {
+        name: m.action_woken_remove({ name: "iphone" }),
+      }),
+    );
+    const previewing = m.action_woken_remove_preview({ name: "iphone" });
+    await userEvent.click(
+      within(panel).getByRole("button", { name: previewing }),
+    );
+    expect(
+      await within(panel).findByText("No push endpoint is named iphone"),
+    ).toBeVisible();
+    expect(within(panel).getByText(m.preview_unread())).toBeVisible();
+    expect(
+      within(panel).getByText(m.woken_host({ host: iphoneWoken.host })),
+    ).toBeVisible();
+
+    await userEvent.click(
+      within(panel).getByRole("button", {
+        name: m.action_woken_remove_yes({ name: "iphone" }),
+      }),
+    );
+    expect(
+      await within(panel).findByText(m.woken_removed({ name: "iphone" })),
+    ).toBeVisible();
+    expect(bodies).toStrictEqual([
+      JSON.stringify({ dry_run: true }),
+      undefined,
+    ]);
   });
 
   it("shows a claim's link once, and leaving the settings drops it", async () => {

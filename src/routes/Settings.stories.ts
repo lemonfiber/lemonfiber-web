@@ -23,10 +23,15 @@ import { wiring } from "../api/wirings";
 import { filler, fillOffer } from "./fillings";
 import {
   claimed,
+  keyPreviewed,
   keyer,
   made as justMinted,
+  phonePreviewed,
+  previewRefused,
+  previewUnnamed,
   unpaired,
   unwoken,
+  wokenPreviewed,
 } from "./keyings";
 import { plugins } from "../api/installs";
 import {
@@ -384,6 +389,31 @@ export const PhonesWokenNotForAKey: Story = {
       },
     },
   },
+};
+
+/** Revoking a key, previewed under its question, the yes still offered. */
+export const AKeyRevokePreviewed: Story = {
+  args: { keyer: { ...keyer, previewed: keyPreviewed } },
+};
+
+/** Revoking a phone's key, previewed under its question, the yes still offered. */
+export const APhoneKeyRevokePreviewed: Story = {
+  args: { keyer: { ...keyer, previewed: phonePreviewed } },
+};
+
+/** Revoking a phone's key, previewed and answered without naming it. */
+export const APhoneKeyPreviewUnnamed: Story = {
+  args: { keyer: { ...keyer, previewed: previewUnnamed } },
+};
+
+/** No longer waking a phone, previewed under its question, the yes still offered. */
+export const APhoneRemovalPreviewed: Story = {
+  args: { keyer: { ...keyer, previewed: wokenPreviewed } },
+};
+
+/** No longer waking a phone, its preview refused in lemonfiber's words, the yes still offered. */
+export const APhoneRemovalPreviewRefused: Story = {
+  args: { keyer: { ...keyer, previewed: previewRefused } },
 };
 
 /**

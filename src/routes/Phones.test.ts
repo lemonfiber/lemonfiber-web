@@ -2,7 +2,13 @@ import { render, screen, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import Settings from "./Settings.svelte";
-import { keyer, phones, unpaired } from "./keyings";
+import {
+  keyer,
+  phonePreviewed,
+  phones,
+  previewUnnamed,
+  unpaired,
+} from "./keyings";
 import { iphone, pixel } from "../api/keylists";
 import type { Keyer } from "./keying.svelte";
 import type { Freshness } from "../lib/freshness";
@@ -70,6 +76,43 @@ describe("the phones' hardware keys, on the settings screen", () => {
     expect(
       within(panel()).queryByText(m.phones_revoke_prose({ name: "iphone" })),
     ).toBeNull();
+  });
+
+  it("offers a preview of the revoke beside the yes, asked for with nothing revoked", async () => {
+    const onask = vi.fn();
+    drawn({ onask });
+    await press(m.action_phones_revoke({ name: "iphone" }));
+    await press(m.action_phones_revoke_preview({ name: "iphone" }));
+    expect(onask).toHaveBeenCalledWith({
+      doing: "device-key-revoke",
+      name: "iphone",
+      dryRun: true,
+    });
+  });
+
+  it("draws what the preview answered under its question, and the yes revokes it", async () => {
+    const onask = vi.fn();
+    drawn({ onask, previewed: phonePreviewed });
+    expect(
+      within(panel()).getByText(m.phones_preview_would({ name: "iphone" })),
+    ).toBeVisible();
+    await press(m.action_phones_revoke_yes({ name: "iphone" }));
+    expect(onask).toHaveBeenCalledWith({
+      doing: "device-key-revoke",
+      name: "iphone",
+    });
+  });
+
+  it("says what revoking would do is not known where the preview did not name the phone", () => {
+    drawn({ previewed: previewUnnamed });
+    expect(
+      within(panel()).getByText(m.preview_unnamed({ name: "iphone" })),
+    ).toBeVisible();
+    expect(
+      within(panel()).getByRole("button", {
+        name: m.action_phones_revoke_yes({ name: "iphone" }),
+      }),
+    ).toBeVisible();
   });
 
   it("says which phone's key the answer revoked", () => {
