@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/svelte";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import Settings from "./Settings.svelte";
-import { keyer, listing, made } from "./keyings";
+import { keyPreviewed, keyer, listing, made } from "./keyings";
 import { home } from "../api/keylists";
 import type { Keyer } from "./keying.svelte";
 import type { Freshness } from "../lib/freshness";
@@ -63,6 +63,31 @@ describe("the integration keys, on the settings screen", () => {
     ).toBeNull();
 
     await press(m.action_keys_revoke({ name: "home" }));
+    await press(m.action_keys_revoke_yes({ name: "home" }));
+    expect(onask).toHaveBeenCalledWith({ doing: "key-revoke", name: "home" });
+  });
+
+  it("offers a preview of a revoke beside the yes, and draws what it answered with the yes still offered", async () => {
+    const onask = vi.fn();
+    drawn({ onask });
+    await press(m.action_keys_revoke({ name: "home" }));
+    await press(m.action_keys_revoke_preview({ name: "home" }));
+    expect(onask).toHaveBeenCalledWith({
+      doing: "key-revoke",
+      name: "home",
+      dryRun: true,
+    });
+    expect(
+      within(panel()).getByText(m.keys_revoke_prose({ name: "home" })),
+    ).toBeVisible();
+  });
+
+  it("draws a preview of revoking a key under its question, and the yes revokes it", async () => {
+    const onask = vi.fn();
+    drawn({ onask, previewed: keyPreviewed });
+    expect(
+      within(panel()).getByText(m.keys_preview_would({ name: "home" })),
+    ).toBeVisible();
     await press(m.action_keys_revoke_yes({ name: "home" }));
     expect(onask).toHaveBeenCalledWith({ doing: "key-revoke", name: "home" });
   });

@@ -6,6 +6,7 @@
  * lemonfiber, in `../api/keylists`.
  */
 import { listing, phones, woken } from "../api/keylists";
+import type { Previewed } from "../lib/previewed";
 import type { Keyer } from "./keying.svelte";
 
 export {
@@ -32,7 +33,50 @@ export const keyer: Keyer = {
   phoneSaid: undefined,
   woken: { ok: true, value: woken },
   wokenSaid: undefined,
+  previewed: undefined,
   busy: false,
   onask: nothing,
   onclose: nothing,
+  onleave: nothing,
+};
+
+/** What lemonfiber answers a preview that names the one it was asked about. */
+const named = { ok: true, value: true } as const;
+
+/** A preview of revoking the key `home`, naming it. */
+export const keyPreviewed: Previewed = {
+  doing: "key-revoke",
+  name: "home",
+  answer: named,
+};
+
+/** A preview of revoking the iPhone's key, naming it. */
+export const phonePreviewed: Previewed = {
+  doing: "device-key-revoke",
+  name: "iphone",
+  answer: named,
+};
+
+/** A preview of no longer waking the iPhone, naming it. */
+export const wokenPreviewed: Previewed = {
+  doing: "push-endpoint-remove",
+  name: "iphone",
+  answer: named,
+};
+
+/** A preview of no longer waking the iPhone, refused in lemonfiber's words. */
+export const previewRefused: Previewed = {
+  doing: "push-endpoint-remove",
+  name: "iphone",
+  answer: {
+    ok: false,
+    problem: { kind: "declined", message: "No push endpoint is named iphone" },
+  },
+};
+
+/** A preview of revoking the iPhone's key, answered without naming it. */
+export const previewUnnamed: Previewed = {
+  doing: "device-key-revoke",
+  name: "iphone",
+  answer: { ok: true, value: false },
 };

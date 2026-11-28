@@ -4,7 +4,7 @@
  * on nothing, and a key on a stack with a setting switched off.
  */
 import { ACTIONS, READS, isActionName } from "@lemonfiber/sdk-ts";
-import { actedAt, readAt, type Able } from "../lib/able";
+import { actedAt, readAt, revokedAt, type Able } from "../lib/able";
 
 /** The operator, who may use everything this stack has. */
 export const operatorAble: Able = {
@@ -15,6 +15,7 @@ export const operatorAble: Able = {
     [readAt("config")]: "available",
     [actedAt("quality-set")]: "available",
     [actedAt("backup")]: "available",
+    [revokedAt("key-revoke")]: "available",
   },
 };
 
@@ -27,6 +28,7 @@ export const readKeyAble: Able = {
     [readAt("config")]: "unpermitted",
     [actedAt("quality-set")]: "unpermitted",
     [actedAt("backup")]: "unpermitted",
+    [revokedAt("key-revoke")]: "unpermitted",
   },
 };
 

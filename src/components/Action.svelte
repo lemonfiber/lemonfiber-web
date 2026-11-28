@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { ActionName } from "@lemonfiber/sdk-ts";
   import { ableHere } from "./able";
-  import { drawn } from "../lib/able";
+  import { drawn, revocable } from "../lib/able";
+  import type { Revocation } from "../lib/previewed";
   import type { Weight } from "../lib/weight";
 
   interface Props {
@@ -23,6 +24,11 @@
      * the control is not drawn.
      */
     acts?: ActionName | undefined;
+    /**
+     * The revocation pressing it asks for, or previews. Where the signed-in key
+     * cannot use it, the control is not drawn.
+     */
+    revokes?: Revocation | undefined;
   }
 
   let {
@@ -32,10 +38,14 @@
     submits = false,
     onclick,
     acts,
+    revokes,
   }: Props = $props();
 
   const able = ableHere();
-  const shown = $derived(acts === undefined || drawn(able(), acts));
+  const shown = $derived(
+    (acts === undefined || drawn(able(), acts)) &&
+      (revokes === undefined || revocable(able(), revokes)),
+  );
 
   function pressed(event: MouseEvent): void {
     if (off) {
@@ -59,7 +69,7 @@
   one that does complete the form says so, and is what makes the enter key
   finish what was typed.
 
-  A control asking for an action the signed-in key cannot use is not drawn. A control with nothing to do for the moment submits
+  A control asking for an action or a revocation the signed-in key cannot use is not drawn. A control with nothing to do for the moment submits
   nothing either, `aria-disabled` being a word to a reader and not a brake.
 
   A control with nothing to do for the moment says so rather than leaving the

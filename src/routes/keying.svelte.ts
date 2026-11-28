@@ -2,7 +2,10 @@
  * Keeping integration keys: listing them, minting one, with its secret or as
  * a claim a program collects it with, and revoking one; and the phones'
  * hardware keys that prove the operator: listing them and revoking one; and the
- * phones that can be woken: listing them and removing one.
+ * phones that can be woken: listing them and removing one. Each of the three
+ * revocations can be previewed first, and the preview is kept beside the
+ * question it was asked from until it is answered or left as it is; the yes
+ * never waits for one.
  *
  * The one credential write this surface makes, and not an action: keys are
  * kept through routes of their own, so none of it goes through the desk the
@@ -26,18 +29,26 @@ import {
 } from "../api/keying";
 import type { Claimed, Listing, Minted } from "../lib/keys";
 import type { Phones } from "../lib/phones";
+import { previewOf, type Previewed, type Revocation } from "../lib/previewed";
 import type { Woken } from "../lib/woken";
+
+/** One revocation asked for by name, or previewed where `dryRun` says so. */
+interface Revoking<D extends Revocation> {
+  readonly doing: D;
+  readonly name: string;
+  readonly dryRun?: boolean;
+}
 
 /** One thing the keys panel asks for, named as the parity names it. */
 export type KeyAsking =
   | { readonly doing: "key-list" }
   | { readonly doing: "key-mint"; readonly minting: Minting }
   | { readonly doing: "key-claim"; readonly minting: Minting }
-  | { readonly doing: "key-revoke"; readonly name: string }
+  | Revoking<"key-revoke">
   | { readonly doing: "device-key-list" }
-  | { readonly doing: "device-key-revoke"; readonly name: string }
+  | Revoking<"device-key-revoke">
   | { readonly doing: "push-endpoint-list" }
-  | { readonly doing: "push-endpoint-remove"; readonly name: string };
+  | Revoking<"push-endpoint-remove">;
 
 /** Every request the keys panel makes. */
 export const everyKeying: readonly KeyAsking["doing"][] = [
@@ -69,12 +80,16 @@ export interface Keyer {
   readonly wokenSaid: string | undefined;
   /** Why the last mint or revoke was not carried out, in lemonfiber's words. */
   readonly said: string | undefined;
-  /** Whether a mint or a revoke is under way, which silences the controls. */
+  /** What the last preview of a revocation answered, until it is answered or left as it is. */
+  readonly previewed: Previewed | undefined;
+  /** Whether a mint, a revoke or a preview is under way, which silences the controls. */
   readonly busy: boolean;
   /** List the keys again, mint one, or revoke one. */
   readonly onask: (asking: KeyAsking) => void;
   /** Close the key or the claim just minted, dropping its secret or its link. */
   readonly onclose: () => void;
+  /** Leave a revocation as it is, dropping what its preview answered. */
+  readonly onleave: () => void;
 }
 
 /** The keys, a key just minted, and what the last write came to. */
@@ -87,6 +102,7 @@ export class Keying {
   phoneSaid = $state<string | undefined>(undefined);
   woken = $state<Reading<Woken> | undefined>(undefined);
   wokenSaid = $state<string | undefined>(undefined);
+  previewed = $state<Previewed | undefined>(undefined);
   busy = $state(false);
 
   readonly #handing: Handing;
@@ -155,36 +171,71 @@ export class Keying {
     await this.readKeys();
   }
 
-  /** Revoke one key, taking the keys as they now stand. */
-  async revoke(name: string): Promise<void> {
+  /**
+   * Revoke one key, taking the keys as they now stand, or preview revoking it.
+   * An answer lemonfiber did not give as a preview is the revocation itself.
+   */
+  async revoke(name: string, dryRun = false): Promise<void> {
     this.busy = true;
     this.said = undefined;
-    const left = this.#heard(await revokingOf(this.#handing.reaching(), name));
+    this.previewed = undefined;
+    const left = this.#heard(
+      await revokingOf(this.#handing.reaching(), name, dryRun),
+    );
     this.busy = false;
+    if (dryRun) {
+      this.previewed = previewOf(
+        "key-revoke",
+        name,
+        left,
+        (one) => one.revoked,
+      );
+    }
+    if (this.previewed !== undefined) return;
     if (left.ok) this.listing = left;
     else this.said = left.problem.message;
   }
 
-  /** Revoke one phone's hardware key, taking them as they now stand. */
-  async revokePhone(name: string): Promise<void> {
+  /** Revoke one phone's hardware key, taking them as they now stand, or preview revoking it. */
+  async revokePhone(name: string, dryRun = false): Promise<void> {
     this.busy = true;
     this.phoneSaid = undefined;
+    this.previewed = undefined;
     const left = this.#heard(
-      await phoneRevokingOf(this.#handing.reaching(), name),
+      await phoneRevokingOf(this.#handing.reaching(), name, dryRun),
     );
     this.busy = false;
+    if (dryRun) {
+      this.previewed = previewOf(
+        "device-key-revoke",
+        name,
+        left,
+        (one) => one.revoked,
+      );
+    }
+    if (this.previewed !== undefined) return;
     if (left.ok) this.phones = left;
     else this.phoneSaid = left.problem.message;
   }
 
-  /** Stop waking one phone, taking them as they now stand. */
-  async removeWoken(name: string): Promise<void> {
+  /** Stop waking one phone, taking them as they now stand, or preview removing it. */
+  async removeWoken(name: string, dryRun = false): Promise<void> {
     this.busy = true;
     this.wokenSaid = undefined;
+    this.previewed = undefined;
     const left = this.#heard(
-      await wokenRemovingOf(this.#handing.reaching(), name),
+      await wokenRemovingOf(this.#handing.reaching(), name, dryRun),
     );
     this.busy = false;
+    if (dryRun) {
+      this.previewed = previewOf(
+        "push-endpoint-remove",
+        name,
+        left,
+        (one) => one.removed,
+      );
+    }
+    if (this.previewed !== undefined) return;
     if (left.ok) this.woken = left;
     else this.wokenSaid = left.problem.message;
   }
@@ -202,19 +253,19 @@ export class Keying {
         await this.claim(asking.minting);
         return;
       case "key-revoke":
-        await this.revoke(asking.name);
+        await this.revoke(asking.name, asking.dryRun === true);
         return;
       case "device-key-list":
         await this.readPhones();
         return;
       case "device-key-revoke":
-        await this.revokePhone(asking.name);
+        await this.revokePhone(asking.name, asking.dryRun === true);
         return;
       case "push-endpoint-list":
         await this.readWoken();
         return;
       case "push-endpoint-remove":
-        await this.removeWoken(asking.name);
+        await this.removeWoken(asking.name, asking.dryRun === true);
         return;
     }
   }
@@ -223,6 +274,11 @@ export class Keying {
   close(): void {
     this.minted = undefined;
     this.claimed = undefined;
+  }
+
+  /** Drop what the last preview answered. */
+  leave(): void {
+    this.previewed = undefined;
   }
 
   /** What the keys panel is handed. */
@@ -236,12 +292,16 @@ export class Keying {
       phoneSaid: this.phoneSaid,
       woken: this.woken,
       wokenSaid: this.wokenSaid,
+      previewed: this.previewed,
       busy: this.busy,
       onask: (asking) => {
         void this.ask(asking);
       },
       onclose: () => {
         this.close();
+      },
+      onleave: () => {
+        this.leave();
       },
     };
   }

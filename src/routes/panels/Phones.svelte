@@ -2,6 +2,7 @@
   import Said from "../../components/Said.svelte";
   import Action from "../../components/Action.svelte";
   import Panel from "../../components/Panel.svelte";
+  import Revocation from "./Revocation.svelte";
   import Skeleton from "../../components/Skeleton.svelte";
   import Value from "../../components/Value.svelte";
   import type { Freshness } from "../../lib/freshness";
@@ -21,6 +22,13 @@
   /** The phone whose key is about to be revoked, asked about before it is. */
   let revoking = $state<string | undefined>(undefined);
 
+  const previewed = $derived(
+    keyer.previewed?.doing === "device-key-revoke"
+      ? keyer.previewed
+      : undefined,
+  );
+  const asking = $derived(revoking ?? previewed?.name);
+
   const phones = $derived(
     keyer.phones?.ok === true ? keyer.phones.value : undefined,
   );
@@ -32,12 +40,13 @@
 
 <!--
   The phones' hardware keys: each key pair a phone made and keeps, registered so
-  the phone can prove the operator when a key is minted. Each is listed with
-  the app that made it, its fingerprint, where the phone keeps it, and when it
-  was registered and last used. One still standing can be revoked once the
-  operator says yes to a question naming the phone; the keys it proved stay.
-  Where the signed-in key may not keep them, lemonfiber's sentence says why in
-  place of the list, and nothing can be pressed.
+  the phone can prove the operator when a key is minted. Each is listed with the
+  app that made it, its fingerprint, where the phone keeps it, and when it was
+  registered and last used. One still standing can be revoked once the operator
+  says yes to a question naming the phone; the keys it proved stay. The question
+  offers a preview of the revocation beside the yes, which the yes does not wait
+  for. Where the signed-in key may not keep them, lemonfiber's sentence says why
+  in place of the list, and nothing can be pressed.
 -->
 <Panel title={m.panel_phones()} {freshness} flush>
   <div class="scope">
@@ -80,36 +89,44 @@
               <li><Said text={line} /></li>
             {/each}
           </ul>
-          {#if standing(phone) && revoking !== phone.name}
+          {#if standing(phone) && asking !== phone.name}
             <div class="acts">
               <Action
+                revokes="device-key-revoke"
                 label={m.action_phones_revoke({ name: phone.name })}
                 off={keyer.busy}
                 onclick={() => {
                   revoking = phone.name;
+                  keyer.onleave();
                 }}
               />
             </div>
           {/if}
-          {#if revoking === phone.name}
-            <p><Said text={m.phones_revoke_prose({ name: phone.name })} /></p>
-            <div class="acts">
-              <Action
-                label={m.action_phones_revoke_yes({ name: phone.name })}
-                weight="firm"
-                off={keyer.busy}
-                onclick={() => {
-                  keyer.onask({ doing: "device-key-revoke", name: phone.name });
-                  revoking = undefined;
-                }}
-              />
-              <Action
-                label={m.action_leave_as_is()}
-                onclick={() => {
-                  revoking = undefined;
-                }}
-              />
-            </div>
+          {#if asking === phone.name}
+            <Revocation
+              prose={m.phones_revoke_prose({ name: phone.name })}
+              yes={m.action_phones_revoke_yes({ name: phone.name })}
+              preview={m.action_phones_revoke_preview({ name: phone.name })}
+              revokes="device-key-revoke"
+              previewed={previewed?.name === phone.name ? previewed : undefined}
+              busy={keyer.busy}
+              onyes={() => {
+                keyer.onask({ doing: "device-key-revoke", name: phone.name });
+                revoking = undefined;
+              }}
+              onpreview={() => {
+                keyer.onask({
+                  doing: "device-key-revoke",
+                  name: phone.name,
+                  dryRun: true,
+                });
+                revoking = phone.name;
+              }}
+              onleave={() => {
+                revoking = undefined;
+                keyer.onleave();
+              }}
+            />
           {/if}
         </li>
       {/each}

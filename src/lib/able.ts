@@ -10,10 +10,12 @@
 import {
   READS,
   type ActionName,
+  type BodyRoute,
   type ByKind,
   type ReadName,
   type Reading,
 } from "@lemonfiber/sdk-ts";
+import type { Revocation } from "./previewed";
 import * as m from "../paraglide/messages.js";
 
 /** What the stack can do, as the signed-in key may do it. */
@@ -28,6 +30,18 @@ const ACTED_AT = "/api/actions/";
 /** The path an action is served at. */
 export function actedAt(name: ActionName): string {
   return `${ACTED_AT}${name}`;
+}
+
+/** Where each revocation is served, a preview of it included, as the capabilities name it. */
+const REVOKED_AT = {
+  "key-revoke": "/api/keys/{name}",
+  "device-key-revoke": "/api/device-keys/{name}",
+  "push-endpoint-remove": "/api/push-endpoints/{name}",
+} as const satisfies Record<Revocation, BodyRoute>;
+
+/** The path a revocation is served at, with the name it takes written `{name}`. */
+export function revokedAt(revocation: Revocation): string {
+  return REVOKED_AT[revocation];
 }
 
 /** The path a read is served at. */
@@ -49,10 +63,23 @@ export function standingAt(
     : "absent";
 }
 
+/** Whether a control asking for what is served at `path` may be drawn. */
+function usable(able: Able | undefined, path: string): boolean {
+  const standing = standingAt(able, path);
+  return standing === undefined || standing === "available";
+}
+
 /** Whether a control asking for the action named may be drawn. */
 export function drawn(able: Able | undefined, name: ActionName): boolean {
-  const standing = standingAt(able, actedAt(name));
-  return standing === undefined || standing === "available";
+  return usable(able, actedAt(name));
+}
+
+/** Whether a control asking for a revocation, or a preview of it, may be drawn. */
+export function revocable(
+  able: Able | undefined,
+  revocation: Revocation,
+): boolean {
+  return usable(able, revokedAt(revocation));
 }
 
 /** Why a request cannot be used, in a sentence. */

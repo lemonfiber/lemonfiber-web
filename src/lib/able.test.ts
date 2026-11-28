@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { actedAt, drawn, readAt, silenced, standingAt } from "./able";
+import {
+  actedAt,
+  drawn,
+  readAt,
+  revocable,
+  revokedAt,
+  silenced,
+  standingAt,
+} from "./able";
 import {
   operatorAble,
   readKeyAble,
@@ -30,6 +38,26 @@ describe("a control asking for an action", () => {
     expect(drawn(readKeyAble, "quality-set")).toBe(false);
     expect(drawn(switchedOffAble, "quality-set")).toBe(false);
     expect(drawn(operatorAble, "restart")).toBe(false);
+  });
+});
+
+describe("a control asking for a revocation", () => {
+  it("is named by the path the revocation is served at", () => {
+    expect(revokedAt("key-revoke")).toBe("/api/keys/{name}");
+    expect(revokedAt("device-key-revoke")).toBe("/api/device-keys/{name}");
+    expect(revokedAt("push-endpoint-remove")).toBe(
+      "/api/push-endpoints/{name}",
+    );
+  });
+
+  it("is drawn where the key may use the revocation, or where nothing was said", () => {
+    expect(revocable(operatorAble, "key-revoke")).toBe(true);
+    expect(revocable(undefined, "key-revoke")).toBe(true);
+  });
+
+  it("is not drawn where the key may not, or the stack has no such revocation", () => {
+    expect(revocable(readKeyAble, "key-revoke")).toBe(false);
+    expect(revocable(operatorAble, "push-endpoint-remove")).toBe(false);
   });
 });
 
